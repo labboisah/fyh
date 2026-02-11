@@ -57,6 +57,13 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
     }
 
+    public function show(User $user)
+    {
+        $roles = Role::all();
+        $userRoles = $user->roles->pluck('id')->toArray();
+        return view('admin.users.show', compact('user', 'roles', 'userRoles'));
+    }
+
     public function update(Request $request, User $user)
     {
         if ($user->id === auth()->id()) {
@@ -66,11 +73,11 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
         ]);
-
+ 
         $before = $user->toArray();
 
         $user->update([
@@ -90,8 +97,10 @@ class UserController extends Controller
         }
 
         $after = $user->fresh()->toArray();
-        AuditLog::record(auth()->user(), 'user.update', $user, $before, $after);
 
+        // AuditLog::record(auth()->user(), 'user.update', $user, $before, $after);
+        
+        
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
@@ -146,6 +155,7 @@ class UserController extends Controller
     public function restore($id)
     {
         $user = User::withTrashed()->findOrFail($id);
+        
         if (!$user->trashed()) {
             return redirect()->route('admin.users.index')->with('error', 'User is not deleted.');
         }

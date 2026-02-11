@@ -35,7 +35,7 @@
 
 <div class="card shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0 datatable">
             <thead class="table-light">
                 <tr>
                     <th>User</th>
@@ -44,7 +44,7 @@
                     <th>Reason</th>
                     <th>Expires</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="no-export">Actions</th>
                 </tr>
             </thead>
             <tbody>

@@ -27,5 +27,66 @@ class AdminUserSeeder extends Seeder
         if ($adminRole && !$admin->hasRole('administrator')) {
             $admin->assignRole($adminRole);
         }
+
+        $recordOfficer = User::firstOrCreate(
+            ['email' => 'recordofficer@hospital.test'],
+            [
+                'name' => 'Record Officer',
+                'password' => Hash::make('recordofficer@123'),
+            ]);
+            
+        $recordOfficerRole = Role::where('name', 'record_officer')->first();
+        if ($recordOfficerRole && !$recordOfficer->hasRole('record_officer')) {
+            $recordOfficer->assignRole($recordOfficerRole);
+        }
+
+         $pharmacist = User::firstOrCreate(
+            ['email' => 'pharmacist@hospital.test'],
+            [
+                'name' => 'Pharmacist',
+                'password' => Hash::make('pharmacist@123'),
+            ]);
+            
+        $pharmacistRole = Role::where('name', 'pharmacist')->first();
+        if ($pharmacistRole && !$pharmacist->hasRole('pharmacist')) {
+            $pharmacist->assignRole($pharmacistRole);
+        }
+
+         $labTechnician = User::firstOrCreate(
+            ['email' => 'labtechnician@hospital.test'],
+            [
+                'name' => 'Lab Technician',
+                'password' => Hash::make('labtechnician@123'),
+            ]);
+            
+        $labTechnicianRole = Role::where('name', 'lab_technician')->first();
+        if ($labTechnicianRole && !$labTechnician->hasRole('lab_technician')) {
+            $labTechnician->assignRole($labTechnicianRole);
+        }
+
+            $nurse = User::firstOrCreate(
+                ['email' => 'nurse@hospital.test'],
+                [
+                    'name' => 'Nurse',
+                    'password' => Hash::make('nurse@123'),
+                ]);
+                
+        $nurseRole = Role::where('name', 'nurse')->first();
+        if ($nurseRole && !$nurse->hasRole('nurse')) {
+            $nurse->assignRole($nurseRole);
+        }
+
+        $doctor = User::firstOrCreate(
+            ['email' => 'doctor@hospital.test'],
+            [
+                'name' => 'Doctor',
+                'password' => Hash::make('doctor@123'),
+            ]);
+            
+        $doctorRole = Role::where('name', 'doctor')->first();
+        if ($doctorRole && !$doctor->hasRole('doctor')) {
+            $doctor->assignRole($doctorRole);
+        }
+
     }
 }

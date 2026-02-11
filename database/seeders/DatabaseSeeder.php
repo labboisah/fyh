@@ -22,5 +22,11 @@ class DatabaseSeeder extends Seeder
 
         // Create admin user
         $this->call(AdminUserSeeder::class);
+
+        // Create accountant role and permissions
+        $this->call(AccountantSeeder::class);
+
+        // Create services
+        $this->call(ServiceSeeder::class);
     }
 }

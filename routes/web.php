@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TemporaryPermissionController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\RecordOfficerController;
+use App\Http\Controllers\AccountantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,16 +37,70 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('permissions', PermissionController::class);
         
         // Users Management (full resource)
-        Route::resource('users', UserController::class)->except(['show']);
-        Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+        Route::resource('users', UserController::class);
         
+        Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
         // Temporary Permissions Management
         Route::get('temporary-permissions', [TemporaryPermissionController::class, 'index'])->name('temporary-permissions.index');
         Route::get('temporary-permissions/create', [TemporaryPermissionController::class, 'create'])->name('temporary-permissions.create');
         Route::post('temporary-permissions', [TemporaryPermissionController::class, 'store'])->name('temporary-permissions.store');
         Route::put('temporary-permissions/{temporaryPermission}/revoke', [TemporaryPermissionController::class, 'revoke'])->name('temporary-permissions.revoke');
         Route::delete('temporary-permissions/{temporaryPermission}', [TemporaryPermissionController::class, 'destroy'])->name('temporary-permissions.destroy');
+
+        // Services Management
+        Route::resource('services', ServiceController::class);
+        Route::put('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
     });
+});
+
+// Record Officer Routes - Patient Registration and Visit Recording
+Route::middleware(['auth', 'verified', 'role:record_officer'])->prefix('record-officer')->name('record_officer.')->group(function () {
+    Route::get('/', [RecordOfficerController::class, 'dashboard'])->name('dashboard');
+    
+    // Patient Management
+    Route::get('patients/list', [RecordOfficerController::class, 'listPatients'])->name('patients.list');
+    Route::get('patients/search', [RecordOfficerController::class, 'search'])->name('patients.search');
+    Route::get('patients/register', [RecordOfficerController::class, 'registerForm'])->name('patients.register.form');
+    Route::post('patients/register', [RecordOfficerController::class, 'register'])->name('patients.register');
+    Route::get('patients/{patient}', [RecordOfficerController::class, 'showPatient'])->name('patients.show');
+    Route::get('patients/{patient}/edit', [RecordOfficerController::class, 'editForm'])->name('patients.edit.form');
+    Route::put('patients/{patient}', [RecordOfficerController::class, 'update'])->name('patients.update');
+    
+    // Patient Visits - Submit to Nurse for Vital Signs
+    Route::get('patients/{patient}/visits/create', [RecordOfficerController::class, 'visitForm'])->name('visits.create.form');
+    Route::post('patients/{patient}/visits', [RecordOfficerController::class, 'storeVisit'])->name('visits.store');
+    
+    // Export
+    Route::get('patients/{patient}/export', [RecordOfficerController::class, 'exportRecord'])->name('patients.export');
+});
+
+// Accountant Routes - Billing and Payment Management
+Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')->name('accountant.')->group(function () {
+    Route::get('/', [AccountantController::class, 'dashboard'])->name('dashboard');
+    
+    // Bills Management
+    Route::get('bills', [AccountantController::class, 'listBills'])->name('bills.index');
+    Route::get('bills/create', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
+    Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
+    Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
+    Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
+    Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
+    
+    // Payments Management
+    Route::get('payments', [AccountantController::class, 'listPayments'])->name('payments.index');
+    Route::get('payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
+    Route::post('payments', [AccountantController::class, 'storePayment'])->name('payments.store');
+    Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payment-receipt');
+    Route::get('patients/{patient}/payment-history', [AccountantController::class, 'patientPaymentHistory'])->name('patient-payment-history');
+    
+    // Insurance Billing
+    Route::get('insurance-billing', [AccountantController::class, 'insuranceBilling'])->name('insurance-billing');
+    
+    // Financial Reports
+    Route::get('reports/financial', [AccountantController::class, 'financialReport'])->name('reports.financial');
+    Route::get('reports/financial/export', [AccountantController::class, 'exportFinancialReport'])->name('reports.financial.export');
 });
 
 require __DIR__.'/auth.php';

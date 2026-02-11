@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Bill extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'patient_id',
+        'bill_number',
+        'service_description',
+        'amount',
+        'status',
+        'notes',
+        'issued_by',
+        'issued_date',
+        'due_date',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'issued_date' => 'datetime',
+        'due_date' => 'datetime',
+    ];
+
+    /**
+     * Get the patient associated with the bill
+     */
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    /**
+     * Get the user who issued the bill
+     */
+    public function issuedBy()
+    {
+        return $this->belongsTo(User::class, 'issued_by');
+    }
+
+    /**
+     * Get services included in this bill
+     */
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'bill_services', 'bill_id', 'service_id')
+            ->withPivot('quantity', 'unit_price', 'subtotal')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all payments for this bill
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get total amount paid
+     */
+    public function totalPaid()
+    {
+        return $this->payments()->where('status', 'completed')->sum('amount');
+    }
+
+    /**
+     * Get balance remaining
+     */
+    public function getBalanceAttribute()
+    {
+        return $this->amount - $this->totalPaid();
+    }
+
+    /**
+     * Generate unique bill number
+     */
+    public static function generateBillNumber()
+    {
+        $year = date('Y');
+        $lastBill = self::where('bill_number', 'like', "BL{$year}%")
+            ->orderBy('bill_number', 'desc')
+            ->first();
+        
+        if ($lastBill) {
+            $lastNumber = (int) substr($lastBill->bill_number, -5);
+            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '00001';
+        }
+        
+        return "BL{$year}{$newNumber}";
+    }
+}

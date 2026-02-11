@@ -35,13 +35,13 @@
 
 <div class="card shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0 datatable">
             <thead class="table-light">
                 <tr>
                     <th>Role Name</th>
                     <th>Description</th>
                     <th>Permissions</th>
-                    <th>Actions</th>
+                    <th class="no-export">Actions</th>
                 </tr>
             </thead>
             <tbody>

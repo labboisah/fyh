@@ -261,6 +261,38 @@ class PermissionSeeder extends Seeder
                 'description' => 'Record patient treatment',
                 'module' => 'Clinical',
             ],
+
+            // Patient Admissions, Discharges & Referrals
+            [
+                'name' => 'manage_patient_visits',
+                'display_name' => 'Manage Patient Visits',
+                'description' => 'Record and maintain patient visit histories',
+                'module' => 'Patient Management',
+            ],
+            [
+                'name' => 'manage_patient_admissions',
+                'display_name' => 'Manage Patient Admissions',
+                'description' => 'Document patient admissions',
+                'module' => 'Patient Management',
+            ],
+            [
+                'name' => 'manage_patient_discharges',
+                'display_name' => 'Manage Patient Discharges',
+                'description' => 'Document patient discharges',
+                'module' => 'Patient Management',
+            ],
+            [
+                'name' => 'manage_patient_referrals',
+                'display_name' => 'Manage Patient Referrals',
+                'description' => 'Document patient referrals',
+                'module' => 'Patient Management',
+            ],
+            [
+                'name' => 'search_patients',
+                'display_name' => 'Search Patients',
+                'description' => 'Search and retrieve patient records using various criteria',
+                'module' => 'Patient Management',
+            ],
         ];
 
         foreach ($permissions as $permission) {
@@ -294,7 +326,10 @@ class PermissionSeeder extends Seeder
         if ($recordOfficer) {
             $permissions = Permission::whereIn('name', [
                 'view_records', 'create_records', 'edit_records', 'export_records',
-                'view_patients', 'view_appointments'
+                'view_patients', 'create_patients', 'edit_patients',
+                'view_appointments', 'create_appointments', 'edit_appointments', 'cancel_appointments',
+                'manage_patient_visits', 'manage_patient_admissions', 'manage_patient_discharges',
+                'manage_patient_referrals', 'search_patients'
             ])->pluck('id')->toArray();
             $recordOfficer->permissions()->sync($permissions);
         }

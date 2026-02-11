@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Route;
 use App\Observers\AuditModelObserver;
 use App\Models\User;
 use App\Models\Role;
