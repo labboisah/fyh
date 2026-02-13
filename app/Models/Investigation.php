@@ -9,6 +9,8 @@ class Investigation extends Model
     protected $fillable = [
         'investigation_type_id',
         'name',
+        'price',
+        'code',
     ];
 
     public function investigationType()
@@ -19,5 +21,10 @@ class Investigation extends Model
     public function parameters()
     {
         return $this->hasMany(Parameter::class);
-    }   
+    } 
+    
+    public function investigationRequests()
+    {
+        return $this->hasMany(InvestigationRequest::class);
+    }
 }

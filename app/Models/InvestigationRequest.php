@@ -15,6 +15,7 @@ class InvestigationRequest extends Model
         'completed_at',
         'performed_by',
         'specimen',
+        'status',
     ];
 
     protected $casts = [
@@ -32,8 +33,18 @@ class InvestigationRequest extends Model
         return $this->belongsTo(Investigation::class);
     }
 
-    public function requester()
+    public function requestedBy()
     {
         return $this->belongsTo(User::class, 'requested_by');
+    }
+
+    public function performedBy()
+    {
+        return $this->belongsTo(User::class, 'performed_by');
+    }
+
+    public function investigationResults()
+    {
+        return $this->hasMany(InvestigationResult::class);
     }
 }

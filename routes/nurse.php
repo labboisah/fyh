@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified', 'role:nurse'])
         ->group(function () {
             Route::get('/{patient}/create', [InvestigationController::class, 'create'])->name('create');
             Route::post('/{patient}/store', [InvestigationController::class, 'store'])->name('store');
+            Route::get('/{investigationRequest}/show', [InvestigationController::class, 'show'])->name('show');
         });
     });
 

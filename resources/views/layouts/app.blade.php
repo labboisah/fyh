@@ -407,6 +407,22 @@
                             </li>
                             @endif
 
+                            @if(Auth::user()->hasRole('doctor'))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                            </li>
+                            
+                            @endif
+
+                            @if(Auth::user()->hasRole('lab_technician'))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>Lab Requests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
+                            </li>
+                            @endif
+
                             @if(Auth::user()->hasRole('accountant'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.bills.index') }}"><i class="fa-solid fa-naira-sign me-2 text-success"></i>  Billing</a>

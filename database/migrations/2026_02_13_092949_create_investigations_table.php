@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('investigation_type_id');
             $table->text('name');
+            $table->string('price')->nullable();
+            $table->string('code')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

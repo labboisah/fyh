@@ -21,7 +21,7 @@
     @endif
 
     @if(auth()->user()->hasRole('lab_technician'))
-        @include('lab_technician.dashboard')
+        @include('lab.dashboard')
     @endif
 
     @if(Auth::user()->hasRole('accountant'))
