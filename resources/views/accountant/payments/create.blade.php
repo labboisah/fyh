@@ -8,55 +8,29 @@
 
             <div class="card shadow-sm">
                 <div class="card-body">
+                    <!-- lets display some information about patient and bill -->
+                    @if($bill)
+                        <div class="alert alert-info mb-3">
+                            <strong>Patient:</strong> {{ $bill->patientVisit->patient->demographic->first_name }} {{ $bill->patientVisit->patient->demographic->last_name }}<br>
+                            <strong>Bill Number:</strong> {{ $bill->bill_number }}<br>
+                            <strong>Amount:</strong> {{ number_format($bill->amount, 2) }}<br>
+                            <strong>Balance Due:</strong> {{ number_format($bill->balance, 2) }}
+                        </div>
+                    @endif
                     <form action="{{ route('accountant.payments.store') }}" method="POST">
                         @csrf
 
-                        <div class="mb-3">
-                            <label for="patient_id" class="form-label">Patient <span class="text-danger">*</span></label>
-                            <select id="patient_id" name="patient_id" class="form-control @error('patient_id') is-invalid @enderror" required onchange="updateOutstandingBills()">
-                                <option value="">-- Select Patient --</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" @selected(old('patient_id') == $patient->id || ($selectedBill && $selectedBill->patient_id == $patient->id))>
-                                        {{ $patient->name }} ({{ $patient->hospital_number }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('patient_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="bill_id" class="form-label">Bill (Optional)</label>
-                            <select id="bill_id" name="bill_id" class="form-control @error('bill_id') is-invalid @enderror">
-                                <option value="">-- Select Outstanding Bill --</option>
-                                @foreach($bills as $bill)
-                                    <option value="{{ $bill->id }}" @selected(old('bill_id') == $bill->id || ($selectedBill && $selectedBill->id == $bill->id))
-                                        data-amount="{{ $bill->balance }}"
-                                        data-bill-number="{{ $bill->bill_number }}">
-                                        {{ $bill->bill_number }} - {{ $bill->patient->name }} (Balance: {{ number_format($bill->balance, 2) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">Select a bill to associate this payment with</small>
-                            @if($selectedBill)
-                                <div class="alert alert-info mt-2 small mb-0">
-                                    <strong>{{ $selectedBill->bill_number }}</strong> - Balance Due: <strong>{{ number_format($selectedBill->balance, 2) }}</strong>
-                                </div>
-                            @endif
-                            @error('bill_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    
+                            
 
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
-                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount') }}" required>
+                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount', $bill->amount ?? 0) }}" required>
                             @error('amount')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
+                        <input type="hidden" name="bill_id" value="{{ $bill->id ?? '' }}">
                         <div class="mb-3">
                             <label for="payment_method" class="form-label">Payment Method <span class="text-danger">*</span></label>
                             <select id="payment_method" name="payment_method" class="form-control @error('payment_method') is-invalid @enderror" required onchange="toggleInsuranceProvider()">

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -8,7 +9,7 @@
                 <h1 class="h3 mb-0">Bill Details</h1>
                 <div>
                     @if($bill->status !== 'paid')
-                        <a href="{{ route('accountant.payments.create', ['bill_id' => $bill->id]) }}" class="btn btn-success btn-sm">
+                        <a href="{{ route('accountant.payments.create', $bill) }}" class="btn btn-success btn-sm">
                             <i class="bi bi-cash-coin"></i> Record Payment
                         </a>
                     @endif
@@ -50,8 +51,8 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Patient</p>
-                            <p class="fw-bold">{{ $bill->patient->name }}</p>
-                            <p class="text-muted small">Hospital #: {{ $bill->patient->hospital_number }}</p>
+                            <p class="fw-bold">{{ $bill->patientVisit->patient->name }}</p>
+                            <p class="text-muted small">Hospital #: {{ $bill->patientVisit->patient->hospital_number }}</p>
                         </div>
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Issued By</p>

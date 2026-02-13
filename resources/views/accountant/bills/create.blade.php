@@ -10,50 +10,19 @@
                 <div class="card-body">
                     <form action="{{ route('accountant.bills.store') }}" method="POST" id="billForm">
                         @csrf
-
-                        <div class="mb-3">
-                            <label for="patient_id" class="form-label">Patient <span class="text-danger">*</span></label>
-                            <select id="patient_id" name="patient_id" class="form-control @error('patient_id') is-invalid @enderror" required>
-                                <option value="">-- Select Patient --</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" @selected(old('patient_id') == $patient->id)>
-                                        {{ $patient->name }} ({{ $patient->hospital_number }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('patient_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                         {{-- Service Summary Table --}}
-                        <div id="summary-section" style="display: none;" class="mb-4">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title mb-3">Service Summary</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Service</th>
-                                                    <th class="text-end">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="summary-tbody">
-                                            </tbody>
-                                            <tfoot>
-                                                <tr class="fw-bold border-top">
-                                                    <td>Total Amount Due:</td>
-                                                    <td class="text-end fs-5 text-success">
-                                                        <span class="fas fa-naira-sign"></span> <span id="total-amount">0.00</span>
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-7">
+                                 <div class="mb-3">
+                            <input type="hidden" name="patient_visit_id" value="{{ $patient->currentVisit()->id }}">
+                            @if($patient->demographic)
+                                <div class="alert alert-info mt-2 small mb-0">
+                                    <strong>{{ $patient->demographic->full_name }}</strong> - Hospital #: <strong>{{ $patient->hospital_number }}</strong>
                                 </div>
-                            </div>
-                        </div>
+                            @endif
 
+                                                         
+                        </div>
+                        
                         {{-- Services Selection --}}
                         <div class="mb-4">
                             <label class="form-label mb-3">Select Services <span class="text-danger">*</span></label>
@@ -91,8 +60,6 @@
                             </button>
                         </div>
 
-                       
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -122,6 +89,39 @@
                                 <i class="bi bi-x-circle"></i> Cancel
                             </a>
                         </div>
+                            </div>
+                            <div class="col-md-5">
+                                 {{-- Service Summary Table --}}
+                                <div id="summary-section" style="display: none;" class="mb-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title mb-3">Service Summary</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Service</th>
+                                                            <th class="text-end">Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="summary-tbody">
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="fw-bold border-top">
+                                                            <td>Total Amount Due:</td>
+                                                            <td class="text-end fs-5 text-success">
+                                                                <span class="fas fa-naira-sign"></span> <span id="total-amount">0.00</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
                     </form>
                 </div>
             </div>

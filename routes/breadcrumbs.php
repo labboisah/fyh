@@ -243,3 +243,19 @@ Breadcrumbs::for('accountant.reports.financial', function (BreadcrumbTrail $trai
     $trail->parent('accountant.dashboard');
     $trail->push('Financial Reports', route('accountant.reports.financial'));
 });
+
+// ===== VITAL SIGNS ROUTES =====
+
+Breadcrumbs::for('vital_signs.create', function (BreadcrumbTrail $trail, Patient $patient) {
+    $trail->parent('record_officer.dashboard');
+    $trail->push('Patients', route('record_officer.patients.list'));
+    $trail->push($patient->demographic->full_name ?? 'Patient', route('record_officer.patients.show', $patient));
+    $trail->push('Record Vital Signs', route('vital_signs.create', $patient));
+});
+
+Breadcrumbs::for('vital_signs.history', function (BreadcrumbTrail $trail, Patient $patient) {
+    $trail->parent('record_officer.dashboard');
+    $trail->push('Patients', route('record_officer.patients.list'));
+    $trail->push($patient->demographic->full_name ?? 'Patient', route('record_officer.patients.show', $patient));
+    $trail->push('Vital Signs History', route('vital_signs.history', $patient));
+});

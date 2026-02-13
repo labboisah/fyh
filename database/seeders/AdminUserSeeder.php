@@ -40,6 +40,11 @@ class AdminUserSeeder extends Seeder
             $recordOfficer->assignRole($recordOfficerRole);
         }
 
+        // assign acoountant role to record officer 
+        if ($recordOfficerRole && !$recordOfficer->hasRole('accountant')) { 
+            $recordOfficer->assignRole('accountant'); 
+        }
+
          $pharmacist = User::firstOrCreate(
             ['email' => 'pharmacist@hospital.test'],
             [

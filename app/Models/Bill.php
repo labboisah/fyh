@@ -10,7 +10,7 @@ class Bill extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'patient_id',
+        'patient_visit_id',
         'bill_number',
         'service_description',
         'amount',
@@ -30,9 +30,9 @@ class Bill extends Model
     /**
      * Get the patient associated with the bill
      */
-    public function patient()
+    public function patientVisit()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(PatientVisit::class);
     }
 
     /**
@@ -82,7 +82,7 @@ class Bill extends Model
      */
     public static function generateBillNumber()
     {
-        $year = date('Y');
+        $year = substr(date('Y'),2, 2);
         $lastBill = self::where('bill_number', 'like', "BL{$year}%")
             ->orderBy('bill_number', 'desc')
             ->first();

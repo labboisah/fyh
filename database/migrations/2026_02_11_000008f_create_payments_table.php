@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bill_id')->nullable()->constrained('bills')->onDelete('set null');
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->string('payment_id')->unique();
             $table->decimal('amount', 12, 2);
             $table->enum('payment_method', ['Cash', 'Card', 'Bank Transfer', 'NHIS', 'Private Insurance'])->default('Cash');
@@ -27,7 +26,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->index('patient_id');
             $table->index('bill_id');
             $table->index('payment_id');
             $table->index('status');

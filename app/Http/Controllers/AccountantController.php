@@ -66,11 +66,14 @@ class AccountantController extends Controller
     /**
      * Show form for creating a new bill.
      */
-    public function createBill()
+    public function createBill(Request $request, Patient $patient)
     {
-        $patients = Patient::orderBy('hospital_number')->get();
+       
         $services = Service::active()->get()->groupBy('category');
-        return view('accountant.bills.create', compact('patients', 'services'));
+        
+        // Pre-select patient if provided from quick action
+       
+        return view('accountant.bills.create', compact('patient', 'services'));
     }
 
     /**
@@ -79,7 +82,7 @@ class AccountantController extends Controller
     public function storeBill(Request $request)
     {
         $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
+            'patient_visit_id' => 'required|exists:patient_visits,id',
             'services' => 'required|array|min:1',
             'services.*.id' => 'required|exists:services,id',
             'issued_date' => 'required|date',
@@ -113,7 +116,7 @@ class AccountantController extends Controller
 
         // Create bill
         $bill = Bill::create([
-            'patient_id' => $validated['patient_id'],
+            'patient_visit_id' => $validated['patient_visit_id'],
             'bill_number' => Bill::generateBillNumber(),
             'service_description' => 'Multiple services',
             'amount' => $totalAmount,
@@ -147,7 +150,7 @@ class AccountantController extends Controller
      */
     public function showBill(Bill $bill)
     {
-        $bill->load(['patient', 'issuedBy', 'payments']);
+        $bill->load(['patientVisit', 'issuedBy', 'payments']);
         return view('accountant.bills.show', compact('bill'));
     }
 
@@ -193,23 +196,20 @@ class AccountantController extends Controller
     /**
      * Show form for recording a payment.
      */
-    public function createPayment(Request $request)
+    public function createPayment(Request $request, Bill $bill = null)
     {
-        $bills = Bill::whereIn('status', ['pending', 'partial'])
-            ->with('patient')
-            ->orderBy('due_date')
-            ->get();
-        $patients = Patient::orderBy('hospital_number')->get();
+        
+       
         $paymentMethods = ['Cash', 'Card', 'Bank Transfer', 'NHIS', 'Private Insurance'];
 
-        // If bill_id is provided in query params, pre-select it
-        $selectedBill = null;
-        if ($request->has('bill_id')) {
-            $selectedBill = Bill::with('patient')->find($request->input('bill_id'));
-        }
+        
 
-        return view('accountant.payments.create', compact('bills', 'patients', 'paymentMethods', 'selectedBill'));
+        // Pre-select patient if patient_id is provided (from quick action)
+        
+        
+        return view('accountant.payments.create', compact('bill', 'paymentMethods'));
     }
+
 
     /**
      * Store a newly recorded payment.
@@ -217,8 +217,6 @@ class AccountantController extends Controller
     public function storePayment(Request $request)
     {
         $validated = $request->validate([
-            'bill_id' => 'nullable|exists:bills,id',
-            'patient_id' => 'required|exists:patients,id',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|in:Cash,Card,Bank Transfer,NHIS,Private Insurance',
             'insurance_provider' => 'nullable|string|max:100',
@@ -229,6 +227,7 @@ class AccountantController extends Controller
         $validated['paid_by'] = Auth::id();
         $validated['status'] = 'completed';
         $validated['payment_id'] = Payment::generatePaymentID();
+        $validated['bill_id'] = $request->input('bill_id'); // Optional, if payment is linked to a bill
 
         $payment = Payment::create($validated);
 
@@ -245,7 +244,7 @@ class AccountantController extends Controller
         }
 
         // Load relationships for receipt
-        $payment->load(['bill', 'patient', 'recordedBy']);
+        $payment->load(['bill', 'recordedBy']);
 
         return redirect()->route('accountant.payment-receipt', $payment)
             ->with('success', 'Payment recorded successfully. Payment ID: ' . $payment->payment_id);
@@ -277,12 +276,12 @@ class AccountantController extends Controller
      */
     public function patientPaymentHistory(Patient $patient)
     {
-        $payments = $patient->payments()
-            ->with('recordedBy')
-            ->latest('payment_date')
+        $visits = $patient->patientVisits()
+            ->with('bills')
+            ->latest('visit_date')
             ->paginate(15);
 
-        return view('accountant.payments.patient-history', compact('patient', 'payments'));
+        return view('accountant.payments.patient-history', compact('visits', 'patient'));
     }
 
     /**

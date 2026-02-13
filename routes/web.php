@@ -9,7 +9,11 @@ use App\Http\Controllers\Admin\TemporaryPermissionController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\RecordOfficerController;
 use App\Http\Controllers\AccountantController;
+use App\Http\Controllers\VitalSignsController;
 use Illuminate\Support\Facades\Route;
+
+// ajax routes
+Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
 
 Route::get('/', function () {
     return view('welcome');
@@ -71,6 +75,16 @@ Route::middleware(['auth', 'verified', 'role:record_officer'])->prefix('record-o
     Route::get('patients/{patient}/visits/create', [RecordOfficerController::class, 'visitForm'])->name('visits.create.form');
     Route::post('patients/{patient}/visits', [RecordOfficerController::class, 'storeVisit'])->name('visits.store');
     
+    // Workflow - Create st (for dual-role users)
+    Route::get('patients/{patient}/bills/create', [RecordOfficerController::class, 'createBill'])->name('bills.create.form');
+    
+    // Workflow - Create Payment (for dual-role users)
+    Route::get('patients/{patient}/payments/create', [RecordOfficerController::class, 'createPayment'])->name('payments.create.form');
+    
+    // Workflow - Submit for Vital Signs
+    Route::get('patients/{patient}/vital-signs/request', [RecordOfficerController::class, 'requestForVitalSigns'])->name('vital-signs.request');
+    
+    
     // Export
     Route::get('patients/{patient}/export', [RecordOfficerController::class, 'exportRecord'])->name('patients.export');
 });
@@ -81,7 +95,7 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Bills Management
     Route::get('bills', [AccountantController::class, 'listBills'])->name('bills.index');
-    Route::get('bills/create', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::get('/bills/{patient}/create', [AccountantController::class, 'createBill'])->name('bills.create');
     Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
     Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
     Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
@@ -90,7 +104,7 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Payments Management
     Route::get('payments', [AccountantController::class, 'listPayments'])->name('payments.index');
-    Route::get('payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
+    Route::get('{bill}/payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
     Route::post('payments', [AccountantController::class, 'storePayment'])->name('payments.store');
     Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payment-receipt');
     Route::get('patients/{patient}/payment-history', [AccountantController::class, 'patientPaymentHistory'])->name('patient-payment-history');
@@ -103,4 +117,18 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     Route::get('reports/financial/export', [AccountantController::class, 'exportFinancialReport'])->name('reports.financial.export');
 });
 
+// nurse routes - Vital Signs Recording and Patient Monitoring
+Route::middleware(['auth', 'verified', 'role:nurse'])->prefix('nurse')->name('nurse.')->group(function () {
+    Route::get('/', [VitalSignsController::class, 'dashboard'])->name('dashboard');
+    Route::get('patients/{patient}/vital-signs/submit', [RecordOfficerController::class, 'submitForVitalSigns'])->name('vital-signs.submit');
+});
+
+// Vital Signs Routes (for medical staff - Nurse/Doctor)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('vital-signs/patients/{patient}/create', [VitalSignsController::class, 'createForm'])->name('vital_signs.create');
+    Route::post('vital-signs/patients/{patient}', [VitalSignsController::class, 'store'])->name('vital_signs.store');
+    Route::get('vital-signs/patients/{patient}/history', [VitalSignsController::class, 'history'])->name('vital_signs.history');
+});
+
 require __DIR__.'/auth.php';
+require __DIR__.'/nurse.php';

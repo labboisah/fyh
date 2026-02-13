@@ -89,14 +89,7 @@
                     <p class="h6">{{ $patient->demographic->address ?? 'N/A' }}</p>
                 </div>
 
-                <div class="d-flex gap-2 pt-3 border-top">
-                    <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-success">
-                        <i class="bi bi-pencil-square me-2"></i>Edit Patient Information
-                    </a>
-                    <a href="{{ route('record_officer.patients.list') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i>Back to List
-                    </a>
-                </div>
+                
             </div>
         </div>
 
@@ -137,80 +130,31 @@
         <!-- Workflow Progress Card -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i>Patient Journey</h5>
+                <h5 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i>Previous Visits History</h5>
             </div>
             <div class="card-body">
                 <div class="workflow-steps">
-                    <div class="step completed">
-                        <div class="step-marker">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="step-label">Patient Registration</div>
-                    </div>
                     
-                    <div class="step @if($patient->currentVisit() && $patient->currentVisit()->exists()) completed @endif">
-                        <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->exists())
-                                <i class="bi bi-check-circle"></i>
-                            @else
-                                <i class="bi bi-circle"></i>
-                            @endif
+                    @if($patient->visits()->where('status', 'completed')->exists())
+                        @foreach($patient->visits()->where('status', 'completed')->limit(5)->latest()->get() as $visit)
+                            <div class="step completed">
+                                <div class="step-marker">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="step-label">Visit on {{ $visit->visit_date->format('M d, Y') }}
+                                    <br>
+                                    <small class="text-muted">Type: {{ $visit->visit_type }}</small>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="step text->warning">
+                            <div class="step-marker">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                            <div class="step-label ">No previous visits recorded</div>
                         </div>
-                        <div class="step-label">
-                            Record Visit
-                            @if($patient->currentVisit() && $patient->currentVisit()->exists())
-                                <small class="text-success">({{ $patient->currentVisit()->bills()->count() }} bills)</small>
-                            @endif
-                        </div>
-                    </div>
-                    
-                    <div class="step @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists()) completed @endif">
-                        <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists())
-                                <i class="bi bi-check-circle"></i>
-                            @else
-                                <i class="bi bi-circle"></i>
-                            @endif
-                        </div>
-                        <div class="step-label">
-                            Generate Bill
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists())
-                                <small class="text-success">({{ $patient->currentVisit()->bills()->count() }} bills)</small>
-                            @endif
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="step @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0) completed @endif">
-                        <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0)
-                                <i class="bi bi-check-circle"></i>
-                            @else
-                                <i class="bi bi-circle"></i>
-                            @endif
-                        </div>
-                        <div class="step-label">
-                            Record Payment
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0)
-                                <small class="text-success">({{ $patient->currentVisit()->bills()->count() }} payments)</small>
-                            @endif
-                        </div>
-                    </div>
-                    
-                    <div class="step @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists()) completed @endif">
-                        <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists())
-                                <i class="bi bi-check-circle"></i>
-                            @else
-                                <i class="bi bi-circle"></i>
-                            @endif
-                        </div>
-                        <div class="step-label">
-                            Vital Signs Check
-                            @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists())
-                                <small class="text-success">({{ $patient->currentVisit()->vitalSignsRequests()->count() }} requests)</small>
-                            @endif
-                        </div>
-                    </div>
+                    @endif    
                 </div>
             </div>
             <style>
@@ -257,42 +201,72 @@
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0"><i class="bi bi-lightning-fill me-2"></i>Quick Actions</h5>
             </div>
+            
             <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.visits.create.form', $patient) }}" class="btn btn-outline-success">
-                        <i class="bi bi-hospital me-2"></i>Record Visit
-                    </a>
+                <div class="row">
+                   
+                @foreach($patient->currentVisit()->vitalSignsRequests->where('status', 'Pending') as $vitalSignRequest)
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('nurse.patients.vitalsigns.create', $vitalSignRequest) }}" class="btn btn-outline-danger">
+                            <i class="bi bi-hospital me-2"></i>Record Vital Signs
+                        </a>
+                    </div>
                 </div>
-                
-                @auth
-
-                    @if(auth()->user()->hasRole('accountant'))
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('accountant.bills.create', $patient) }}" class="btn btn-outline-success">
-                                <i class="bi bi-file-earmark-medical me-2"></i>Generate Bill
-                            </a>
-                        </div>
-                    @endif  
-
-                    @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists())
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('record_officer.payments.create.form', $patient) }}" class="btn btn-outline-success">
-                                <i class="bi bi-cash-coin me-2"></i>Record Payment
-                            </a>
-                        </div>
-                    @endif
-                    
-                @endauth
-                
-                <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-success">
-                        <i class="bi bi-heart-pulse me-2"></i>Request for Vital Signs Check
-                    </a>
+                @endforeach
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('accountant.bills.create', $patient) }}" class="btn btn-outline-success">
+                            <i class="bi bi-file-earmark-medical me-2"></i>Submit to Doctor
+                        </a>
+                    </div>
                 </div>
-                
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('nurse.patients.investigations.create', $patient) }}" class="btn btn-outline-danger">
+                            <i class="bi bi-file-medical me-2"></i>Investigation Request
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('record_officer.payments.create.form', $patient) }}" class="btn btn-outline-warning">
+                            <i class="bi bi-cash-coin me-2"></i>Add Nursing Note
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">   
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-danger">
+                            <i class="bi bi-heart-pulse me-2"></i>Record Observations
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-success">
+                            <i class="bi bi-heart-pulse me-2"></i>Record Drug Chart
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-info">
+                            <i class="bi bi-heart-pulse me-2"></i>Generate Patient Care Report
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('nurse.patients.history', $patient) }}" class="btn btn-outline-info">
+                            <i class="bi bi-clock-history me-2"></i>View Patient History
+                        </a>
+                    </div>
+                </div>
+            </div>
                 <p class="text-muted small mt-3 mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    Follow the workflow: Record Visit → Generate Bill → Record Payment → Request Vital Signs Check.
+                    Follow the workflow: Record Vital Signs → Add Nursing Note → Record Drug Chart → Record Observations → Generate Patient Care Report → Submit to Doctor.
                 </p>
             </div>
         </div>

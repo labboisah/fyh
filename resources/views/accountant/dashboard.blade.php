@@ -87,18 +87,7 @@
     {{-- Action Buttons --}}
     <div class="row mb-4">
         <div class="col-12">
-            <a href="{{ route('accountant.bills.create') }}" class="btn btn-primary">
-                <i class="bi bi-file-earmark-plus"></i> Create New Bill
-            </a>
-            <a href="{{ route('accountant.payments.create') }}" class="btn btn-success">
-                <i class="bi bi-cash-coin"></i> Record Payment
-            </a>
-            <a href="{{ route('accountant.bills.index') }}" class="btn btn-info">
-                <i class="bi bi-file-text"></i> View All Bills
-            </a>
-            <a href="{{ route('accountant.payments.index') }}" class="btn btn-info">
-                <i class="bi bi-receipt"></i> View All Payments
-            </a>
+            <!--  -->
             <a href="{{ route('accountant.reports.financial') }}" class="btn btn-warning">
                 <i class="bi bi-bar-chart"></i> Financial Report
             </a>
@@ -117,7 +106,7 @@
                         <div class="pb-3 border-bottom last:border-0">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <p class="mb-1 fw-bold">{{ $payment->patient->name }}</p>
+                                    <p class="mb-1 fw-bold">{{ $payment->bill->patientVisit->patient->demographic->name ?? 'Unknown Patient' }}</p>
                                     <p class="mb-1 text-muted small">
                                         <i class="bi bi-receipt"></i> {{ $payment->payment_id }}
                                     </p>
@@ -149,11 +138,15 @@
                         <div class="pb-3 border-bottom last:border-0">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <p class="mb-1 fw-bold">{{ $bill->patient->name }}</p>
+                                    <p class="mb-1 fw-bold">{{ $bill->patientVisit->patient->demographic->name ?? 'Unknown Patient' }}</p>
                                     <p class="mb-1 text-muted small">
                                         <i class="bi bi-file-earmark"></i> {{ $bill->bill_number }}
                                     </p>
-                                    <p class="mb-0 text-muted small">{{ Str::limit($bill->service_description, 30) }}</p>
+                                    @foreach($bill->services as $service)
+                                        <p class="mb-1 text-muted small">
+                                            <i class="bi bi-caret-right"></i> {{ Str::limit($service->name, 30) }}
+                                        </p>
+                                    @endforeach
                                 </div>
                                 <div class="text-end">
                                 4   <p class="mb-1 fw-bold">{{ number_format($bill->amount, 2) }}</p>

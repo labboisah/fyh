@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_visit_id')->nullable()->constrained('patient_visits')->onDelete('set null');
             $table->string('bill_number')->unique();
             $table->string('service_description');
             $table->decimal('amount', 12, 2);
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->index('patient_id');
+            $table->index('patient_visit_id');
             $table->index('status');
             $table->index('issued_date');
         });

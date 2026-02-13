@@ -53,22 +53,17 @@ class Patient extends Model
         return $this->hasOne(NextOfKin::class);
     }
 
-    /**
-     * Get all bills for this patient
-     */
-    public function bills()
-    {
-        return $this->hasMany(Bill::class);
+    public function patientVisits() {
+        return $this->hasMany(PatientVisit::class);
     }
 
-    /**
-     * Get all payments for this patient
-     */
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
+   
+   
 
+    // currnt visit
+    public function currentVisit() { 
+        return $this->patientVisits()->where('status','Active')->latest()->first(); 
+    }
     /**
      * Generate unique hospital number
      */
@@ -77,6 +72,40 @@ class Patient extends Model
         $year = substr(date('Y'), 2, 2);
         $count = static::count() + 1;
         return 'FYH' . $year . str_pad($count, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get payment summary for this patient
+     */
+    public function payment()
+    {
+        $total = 0;
+        $count = 0;
+        $paid = 0;
+        $reversed = 0;
+
+        foreach ($this->patientVisits as $visit) {
+            foreach ($visit->bills as $bill) {
+                foreach ($bill->payments as $payment) {
+                    $total += $bill->amount;
+                    if ($payment->status === 'completed') {
+                        $paid += $payment->amount;
+                        $count++;
+                    }
+                    
+                }
+            }
+        }
+
+        return [
+            'total' => $total,
+            'count' => $count,
+            'paid' => $paid,
+            'pending' => $total - $paid,
+            'outstanding' => $total - $paid,
+            'revenue' => $paid,
+            'reversed' => $reversed // Placeholder for any reversed payments logic
+        ];
     }
 
     /**

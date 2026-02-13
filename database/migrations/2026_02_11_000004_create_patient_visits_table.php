@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('visit_type'); // e.g., 'Consultation', 'Follow-up', 'Emergency'
             $table->text('reason_for_visit')->nullable();
             $table->text('clinical_notes')->nullable();
-            $table->enum('status', ['Scheduled', 'Completed', 'Cancelled', 'Missed'])->default('Scheduled');
+            $table->enum('status', ['Active', 'Transferred', 'Admitted', 'Discharged'])->default('Active');
             $table->foreignId('created_by')->constrained('users')->onDelete('restrict');
             $table->timestamps();
             $table->softDeletes();

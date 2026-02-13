@@ -31,6 +31,22 @@ class PatientVisit extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function bills() {
+        return $this->hasMany(Bill::class);
+    }
+
+    public function payments() {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function vitalSignsRequests() {
+        return $this->hasMany(VitalSignsRequest::class);
+    }
+
+    public function investigationRequests() {
+        return $this->hasMany(InvestigationRequest::class);
+    }
+
     /**
      * Get the user who created this visit record
      */

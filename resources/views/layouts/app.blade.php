@@ -348,6 +348,30 @@
                 }
             }
         </style>
+        <style>
+    .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-danger {
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-success:hover, .btn-outline-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
+        @yield('styles')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-light">
@@ -377,6 +401,12 @@
                             </li>
                             @endif
 
+                            @if(Auth::user()->hasRole('nurse'))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                            </li>
+                            @endif
+
                             @if(Auth::user()->hasRole('accountant'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.bills.index') }}"><i class="fa-solid fa-naira-sign me-2 text-success"></i>  Billing</a>
@@ -388,6 +418,7 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.reports.financial') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Reports</a>
                             </li>
                             @endif
+
                             @if(Auth::user()->hasRole('administrator'))
                                 
                                 <li class="nav-item">

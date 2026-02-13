@@ -88,8 +88,8 @@ class RecordOfficerController extends Controller
             // Create demographic record
             PatientDemographic::create([
                 'patient_id' => $patient->id,
-                'first_name' => $validated['first_name'],
-                'last_name' => $validated['last_name'],
+                'first_name' => strtoupper($validated['first_name']),
+                'last_name' => strtoupper($validated['last_name']),
                 'gender' => $validated['gender'],
                 'date_of_birth' => $validated['date_of_birth'],
                 'age' => $age,
@@ -260,31 +260,54 @@ class RecordOfficerController extends Controller
     {
 
         $validated = $request->validate([
-            'visit_date' => 'required|datetime',
+            'visit_date' => 'required',
             'visit_type' => 'required|in:Consultation,Follow-up,Emergency,Walk-in',
-            'reason_for_visit' => 'nullable|string|max:500',
-            'clinical_notes' => 'nullable|string|max:1000',
         ]);
 
         try {
-            PatientVisit::create([
+            DB::beginTransaction();
+            $visit = PatientVisit::create([
                 'patient_id' => $patient->id,
                 'visit_date' => $validated['visit_date'],
                 'visit_type' => $validated['visit_type'],
-                'reason_for_visit' => $validated['reason_for_visit'],
-                'clinical_notes' => $validated['clinical_notes'],
-                'status' => 'Completed',
+                'status' => 'Active',
                 'created_by' => auth()->id(),
             ]);
-
+            DB::commit();
+            // redirect to patient visit bill creation
             return redirect()->route('record_officer.patients.show', $patient)
                 ->with('success', 'Visit record created successfully');
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Failed to record visit. ' . $e->getMessage()])->withInput();
         }
     }
 
+    public function requestForVitalSigns(Patient $patient) {
+       $visit = $patient->currentVisit();
+       if (!$visit) {
+           return back()->withErrors(['error' => 'Patient has no active visit.']);
+       }
+       
+       try {
+           DB::beginTransaction();
+
+           $visit->vitalSignsRequests()->create([
+               'requested_by' => auth()->id(),
+               'status' => 'pending',
+           ]);
+
+           DB::commit();
+           return redirect()->route('record_officer.patients.show', $patient)
+               ->with('success', 'Vital signs check requested successfully');
+
+       } catch (\Exception $e) {
+           DB::rollBack();
+           return back()->withErrors(['error' => 'Failed to request vital signs check. ' . $e->getMessage()]);
+       }
+       return redirect()->route('vital_signs.create', $visit);
+    }
     
     /**
      * Export patient records
@@ -296,6 +319,48 @@ class RecordOfficerController extends Controller
         // Create PDF or CSV
         // This is a placeholder - implement actual export logic
         return $this->generatePDF($patient);
+    }
+
+    /**
+     * Wrapper: Redirect to vital signs recording form
+     * Used when record officer needs to submit patient for vital signs check
+     */
+    public function submitForVitalSigns(Patient $patient)
+    {
+        return redirect()->route('vital_signs.create', $patient)
+            ->with('info', 'Submit patient for vital signs recording.');
+    }
+
+    /**
+     * Wrapper: Create bill (for dual-role users)
+     * Redirects to accountant bill creation with patient pre-selected
+     */
+    public function createBill(Patient $patient)
+    {
+        // Check if user has accountant role
+        if (!auth()->user()->hasRole('accountant') && !auth()->user()->hasRole('record_officer')) {
+            return redirect()->back()
+                ->with('error', 'You need accountant and record officer roles to generate bills.');
+        }
+
+        return redirect()->route('accountant.bills.create', ['patient_id' => $patient->id])
+            ->with('info', 'Creating bill for ' . $patient->demographic->full_name);
+    }
+
+    /**
+     * Wrapper: Create payment (for dual-role users)
+     * Redirects to accountant payment creation with patient pre-selected
+     */
+    public function createPayment(Patient $patient)
+    {
+        // Check if user has accountant role
+        if (!Auth::user()->hasRole('accountant')) {
+            return redirect()->back()
+                ->with('error', 'You need accountant role to record payments.');
+        }
+
+        return redirect()->route('accountant.payments.create', ['patient_id' => $patient->id])
+            ->with('info', 'Recording payment for ' . $patient->demographic->full_name);
     }
 
     /**

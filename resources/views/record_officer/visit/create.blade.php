@@ -42,29 +42,7 @@
                         @error('visit_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label for="chief_complaint" class="form-label">Chief Complaint <span class="text-danger">*</span></label>
-                        <textarea class="form-control @error('chief_complaint') is-invalid @enderror" 
-                                  id="chief_complaint" name="chief_complaint" rows="3" 
-                                  placeholder="Patient's main complaint">{{ old('chief_complaint') }}</textarea>
-                        @error('chief_complaint')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
 
-                    <div class="mb-4">
-                        <label for="diagnosis" class="form-label">Diagnosis</label>
-                        <textarea class="form-control @error('diagnosis') is-invalid @enderror" 
-                                  id="diagnosis" name="diagnosis" rows="3" 
-                                  placeholder="Doctor's diagnosis">{{ old('diagnosis') }}</textarea>
-                        @error('diagnosis')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="notes" class="form-label">Additional Notes</label>
-                        <textarea class="form-control @error('notes') is-invalid @enderror" 
-                                  id="notes" name="notes" rows="3" 
-                                  placeholder="Any additional notes">{{ old('notes') }}</textarea>
-                        @error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
 
                     <div class="d-flex gap-2 pt-3 border-top">
                         <button type="submit" class="btn btn-success flex-grow-1">

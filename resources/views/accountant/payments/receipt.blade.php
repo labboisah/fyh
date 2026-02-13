@@ -36,11 +36,11 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Patient Name</p>
-                            <p class="fw-bold">{{ strtoupper($payment->patient->demographic->first_name) }} {{ strtoupper($payment->patient->demographic->last_name) }}</p>
+                            <p class="fw-bold">{{ strtoupper($payment->bill->patientVisit->patient->demographic->first_name) }} {{ strtoupper($payment->bill->patientVisit->patient->demographic->last_name) }}</p>
                         </div>
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Hospital Number</p>
-                            <p class="fw-bold">{{ $payment->patient->hospital_number }}</p>
+                            <p class="fw-bold">{{ $payment->bill->patientVisit->patient->hospital_number }}</p>
                         </div>
                     </div>
 
@@ -166,7 +166,7 @@
                         <i class="bi bi-file-earmark"></i> View Full Bill
                     </a>
                 @endif
-                <a href="{{ route('accountant.patient-payment-history', $payment->patient) }}" class="btn btn-sm btn-outline-secondary">
+                <a href="{{ route('accountant.patient-payment-history', $payment->bill->patientVisit->patient) }}" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-history"></i> Payment History
                 </a>
             </div>
