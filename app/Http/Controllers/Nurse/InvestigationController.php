@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Nurse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Patient;
+use App\Models\Bill;
+use App\Models\Service;
 
 class InvestigationController extends Controller
 {
@@ -34,6 +36,40 @@ class InvestigationController extends Controller
             'specimen' => $request->input('specimen'),
         ]);
 
+        // create bill for this investigation
+        $bill = $patient->currentVisit()->bills()->create([
+            'amount' => $investigationRequest->investigation->price ?? 0,
+            'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
+            'status' => 'pending',
+            'issued_by' => auth()->id(),
+            'issued_date' => now(),
+            'bill_number' =>  Bill::generateBillNumber(),
+        ]);
+
+        $service = Service::firstOrCreate([
+            'code' => $investigationRequest->investigation->code ?? 'INV-' . $investigationRequest->investigation_id,
+            'name' => $investigationRequest->investigation->name,
+            'price' => $investigationRequest->investigation->price ?? 0,
+            'category' => $investigationRequest->investigation->investigationType->name ?? 'Investigation',
+         ], 
+         [
+            'description' => 'Investigation service for billing',
+        ]);
+        
+        $bill->billServices()->create([
+            'quantity' => 1,
+            'unit_price' => $service->price,
+            'subtotal' => $service->price,
+            'service_id' => $service->id,
+        ]);
+
         return redirect()->route('nurse.patients.show', $patient)->with('success', 'Investigation request created successfully.');
+    }
+
+    public function show($investigationRequestId)
+    {
+        $investigationRequest = \App\Models\InvestigationRequest::findOrFail($investigationRequestId);
+
+        return view('nurse.patient.investigation.show', compact('investigationRequest'));
     }
 }

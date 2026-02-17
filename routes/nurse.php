@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified', 'role:nurse'])
         Route::get('/', [PatientController::class, 'index'])->name('index');
         Route::get('/{patient}/show', [PatientController::class, 'show'])->name('show');
         Route::get('/{patient}/history', [PatientController::class, 'history'])->name('history');
-        
+        Route::get('/search', [PatientController::class, 'search'])->name('search');
         // vital signs routes
         Route::name('vitalsigns.')
         ->prefix('vital-signs')

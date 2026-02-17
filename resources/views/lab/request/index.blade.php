@@ -51,7 +51,7 @@
                                     </a>
                                     @else
                                     <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-send me-1"></i> Edit Result
+                                        <i class="bi bi-pencil me-1"></i> Edit Result
                                     </a>
                                     @endif
                                 </td>

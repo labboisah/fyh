@@ -12,6 +12,7 @@ use App\Models\PatientReferral;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class RecordOfficerController extends Controller
 {

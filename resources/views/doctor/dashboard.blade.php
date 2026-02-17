@@ -17,7 +17,7 @@
                             <i class="bi bi-heart-pulse text-danger" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h6 class="text-muted mb-1">Vital Signs Recorded Today</h6>
+                            <h6 class="text-muted mb-1">Referred Patients</h6>
                             <h3 class="h4 mb-0">{{ App\Models\PatientVisitVitalSign::whereDate('recorded_date', today())->count() }}</h3>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                             <i class="bi bi-file-earmark-text text-success" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h6 class="text-muted mb-1">Observations Today</h6>
+                            <h6 class="text-muted mb-1">Admissions Today</h6>
                             <h3 class="h4 mb-0">{{ App\Models\PatientVisit::whereDate('visit_date', today())->count() }}</h3>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                             <i class="bi bi-file-medical text-warning" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h6 class="text-muted mb-1">Drug Charts Today</h6>
+                            <h6 class="text-muted mb-1">Discharge Today</h6>
                             <h3 class="h4 mb-0">{{ App\Models\Patient::where('is_walkIn', false)->count() }}</h3>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             <i class="bi bi-person-check text-info" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h6 class="text-muted mb-1">Patient Care Report</h6>
+                            <h6 class="text-muted mb-1">Investigation Results</h6>
                             <h3 class="h4 mb-0">{{ App\Models\Patient::where('is_walkIn', true)->count() }}</h3>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                             </a>
                         </div>
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="{{ route('nurse.patients.search') }}" class="btn btn-outline-success w-100 py-3 text-start">
+                            <a href="{{ route('patients.search') }}" class="btn btn-outline-success w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-search me-2" style="font-size: 1.5rem;"></i>
                                     <div>

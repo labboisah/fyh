@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Controllers\Patient;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Patient;
+use App\Models\Bed;
+
+class AdmissionController extends Controller
+{
+    public function create(Patient $patient) {
+        return view('patient.admission.create', compact('patient'));
+    }
+
+    public function store(Request $request, Patient $patient) {
+        $request->validate(['bed_id'=>'required', 'date'=>'required']);
+        $patient->currentVisit()->admissions()->create([
+            'date'=>$request->date,
+            'bed_id'=>$request->bed_id,
+            'note'=>$request->note,
+            'time'=>$request->time,
+            'reason'=>$request->reason,
+            'admitted_by'=> auth()->user()->id
+            ]);
+        $bed = Bed::find($request->bed_id);
+        
+        $bed->update(['status'=>'occupied']);
+        return redirect()->route('patient.show',$patient)->with('success','Admission Registerred');
+    }
+}

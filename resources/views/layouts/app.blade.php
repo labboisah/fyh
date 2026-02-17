@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name') }} | @yield('title')</title>
-
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -410,6 +410,12 @@
                             @if(Auth::user()->hasRole('doctor'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Admission</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Discharge</a>
                             </li>
                             
                             @endif

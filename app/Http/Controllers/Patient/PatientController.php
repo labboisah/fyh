@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Nurse;
+namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,20 +11,20 @@ use App\Models\NextOfKin;
 
 class PatientController extends Controller
 {
-    public function index() {
+     public function index() {
         return view('nurse.patient.index');
     }
 
     public function show(Patient $patient) {
         
-        return view('nurse.patient.show', compact('patient'));
+        return view('patient.show', compact('patient'));
     }   
 
     public function history(Patient $patient) {
 
         $visits = $patient->visits()->paginate(10);
 
-        return view('nurse.patient.history', compact('patient', 'visits'));
+        return view('patient.history', compact('patient', 'visits'));
     }
 
     public function search(Request $request)
@@ -32,7 +32,7 @@ class PatientController extends Controller
         $query = $request->input('q');
 
         if (!$query || strlen($query) < 2) {
-            return view('nurse.patient.search', ['patients' => []]);
+            return view('patient.search', ['patients' => []]);
         }
 
         $patients = Patient::with('demographic')
@@ -44,7 +44,7 @@ class PatientController extends Controller
             })
             ->get();
 
-        return view('nurse.patient.search', compact('patients', 'query'));
+        return view('patient.search', compact('patients', 'query'));
     }
 
 }

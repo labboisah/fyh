@@ -54,4 +54,8 @@ class PatientVisit extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function admissions() {
+        return $this->hasMany(Admission::class);
+    }
 }

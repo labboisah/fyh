@@ -62,6 +62,13 @@ class Bill extends Model
     }
 
     /**
+     * Get bill services for this bill
+     */
+    public function billServices()
+    {
+        return $this->hasMany(BillService::class);
+    }
+    /**
      * Get total amount paid
      */
     public function totalPaid()

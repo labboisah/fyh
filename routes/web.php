@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 // ajax routes
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
+Route::get('/ajax/beds/{wardId}', [App\Http\Controllers\AjaxController::class, 'getWardBeds'])->name('ajax.get-ward-beds');
 
 Route::get('/', function () {
     return view('welcome');
@@ -133,3 +134,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/auth.php';
 require __DIR__.'/nurse.php';
 require __DIR__.'/lab.php';
+require __DIR__.'/doctor.php';
+require __DIR__.'/patient.php';
