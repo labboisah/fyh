@@ -39,7 +39,7 @@
                 </div>
                 <div class="col-md-6">   
                     <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-danger">
+                        <a href="{{ route('patient.observation.record', $patient) }}" class="btn btn-outline-danger">
                             <i class="bi bi-heart-pulse me-2"></i>Record Observations
                         </a>
                     </div>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Patient\VitalSignsController;
 use App\Http\Controllers\Patient\InvestigationController;
 use App\Http\Controllers\Patient\AdmissionController;
 use App\Http\Controllers\Patient\PrescriptionController;
+use App\Http\Controllers\Patient\ObservationController;
 
 Route::name('patient.')
     ->namespace('Patient')
@@ -37,6 +38,14 @@ Route::name('patient.')
         ->group(function () {
             Route::get('/{patient}/create', [AdmissionController::class, 'create'])->name('create');
             Route::post('/{patient}/store', [AdmissionController::class, 'store'])->name('store');
+        });
+
+         // observation routes
+        Route::name('observation.')
+        ->prefix('observation')
+        ->group(function () {
+            Route::get('/{patient}/record', [ObservationController::class, 'record'])->name('record');
+            Route::post('/{patient}/register', [ObservationController::class, 'register'])->name('register');
         });
 
         // prescription routes
