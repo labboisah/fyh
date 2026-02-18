@@ -58,4 +58,8 @@ class PatientVisit extends Model
     public function admissions() {
         return $this->hasMany(Admission::class);
     }
+
+    public function prescriptions(){
+        return $this->hasMany(Prescription::Class);
+    }
 }

@@ -18,7 +18,7 @@
         <!-- Search Form -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
-                <form action="{{ route('patients.search') }}" method="GET" class="d-flex gap-2">
+                <form action="{{ route('patient.search') }}" method="GET" class="d-flex gap-2">
                     <input type="text" name="q" class="form-control form-control-lg" 
                            value="{{ request('q') }}" 
                            placeholder="Hospital Number, Phone Number, First Name, or Last Name" required>
@@ -65,7 +65,7 @@
                                             <td>{{ $patient->demographic->phone_number ?? 'N/A' }}</td>
                                             <td>{{ $patient->registration_date->format('M d, Y') }}</td>
                                             <td class="text-center">
-                                                <a href="{{ route('patients.show', $patient) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View Details
                                                 </a>
                                             </td>

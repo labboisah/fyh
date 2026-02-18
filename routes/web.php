@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 // ajax routes
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
 Route::get('/ajax/beds/{wardId}', [App\Http\Controllers\AjaxController::class, 'getWardBeds'])->name('ajax.get-ward-beds');
+Route::get('/ajax/medicines/{medicineTypeId}', [App\Http\Controllers\AjaxController::class, 'getMedicines'])->name('ajax.get-type-medicines');
 
 Route::get('/', function () {
     return view('welcome');

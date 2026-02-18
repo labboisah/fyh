@@ -89,7 +89,7 @@
     </div>
     <div class="col-md-3">
         <div class="d-grid gap-2 mb-3">
-            <a href="{{ route('accountant.bills.create', $patient) }}" class="btn btn-outline-success">
+            <a href="{{ route('patient.prescription.create', $patient) }}" class="btn btn-outline-success">
                 <i class="bi bi-file-earmark-medical me-2"></i>Prescribe Medication
             </a>
         </div>
