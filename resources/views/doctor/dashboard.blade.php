@@ -18,7 +18,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Referred Patients</h6>
-                            <h3 class="h4 mb-0">{{ App\Models\PatientVisitVitalSign::whereDate('recorded_date', today())->count() }}</h3>
+                            <h3 class="h4 mb-0">{{ App\Models\VitalSign::whereDate('recorded_date', today())->count() }}</h3>
                         </div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Recently Registered Patients -->
-    @if(App\Models\VitalSignsRequest::whereDate('created_at', today())->count() > 0)
+    @if(App\Models\VitalSign::whereDate('created_at', today())->count() > 0)
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
@@ -127,16 +127,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(App\Models\VitalSignsRequest::whereDate('created_at', today())->where('status', 'pending')->latest('created_at')->limit(5)->get() as $vitalSignsRequest)
+                                    @foreach(App\Models\VitalSign::whereDate('created_at', today())->latest('created_at')->limit(5)->get() as $vitalSign)
                                         <tr class="align-middle">
                                             <td>
-                                                <span class="badge bg-primary">{{ $vitalSignsRequest->patientVisit->patient->hospital_number }}</span>
+                                                <span class="badge bg-primary">{{ $vitalSign->patientVisit->patient->hospital_number }}</span>
                                             </td>
-                                            <td>{{ $vitalSignsRequest->patientVisit->patient->demographic->full_name ?? 'N/A' }}</td>
-                                            <td>{{ $vitalSignsRequest->patientVisit->patient->demographic->phone_number ?? 'N/A' }}</td>
-                                            <td>{{ $vitalSignsRequest->created_at->format('M d, Y') }}</td>
+                                            <td>{{ $vitalSign->patientVisit->patient->demographic->full_name ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->patientVisit->patient->demographic->phone_number ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->created_at->format('M d, Y') }}</td>
                                             <td class="text-center">
-                                                <a href="{{ route('nurse.patients.show', $vitalSignsRequest->patientVisit->patient) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('patient.show', $vitalSign->patientVisit->patient) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View
                                                 </a>
                                             </td>
@@ -158,7 +158,7 @@
         </div>
     @endif
 
-    @if(App\Models\VitalSignsRequest::whereDate('created_at', today())->count() > 0)
+    @if(App\Models\VitalSign::whereDate('created_at', today())->count() > 0)
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
@@ -186,27 +186,28 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(App\Models\PatientVisitVitalSign::whereDate('created_at', today())->latest('created_at')->limit(5)->get() as $patientVitalSign)
+                                    @foreach(App\Models\VitalSign::whereDate('created_at', today())->latest('created_at')->limit(5)->get() as $vitalSign)
                                         <tr class="align-middle">
-                                            <td>{{ $patientVitalSign->vitalSignsRequest->patientVisit->patient->demographic->full_name ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->patientVisit->patient->demographic->full_name ?? 'N/A' }}</td>
                                             <td>
-                                                <span class="badge bg-primary">{{ $patientVitalSign->vitalSignsRequest->patientVisit->patient->hospital_number ?? 'N/A' }}</span>
+                                                <span class="badge bg-primary">{{ $vitalSign->patientVisit->patient->hospital_number ?? 'N/A' }}</span>
                                             </td>
-                                            <td>{{ $patientVitalSign->recorded_date->format('M d, Y') }}</td>
-                                            <td>{{ $patientVitalSign->body_temperature ?? 'N/A' }}</td>
-                                            <td>{{ $patientVitalSign->blood_pressure_systolic ?? 'N/A' }} / {{ $patientVitalSign->blood_pressure_diastolic ?? 'N/A' }}</td>
-                                            <td>{{ $patientVitalSign->heart_rate ?? 'N/A' }}</td>
-                                            <td>{{ $patientVitalSign->respiratory_rate ?? 'N/A' }}</td>
-                                            <td>{{ $patientVitalSign->oxygen_saturation ?? 'N/A' }}%</td>
-                                            <td>{{ $patientVitalSign->blood_glucose ?? 'N/A' }}</td>
-                                            <td>{{ $patientVitalSign->recordedBy->name ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->recorded_date->format('M d, Y') }}</td>
+                                            <td>{{ $vitalSign->body_temperature ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->blood_pressure_systolic ?? 'N/A' }} / {{ $vitalSign->blood_pressure_diastolic ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->heart_rate ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->respiratory_rate ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->oxygen_saturation ?? 'N/A' }}%</td>
+                                            <td>{{ $vitalSign->blood_glucose ?? 'N/A' }}</td>
+                                            <td>{{ $vitalSign->recordedBy->name ?? 'N/A' }}</td>
                                             
                                             <td class="text-center">
-                                                <a href="{{ route('nurse.patients.show', $patientVitalSign->vitalSignsRequest->patientVisit->patient) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('patient.show', $vitalSign->patientVisit->patient) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View
                                                 </a>
-                                                <a href="{{ route('nurse.patients.vitalsigns.edit', $patientVitalSign->id) }}" class="btn btn-sm btn-outline-warning ms-1">
+                                                <a href="{{ route('patient.vitalsign.edit', $vitalSign->id) }}" class="btn btn-sm btn-outline-warning ms-1">
                                                     <i class="bi bi-pencil me-1"></i>Edit
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach

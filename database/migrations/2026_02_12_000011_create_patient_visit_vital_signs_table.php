@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patient_visit_vital_signs', function (Blueprint $table) {
+        Schema::create('vital_signs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vital_signs_request_id')->constrained('vital_signs_requests')->cascadeOnDelete();
+            $table->foreignId('patient_visit_id')->constrained('patient_visits')->cascadeOnDelete();
             $table->decimal('body_temperature', 5, 2);
             $table->integer('blood_pressure_systolic');
             $table->integer('blood_pressure_diastolic');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->index('vital_signs_request_id');
+            $table->index('patient_visit_id');
             $table->index('recorded_date');
         });
     }
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patient_visit_vital_signs');
+        Schema::dropIfExists('vital_signs');
     }
 };

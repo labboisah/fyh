@@ -11,6 +11,28 @@
             Hospital Number:
             <strong class="text-success">{{ $patient->hospital_number }}</strong>
         </p>
+        @if($patient->currentVisit())
+        <p class="mb-0 text-muted">
+           Last Hospital Visit on:
+           <strong class="text-success">{{ date('M d, Y',strtotime($patient->currentVisit()->visit_date))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
+        </p>
+        <p class="mb-0 text-muted">
+           Visit Status:
+           <strong class="text-success">{{ $patient->currentVisit()->status }}</strong>
+        </p>
+        <p class="mb-0 text-muted">
+           Admission Status:
+           <strong class="text-success">{{ $patient->currentVisit()->admissionStatus() }}</strong>
+        </p>
+        
+        @if(auth()->user()->hasRole('nurse') && $registeredAdmission = $patient->currentVisit()->registeredAdmission())
+        <p>Patient has pending admission <a href="{{route('patient.admission.confirmed',$registeredAdmission)}}" class="btn btn-outline-warning">Confirm the Admission</a></p>
+        @endif
+
+        @else
+            <div class="alert alert-warning">No visit recorded or patient was dischaged</div>
+        @endif
+       
     </div>
 </div>
 @endsection

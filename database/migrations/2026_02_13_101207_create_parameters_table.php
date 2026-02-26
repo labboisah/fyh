@@ -214,15 +214,18 @@ return new class extends Migration
         ];
 
         foreach ($investigations as $category => $tests) {
+            $count = 1;
             foreach ($tests as $test) {
                 $investigationType = InvestigationType::firstOrCreate(['name' => $category]);
-                
 
                 $investigation = $investigationType->investigations()->create([
                     'investigation_type_id' => $investigationType->id,
                     'name' => $test['name'],
+                    'price'=>    rand(2000,10000),
+                    'code'=> 'INV-0'.$count
                 ]);
                 $investigation->parameters()->createMany($test['parameters']);
+                $count++;
             }
         }
     }

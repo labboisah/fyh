@@ -45,14 +45,18 @@
                                 <td>{{ $investigationRequest->specimen }}</td>
                                 <td>{{ $investigationRequest->created_at }}</td>
                                 <td>
-                                    @if($investigationRequest->status !== 'Completed')
-                                    <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
-                                        <i class="bi bi-send me-1"></i> Send Result
-                                    </a>
+                                    @if($investigationRequest->paymentStatus() == 'paid')
+                                        @if($investigationRequest->status !== 'Completed')
+                                        <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-send me-1"></i> Send Result
+                                        </a>
+                                        @else
+                                        <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-pencil me-1"></i> Edit Result
+                                        </a>
+                                        @endif
                                     @else
-                                    <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-pencil me-1"></i> Edit Result
-                                    </a>
+                                        Payment not recorded
                                     @endif
                                 </td>
                             </tr>

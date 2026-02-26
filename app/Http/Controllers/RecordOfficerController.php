@@ -229,7 +229,7 @@ class RecordOfficerController extends Controller
         $query = $request->input('q');
 
         if (!$query || strlen($query) < 2) {
-            return view('record_officer.patient.search', ['patients' => []]);
+            return view('patient.search', ['patients' => []]);
         }
 
         $patients = Patient::with('demographic')
@@ -241,7 +241,7 @@ class RecordOfficerController extends Controller
             })
             ->get();
 
-        return view('record_officer.patient.search', compact('patients', 'query'));
+        return view('patient.search', compact('patients', 'query'));
     }
 
     
@@ -276,7 +276,7 @@ class RecordOfficerController extends Controller
             ]);
             DB::commit();
             // redirect to patient visit bill creation
-            return redirect()->route('record_officer.patients.show', $patient)
+            return redirect()->route('patient.show', $patient)
                 ->with('success', 'Visit record created successfully');
 
         } catch (\Exception $e) {
@@ -285,53 +285,9 @@ class RecordOfficerController extends Controller
         }
     }
 
-    public function requestForVitalSigns(Patient $patient) {
-       $visit = $patient->currentVisit();
-       if (!$visit) {
-           return back()->withErrors(['error' => 'Patient has no active visit.']);
-       }
-       
-       try {
-           DB::beginTransaction();
-
-           $visit->vitalSignsRequests()->create([
-               'requested_by' => auth()->id(),
-               'status' => 'pending',
-           ]);
-
-           DB::commit();
-           return redirect()->route('record_officer.patients.show', $patient)
-               ->with('success', 'Vital signs check requested successfully');
-
-       } catch (\Exception $e) {
-           DB::rollBack();
-           return back()->withErrors(['error' => 'Failed to request vital signs check. ' . $e->getMessage()]);
-       }
-       return redirect()->route('vital_signs.create', $visit);
-    }
     
-    /**
-     * Export patient records
-     */
-    public function exportRecord(Patient $patient)
-    {
-        $patient->load('demographic', 'nextOfKin', 'visits', 'appointments');
-
-        // Create PDF or CSV
-        // This is a placeholder - implement actual export logic
-        return $this->generatePDF($patient);
-    }
-
-    /**
-     * Wrapper: Redirect to vital signs recording form
-     * Used when record officer needs to submit patient for vital signs check
-     */
-    public function submitForVitalSigns(Patient $patient)
-    {
-        return redirect()->route('vital_signs.create', $patient)
-            ->with('info', 'Submit patient for vital signs recording.');
-    }
-
+    
+   
     /**
      * Wrapper: Create bill (for dual-role users)
      * Redirects to accountant bill creation with patient pre-selected

@@ -15,4 +15,8 @@ class Prescription extends Model
     public function patientVisit() {
         return $this->belongsTo(PatientVisit::class);
     }
+
+    public function prescribedBy() {
+        return $this->belongsTo(User::class, 'prescribe_by');
+    }
 }

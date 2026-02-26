@@ -23,7 +23,7 @@
             </div>
 
             <div class="card-body">
-                <form action="{{ route('nurse.patients.investigations.store', $patient) }}" method="POST">
+                <form action="{{ route('patient.investigation.store', $patient) }}" method="POST">
                     @csrf
 
                     {{-- Investigation Type --}}

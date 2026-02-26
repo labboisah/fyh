@@ -20,27 +20,31 @@ class ObservationController extends Controller
             "blood_pressure_diastolic" => "required",
             "respiratory_rate" => "required",
             "drop_rate" => "required",
-            "contraction" => "required",
+            "constraction" => "required",
             "fits" => "required",
             "date" => "required",
             "time" => "required",
-            "notes" => "required"
+            "remark" => "required"
         ]);
+        
+        $admission = $patient->currentVisit()->confirmAdmission();
+        if($admission){
+            $admission->observations()->create([
+                "temperature" => $request->temperature,
+                "mate_pulse" => $request->mate_pulse,
+                "blood_pressure" => $request->blood_pressure_systolic.'/'.$request->blood_pressure_diastolic,
+                "respiration" => $request->respiratory_rate,
+                "drop_rate" => $request->drop_rate,
+                "constraction" => $request->constraction,
+                "fits" => $request->fits,
+                "date" => $request->date,
+                "time" => $request->time,
+                "remark" => $request->remark,
+                'recorded_by'=>auth()->user()->id
+            ]);
 
-        $patient->currentVisit()->observations()->create([
-            "temperature" => $request->temperature,
-            "mate_pulse" => $request->mate_pulse,
-            "blood_pressure" => $request->blood_pressure_systolic.'/'.$request->blood_pressure_diastolic,
-            "respiration" => $request->respiratory_rate,
-            "drop_rate" => $request->drop_rate,
-            "constraction" => $request->constraction,
-            "fits" => $request->fits,
-            "date" => $request->date,
-            "time" => $request->time,
-            "remark" => $request->remark,
-            'recorded_by'=>auth()->user()->id
-        ]);
-
-        return redirect()->route('patient.show',$patient)->with('success', 'Observation Recorded Successfully');
+            return redirect()->route('patient.show',$patient)->with('success', 'Observation Recorded Successfully');
+        }
+        return redirect()->back()->with('error', 'No admission available, pls confirm the patient admission');
     }
 }

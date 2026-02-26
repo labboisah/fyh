@@ -1,12 +1,17 @@
 <?php
 use App\Http\Controllers\Patient\PatientController;
-use App\Http\Controllers\Patient\VitalSignsController;
+use App\Http\Controllers\Patient\VitalSignController;
 use App\Http\Controllers\Patient\InvestigationController;
 use App\Http\Controllers\Patient\AdmissionController;
 use App\Http\Controllers\Patient\PrescriptionController;
 use App\Http\Controllers\Patient\ObservationController;
+use App\Http\Controllers\Patient\DrugChartController;
+use App\Http\Controllers\Patient\FluidBalanceController;
+use App\Http\Controllers\Patient\ContinuationController;
+use App\Http\Controllers\Patient\DischargeController;
 
 Route::name('patient.')
+    ->middleware('auth')
     ->namespace('Patient')
     ->prefix('patient')
     ->group(function () {
@@ -18,10 +23,10 @@ Route::name('patient.')
         Route::name('vitalsign.')
         ->prefix('vital-sign')
         ->group(function () {
-            Route::get('/{vitalSignsRequest}/create', [VitalSignsController::class, 'create'])->name('create');
-            Route::post('/{vitalSignsRequest}/register', [VitalSignsController::class, 'register'])->name('register');
-            Route::get('/{patientVisitVitalSign}/edit', [VitalSignsController::class, 'edit'])->name('edit');
-            Route::put('/{patientVisitVitalSign}/update', [VitalSignsController::class, 'update'])->name('update');
+            Route::get('/{patient}/create', [VitalSignController::class, 'create'])->name('create');
+            Route::post('/{patient}/register', [VitalSignController::class, 'register'])->name('register');
+            Route::get('/{vitalSign}/edit', [VitalSignController::class, 'edit'])->name('edit');
+            Route::put('/{vitalSign}/update', [VitalSignController::class, 'update'])->name('update');
         });
         // investigation request routes
         Route::name('investigation.')
@@ -32,12 +37,28 @@ Route::name('patient.')
             Route::get('/{investigationRequest}/show', [InvestigationController::class, 'show'])->name('show');
         });
 
+         Route::name('continuation.')
+        ->prefix('continuation')
+        ->group(function () {
+            Route::get('/{patient}/create', [ContinuationController::class, 'create'])->name('create');
+            Route::post('/{patient}/store', [ContinuationController::class, 'store'])->name('store');
+        });
+
         // admission routes
         Route::name('admission.')
         ->prefix('admission')
         ->group(function () {
             Route::get('/{patient}/create', [AdmissionController::class, 'create'])->name('create');
+            Route::get('/{admission}/confirmed', [AdmissionController::class, 'confirmed'])->name('confirmed');
             Route::post('/{patient}/store', [AdmissionController::class, 'store'])->name('store');
+        });
+
+        // admission routes
+        Route::name('discharge.')
+        ->prefix('discharge')
+        ->group(function () {
+            Route::get('/{admission}/create', [DischargeController::class, 'create'])->name('create');
+            Route::post('/{admission}/store', [DischargeController::class, 'store'])->name('store');
         });
 
          // observation routes
@@ -46,6 +67,22 @@ Route::name('patient.')
         ->group(function () {
             Route::get('/{patient}/record', [ObservationController::class, 'record'])->name('record');
             Route::post('/{patient}/register', [ObservationController::class, 'register'])->name('register');
+        });
+
+         // balance fluid routes
+        Route::name('fluidbalance.')
+        ->prefix('fluid-balance')
+        ->group(function () {
+            Route::get('/{patient}/record', [FluidBalanceController::class, 'record'])->name('record');
+            Route::post('/{patient}/register', [FluidBalanceController::class, 'register'])->name('register');
+        });
+
+         // observation routes
+        Route::name('drugchart.')
+        ->prefix('drugchart')
+        ->group(function () {
+            Route::get('/{patient}/record', [DrugchartController::class, 'record'])->name('record');
+            Route::post('/{patient}/register', [DrugchartController::class, 'register'])->name('register');
         });
 
         // prescription routes

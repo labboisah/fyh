@@ -15,4 +15,12 @@ class PrescriptionItem extends Model
     public function medicine() {
         return $this->belongsTo(Medicine::class);
     }
+
+    public function drugCharts() {
+        return $this->hasMany(DrugChart::class);
+    }
+
+    public function prescribedBy() {
+        return $this->belongsTo(User::class, 'prescribe_by');
+    }
 }

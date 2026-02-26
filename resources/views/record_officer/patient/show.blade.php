@@ -196,21 +196,7 @@
                         </div>
                     </div>
                     
-                    <div class="step @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists()) completed @endif">
-                        <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists())
-                                <i class="bi bi-check-circle"></i>
-                            @else
-                                <i class="bi bi-circle"></i>
-                            @endif
-                        </div>
-                        <div class="step-label">
-                            Vital Signs Check
-                            @if($patient->currentVisit() && $patient->currentVisit()->vitalSignsRequests()->exists())
-                                <small class="text-success">({{ $patient->currentVisit()->vitalSignsRequests()->count() }} requests)</small>
-                            @endif
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
             <style>
@@ -264,7 +250,7 @@
                     </a>
                 </div>
                 
-                @auth
+               
 
                     @if(auth()->user()->hasRole('accountant'))
                         <div class="d-grid gap-2">
@@ -282,13 +268,9 @@
                         </div>
                     @endif
                     
-                @endauth
+           
                 
-                <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-success">
-                        <i class="bi bi-heart-pulse me-2"></i>Request for Vital Signs Check
-                    </a>
-                </div>
+        
                 
                 <p class="text-muted small mt-3 mb-0">
                     <i class="bi bi-info-circle me-1"></i>

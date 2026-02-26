@@ -15,6 +15,7 @@
                         </button>
                     </li>
 
+                    @if(auth()->user()->hasRole('record_officer'))
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
@@ -23,22 +24,42 @@
                             <i class="bi bi-clock-history me-1"></i> Visits
                         </button>
                     </li>
+                    @endif
 
+                    @if(auth()->user()->hasRole('accountant'))
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#bills"
+                                type="button">
+                            <i class="bi bi-receipt me-1"></i> Bills
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#payments"
+                                type="button">
+                            <i class="bi bi-credit-card me-1"></i> Payments
+                        </button>
+                    </li>
+                    @endif
+                    
+                    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor'))
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
                                 data-bs-target="#investigations"
                                 type="button">
-                            <i class="bi bi-vial me-1"></i> Investigations
+                            <i class="bi bi-clipboard2-pulse me-1"></i> Investigations
                         </button>
                     </li>
-                    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor'))
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
                                 data-bs-target="#observations"
                                 type="button">
-                            <i class="bi bi-vial me-1"></i> Observations
+                            <i class="bi bi-eye me-1"></i> Observations
                         </button>
                     </li>
                     <!-- vital signs -->
@@ -47,26 +68,54 @@
                                 data-bs-toggle="tab"
                                 data-bs-target="#vitalsigns"
                                 type="button">
-                            <i class="bi bi-vial me-1"></i> Vital Signs
+                            <i class="bi bi-heart-pulse me-1"></i> Vital Signs
                         </button>
                     </li>
-                     <!-- drug chart -->
+                    <!-- vital signs -->
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#prescriptions"
+                                type="button">
+                            <i class="bi bi-prescription2 me-1"></i> Prescriptions
+                        </button>
+                    </li>
+                    <!-- drug chart -->
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
                                 data-bs-target="#drugchart"
                                 type="button">
-                            <i class="bi bi-vial me-1"></i> Drug Chart
+                            <i class="bi bi-capsule-pill me-1"></i> Drug Chart
                         </button>
                     </li>
-                    @endif
-                    <!-- nursing Note -->
+                    <!-- drug chart -->
                     <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#fluidbalance"
+                                type="button">
+                            <i class="bi bi-droplet me-1"></i> Fluid Balance
+                        </button>
+                    </li>
+                   
+                    <!-- nursing Note -->
+                    <li class="nav-item text-danger">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#continuations"
+                                type="button">
+                            <i class="bi bi-pencil me-1"></i> Continuation Sheet
+                        </button>
+                    </li>
+                     @endif
+
+                    <li class="nav-item text-danger">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
                                 data-bs-target="#actions"
                                 type="button">
-                            <i class="bi bi-vial me-1"></i> Quick Actions
+                            <i class="bi bi-lightning-charge me-1"></i> Quick Actions
                         </button>
                     </li>
 
@@ -78,8 +127,19 @@
 
                 <!-- BIO DATA -->
                 <div class="tab-pane fade show active" id="bio">
-
                     @include('patient.profile.infor')
+                </div>
+
+                @if($patient->currentVisit())
+                <div class="tab-pane fade" id="bills">
+
+                    @include('patient.profile.bill')
+
+                </div>
+
+                <div class="tab-pane fade" id="payments">
+
+                    @include('patient.profile.payment')
 
                 </div>
 
@@ -97,30 +157,82 @@
 
                 </div>
 
+                <div class="tab-pane fade" id="prescriptions">
+
+                    @include('patient.profile.prescription')
+
+                </div>
+
                 <!--  DRUG CHART -->
                 <div class="tab-pane fade" id="drugchart">
-
                     @include('patient.profile.drugchart')
+                </div>
+
+                <!--  DRUG CHART -->
+                <div class="tab-pane fade" id="fluidbalance">
+                    @include('patient.profile.fluidbalance')
                 </div>
                     <!-- NURSING NOTE -->
                 <div class="tab-pane fade" id="observations">
-                    
                     @include('patient.profile.observations')
                 </div>
                 <!-- INVESTIGATIONS -->
                 <div class="tab-pane fade" id="investigations">
-
                     @include('patient.profile.investigations')
+                </div>
 
+                <div class="tab-pane fade" id="continuations">
+                    @include('patient.profile.continuations')
                 </div>
                 <!-- QUICK ACTIONS -->
                 <div class="tab-pane fade" id="actions">
-
+                    @if($patient->currentVisit()->dischargedAdmission())
+                    <div class="alert alert-danger">Patient is discharged</div>
+                    @else
                     @include('patient.profile.actions')
+                    @endif
                 </div>
-
+                @else
+                <div class="alert alert-warning">No visit recorded, or patient was dischaged, if not pls referred the patient to record to record his visit</div>    
+                @endif
             </div>
         </div>
-
     </div>
-   
+
+    <style>
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #ccc;
+        }
+        
+        .step.completed {
+            background: #e8f8f5;
+            border-left-color: #27AE60;
+        }
+        
+        .step-marker {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .step.completed .step-marker {
+            color: #27AE60;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+        }
+    </style>

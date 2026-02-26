@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Record Vital Signs - ' . ($vitalSignsRequest->patientVisit->patient->demographic->full_name ?? 'Patient'))
+@section('title', 'Record Vital Signs - ' . ($patient->demographic->full_name ?? 'Patient'))
 
 @section('header')
 <div class="d-flex align-items-center gap-3">
     <i class="bi bi-heart-pulse text-danger" style="font-size: 2rem;"></i>
     <div>
         <h1 class="h3 mb-1">Record Vital Signs</h1>
-        <p class="mb-0 text-muted">Patient: <strong>{{ $vitalSignsRequest->patientVisit->patient->demographic->full_name ?? 'Unknown' }}</strong></p>
+        <p class="mb-0 text-muted">Patient: <strong>{{ $patient->demographic->full_name ?? 'Unknown' }}</strong></p>
     </div>
 </div>
 @endsection
@@ -20,7 +20,7 @@
                 <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Vital Signs Record</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('nurse.patients.vitalsigns.register', $vitalSignsRequest) }}" method="POST">
+                <form action="{{ route('patient.vitalsign.register', $patient) }}" method="POST">
                     @csrf
 
                     <div class="row mb-4">
@@ -167,7 +167,7 @@
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-check-circle me-2"></i> Record Vital Signs
                         </button>
-                        <a href="{{ route('nurse.patients.show', $vitalSignsRequest->patientVisit->patient) }}" class="btn btn-secondary">
+                        <a href="{{ route('nurse.patients.show', $patient) }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i> Cancel
                         </a>
                     </div>
@@ -201,11 +201,11 @@
             <div class="card-body">
                 <p class="mb-2">
                     <strong>Hospital Number:</strong><br>
-                    <span class="badge bg-primary">{{ $vitalSignsRequest->patientVisit->patient->hospital_number }}</span>
+                    <span class="badge bg-primary">{{ $patient->hospital_number }}</span>
                 </p>
                 <p class="mb-0">
                     <strong>Name:</strong><br>
-                    {{ $vitalSignsRequest->patientVisit->patient->demographic->full_name ?? 'N/A' }}
+                    {{ $patient->demographic->full_name ?? 'N/A' }}
                 </p>
             </div>
         </div>

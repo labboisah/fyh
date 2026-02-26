@@ -29,10 +29,10 @@ class AdminUserSeeder extends Seeder
         }
 
         $recordOfficer = User::firstOrCreate(
-            ['email' => 'recordofficer@hospital.test'],
+            ['email' => 'record@hospital.test'],
             [
                 'name' => 'Record Officer',
-                'password' => Hash::make('recordofficer@123'),
+                'password' => Hash::make('record@123'),
             ]);
             
         $recordOfficerRole = Role::where('name', 'record_officer')->first();
@@ -49,7 +49,7 @@ class AdminUserSeeder extends Seeder
             ['email' => 'pharmacist@hospital.test'],
             [
                 'name' => 'Pharmacist',
-                'password' => Hash::make('pharmacist@123'),
+                'password' => Hash::make('pharm@123'),
             ]);
             
         $pharmacistRole = Role::where('name', 'pharmacist')->first();
@@ -58,10 +58,10 @@ class AdminUserSeeder extends Seeder
         }
 
          $labTechnician = User::firstOrCreate(
-            ['email' => 'labtechnician@hospital.test'],
+            ['email' => 'lab@hospital.test'],
             [
                 'name' => 'Lab Technician',
-                'password' => Hash::make('labtechnician@123'),
+                'password' => Hash::make('lab@123'),
             ]);
             
         $labTechnicianRole = Role::where('name', 'lab_technician')->first();

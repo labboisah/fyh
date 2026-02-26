@@ -47,4 +47,15 @@ class InvestigationRequest extends Model
     {
         return $this->hasMany(InvestigationResult::class);
     }
+
+    public function bill() {
+        return $this->hasOne(Bill::class);
+    }
+
+    public function paymentStatus() {
+        if($this->bill)
+            return $this->bill->status;
+        else
+            return 'pending';
+    }
 }

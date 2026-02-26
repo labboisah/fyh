@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Admission;
 use App\Models\Patient;
 use App\Models\Bed;
 
@@ -27,5 +28,10 @@ class AdmissionController extends Controller
         
         $bed->update(['status'=>'occupied']);
         return redirect()->route('patient.show',$patient)->with('success','Admission Registerred');
+    }
+
+    public function confirmed(Admission $admission) {
+        $admission->update(['status'=>'confirmed']);
+        return redirect()->route('patient.show', $admission->patientVisit->patient)->with('success', 'Patient Admission Confirmed');
     }
 }

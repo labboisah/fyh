@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discharges', function (Blueprint $table) {
+        Schema::create('continuations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admission_id');
-            $table->foreignId('discharge_by')->constraint('users');
-            $table->string('time')->nullable();
+            $table->foreignId('patient_visit_id')->constraint('patient_visits');
+            $table->foreignId('written_by')->constraint('users');
+            $table->text('note');
             $table->timestamp('date')->default(now());
-            $table->text('reason');
+            $table->string('time')->default(date('h:m:s A'));
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('discharges');
+        Schema::dropIfExists('continuations');
     }
 };

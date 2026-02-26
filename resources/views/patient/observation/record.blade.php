@@ -15,6 +15,7 @@
 @section('content')
 <div class="row">
     <div class="col-lg-8">
+        @if($patient->currentVisit()->admissions()->count()> 0)
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-danger text-white">
                 <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Observation Recording</h5>
@@ -107,7 +108,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="constraction" class="form-label">Constraction (%) <span class="text-danger">*</span></label>
-                                <input type="number" id="constraction" name="constraction" step="0.1" min="50" max="100"
+                                <input type="text" id="constraction" name="constraction" step="0.1" min="50" max="100"
                                     class="form-control @error('constraction') is-invalid @enderror"
                                     placeholder="98.0" value="{{ old('constraction') }}" required>
                                 <small class="text-muted">Normal: 95-100%</small>
@@ -153,11 +154,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="notes" class="form-label">Remark</label>
-                        <textarea id="notes" name="notes" rows="3"
-                            class="form-control @error('notes') is-invalid @enderror"
-                            placeholder="Any additional observations or notes...">{{ old('notes') }}</textarea>
-                        @error('notes')
+                        <label for="remark" class="form-label">Remark</label>
+                        <textarea id="remark" name="remark" rows="3"
+                            class="form-control @error('remark') is-invalid @enderror"
+                            placeholder="Any additional observations or remark...">{{ old('remark') }}</textarea>
+                        @error('remark')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -173,6 +174,9 @@
                 </form>
             </div>
         </div>
+        @else
+        <div class="alert alert-warning">No Admission Record found to record the observation  <a class="btn btn-outline-secondary" href="{{route('patient.show',$patient)}}"><i class="bi bi-arrow-left me-2"></i>Back to Patient Profile</a></div>
+        @endif
     </div>
 
     <!-- Reference Card -->

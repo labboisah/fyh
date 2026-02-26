@@ -12,4 +12,20 @@ class Admission extends Model
     {
         return $this->belongsTo(User::class, 'admitted_by');
     }
+
+    public function patientVisit() {
+        return $this->belongsTo(PatientVisit::class);
+    }
+
+    public function fluidBalances(){
+        return $this->hasMany(FluidBalance::class);
+    }
+
+    public function observations() {
+        return $this->hasMany(Observation::class);
+    }
+
+    public function discharge() {
+        return $this->hasOne(Discharge::class);
+    }
 }

@@ -22,11 +22,11 @@
                         @csrf
                         <div class="form-group mb-2">
                             <label for="date">Date</label>
-                            <input type="date" class="form-control" name="date">
+                            <input type="date" class="form-control" name="date" value={{date(now())}}>
                         </div>
                         <div class="form-group mb-2">
                             <label for="time">Time</label>
-                            <input type="time" class="form-control" name="time">
+                            <input type="time" class="form-control" name="time" value={{date("h:i:s A")}}>
                         </div>
                         <div class="form-group mb-2">
                             <label for="time">Reason of Admission</label>

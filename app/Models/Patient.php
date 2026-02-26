@@ -62,7 +62,7 @@ class Patient extends Model
 
     // currnt visit
     public function currentVisit() { 
-        return $this->patientVisits()->where('status','Active')->latest()->first(); 
+        return $this->patientVisits()->latest('created_at')->first(); 
     }
     /**
      * Generate unique hospital number
@@ -105,6 +105,46 @@ class Patient extends Model
             'outstanding' => $total - $paid,
             'revenue' => $paid,
             'reversed' => $reversed // Placeholder for any reversed payments logic
+        ];
+    }
+
+     public function bills()
+    {
+        $amount = 0;
+        $paid = 0;
+        $pending = 0;
+        $overdue = 0;
+        $partial = 0;
+        
+
+        foreach ($this->patientVisits as $visit) {
+            foreach ($visit->bills as $bill) {
+                $amount+=$bill->amount;
+
+                if($bill->status == 'paid'){
+                    $paid += $bill->amount;
+                }elseif($bill->status == 'pending'){
+                    $pending += $bill->amount;
+                    if(time() > strtotime($bill->due_date)){
+                        $overdue+=$bill->getBalanceAttribute();
+                    }
+                }elseif($bill->status == 'partial'){
+                    $partial += $bill->totalPaid();
+                    if(time() > strtotime($bill->due_date)){
+                        $overdue+=$bill->getBalanceAttribute();
+                    }
+                }
+
+            }
+        }
+
+        return [
+            'amount' => $amount,
+            'paid' => $paid,
+            'partial' => $partial,
+            'pending' => $pending,
+            'overdue' => $overdue,
+            
         ];
     }
 

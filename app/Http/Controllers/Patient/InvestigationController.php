@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Nurse;
+namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Patient;
-use App\Models\Bill;
 use App\Models\Service;
+use App\Models\Bill;
 
 class InvestigationController extends Controller
 {
     public function create(Patient $patient)
     {
-        return view('nurse.patient.investigation.create', compact('patient'));
+        return view('patient.investigation.create', compact('patient'));
     }
 
     public function store(Request $request, $patientId)
@@ -28,7 +28,7 @@ class InvestigationController extends Controller
 
         // Create the investigation request $table->unsignedBigInteger('patient_visit_id');
 
-        $investigationRequest = $patient->currentVisit()->investigationRequests()->create([
+        $investigationRequest = $patient->currentVisit()->investigationRequests()->firstOrCreate([
             'investigation_id' => $request->input('investigation'),
             'requested_by' => auth()->id(),
             'clinical_diagnoses' => $request->input('clinical_diagnoses'),
@@ -37,7 +37,7 @@ class InvestigationController extends Controller
         ]);
 
         // create bill for this investigation
-        $bill = $patient->currentVisit()->bills()->create([
+        $bill = $investigationRequest->bills()->create([
             'amount' => $investigationRequest->investigation->price ?? 0,
             'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
             'status' => 'pending',
@@ -63,13 +63,13 @@ class InvestigationController extends Controller
             'service_id' => $service->id,
         ]);
 
-        return redirect()->route('nurse.patients.show', $patient)->with('success', 'Investigation request created successfully.');
+        return redirect()->route('patient.show', $patient)->with('success', 'Investigation request created successfully.');
     }
 
     public function show($investigationRequestId)
     {
         $investigationRequest = \App\Models\InvestigationRequest::findOrFail($investigationRequestId);
 
-        return view('nurse.patient.investigation.show', compact('investigationRequest'));
+        return view('patient.investigation.show', compact('investigationRequest'));
     }
 }

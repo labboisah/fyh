@@ -422,7 +422,7 @@
 
                             @if(Auth::user()->hasRole('lab_technician'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>Lab Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{App\Models\InvestigationRequest::where('status', 'pending')->count()}} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -444,7 +444,7 @@
                             @if(Auth::user()->hasRole('administrator'))
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.index') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Controle</a>
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.index') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Control</a>
                                 </li>
                                 <!-- Add more admin-specific links here -->
                                  <li class="nav-item">

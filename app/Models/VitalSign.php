@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PatientVisitVitalSign extends Model
+class VitalSign extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'patient_visit_vital_signs';
 
     protected $fillable = [
-        'vital_signs_request_id',
+        'patient_visit_id',
         'body_temperature',
         'blood_pressure_systolic',
         'blood_pressure_diastolic',
@@ -43,9 +42,9 @@ class PatientVisitVitalSign extends Model
     /**
      * Get the patient for this vital sign record
      */
-    public function vitalSignsRequest()
+    public function patientVisit()
     {
-        return $this->belongsTo(VitalSignsRequest::class);
+        return $this->belongsTo(PatientVisit::class);
     }
 
     /**

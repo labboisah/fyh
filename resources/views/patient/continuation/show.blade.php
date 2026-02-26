@@ -1,10 +1,27 @@
+@extends('layouts.app')
 
-    <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="bi bi-vial me-2"></i>Investigation Requests</h5>
-    </div>
-    <div class="card-body">
-        @if($patient->currentVisit()->investigationRequests()->count() > 0)
-            @foreach($patient->currentVisit()->investigationRequests as $investigationRequest)
+@section('title', 'Investigation Result')
+
+@section('header')
+    <div class="d-flex justify-content-between align-items-center">
+    <h1 class="h3 d-flex align-items-center mb-0">
+        <i class="bi bi-clipboard2 me-2 text-primary"></i>
+        <span class="text-muted">Investigation Result for  {{$investigationRequest->patientVisit->patient->hospital_number ?? 'N/A' }}</span>
+    </h1>
+    <a href="{{ route('nurse.patients.show', $investigationRequest->patientVisit->patient) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Patient
+    </a>
+</div>
+@endsection
+
+@section('content')
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            
+            <div class="card-body shadow p-4">
+               
                 <h5 class="mb-4 d-flex align-items-center gap-2">
                     <i class="bi bi-eyedropper me-2 text-primary"></i>
                     <b><em>{{ $investigationRequest->investigation->investigationType->name }}</em></b> Investigation Details
@@ -55,8 +72,10 @@
                         <td><b>Clinical Notes:</b></td><td>{{ $investigationRequest->clinical_diagnoses }}</td>  
                     </tr>
                 </table>
-            @endforeach
-        @else
-            <p class="text-muted">No pending investigation requests.</p>
-        @endif
+                 
+            </div>
+        </div>
     </div>
+</div>
+@endsection         
+
