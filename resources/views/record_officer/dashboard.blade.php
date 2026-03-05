@@ -155,7 +155,7 @@
                                             <td>{{ $patient->demographic->phone_number ?? 'N/A' }}</td>
                                             <td>{{ $patient->registration_date->format('M d, Y') }}</td>
                                             <td class="text-center">
-                                                <a href="{{ route('record_officer.patients.show', $patient) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View
                                                 </a>
                                             </td>

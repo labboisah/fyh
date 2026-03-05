@@ -104,4 +104,43 @@ class PatientVisit extends Model
     public function fluidBalances() {
         return $this->hasMany(FluidBalance::class);
     }
+
+    public function generateFileOpeningBill() {
+        $this->bills()->create([
+            'service_description'=>'File Opening',
+            'amount'=>'3000',
+            'bill_number'=>Bill::generateBillNumber(),
+            'status'=>'pending',
+            'issued_by'=>auth()->user()->id,
+            'issued_date'=>date('d M, Y'),
+            'due_date'=>now()->addDays(2)->toDateString()
+        ]); 
+    }
+
+    public function generateServiceBillOf(Service $service) {
+        $this->bills()->create([
+            'service_description'=>$service->description,
+            'amount'=>$service->price,
+            'status'=>'pending',
+            'issued_by'=>auth()->user()->id,
+            'issued_date'=>date('d M, Y'),
+            'due_date'=>now()->addDays(2)->toDateString(),
+            'bill_number'=>Bill::generateBillNumber()
+        ]);
+        
+    }
+
+    public function generateBedSpaceBill(Admission $admission, Bed $bed, $days) {
+        $this->bills()->create([
+            'admission_id'=>$admission->id,
+            'service_description'=>'Bed Space Charges',
+            'amount'=>$bed->ward->price*$days,
+            'status'=>'pending',
+            'issued_by'=>auth()->user()->id,
+            'issued_date'=>date('d M, Y'),
+            'due_date'=>now()->addDays(2)->toDateString(),
+            'bill_number'=>Bill::generateBillNumber()
+        ]);
+        
+    }
 }

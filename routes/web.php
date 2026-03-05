@@ -106,7 +106,7 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Payments Management
     Route::get('payments', [AccountantController::class, 'listPayments'])->name('payments.index');
-    Route::get('{bill}/payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
+    Route::get('{patient}/payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
     Route::post('payments', [AccountantController::class, 'storePayment'])->name('payments.store');
     Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payment-receipt');
     Route::get('patients/{patient}/payment-history', [AccountantController::class, 'patientPaymentHistory'])->name('patient-payment-history');
@@ -135,5 +135,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/auth.php';
 require __DIR__.'/nurse.php';
 require __DIR__.'/lab.php';
+require __DIR__.'/radiograph.php';
 require __DIR__.'/doctor.php';
 require __DIR__.'/patient.php';

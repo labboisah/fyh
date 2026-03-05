@@ -4,14 +4,18 @@
 
 @section('header')
 <div class="d-flex align-items-center gap-3">
-    <i class="bi bi-person-vcard text-success" style="font-size: 2rem;"></i>
+    
     <div>
-        <h1 class="h3 mb-1">{{ $patient->demographic->full_name ?? 'Patient Details' }}</h1>
+        <h1 class="h3 mb-1"><i class="bi bi-person-vcard text-success" style="font-size: 2rem;"></i> {{ $patient->demographic->full_name ?? 'Patient Details' }}</h1>
         <p class="mb-0 text-muted">
             Hospital Number:
             <strong class="text-success">{{ $patient->hospital_number }}</strong>
         </p>
         @if($patient->currentVisit())
+        <p class="mb-0 text-muted">
+           Registered At:
+           <strong class="text-success">{{ date('M d, Y',strtotime($patient->created_at))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
+        </p>
         <p class="mb-0 text-muted">
            Last Hospital Visit on:
            <strong class="text-success">{{ date('M d, Y',strtotime($patient->currentVisit()->visit_date))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
@@ -23,6 +27,11 @@
         <p class="mb-0 text-muted">
            Admission Status:
            <strong class="text-success">{{ $patient->currentVisit()->admissionStatus() }}</strong>
+        </p>
+
+        <p class="mb-0 text-muted">
+           Pending Balance:
+           <strong class="{{$patient->payment()['pending']> 0 ? 'text-danger' : 'text-success'}}">{{ number_format($patient->payment()['pending'], 2) }}</strong>
         </p>
         
         @if(auth()->user()->hasRole('nurse') && $registeredAdmission = $patient->currentVisit()->registeredAdmission())

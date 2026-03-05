@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamp('date');
             $table->string('time');
             $table->text('note')->nullable();
-            $table->string('reason')->nullable();
             $table->foreignId('admitted_by')->constrained('users')->onDelete('restrict');
             $table->string('status')->default('registered');
             $table->timestamps();

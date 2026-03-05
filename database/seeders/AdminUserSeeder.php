@@ -101,6 +101,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Radiologist',
                 'password' => Hash::make('radio@123'),
+                'department_id'=>1
             ]);
             
         $radiologistRole = Role::where('name', 'radiologist')->first();

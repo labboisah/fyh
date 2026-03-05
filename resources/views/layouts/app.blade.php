@@ -422,10 +422,19 @@
 
                             @if(Auth::user()->hasRole('lab_technician'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{App\Models\InvestigationRequest::where('status', 'pending')->count()}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->pendingInvestigation())}} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
+                            </li>
+                            @endif
+
+                            @if(Auth::user()->hasRole('radiologist'))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->pendingInvestigation())}} Requests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
                             </li>
                             @endif
 

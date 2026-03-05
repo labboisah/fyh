@@ -34,10 +34,9 @@
                         <label for="visit_type" class="form-label">Visit Type <span class="text-danger">*</span></label>
                         <select class="form-select @error('visit_type') is-invalid @enderror" id="visit_type" name="visit_type" required>
                             <option value="">Select Visit Type</option>
-                            <option value="Consultation" {{ old('visit_type') == 'Consultation' ? 'selected' : '' }}>Consultation</option>
-                            <option value="Follow-up" {{ old('visit_type') == 'Follow-up' ? 'selected' : '' }}>Follow-up</option>
-                            <option value="Emergency" {{ old('visit_type') == 'Emergency' ? 'selected' : '' }}>Emergency</option>
-                            <option value="Routine" {{ old('visit_type') == 'Routine' ? 'selected' : '' }}>Routine Checkup</option>
+                            @foreach(App\Models\Service::all() as $service)
+                            <option value="{{$service->id}}" {{ old('visit_type') == $service->id ? 'selected' : '' }}>{{$service->name}}</option>
+                            @endforeach
                         </select>
                         @error('visit_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

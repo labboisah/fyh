@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('wards', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->decimal('price')->nullable();
             $table->string('capacity');
             $table->timestamps();
         });

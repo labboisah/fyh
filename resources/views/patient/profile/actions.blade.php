@@ -110,18 +110,16 @@
                     </a>
                 </div>
             </div>
-            @foreach($patient->currentVisit()->bills as $bill)
-            @if($bill->getBalanceAttribute() > 0)
+            @if($patient->payment()['pending'] > 0)
          
             <div class="col-md-2">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('accountant.payments.create', $bill) }}" class="btn btn-outline-success">
-                        <i class="bi bi-cash-coin me-2"></i>Record Payment of N{{number_format($bill->getBalanceAttribute(),2 )}}
+                    <a href="{{ route('accountant.payments.create', $patient) }}" class="btn btn-outline-success">
+                        <i class="bi bi-cash-coin me-2"></i>Record Payment of N{{number_format($patient->payment()['pending'],2 )}}
                     </a>
                 </div>
             </div>
             @endif
-            @endforeach
         @endif  
         </div>
     </div>

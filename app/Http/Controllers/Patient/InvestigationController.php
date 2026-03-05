@@ -38,30 +38,16 @@ class InvestigationController extends Controller
 
         // create bill for this investigation
         $bill = $investigationRequest->bill()->create([
+            'patient_visit_id'=>$patient->currentVisit()->id,
             'amount' => $investigationRequest->investigation->price ?? 0,
             'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
             'status' => 'pending',
             'issued_by' => auth()->id(),
             'issued_date' => now(),
             'bill_number' =>  Bill::generateBillNumber(),
+            'due_date'=>now()->addDays(2)->toDateString()
         ]);
 
-        $service = Service::firstOrCreate([
-            'code' => $investigationRequest->investigation->code ?? 'INV-' . $investigationRequest->investigation_id,
-            'name' => $investigationRequest->investigation->name,
-            'price' => $investigationRequest->investigation->price ?? 0,
-            'category' => $investigationRequest->investigation->investigationType->name ?? 'Investigation',
-         ], 
-         [
-            'description' => 'Investigation service for billing',
-        ]);
-        
-        $bill->billServices()->create([
-            'quantity' => 1,
-            'unit_price' => $service->price,
-            'subtotal' => $service->price,
-            'service_id' => $service->id,
-        ]);
 
         return redirect()->route('patient.show', $patient)->with('success', 'Investigation request created successfully.');
     }

@@ -58,7 +58,21 @@ class Patient extends Model
     }
 
    
-   
+    public function recordFirstVisit() {
+
+        $visit = $this->patientVisits()->create([
+            'visit_date'=>date('d M, Y'),
+            'visit_type'=>'Consultation',
+            'created_by'=>auth()->user()->id
+        ]);
+
+        $visit->generateFileOpeningBill();
+
+        $service = Service::where('name','General Consultation')->first();
+
+        $visit->generateServiceBillOf($service);
+
+    }
 
     // currnt visit
     public function currentVisit() { 
@@ -87,13 +101,12 @@ class Patient extends Model
         foreach ($this->patientVisits as $visit) {
             foreach ($visit->bills as $bill) {
                 foreach ($bill->payments as $payment) {
-                    $total += $bill->amount;
                     if ($payment->status === 'completed') {
                         $paid += $payment->amount;
                         $count++;
                     }
-                    
                 }
+                $total += $bill->amount;
             }
         }
 

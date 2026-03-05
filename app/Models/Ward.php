@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ward extends Model
 {
-    protected $fillable = ['name', 'capacity'];
+    protected $fillable = ['name', 'capacity','price'];
 
     public function beds()
     {

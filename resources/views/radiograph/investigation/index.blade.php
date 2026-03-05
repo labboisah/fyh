@@ -8,7 +8,7 @@
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
         Manage Investigations
     </h1>
-    <a href="{{ route('lab.investigations.create') }}" class="btn btn-primary">
+    <a href="{{ route('radiograph.investigations.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>
         New Investigation
     </a>

@@ -151,7 +151,7 @@
                             </button>
                         </div>
                         <div class="col-md-6">
-                            <a href="{{ route('accountant.payments.index') }}" class="btn btn-primary w-100">
+                            <a href="{{ route('accountant.payments.create', $payment->bill->patientVisit->patient) }}" class="btn btn-primary w-100">
                                 <i class="bi bi-arrow-left"></i> Back to Payments
                             </a>
                         </div>

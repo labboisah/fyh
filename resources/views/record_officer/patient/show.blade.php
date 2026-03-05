@@ -182,7 +182,7 @@
                     <!--  -->
                     <div class="step @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0) completed @endif">
                         <div class="step-marker">
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0)
+                            @if($patient->payment()['pending'] <= 0)
                                 <i class="bi bi-check-circle"></i>
                             @else
                                 <i class="bi bi-circle"></i>
@@ -190,7 +190,7 @@
                         </div>
                         <div class="step-label">
                             Record Payment
-                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0)
+                            @if($patient->payment()['pending'] <= 0)
                                 <small class="text-success">({{ $patient->currentVisit()->bills()->count() }} payments)</small>
                             @endif
                         </div>

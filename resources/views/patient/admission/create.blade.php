@@ -29,10 +29,6 @@
                             <input type="time" class="form-control" name="time" value={{date("h:i:s A")}}>
                         </div>
                         <div class="form-group mb-2">
-                            <label for="time">Reason of Admission</label>
-                            <textarea name="reason" class="form-control" id="" cols="100%" rows="3"></textarea>
-                        </div>
-                        <div class="form-group mb-2">
                             <label for="note">Note</label>
                             <textarea name="note" class="form-control" id="" cols="100%" rows="3"></textarea>
                         </div>
@@ -53,6 +49,15 @@
                             </select>
                         </div>
 
+                        <div class="form-group mb-2">
+                            <label for="days">For How Long?</label>
+                            <select name="days" id="days" class="form-control" required>
+                            @for($days=1; $days<= 14; $days++)    
+                                <option value="{{$days}}">{{$days}} Days</option>
+                            @endfor
+                            </select>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary">Admit Patient</button>
                     </form>
                 </div>

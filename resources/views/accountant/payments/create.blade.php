@@ -9,23 +9,20 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <!-- lets display some information about patient and bill -->
-                    @if($bill)
+                    @if($patient)
                         <div class="alert alert-info mb-3">
-                            <strong>Patient:</strong> {{ $bill->patientVisit->patient->demographic->first_name }} {{ $bill->patientVisit->patient->demographic->last_name }}<br>
-                            <strong>Bill Number:</strong> {{ $bill->bill_number }}<br>
-                            <strong>Amount:</strong> {{ number_format($bill->amount, 2) }}<br>
-                            <strong>Balance Due:</strong> {{ number_format($bill->balance, 2) }}
+                            <strong>Patient:</strong> {{ $patient->demographic->first_name }} {{ $patient->demographic->last_name }}<br>
+                            <strong>Amount:</strong> {{ number_format($patient->payment()['total'], 2) }}<br>
+                            <strong>Balance Due:</strong> {{ number_format($patient->payment()['pending'], 2) }}
                         </div>
                     @endif
                     <form action="{{ route('accountant.payments.store') }}" method="POST">
                         @csrf
 
-                    
-                            
-
+                        <input type="hidden" value="{{$patient->id}}" name='patient_id'>
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
-                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount', $bill->amount ?? 0) }}" required>
+                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount', $patient->payment()['pending'] ?? 0) }}" required>
                             @error('amount')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

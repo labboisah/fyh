@@ -199,7 +199,7 @@ class AccountantController extends Controller
     /**
      * Show form for recording a payment.
      */
-    public function createPayment(Request $request, Bill $bill = null)
+    public function createPayment(Request $request, Patient $patient = null)
     {
         
        
@@ -210,7 +210,7 @@ class AccountantController extends Controller
         // Pre-select patient if patient_id is provided (from quick action)
         
         
-        return view('accountant.payments.create', compact('bill', 'paymentMethods'));
+        return view('accountant.payments.create', compact('patient', 'paymentMethods'));
     }
 
 
@@ -226,26 +226,45 @@ class AccountantController extends Controller
             'reference_number' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
         ]);
+        $patient = Patient::find($request->patient_id);
 
-        $validated['paid_by'] = Auth::id();
-        $validated['status'] = 'completed';
-        $validated['payment_id'] = Payment::generatePaymentID();
-        $validated['bill_id'] = $request->input('bill_id'); // Optional, if payment is linked to a bill
+        $payableAmout = $request->amount;
+        foreach($patient->patientVisits as $visit){
+            foreach($visit->bills as $bill){
+                if($bill->getBalanceAttribute() > 0 && $payableAmout > 0){
+                    $data = [];
+                    $data['paid_by'] = Auth::id();
+                    $data['status'] = 'completed';
+                    $data['payment_id'] = Payment::generatePaymentID();
+                    $data['payment_date'] = date('d M, Y');
+                    $data['bill_id'] = $bill->id;
+                    $data['reference_number'] = $request->reference_number;
+                    
+                    $billPendingPayment = $bill->getBalanceAttribute();
 
-        $payment = Payment::create($validated);
+                    if($payableAmout > $billPendingPayment){
+                        $data['amount'] = $billPendingPayment;
+                        $payableAmout -= $billPendingPayment;
+                    }else{
+                        $data['amount'] = $payableAmout;
+                    }
+                    
 
-        // Update bill status if bill_id provided
-        if ($validated['bill_id']) {
-            $bill = Bill::find($validated['bill_id']);
-            $totalPaid = $bill->totalPaid() + $validated['amount'];
+                    $payment = Payment::create($data);
 
-            if ($totalPaid >= $bill->amount) {
-                $bill->update(['status' => 'paid']);
-            } else {
-                $bill->update(['status' => 'partial']);
+                    // Update bill status if bill_id provided
+                    
+                    $totalPaid = $bill->totalPaid();
+
+                    if ($totalPaid >= $bill->amount) {
+                        $bill->update(['status' => 'paid']);
+                    } else {
+                        $bill->update(['status' => 'partial']);
+                    }
+                    
+                }
             }
         }
-
         // Load relationships for receipt
         $payment->load(['bill', 'recordedBy']);
 
@@ -258,6 +277,7 @@ class AccountantController extends Controller
      */
     public function paymentReceipt(Payment $payment)
     {
+        
         $payment->load(['bill.services', 'patient', 'recordedBy']);
         return view('accountant.payments.receipt', compact('payment'));
     }

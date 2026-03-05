@@ -15,18 +15,26 @@ class AdmissionController extends Controller
     }
 
     public function store(Request $request, Patient $patient) {
-        $request->validate(['bed_id'=>'required', 'date'=>'required']);
-        $patient->currentVisit()->admissions()->create([
+
+        $request->validate([
+            'bed_id'=>'required', 
+            'date'=>'required', 
+            'days'=>'required'
+            ]);
+
+        $admission = $patient->currentVisit()->admissions()->create([
             'date'=>$request->date,
             'bed_id'=>$request->bed_id,
             'note'=>$request->note,
             'time'=>$request->time,
-            'reason'=>$request->reason,
             'admitted_by'=> auth()->user()->id
             ]);
         $bed = Bed::find($request->bed_id);
         
         $bed->update(['status'=>'occupied']);
+
+        $patient->currentVisit()->generateBedSpaceBill($admission, $bed, $request->days);
+
         return redirect()->route('patient.show',$patient)->with('success','Admission Registerred');
     }
 

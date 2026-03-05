@@ -6,7 +6,7 @@ use App\Models\Patient;
 use App\Models\PatientDemographic;
 use App\Models\NextOfKin;
 use App\Models\PatientVisit;
-use App\Models\Appointment;
+use App\Models\Service;
 use App\Models\PatientAdmission;
 use App\Models\PatientReferral;
 use Illuminate\Http\Request;
@@ -72,7 +72,7 @@ class RecordOfficerController extends Controller
             'nok_contact_address' => 'nullable|string|max:500',
             'nok_telephone' => 'required|string|max:20',
         ]);
-
+        
         try {
             DB::beginTransaction();
 
@@ -110,12 +110,12 @@ class RecordOfficerController extends Controller
                 'contact_address' => $validated['nok_contact_address'],
                 'telephone' => $validated['nok_telephone'],
             ]);
-
+            $patient->recordFirstVisit();
             DB::commit();
 
             return redirect()->route('record_officer.patients.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");
-
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Failed to register patient. ' . $e->getMessage()])->withInput();
@@ -262,7 +262,7 @@ class RecordOfficerController extends Controller
 
         $validated = $request->validate([
             'visit_date' => 'required',
-            'visit_type' => 'required|in:Consultation,Follow-up,Emergency,Walk-in',
+            'visit_type' => 'required',
         ]);
 
         try {
@@ -274,6 +274,11 @@ class RecordOfficerController extends Controller
                 'status' => 'Active',
                 'created_by' => auth()->id(),
             ]);
+
+            $service= Service::find($validated['visit_type']);
+
+            $visit->generateServiceBillOf($service);
+
             DB::commit();
             // redirect to patient visit bill creation
             return redirect()->route('patient.show', $patient)

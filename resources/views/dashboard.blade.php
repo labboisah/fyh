@@ -30,7 +30,11 @@
 
     @if(auth()->user()->hasRole('administrator'))
         @include('admin.dashboard')
-    @endif   
+    @endif 
+    
+    @if(auth()->user()->hasRole('radiologist'))
+        @include('radiograph.dashboard')
+    @endif 
 
 @endsection
 

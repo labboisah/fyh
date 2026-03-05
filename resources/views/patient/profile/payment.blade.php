@@ -9,9 +9,9 @@
             <th>Insurance Provider</th>
             <th>Reference Number</th>
             <th>Status</th>
-            <th>Notes</th>
             <th>Payment Date</th>
             <th>Paid By</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -26,9 +26,9 @@
                     <td>{{$payment->insurance_provider}}</td>
                     <td>{{$payment->reference_number}}</td>
                     <td>{{$payment->status}}</td>
-                    <td>{{$payment->notes}}</td>
                     <td>{{$payment->payment_date}}</td>
                     <td>{{$payment->recordedBy->name}}</td>
+                    <td><a href="{{route('accountant.payment-receipt',$payment)}}">Print Receipt</a></td>
                 </tr>
                 @endforeach
             @endforeach
@@ -36,10 +36,10 @@
     </tbody>
 </table>
 <div class="infor">
-    <p>Total:  {{$patient->payment()['total']}}</p>
-    <p>Count:  {{$patient->payment()['count']}}</p>
-    <p>Paid:  {{$patient->payment()['paid']}}</p>
-    <p>Pending:  {{$patient->payment()['pending']}}</p>
-    <p>Reversed:  {{$patient->payment()['reversed']}}</p>
+    <p>Total:  {{number_format($patient->payment()['total'], 2)}}</p>
+    <p>Number of Payments:  {{$patient->payment()['count']}}</p>
+    <p>Paid:  {{number_format($patient->payment()['paid'], 2)}}</p>
+    <p>Pending:  {{number_format($patient->payment()['pending'], 2)}}</p>
+    <p>Reversed:  {{number_format($patient->payment()['reversed'], 2)}}</p>
 </div>
  

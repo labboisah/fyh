@@ -66,7 +66,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('record_officer.patients.show', $patient) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye me-1"></i>View
                                         </a>
                                         <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-sm btn-outline-success">
