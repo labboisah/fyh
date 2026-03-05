@@ -33,6 +33,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Record Officer',
                 'password' => Hash::make('record@123'),
+                'department_id'=>4
             ]);
             
         $recordOfficerRole = Role::where('name', 'record_officer')->first();
@@ -50,6 +51,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Pharmacist',
                 'password' => Hash::make('pharm@123'),
+                'department_id'=>3
             ]);
             
         $pharmacistRole = Role::where('name', 'pharmacist')->first();
@@ -62,6 +64,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Lab Technician',
                 'password' => Hash::make('lab@123'),
+                'department_id'=>2
             ]);
             
         $labTechnicianRole = Role::where('name', 'lab_technician')->first();
@@ -91,6 +94,18 @@ class AdminUserSeeder extends Seeder
         $doctorRole = Role::where('name', 'doctor')->first();
         if ($doctorRole && !$doctor->hasRole('doctor')) {
             $doctor->assignRole($doctorRole);
+        }
+
+        $radiologist = User::firstOrCreate(
+            ['email' => 'radio@hospital.test'],
+            [
+                'name' => 'Radiologist',
+                'password' => Hash::make('radio@123'),
+            ]);
+            
+        $radiologistRole = Role::where('name', 'radiologist')->first();
+        if ($radiologistRole && !$radiologist->hasRole('radiologist')) {
+            $radiologist->assignRole($radiologistRole);
         }
 
     }

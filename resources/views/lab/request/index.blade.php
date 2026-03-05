@@ -15,7 +15,7 @@
         <div class="col-md-12">
            
                 <div class="card-body shadow p-4">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped datatable">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -45,7 +45,7 @@
                                 <td>{{ $investigationRequest->specimen }}</td>
                                 <td>{{ $investigationRequest->created_at }}</td>
                                 <td>
-                                    @if($investigationRequest->paymentStatus() == 'paid')
+                                    @if($investigationRequest->paymentStatus() != 'paid')
                                         @if($investigationRequest->status !== 'Completed')
                                         <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-send me-1"></i> Send Result

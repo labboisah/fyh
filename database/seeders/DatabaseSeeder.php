@@ -28,5 +28,7 @@ class DatabaseSeeder extends Seeder
 
         // Create services
         $this->call(ServiceSeeder::class);
+        
+        $this->call(InvestigationSeeder::class);
     }
 }

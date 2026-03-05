@@ -37,7 +37,7 @@ class InvestigationController extends Controller
         ]);
 
         // create bill for this investigation
-        $bill = $investigationRequest->bills()->create([
+        $bill = $investigationRequest->bill()->create([
             'amount' => $investigationRequest->investigation->price ?? 0,
             'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
             'status' => 'pending',

@@ -17,7 +17,9 @@
 
 @section('content')
     <div class="container">
-        <table class="table table-striped">
+        @foreach (auth()->user()->department->investigationTypes as $investigationType)
+        <h5 class="text-muted">{{$investigationType->name}}</h5>
+        <table class="table table-striped datatable">
             <thead>
                 <tr>
                     <th>#</th>
@@ -29,7 +31,8 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse (App\Models\Investigation::where('investigation_type_id', 1)->get() as $investigation)
+                
+                @foreach ($investigationType->investigations as $investigation)
                     <tr>
                         <td>{{$loop->iteration}}</td>
                         <td>{{ $investigation->code }}</td>
@@ -51,12 +54,11 @@
                         
                         </td>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center">No investigations found.</td>
-                    </tr>
-                @endforelse
+               
+                @endforeach
+                
             </tbody>
         </table>
+        @endforeach
     </div>
 @endsection

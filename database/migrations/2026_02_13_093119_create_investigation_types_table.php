@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('investigation_types', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('department_id');
             $table->string('name');
             $table->boolean('is_active')->default(true);
             $table->softDeletes();

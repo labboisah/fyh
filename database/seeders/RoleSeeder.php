@@ -48,6 +48,11 @@ class RoleSeeder extends Seeder
                 'display_name' => 'Accountant',
                 'description' => 'Manages billing, payments, and financial records',
             ],
+            [
+                'name' => 'radiologist',
+                'display_name' => 'Accountant',
+                'description' => 'Manages billing, payments, and financial records',
+            ],
         ];
 
         foreach ($roles as $role) {
