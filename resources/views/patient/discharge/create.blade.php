@@ -34,6 +34,10 @@ $patient = $admission->patientVisit->patient;
                             <label for="time">Discharge Note</label>
                             <textarea name="reason" class="form-control" id="" cols="100%" rows="3"></textarea>
                         </div>
+                        <div class="form-group mb-2">
+                            <label for="date">Next Appointment Date</label>
+                            <input type="date" class="form-control" name="next_appointment_date" value={{date(now())}}>
+                        </div>
 
                         <button type="submit" class="btn btn-primary">Dischage Patient</button>
                     </form>

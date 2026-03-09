@@ -9,17 +9,7 @@ class Bill extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = [
-        'patient_visit_id',
-        'bill_number',
-        'service_description',
-        'amount',
-        'status',
-        'notes',
-        'issued_by',
-        'issued_date',
-        'due_date',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'amount' => 'decimal:2',

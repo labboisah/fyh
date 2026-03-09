@@ -36,6 +36,23 @@
                                 <option value="">Select Medicine</option>
                             </select>
                         </div>
+
+                        <input type="text" id="other_medicine"
+                        name="other_medicine"
+                        class="form-control mt-2"
+                        placeholder="Enter medicine name"
+                        style="display:none;">
+
+                        <div class="form-group mb-2">
+                            <label for="ward_id">Route</label>
+                            <select name="route_id" id="route_id" class="form-control" required>
+                                <option value="">Select Route of Medication</option>
+                                @foreach(App\Models\Route::all() as $route)
+                                <option value="{{$route->id}}">{{$route->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-group mb-2">
                             <label for="date">Dosage</label>
                             <input type="text" class="form-control" name="dosage" required placeholder="Pls, specify value in g, mm, or ml">
@@ -75,16 +92,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const medicineTypeSelect = document.getElementById('medicine_type_id');
     const medicineSelect = document.getElementById('medicine_id');
+    const otherMedicineInput = document.getElementById('other_medicine');
 
     const ajaxBaseUrl = "{{ url('/ajax/medicines') }}";
 
+    // Load medicines when type changes
     medicineTypeSelect.addEventListener('change', function () {
 
         const medicineTypeId = this.value;
 
-        medicineSelect.innerHTML =
-            '<option value="" selected>Select Medicine</option>';
-        
+        // Reset select
+        medicineSelect.innerHTML = '<option value="">Select Medicine</option>';
+        otherMedicineInput.style.display = 'none';
+
         if (!medicineTypeId) return;
 
         fetch(`${ajaxBaseUrl}/${medicineTypeId}`, {
@@ -101,9 +121,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
 
-            if (data.length === 0) {
+            if (!data.length) {
                 medicineSelect.innerHTML =
-                    '<option disabled>No Medicine found</option>';
+                    '<option disabled>No medicines found</option>';
                 return;
             }
 
@@ -113,15 +133,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 option.textContent = item.name;
                 medicineSelect.appendChild(option);
             });
+
+            // Add OTHER option
+            const otherOption = document.createElement('option');
+            otherOption.value = 'other';
+            otherOption.textContent = 'Other (Specify)';
+            medicineSelect.appendChild(otherOption);
+
         })
         .catch(error => {
 
-            console.error('Error:', error);
+            console.error(error);
 
             medicineSelect.innerHTML =
                 '<option disabled>Error loading medicines</option>';
+
         });
     });
+
+    // Show text input when "Other" is selected
+    medicineSelect.addEventListener('change', function () {
+
+        if (this.value === 'other') {
+            otherMedicineInput.style.display = 'block';
+        } else {
+            otherMedicineInput.style.display = 'none';
+        }
+
+    });
+
 });
 </script>
 @endsection

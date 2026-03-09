@@ -422,7 +422,7 @@
 
                             @if(Auth::user()->hasRole('lab_technician'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->pendingInvestigation())}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->investigationRequests())}} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -431,7 +431,7 @@
 
                             @if(Auth::user()->hasRole('radiologist'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->pendingInvestigation())}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->investigationRequests())}} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -658,6 +658,14 @@
                 }
             });
         </script>
-
+        <script>
+            function printContent(el) {
+            var restorepage = $('body').html();
+            var printcontent = $('#' + el).clone();
+            $('body').empty().html(printcontent);
+            window.print();
+            $('body').html(restorepage);
+            }
+        </script>
     </body>
 </html>

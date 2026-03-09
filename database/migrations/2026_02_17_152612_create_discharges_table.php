@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('discharge_by')->constraint('users');
             $table->string('time')->nullable();
             $table->timestamp('date')->default(now());
+            $table->timestamp('next_appointment_date')->nullable();
             $table->text('reason');
             $table->timestamps();
         });

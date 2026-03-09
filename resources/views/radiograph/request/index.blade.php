@@ -32,9 +32,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (App\Models\InvestigationRequest::all() as $investigationRequest)
+                            @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
                             <tr>
-                                <td>{{ $investigationRequest->id }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 <td>{{ $investigationRequest->investigation->name }}</td>

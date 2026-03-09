@@ -23,6 +23,7 @@ class DischargeController extends Controller
             'reason'=>$request->reason,
             'date'=>$request->date,
             'time'=>$request->time,
+            'next_appointment_date'=>$request->next_appointment_date,
             'discharge_by'=>auth()->user()->id,
         ]);
 

@@ -252,26 +252,16 @@
                 
                
 
-                    @if(auth()->user()->hasRole('accountant'))
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('accountant.bills.create', $patient) }}" class="btn btn-outline-success">
-                                <i class="bi bi-file-earmark-medical me-2"></i>Generate Bill
-                            </a>
-                        </div>
-                    @endif  
+                     
 
                     @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists())
                         <div class="d-grid gap-2">
                             <a href="{{ route('record_officer.payments.create.form', $patient) }}" class="btn btn-outline-success">
-                                <i class="bi bi-cash-coin me-2"></i>Record Payment
+                                <i class="bi bi-cash-coin me-2"></i> Record Payment
                             </a>
                         </div>
                     @endif
                     
-           
-                
-        
-                
                 <p class="text-muted small mt-3 mb-0">
                     <i class="bi bi-info-circle me-1"></i>
                     Follow the workflow: Record Visit → Generate Bill → Record Payment → Request Vital Signs Check.

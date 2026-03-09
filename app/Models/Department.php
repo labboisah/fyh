@@ -12,11 +12,11 @@ class Department extends Model
         return $this->hasMany(InvestigationType::class);
     }
 
-    public function pendingInvestigation() {
+    public function investigationRequests() {
         $requests = [];
         foreach($this->investigationTypes as $type){
             foreach($type->investigations as $investigation){
-                foreach($investigation->investigationRequests->where('status', 'pending') as $request){
+                foreach($investigation->investigationRequests as $request){
                     $requests[] = $request;
                 }
             }

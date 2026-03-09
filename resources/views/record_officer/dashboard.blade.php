@@ -65,7 +65,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Walk-In Patients</h6>
-                            <h3 class="h4 mb-0">{{ App\Models\Patient::where('is_walkIn', true)->count() }}</h3>
+                            <h3 class="h4 mb-0">{{ App\Models\WalkinPatient::all()->count() }}</h3>
                         </div>
                     </div>
                 </div>
@@ -101,6 +101,17 @@
                                     <i class="bi bi-list-check me-2" style="font-size: 1.5rem;"></i>
                                     <div>
                                         <div class="fw-bold">View Patients</div>
+                                        <small class="text-muted">Browse all records</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <a href="{{ route('record_officer.patients.list') }}" class="btn btn-outline-secondary w-100 py-3 text-start">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-list-check me-2" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <div class="fw-bold">View Walkin Patients</div>
                                         <small class="text-muted">Browse all records</small>
                                     </div>
                                 </div>

@@ -32,7 +32,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (App\Models\InvestigationRequest::all() as $investigationRequest)
+                            @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
                             <tr>
                                 <td>{{ $investigationRequest->id }}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
@@ -45,7 +45,7 @@
                                 <td>{{ $investigationRequest->specimen }}</td>
                                 <td>{{ $investigationRequest->created_at }}</td>
                                 <td>
-                                    @if($investigationRequest->paymentStatus() != 'paid')
+                                    @if($investigationRequest->paymentStatus() == 'paid')
                                         @if($investigationRequest->status !== 'Completed')
                                         <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-send me-1"></i> Send Result

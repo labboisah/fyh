@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prescription_items', function (Blueprint $table) {
+        Schema::create('walkin_patients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('prescription_id');
-            $table->foreignId('route_id');
-            $table->foreignId('medicine_id');
-            $table->string('dosage');
-            $table->string('period');
-            $table->string('duration');
+            $table->string('name')->nullable();
+            $table->string('address')->nullable();
+            $table->string('phone_number');
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prescription_items');
+        Schema::dropIfExists('walkin_patients');
     }
 };

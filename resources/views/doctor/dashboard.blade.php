@@ -50,7 +50,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Discharge Today</h6>
-                            <h3 class="h4 mb-0">{{ App\Models\Patient::where('is_walkIn', false)->count() }}</h3>
+                            <h3 class="h4 mb-0">{{ App\Models\Discharge::whereDate('created_at', today())->count() }}</h3>
                         </div>
                     </div>
                 </div>

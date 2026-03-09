@@ -9,12 +9,26 @@ $patient = $prescription->patientVisit->patient;
         <h1 class="h3 mb-1">{{ $patient->demographic->full_name ?? 'Patient Details' }}</h1>
         <p class="mb-0 text-muted">
             Hospital Number:
-            <strong class="text-success">{{ $patient->hospital_number }}</strong>
+            <strong class="text-success">{{ $patient->hospital_number }} <a class="btn btn-outline-secondary" href="{{route('patient.show',$patient)}}"><i class="bi bi-arrow-left me-2"></i>Back to Patient Profile</a></strong>
         </p>
     </div>
 </div>
 @endsection
 @section('content')
+<style>
+        #printWrapper {
+            width: 794px;          /* A4 width at 96 DPI */
+            min-height: 1123px;    /* A4 height */
+            padding: 20px;
+            background: #fff;
+        }
+
+        @media screen {
+            #printWrapper {
+                margin: auto;
+            }
+        }
+        </style>
     <div class="container">
         <div class="row">
             <div class="col-md-5">
@@ -39,6 +53,22 @@ $patient = $prescription->patientVisit->patient;
                                 <option value="">Select Medicine</option>
                             </select>
                         </div>
+                        <input type="text" id="other_medicine"
+                        name="other_medicine"
+                        class="form-control mt-2"
+                        placeholder="Enter medicine name"
+                        style="display:none;">
+
+                        <div class="form-group mb-2">
+                            <label for="ward_id">Route</label>
+                            <select name="route_id" id="route_id" class="form-control" required>
+                                <option value="">Select Route of Medication</option>
+                                @foreach(App\Models\Route::all() as $route)
+                                <option value="{{$route->id}}">{{$route->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-group mb-2">
                             <label for="date">Dosage</label>
                             <input type="text" class="form-control" name="dosage" required placeholder="Pls, specify value in g, mm, or ml">
@@ -69,13 +99,47 @@ $patient = $prescription->patientVisit->patient;
                 </div>
             </div>
             <div class="col-md-7">
+                <div id="print" class="p-4">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <img src="{{asset('images/logo.png')}}" width="100" height="100" alt="">
+                        </div>
+                        <div class="col-md-12">
+                            <h3 class="text text-center text-success" style="transform: scaley(1.5);">FATIMA YAHAYA HOSPITAL, SIFAWA</h3>
+                            <h5 class="text text-center text-danger"><em>No 5, Birnin Kebbi Road Sifawa, Bodinga LG, Sokoto state</em></h5>
+                        </div>
+                    </div>
+                <hr>
+                <div class="p-4">
+                    <p class="mb-0 text-muted">
+                        Patient Name:
+                        <strong class="">{{ $prescription->patientVisit->patient->demographic->full_name ?? 'Patient Details'}}</strong>
+                    </p>
+
+                    <p class="mb-0 text-muted">
+                        Hospital Number:
+                        <strong class="">{{ $prescription->patientVisit->patient->hospital_number }}</strong>
+                    </p>
+                    
+                    <p class="mb-0 text-muted">
+                    Prescribe At:
+                    <strong class="">{{ date('M d, Y',strtotime($prescription->created_at))}} @ {{ date('h:s A',strtotime($prescription->created_at))}}</strong>
+                    </p>
+                    <p class="mb-0 text-muted">
+                    Prescribed By:
+                    <strong class="">{{ $prescription->prescribedBy->name}}</strong>
+                    </p>
+                    
+                </div>
+                <hr>
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Medicine</th>
+                            <th>Route</th>
                             <th>Dosage</th>
                             <th>Period</th>
-                            <th>Duration</th>
+                            <th>Duration (Days)</th>
                             
                         </tr>
                     </thead>
@@ -83,6 +147,7 @@ $patient = $prescription->patientVisit->patient;
                         @foreach($prescription->prescriptionItems as $pit)
                         <tr>
                             <td>{{$pit->medicine->name}}</td>
+                            <td>{{$pit->route->name}}</td>
                             <td>{{$pit->dosage}}</td>
                             <td>{{$pit->period}}</td>
                             <td>{{$pit->duration}}</td>
@@ -90,7 +155,10 @@ $patient = $prescription->patientVisit->patient;
                         @endforeach
                     </tbody>
                 </table>
+                
+                </div>
                 <a href="{{route('patient.prescription.submit', $prescription)}}" class="btn btn-success">Submit to Pharmacy</a>
+                <a onclick="printDiv('print');" class="btn btn-primary">Print</a>
             </div>
         </div>
         
@@ -101,16 +169,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const medicineTypeSelect = document.getElementById('medicine_type_id');
     const medicineSelect = document.getElementById('medicine_id');
+    const otherMedicineInput = document.getElementById('other_medicine');
 
     const ajaxBaseUrl = "{{ url('/ajax/medicines') }}";
 
+    // Load medicines when type changes
     medicineTypeSelect.addEventListener('change', function () {
 
         const medicineTypeId = this.value;
 
-        medicineSelect.innerHTML =
-            '<option value="" selected>Select Medicine</option>';
-        
+        // Reset select
+        medicineSelect.innerHTML = '<option value="">Select Medicine</option>';
+        otherMedicineInput.style.display = 'none';
+
         if (!medicineTypeId) return;
 
         fetch(`${ajaxBaseUrl}/${medicineTypeId}`, {
@@ -127,9 +198,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
 
-            if (data.length === 0) {
+            if (!data.length) {
                 medicineSelect.innerHTML =
-                    '<option disabled>No Medicine found</option>';
+                    '<option disabled>No medicines found</option>';
                 return;
             }
 
@@ -139,16 +210,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 option.textContent = item.name;
                 medicineSelect.appendChild(option);
             });
+
+            // Add OTHER option
+            const otherOption = document.createElement('option');
+            otherOption.value = 'other';
+            otherOption.textContent = 'Other (Specify)';
+            medicineSelect.appendChild(otherOption);
+
         })
         .catch(error => {
 
-            console.error('Error:', error);
+            console.error(error);
 
             medicineSelect.innerHTML =
                 '<option disabled>Error loading medicines</option>';
+
         });
     });
+
+    // Show text input when "Other" is selected
+    medicineSelect.addEventListener('change', function () {
+
+        if (this.value === 'other') {
+            otherMedicineInput.style.display = 'block';
+        } else {
+            otherMedicineInput.style.display = 'none';
+        }
+
+    });
+
 });
 </script>
-    
+
+<script>
+    function printDiv(divId) {
+        const divContent = document.getElementById(divId).innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = divContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+        location.reload();
+    }
+</script>
 @endsection

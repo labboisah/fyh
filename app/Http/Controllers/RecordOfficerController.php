@@ -321,7 +321,7 @@ class RecordOfficerController extends Controller
                 ->with('error', 'You need accountant role to record payments.');
         }
 
-        return redirect()->route('accountant.payments.create', ['patient_id' => $patient->id])
+        return redirect()->route('accountant.payments.create', $patient)
             ->with('info', 'Recording payment for ' . $patient->demographic->full_name);
     }
 

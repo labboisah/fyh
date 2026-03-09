@@ -23,4 +23,8 @@ class PrescriptionItem extends Model
     public function prescribedBy() {
         return $this->belongsTo(User::class, 'prescribe_by');
     }
+
+    public function route() {
+        return $this->belongsTo(Route::class);
+    }
 }
