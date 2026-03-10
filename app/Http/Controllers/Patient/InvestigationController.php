@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\InvestigationRequest;
 use App\Models\Patient;
 use App\Models\Service;
 use App\Models\Bill;
@@ -34,7 +35,9 @@ class InvestigationController extends Controller
             'clinical_diagnoses' => $request->input('clinical_diagnoses'),
             'requested_at' => now(),
             'specimen' => $request->input('specimen'),
+            
         ]);
+        $investigationRequest->updateLabNumber($investigationRequest->id,$request->investigation);
 
         // create bill for this investigation
         $bill = $investigationRequest->bill()->create([

@@ -14,4 +14,8 @@ class InvestigationType extends Model
     {
         return $this->hasMany(Investigation::class);
     }
+
+    public function department() {
+        return $this->belongsTo(Department::class);
+    }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('requested_at');
             $table->date('completed_at')->nullable();
             $table->text('specimen')->nullable();
+            $table->string('lab_no')->nullable();
             $table->string('status')->default('Pending');
             $table->softDeletes();
             $table->timestamps();

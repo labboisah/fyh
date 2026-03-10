@@ -6,17 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvestigationRequest extends Model
 {
-    protected $fillable = [
-        'patient_visit_id',
-        'investigation_id',
-        'requested_by',
-        'clinical_diagnoses',
-        'requested_at',
-        'completed_at',
-        'performed_by',
-        'specimen',
-        'status',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'requested_at' => 'datetime',
@@ -57,5 +47,15 @@ class InvestigationRequest extends Model
             return $this->bill->status;
         else
             return 'pending';
+    }
+
+    public static function updateLabNumber($requestId, $investigationId)
+    {
+        $year = substr(date('Y'), 2, 2);
+        $type = Investigation::find($investigationId)->investigationType;
+        $count = count($type->department->investigationRequests()) + 1;
+        $number = strtoupper(substr($type->name, 0, 3)) . $year . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $request = InvestigationRequest::find($requestId);
+        $request->update(['lab_no'=>$number]);
     }
 }

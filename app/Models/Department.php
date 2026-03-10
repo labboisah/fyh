@@ -23,4 +23,5 @@ class Department extends Model
         }
         return $requests;
     }
+
 }
