@@ -42,11 +42,13 @@
                         <td>{{$investigation->investigationRequests->count()}}</td>
                         <td>{{$investigation->parameters->count()}}</td>
                         <td class="text-end">
-                            
-                            <a href="{{ route('lab.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
+                            <a href="{{route('radiograph.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
+                                <i class="bi bi-eye"></i> View Parameters
+                            </a>
+                            <a href="{{ route('radiograph.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
                                 <i class="bi bi-pencil"></i> Edit   
                             </a>
-                            <form action="{{ route('lab.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
+                            <form action="{{ route('radiograph.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger">

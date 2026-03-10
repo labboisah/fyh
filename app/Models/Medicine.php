@@ -12,4 +12,8 @@ class Medicine extends Model
         return $this->belongsTo(MedicineType::class);
     }
 
+    public function batches() {
+        return $this->hasMany(MedicineBatch::class);
+    }
+
 }

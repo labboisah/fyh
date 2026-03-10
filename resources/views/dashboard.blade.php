@@ -17,7 +17,7 @@
     @endif
 
     @if(auth()->user()->hasRole('pharmacist'))
-        @include('pharmacist.dashboard')
+        @include('pharmacy.dashboard')
     @endif
 
     @if(auth()->user()->hasRole('lab_technician'))

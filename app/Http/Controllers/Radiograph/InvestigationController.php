@@ -11,18 +11,19 @@ class InvestigationController extends Controller
 {
     public function index()
     {
-        return view('lab.investigation.index');
+     
+        return view('radiograph.investigation.index');
     }
 
     public function create()
     {
-        return view('lab.investigation.create');
+        return view('radiograph.investigation.create');
     }   
     
     public function edit($id)
     {
         $investigation = Investigation::findOrFail($id);
-        return view('lab.investigation.edit', compact('investigation'));
+        return view('radiograph.investigation.edit', compact('investigation'));
     }
 
     public function store(Request $request)
@@ -42,7 +43,7 @@ class InvestigationController extends Controller
                 'code' => $request->code,
             ]);
 
-            return redirect()->route('lab.investigations.index')->with('success', 'Investigation created successfully.');
+            return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation created successfully.');
         }
         
     }
@@ -59,7 +60,7 @@ class InvestigationController extends Controller
 
         $investigation->update($validatedData);
 
-        return redirect()->route('lab.investigations.index')->with('success', 'Investigation updated successfully.');
+        return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation updated successfully.');
     }
 
     public function destroy($id)
@@ -67,6 +68,6 @@ class InvestigationController extends Controller
         $investigation = Investigation::findOrFail($id);
         $investigation->delete();
 
-        return redirect()->route('lab.investigations.index')->with('success', 'Investigation deleted successfully.');
+        return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation deleted successfully.');
     }
 }

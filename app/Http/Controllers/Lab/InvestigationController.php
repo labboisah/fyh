@@ -53,7 +53,6 @@ class InvestigationController extends Controller
 
         $validatedData = request()->validate([
             'name' => 'required|string|max:255',
-            'price' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:255',
         ]);
 
@@ -65,6 +64,9 @@ class InvestigationController extends Controller
     public function destroy($id)
     {
         $investigation = Investigation::findOrFail($id);
+        if($investigation->investigationRequests->count() > 0){
+            return redirect()->route('lab.investigations.index')->with('warning', 'We cant delete this investigation.');
+        }
         $investigation->delete();
 
         return redirect()->route('lab.investigations.index')->with('success', 'Investigation deleted successfully.');

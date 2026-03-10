@@ -381,7 +381,7 @@
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
                         <x-hospital-logo class="me-2" />
                         <div class="ms-2">
-                            <div class="fw-bold brand-accent"><img src="{{asset('images/logo.png')}}" alt="logo" width="60"> FATIMA YAHAYA HOSPITAL</div>
+                            <div class="fw-bold brand-accent" ><img src="{{asset('images/logo.png')}}" alt="logo" width="60"> <span style="transform: scaleY(2);">FYH</span> </div>
                         </div>
                     </a>
 
@@ -461,6 +461,43 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center" href="{{ route('admin.services.index') }}"><i class="bi bi-gear-fill me-2 text-success"></i>Manage Services</a>
+                                </li>
+                            @endif
+
+                            @if(Auth::user()->hasRole('pharmacist'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="bi bi-file-medical me-1"></i>
+                                        Prescriptions
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{route('pharmacy.medicines.index')}}">
+                                        <i class="bi bi-capsule me-1"></i>
+                                        Medicine
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{route('pharmacy.stocks.index')}}">
+                                        <i class="bi bi-box-seam me-1"></i>
+                                        Stock
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Expiry Alerts
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="bi bi-bar-chart-line me-1"></i>
+                                        Reports
+                                    </a>
                                 </li>
                             @endif
 

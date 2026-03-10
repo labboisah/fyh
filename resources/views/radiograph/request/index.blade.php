@@ -1,72 +1,68 @@
 @extends('layouts.app')
 
+@section('title', 'Investigations')
+
 @section('header')
     <div class="d-flex justify-content-between align-items-center">
     <h1 class="h3 d-flex align-items-center mb-0">
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
-        Manage Investigation Request
+        Manage Investigations
     </h1>
-    
+    <a href="{{ route('radiograph.investigations.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        New Investigation
+    </a>
 </div>
 @endsection
-@section('content')  
-<div class="container"> 
-    <div class="row">
-        <div class="col-md-12">
-           
-                <div class="card-body shadow p-4">
-                    <table class="table table-bordered table-striped datatable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Request By</th>
-                                <th>Patient Name</th>
-                                <th>Investigation</th>
-                                <th>Completed At</th>
-                                <th>Performed By</th>
-                                <th>Status</th>
-                                <th>Clinical Notes</th>
-                                <th>Specimen</th>
-                                <th>Requested At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $investigationRequest->requestedBy->name }}</td>
-                                <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
-                                <td>{{ $investigationRequest->investigation->name }}</td>
-                                <td>{{ $investigationRequest->completed_at }}</td>
-                                <td>{{ $investigationRequest->performedBy ? $investigationRequest->performedBy->name : 'N/A' }}</td>
-                                <td>{{ $investigationRequest->status }}</span></td>
-                                <td>{{ $investigationRequest->clinical_diagnoses }}</td>
-                                <td>{{ $investigationRequest->specimen }}</td>
-                                <td>{{ $investigationRequest->created_at }}</td>
-                                <td>
-                                    @if($investigationRequest->paymentStatus() == 'paid')
-                                        @if($investigationRequest->status != 'Completed')
-                                        <a href="{{ route('radiograph.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-send me-1"></i> Send Result
-                                        </a>
-                                        @else
-                                        <a href="{{ route('radiograph.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-pencil me-1"></i> Edit Result
-                                        </a>
-                                        @endif
-                                    @else
-                                        Payment not recorded
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                            <!-- More rows can be added here -->
-                        </tbody>
-                    </table>
-                </div>
-          
-        </div>
+
+@section('content')
+    <div class="container">
+        @foreach (auth()->user()->department->investigationTypes as $investigationType)
+        <h5 class="text-muted">{{$investigationType->name}}</h5>
+        <table class="table table-striped datatable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Request</th>
+                    <th>Result Parameters</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                @foreach ($investigationType->investigations as $investigation)
+                    <tr>
+                        <td>{{$loop->iteration}}</td>
+                        <td>{{ $investigation->code }}</td>
+                        <td>{{ $investigation->name }}</td>
+                        <td>{{ $investigation->price }}</td>
+                        <td>{{$investigation->investigationRequests->count()}}</td>
+                        <td>{{$investigation->parameters->count()}}</td>
+                        <td class="text-end">
+                            <a href="{{route('radiograph.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
+                                <i class="bi bi-eye"></i> View Parameters
+                            </a>
+                            <a href="{{ route('radiograph.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Edit   
+                            </a>
+                            <form action="{{ route('radiograph.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        
+                        </td>
+                    </tr>
+               
+                @endforeach
+                
+            </tbody>
+        </table>
+        @endforeach
     </div>
-</div>
 @endsection

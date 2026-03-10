@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Radiograph\InvestigationController;
 use App\Http\Controllers\Radiograph\PatientController;
 use App\Http\Controllers\Radiograph\RequestController;
+use App\Http\Controllers\Radiograph\ParameterController;
 
 Route::middleware(['auth', 'verified', 'role:radiologist'])
 ->prefix('radiograph')
@@ -28,7 +29,19 @@ Route::middleware(['auth', 'verified', 'role:radiologist'])
         Route::post('/store', [InvestigationController::class, 'store'])->name('store');
         Route::get('/{investigation}/edit', [InvestigationController::class, 'edit'])->name('edit');
         Route::put('/{investigation}/update', [InvestigationController::class, 'update'])->name('update');
+    
+        Route::name('parameters.')
+        ->prefix('{investigation}/parameters')
+        ->group(function () {
+            Route::get('/', [ParameterController::class, 'index'])->name('index');
+            Route::get('/create', [ParameterController::class, 'create'])->name('create');
+            Route::post('/store', [ParameterController::class, 'store'])->name('store');
+            Route::get('{parameter}/edit', [ParameterController::class, 'edit'])->name('edit');
+            Route::put('{parameter}/update', [ParameterController::class, 'update'])->name('update');
+            Route::delete('{parameter}/destroy', [ParameterController::class, 'destroy'])->name('destroy');
+        });
     });
+
     Route::name('requests.')
     ->prefix('requests')
     ->group(function () {
