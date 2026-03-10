@@ -19,7 +19,8 @@
                     @foreach($investigationRequest->investigation->parameters as $parameter)
                     <div class="mb-3">
                         <label for="parameter_{{ $parameter->id }}" class="form-label">{{ $parameter->name }}</label>
-                        <input type="text" name="parameters[{{ $parameter->id }}]" id="parameter_{{ $parameter->id }}" placeholder="Enter result for {{ $parameter->name }} in {{$parameter->unit}}" class="form-control" required>
+                        <input type="text" name="parameters[{{ $parameter->id }}]" id="parameter_{{ $parameter->id }}" placeholder="Enter result for {{ $parameter->name }} in {{$parameter->unit}}" class="form-control">
+                        <span class="text-muted">Reference Range: {{$parameter->reference_range}}</span>
                     </div>
                     @endforeach
                     

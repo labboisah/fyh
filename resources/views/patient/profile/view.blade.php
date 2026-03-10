@@ -186,11 +186,9 @@
                 </div>
                 <!-- QUICK ACTIONS -->
                 <div class="tab-pane fade" id="actions">
-                    @if($patient->currentVisit()->dischargedAdmission())
-                    <div class="alert alert-danger">Patient is discharged</div>
-                    @else
+                    
                     @include('patient.profile.actions')
-                    @endif
+                    
                 </div>
                 @else
                 <div class="alert alert-warning">No visit recorded, or patient was dischaged, if not pls referred the patient to record to record his visit</div>    

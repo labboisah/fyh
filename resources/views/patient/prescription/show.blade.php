@@ -109,52 +109,52 @@ $patient = $prescription->patientVisit->patient;
                             <h5 class="text text-center text-danger"><em>No 5, Birnin Kebbi Road Sifawa, Bodinga LG, Sokoto state</em></h5>
                         </div>
                     </div>
-                <hr>
-                <div class="p-4">
-                    <p class="mb-0 text-muted">
-                        Patient Name:
-                        <strong class="">{{ $prescription->patientVisit->patient->demographic->full_name ?? 'Patient Details'}}</strong>
-                    </p>
+                    <hr>
+                    <div class="p-4">
+                        <p class="mb-0 text-muted">
+                            Patient Name:
+                            <strong class="">{{ $prescription->patientVisit->patient->demographic->full_name ?? 'Patient Details'}}</strong>
+                        </p>
 
-                    <p class="mb-0 text-muted">
-                        Hospital Number:
-                        <strong class="">{{ $prescription->patientVisit->patient->hospital_number }}</strong>
-                    </p>
-                    
-                    <p class="mb-0 text-muted">
-                    Prescribe At:
-                    <strong class="">{{ date('M d, Y',strtotime($prescription->created_at))}} @ {{ date('h:s A',strtotime($prescription->created_at))}}</strong>
-                    </p>
-                    <p class="mb-0 text-muted">
-                    Prescribed By:
-                    <strong class="">{{ $prescription->prescribedBy->name}}</strong>
-                    </p>
-                    
-                </div>
-                <hr>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Medicine</th>
-                            <th>Route</th>
-                            <th>Dosage</th>
-                            <th>Period</th>
-                            <th>Duration (Days)</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($prescription->prescriptionItems as $pit)
-                        <tr>
-                            <td>{{$pit->medicine->name}}</td>
-                            <td>{{$pit->route->name}}</td>
-                            <td>{{$pit->dosage}}</td>
-                            <td>{{$pit->period}}</td>
-                            <td>{{$pit->duration}}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        <p class="mb-0 text-muted">
+                            Hospital Number:
+                            <strong class="">{{ $prescription->patientVisit->patient->hospital_number }}</strong>
+                        </p>
+                        
+                        <p class="mb-0 text-muted">
+                        Prescribe At:
+                        <strong class="">{{ date('M d, Y',strtotime($prescription->created_at))}} @ {{ date('h:s A',strtotime($prescription->created_at))}}</strong>
+                        </p>
+                        <p class="mb-0 text-muted">
+                        Prescribed By:
+                        <strong class="">{{ $prescription->prescribedBy->name}}</strong>
+                        </p>
+                        
+                    </div>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Medicine</th>
+                                <th>Route</th>
+                                <th>Dosage</th>
+                                <th>Period</th>
+                                <th>Duration (Days)</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($prescription->prescriptionItems as $pit)
+                            <tr>
+                                <td>{{$pit->medicine->name}}</td>
+                                <td>{{$pit->route->name}}</td>
+                                <td>{{$pit->dosage}}</td>
+                                <td>{{$pit->period}}</td>
+                                <td>{{$pit->duration}}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 
                 </div>
                 <a href="{{route('patient.prescription.submit', $prescription)}}" class="btn btn-success">Submit to Pharmacy</a>

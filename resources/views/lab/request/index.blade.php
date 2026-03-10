@@ -26,7 +26,6 @@
                                 <th>Performed By</th>
                                 <th>Status</th>
                                 <th>Clinical Notes</th>
-                                <th>Specimen</th>
                                 <th>Requested At</th>
                                 <th>Actions</th>
                             </tr>
@@ -42,17 +41,19 @@
                                 <td>{{ $investigationRequest->performedBy ? $investigationRequest->performedBy->name : 'N/A' }}</td>
                                 <td>{{ $investigationRequest->status }}</span></td>
                                 <td>{{ $investigationRequest->clinical_diagnoses }}</td>
-                                <td>{{ $investigationRequest->specimen }}</td>
                                 <td>{{ $investigationRequest->created_at }}</td>
                                 <td>
                                     @if($investigationRequest->paymentStatus() == 'paid')
                                         @if($investigationRequest->status !== 'Completed')
-                                        <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
+                                        <a href="{{ route('lab.requests.results.create', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-send me-1"></i> Send Result
                                         </a>
                                         @else
-                                        <a href="{{ route('lab.requests.createResult', $investigationRequest) }}" class="btn btn-sm btn-outline-danger">
+                                        <a href="#" class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-pencil me-1"></i> Edit Result
+                                        </a>
+                                        <a href="{{ route('lab.requests.results.show', $investigationRequest) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-pencil me-1"></i> View Result
                                         </a>
                                         @endif
                                     @else
@@ -69,4 +70,5 @@
         </div>
     </div>
 </div>
+
 @endsection

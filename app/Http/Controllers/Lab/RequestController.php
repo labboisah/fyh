@@ -18,6 +18,11 @@ class RequestController extends Controller
         return view('lab.request.create-result', compact('investigationRequest'));
     }
 
+    public function showResult(InvestigationRequest $investigationRequest)
+    {
+        return view('lab.request.result', compact('investigationRequest'));
+    }
+
     public function storeResult(Request $request, InvestigationRequest $investigationRequest)
     {
         foreach($request->parameters as $parameterId => $value) {

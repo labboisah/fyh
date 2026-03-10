@@ -275,7 +275,7 @@ class RecordOfficerController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            $service= Service::find($validated['visit_type']);
+            $service = Service::find($validated['visit_type']);
 
             $visit->generateServiceBillOf($service);
 

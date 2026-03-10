@@ -12,13 +12,6 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
 ->namespace('Lab')
 ->group(function () {
     
-    Route::name('requests.')
-    ->prefix('requests')
-    ->group(function () {
-        Route::get('/', [PatientController::class, 'index'])->name('index');
-        Route::get('/{investigationRequest}/show', [PatientController::class, 'show'])->name('show');
-    });
-    
     Route::name('investigations.')
     ->prefix('investigations')
     ->group(function () {
@@ -33,7 +26,13 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
     ->prefix('requests')
     ->group(function () {
         Route::get('/', [RequestController::class, 'index'])->name('index');
-        Route::get('/{investigationRequest}/create-result', [RequestController::class, 'createResult'])->name('createResult');
-        Route::post('/{investigationRequest}/store-result', [RequestController::class, 'storeResult'])->name('storeResult');
+        
+        Route::name('results.')
+            ->prefix('{investigationRequest}/results')
+            ->group(function () {
+            Route::get('/create', [RequestController::class, 'createResult'])->name('create');
+            Route::get('/show/print', [RequestController::class, 'showResult'])->name('show');
+            Route::post('/store', [RequestController::class, 'storeResult'])->name('store');
+        });
     });
 });
