@@ -18,7 +18,7 @@
                     <table class="table table-bordered table-striped datatable">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>Lab No</th>
                                 <th>Request By</th>
                                 <th>Patient Name</th>
                                 <th>Investigation</th>
@@ -33,7 +33,7 @@
                         <tbody>
                             @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
                             <tr>
-                                <td>{{ $investigationRequest->id }}</td>
+                                <td>{{ $investigationRequest->lab_no }}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 <td>{{ $investigationRequest->investigation->name }}</td>

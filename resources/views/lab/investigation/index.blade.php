@@ -42,7 +42,9 @@
                         <td>{{$investigation->investigationRequests->count()}}</td>
                         <td>{{$investigation->parameters->count()}}</td>
                         <td class="text-end">
-                            
+                            <a href="{{route('lab.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
+                                <i class="bi bi-eye"></i> View Parameters
+                            </a>
                             <a href="{{ route('lab.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
                                 <i class="bi bi-pencil"></i> Edit   
                             </a>

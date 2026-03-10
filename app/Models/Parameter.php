@@ -17,4 +17,8 @@ class Parameter extends Model
     {
         return $this->belongsTo(Investigation::class);
     }
+
+    public function investigationResults() {
+        return $this->hasMany(InvestigationResult::class);
+    }
 }
