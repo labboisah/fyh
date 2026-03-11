@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('stock_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medicine_batch_id')->constrained();
 
             $table->enum('type',[
                 'purchase',
@@ -23,7 +22,7 @@ return new class extends Migration
                 'damage'
             ]);
 
-            $table->integer('quantity');
+            $table->decimal('total_amount');
 
             $table->string('reference')->nullable();
 

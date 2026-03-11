@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockTransaction extends Model
 {
-    //
+    protected $guarded = [];
+
+    function stockTransactionItems() {
+        return $this->hasMany(StockTransactionItem::class, 'transaction_id');
+    }
+
+    public function createdBy() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -21,6 +21,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Type</th>
                         <th>Generic</th>
                         <th>Form</th>
                         <th>Manufacturer</th>
@@ -36,6 +37,7 @@
                     <tr>
 
                         <td>{{ $medicine->name }}</td>
+                        <td>{{ $medicine->medicineType->name }}</td>
                         <td>{{ $medicine->generic_name }}</td>
                         <td>{{ $medicine->form }}</td>
                         <td>{{ $medicine->manufacturer }}</td>

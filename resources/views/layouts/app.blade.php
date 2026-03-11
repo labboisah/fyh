@@ -473,6 +473,13 @@
                                 </li>
 
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{route('pharmacy.transactions.index')}}">
+                                        <i class="bi bi-file-medical me-1"></i>
+                                        Transactions
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{route('pharmacy.medicines.index')}}">
                                         <i class="bi bi-capsule me-1"></i>
                                         Medicine
@@ -487,7 +494,7 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#">
+                                    <a class="nav-link" href="{{route('pharmacy.expiries.index')}}">
                                         <i class="bi bi-exclamation-triangle me-1"></i>
                                         Expiry Alerts
                                     </a>

@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\Pharmacy\MedicineController;
 use App\Http\Controllers\Pharmacy\StockController;
+use App\Http\Controllers\Pharmacy\ExpiryController;
+use App\Http\Controllers\Pharmacy\TransactionController;
 
 Route::prefix('pharmacy')
 ->middleware(['auth', 'verified', 'role:pharmacist'])
@@ -23,16 +25,20 @@ Route::prefix('stocks')
     Route::post('/store', [StockController::class,'store'])->name('store');
 });
 
-    Route::get('inventory', [PharmacyInventoryController::class,'index'])
-        ->name('pharmacy.inventory');
+Route::prefix('transactions')
+->name('transactions.')
+->group(function () {
+    Route::get('/', [TransactionController::class,'index'])->name('index');
+    Route::get('/create', [TransactionController::class,'create'])->name('create');
+    Route::post('/store', [TransactionController::class,'store'])->name('store');
+});
 
-    Route::get('stock/create', [PharmacyInventoryController::class,'create'])
-        ->name('pharmacy.stock.create');
+Route::prefix('expiries')
+->name('expiries.')
+->group(function () {
+    Route::get('/', [ExpiryController::class,'index'])->name('index');
+    
+});
 
-    Route::post('stock/store', [PharmacyInventoryController::class,'store'])
-        ->name('pharmacy.stock.store');
-
-    Route::get('expiry', [PharmacyInventoryController::class,'expiry'])
-        ->name('pharmacy.expiry');
 
 });
