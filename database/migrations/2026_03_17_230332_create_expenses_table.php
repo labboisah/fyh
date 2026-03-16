@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('department_id');
-            $table->decimal('amount');
-            $table->string('description');
-            $table->foreignId('created_by');
+            $table->foreignId('expense_category_id')->constrained();
+            $table->string('title');
+            $table->decimal('amount',10,2);
+            $table->date('expense_date');
+            $table->text('description')->nullable();
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }

@@ -53,6 +53,12 @@ class RoleSeeder extends Seeder
                 'display_name' => 'Accountant',
                 'description' => 'Manages billing, payments, and financial records',
             ],
+
+            [
+                'name' => 'head_of_department',
+                'display_name' => 'Head of Department',
+                'description' => 'Manages expenses, consumable, and consumable stoch, financial records generation and reporting',
+            ],
         ];
 
         foreach ($roles as $role) {

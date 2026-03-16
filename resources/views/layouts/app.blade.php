@@ -427,7 +427,8 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
                             </li>
-
+                            @endif
+                            @if(Auth::user()->hasRole('head_of_department'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.consumables.index') }}"><i class="bi bi-box-seam me-2 text-success"></i>Consumables</a>
                             </li>
@@ -435,7 +436,7 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.stocks.index') }}"><i class="bi bi-boxes me-2 text-success"></i>Stock</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('department.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
                             </li>
                             @endif
 

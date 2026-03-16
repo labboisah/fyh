@@ -59,17 +59,22 @@ class AdminUserSeeder extends Seeder
             $pharmacist->assignRole($pharmacistRole);
         }
 
-         $labTechnician = User::firstOrCreate(
+         $labScientist = User::firstOrCreate(
             ['email' => 'lab@hospital.test'],
             [
-                'name' => 'Lab Technician',
+                'name' => 'Lab Scientis',
                 'password' => Hash::make('lab@123'),
                 'department_id'=>2
             ]);
             
-        $labTechnicianRole = Role::where('name', 'lab_technician')->first();
-        if ($labTechnicianRole && !$labTechnician->hasRole('lab_technician')) {
-            $labTechnician->assignRole($labTechnicianRole);
+        $labScientistRole = Role::where('name', 'lab_technician')->first();
+        if ($labScientistRole && !$labScientist->hasRole('lab_technician')) {
+            $labScientist->assignRole($labScientistRole);
+        }
+
+        $headRole = Role::where('name', 'head_of_department')->first();
+        if ($headRole && !$labScientist->hasRole('head_of_department')) {
+            $labScientist->assignRole($headRole);
         }
 
             $nurse = User::firstOrCreate(

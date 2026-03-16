@@ -139,3 +139,4 @@ require __DIR__.'/radiograph.php';
 require __DIR__.'/doctor.php';
 require __DIR__.'/patient.php';
 require __DIR__.'/pharmacy.php';
+require __DIR__.'/department.php';
