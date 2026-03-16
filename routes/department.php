@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Department\ExpenseController;
-
+use App\Http\Controllers\Department\ConsumableController;
+use App\Http\Controllers\Department\ConsumableStockController;
 
 Route::middleware(['auth', 'verified', 'role:head_of_department'])
 ->prefix('department')

@@ -8,7 +8,7 @@
         <i class="bi bi-boxes me-2 text-primary"></i>
         Manage {{auth()->user()->department->name}} Consumable Stocks
     </h1>
-    <a href="{{ route('lab.stocks.create') }}" class="btn btn-primary">
+    <a href="{{ route('department.stocks.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>
         Add Consumable Stock
     </a>
@@ -33,11 +33,11 @@
                 <td>{{ $stock->unit_price }}</td>
                 <td>{{ $stock->purchase_date }}</td>
                 <td>
-                    <a href="{{ route('lab.stocks.edit',$stock) }}" class="btn btn-warning btn-sm">
+                    <a href="{{ route('department.stocks.edit',$stock) }}" class="btn btn-warning btn-sm">
                     <i class="bi bi-pencil"></i>
                     </a>
                     <form method="POST"
-                    action="{{ route('lab.stocks.destroy',$stock) }}"
+                    action="{{ route('department.stocks.destroy',$stock) }}"
                     style="display:inline">
                     @csrf
                     @method('DELETE')

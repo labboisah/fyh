@@ -5,27 +5,23 @@
 <div class="container">
 
 <div class="d-flex justify-content-between mb-3">
-
 <h4>
-<i class="bi bi-pencil"></i>
-Edit Consumable
+<i class="bi bi-box-seam"></i>
+Create Consumable
 </h4>
 
-<a href="{{ route('lab.consumables.index') }}" class="btn btn-secondary">
+<a href="{{ route('department.consumables.index') }}" class="btn btn-secondary">
 <i class="bi bi-arrow-left"></i> Back
 </a>
-
 </div>
 
 <div class="card shadow-sm">
 
 <div class="card-body">
 
-<form method="POST"
-action="{{ route('lab.consumables.update',$consumable->id) }}">
+<form method="POST" action="{{ route('department.consumables.store') }}">
 
 @csrf
-@method('PUT')
 
 <div class="row">
 
@@ -37,9 +33,16 @@ action="{{ route('lab.consumables.update',$consumable->id) }}">
 
 <input type="text"
 name="name"
-class="form-control"
-value="{{ old('name',$consumable->name) }}"
+class="form-control @error('name') is-invalid @enderror"
+placeholder="Enter consumable name"
+value="{{ old('name') }}"
 required>
+
+@error('name')
+<div class="invalid-feedback">
+{{ $message }}
+</div>
+@enderror
 
 </div>
 
@@ -55,7 +58,8 @@ required>
 <input type="text"
 name="unit"
 class="form-control"
-value="{{ old('unit',$consumable->unit) }}">
+placeholder="e.g box, piece, pack"
+value="{{ old('unit') }}">
 
 </div>
 
@@ -71,7 +75,7 @@ value="{{ old('unit',$consumable->unit) }}">
 <input type="number"
 name="reorder_level"
 class="form-control"
-value="{{ old('reorder_level',$consumable->reorder_level) }}">
+value="{{ old('reorder_level',10) }}">
 
 </div>
 
@@ -81,10 +85,10 @@ value="{{ old('reorder_level',$consumable->reorder_level) }}">
 
 <div class="mt-3">
 
-<button class="btn btn-primary">
+<button class="btn btn-success">
 
-<i class="bi bi-save"></i>
-Update Consumable
+<i class="bi bi-check-circle"></i>
+Save Consumable
 
 </button>
 

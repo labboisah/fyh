@@ -8,7 +8,7 @@
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
         Manage {{auth()->user()->department->name}} Consumables
     </h1>
-    <a href="{{ route('lab.consumables.create') }}" class="btn btn-primary">
+    <a href="{{ route('department.consumables.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>
         Add Consumable
     </a>
@@ -41,13 +41,13 @@
 
 <td>
 
-<a href="{{ route('lab.consumables.edit',$item) }}" class="btn btn-warning btn-sm">
+<a href="{{ route('department.consumables.edit',$item) }}" class="btn btn-warning btn-sm">
 
 <i class="bi bi-pencil"></i>
 </a>
 
 <form method="POST"
-action="{{ route('lab.consumables.destroy',$item) }}"
+action="{{ route('department.consumables.destroy',$item) }}"
 style="display:inline">
 
 @csrf

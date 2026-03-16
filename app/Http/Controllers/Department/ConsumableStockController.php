@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Lab;
+namespace App\Http\Controllers\Department;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,14 +14,14 @@ class ConsumableStockController extends Controller
     {
         $stocks = ConsumableStock::with('consumable')->latest()->get();
 
-        return view('lab.stocks.index',compact('stocks'));
+        return view('department.stocks.index',compact('stocks'));
     }
 
     public function create()
     {
         $consumables = auth()->user()->department->consumables;
 
-        return view('lab.stocks.create',compact('consumables'));
+        return view('department.stocks.create',compact('consumables'));
     }
 
     public function store(Request $request)
@@ -29,7 +29,7 @@ class ConsumableStockController extends Controller
 
         ConsumableStock::create($request->all());
 
-        return redirect()->route('lab.stocks.index');
+        return redirect()->route('department.stocks.index');
 
     }
 
@@ -37,7 +37,7 @@ class ConsumableStockController extends Controller
     {
         $consumables = auth()->user()->department->consumables;
        
-        return view('lab.stocks.edit',
+        return view('department.stocks.edit',
             compact('consumableStock','consumables'));
     }
 
@@ -45,7 +45,7 @@ class ConsumableStockController extends Controller
     {
         $consumableStock->update($request->all());
 
-        return redirect()->route('lab.stocks.index');
+        return redirect()->route('department.stocks.index');
     }
 
     public function destroy(ConsumableStock $consumableStock)

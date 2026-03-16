@@ -11,7 +11,7 @@
 Add Consumable Stock
 </h4>
 
-<a href="{{ route('lab.stocks.index') }}" class="btn btn-secondary">
+<a href="{{ route('department.stocks.index') }}" class="btn btn-secondary">
 <i class="bi bi-arrow-left"></i> Back
 </a>
 
@@ -22,7 +22,7 @@ Add Consumable Stock
 
 <div class="card-body">
 
-<form method="POST" action="{{ route('lab.stocks.store') }}">
+<form method="POST" action="{{ route('department.stocks.store') }}">
 
 @csrf
 

@@ -6,8 +6,7 @@ use App\Http\Controllers\Lab\InvestigationController;
 use App\Http\Controllers\Lab\PatientController;
 use App\Http\Controllers\Lab\RequestController;
 use App\Http\Controllers\Lab\ParameterController;
-use App\Http\Controllers\Lab\ConsumableController;
-use App\Http\Controllers\Lab\ConsumableStockController;
+
 
 Route::middleware(['auth', 'verified', 'role:lab_technician'])
 ->prefix('lab')
@@ -50,25 +49,5 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
         });
     });
 
-    Route::name('consumables.')
-    ->prefix('consumables')
-    ->group(function () {
-        Route::get('/', [ConsumableController::class, 'index'])->name('index');
-        Route::get('/create', [ConsumableController::class, 'create'])->name('create');
-        Route::get('/{consumable}/edit', [ConsumableController::class, 'edit'])->name('edit');
-        Route::delete('/{consumable}/destroy', [ConsumableController::class, 'destroy'])->name('destroy');
-        Route::put('/{consumable}/update', [ConsumableController::class, 'update'])->name('update');
-        Route::post('/store', [ConsumableController::class, 'store'])->name('store');
-    });
-
-    Route::name('stocks.')
-    ->prefix('consumable-stocks')
-    ->group(function () {
-        Route::get('/', [ConsumableStockController::class, 'index'])->name('index');
-        Route::get('/create', [ConsumableStockController::class, 'create'])->name('create');
-        Route::get('/{consumableStock}/edit', [ConsumableStockController::class, 'edit'])->name('edit');
-        Route::delete('/{consumableStock}/destroy', [ConsumableStockController::class, 'destroy'])->name('destroy');
-        Route::put('/{consumableStock}/update', [ConsumableStockController::class, 'update'])->name('update');
-        Route::post('/store', [ConsumableStockController::class, 'store'])->name('store');
-    });
+    
 });
