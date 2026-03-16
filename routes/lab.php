@@ -6,6 +6,7 @@ use App\Http\Controllers\Lab\InvestigationController;
 use App\Http\Controllers\Lab\PatientController;
 use App\Http\Controllers\Lab\RequestController;
 use App\Http\Controllers\Lab\ParameterController;
+use App\Http\Controllers\Lab\ConsumableController;
 
 Route::middleware(['auth', 'verified', 'role:lab_technician'])
 ->prefix('lab')
@@ -38,6 +39,25 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
     ->prefix('requests')
     ->group(function () {
         Route::get('/', [RequestController::class, 'index'])->name('index');
+        
+        Route::name('results.')
+            ->prefix('{investigationRequest}/results')
+            ->group(function () {
+            Route::get('/create', [RequestController::class, 'createResult'])->name('create');
+            Route::get('/show/print', [RequestController::class, 'showResult'])->name('show');
+            Route::post('/store', [RequestController::class, 'storeResult'])->name('store');
+        });
+    });
+
+    Route::name('consumables.')
+    ->prefix('consumables')
+    ->group(function () {
+        Route::get('/', [ConsumableController::class, 'index'])->name('index');
+        Route::get('/create', [ConsumableController::class, 'create'])->name('create');
+        Route::get('/{consumable}/edit', [ConsumableController::class, 'edit'])->name('edit');
+        Route::delete('/{consumable}/destroy', [ConsumableController::class, 'destroy'])->name('destroy');
+        Route::put('/{consumable}/update', [ConsumableController::class, 'update'])->name('update');
+        Route::post('/store', [ConsumableController::class, 'store'])->name('store');
         
         Route::name('results.')
             ->prefix('{investigationRequest}/results')

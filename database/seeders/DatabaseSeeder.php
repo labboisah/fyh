@@ -32,5 +32,7 @@ class DatabaseSeeder extends Seeder
         $this->call(InvestigationSeeder::class);
         
         $this->call(RouteSeeder::class);
+        
+        $this->call(ConsumableSeeder::class);
     }
 }

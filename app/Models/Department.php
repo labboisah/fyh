@@ -12,6 +12,10 @@ class Department extends Model
         return $this->hasMany(InvestigationType::class);
     }
 
+    public function consumables() {
+        return $this->hasMany(Consumable::class);
+    }
+
     public function investigationRequests() {
         $requests = [];
         foreach($this->investigationTypes as $type){
