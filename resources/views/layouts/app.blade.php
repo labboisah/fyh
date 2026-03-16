@@ -432,7 +432,7 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.consumables.index') }}"><i class="bi bi-box-seam me-2 text-success"></i>Consumables</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-boxes me-2 text-success"></i>Stock</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.stocks.index') }}"><i class="bi bi-boxes me-2 text-success"></i>Stock</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
@@ -584,21 +584,7 @@
 
             
 
-            <footer class="site-footer mt-auto py-4">
-                <div class="container d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-hospital-fill fs-4 text-white me-2"></i>
-                        <div>
-                            <strong class="text-white">Fatima Yahaya Hospital</strong>
-                            <div class="small text-muted">Sifawa</div>
-                        </div>
-                    </div>
-                    <div class="text-end small text-white-50">
-                        <div><i class="bi bi-telephone-fill me-1"></i>+234 800 000 0000</div>
-                        <div class="text-muted">&copy; {{ date('Y') }} {{ config('app.name', 'FH') }}</div>
-                    </div>
-                </div>
-            </footer>
+            
         </div>
 
         <!-- jQuery (required by DataTables) -->

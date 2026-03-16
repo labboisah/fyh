@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Lab;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Consumable;
+use App\Models\ConsumableStock;
 
 class ConsumableStockController extends Controller
 {
@@ -12,14 +14,14 @@ class ConsumableStockController extends Controller
     {
         $stocks = ConsumableStock::with('consumable')->latest()->get();
 
-        return view('consumable_stock.index',compact('stocks'));
+        return view('lab.stocks.index',compact('stocks'));
     }
 
     public function create()
     {
-        $consumables = Consumable::all();
+        $consumables = auth()->user()->department->consumables;
 
-        return view('consumable_stock.create',compact('consumables'));
+        return view('lab.stocks.create',compact('consumables'));
     }
 
     public function store(Request $request)
@@ -27,28 +29,28 @@ class ConsumableStockController extends Controller
 
         ConsumableStock::create($request->all());
 
-        return redirect()->route('consumable-stocks.index');
+        return redirect()->route('lab.stocks.index');
 
     }
 
-    public function edit(ConsumableStock $consumable_stock)
+    public function edit(ConsumableStock $consumableStock)
     {
-        $consumables = Consumable::all();
-
-        return view('consumable_stock.edit',
-            compact('consumable_stock','consumables'));
+        $consumables = auth()->user()->department->consumables;
+       
+        return view('lab.stocks.edit',
+            compact('consumableStock','consumables'));
     }
 
-    public function update(Request $request, ConsumableStock $consumable_stock)
+    public function update(Request $request, ConsumableStock $consumableStock)
     {
-        $consumable_stock->update($request->all());
+        $consumableStock->update($request->all());
 
-        return redirect()->route('consumable-stocks.index');
+        return redirect()->route('lab.stocks.index');
     }
 
-    public function destroy(ConsumableStock $consumable_stock)
+    public function destroy(ConsumableStock $consumableStock)
     {
-        $consumable_stock->delete();
+        $consumableStock->delete();
 
         return back();
     }
