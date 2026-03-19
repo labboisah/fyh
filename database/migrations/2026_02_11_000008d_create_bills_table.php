@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('investigation_request_id')->nullable();
             $table->foreignId('admission_id')->nullable();
             $table->foreignId('walkin_id')->nullable();
+            $table->foreignId('department_id')->nullable();
             $table->string('bill_number')->unique();
             $table->string('service_description');
             $table->decimal('amount', 12, 2);

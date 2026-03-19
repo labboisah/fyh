@@ -14,15 +14,10 @@ return new class extends Migration
         Schema::create('consumable_stocks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('consumable_id')->constrained();
-
             $table->integer('quantity');
-
             $table->decimal('unit_price',10,2)->nullable();
-
             $table->date('purchase_date')->nullable();
-
             $table->string('reference')->nullable();
-
             $table->timestamps();
         });
     }

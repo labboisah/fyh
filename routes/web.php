@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\RecordOfficerController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\VitalSignsController;
+use App\Http\Controllers\Admin\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
 // ajax routes
@@ -44,6 +45,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         
         // Users Management (full resource)
         Route::resource('users', UserController::class);
+
+        Route::resource('departments', DepartmentController::class);
         
         Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
 

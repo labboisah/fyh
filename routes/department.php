@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Department\ReportController;
 use App\Http\Controllers\Department\ExpenseController;
 use App\Http\Controllers\Department\ConsumableController;
 use App\Http\Controllers\Department\ConsumableStockController;
@@ -42,5 +43,13 @@ Route::middleware(['auth', 'verified', 'role:head_of_department'])
         Route::put('/{consumableStock}/update', [ConsumableStockController::class, 'update'])->name('update');
         Route::post('/store', [ConsumableStockController::class, 'store'])->name('store');
     });
-    
+
+    Route::name('reports.')
+    ->prefix('reports')
+    ->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::put('/pdf', [ReportController::class, 'pdf'])->name('pdf');
+        Route::post('/generate', [ReportController::class, 'generate'])->name('generate');
+        
+    });
 });

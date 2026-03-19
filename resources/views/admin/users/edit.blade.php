@@ -27,7 +27,7 @@
                     <strong>{{ $user->email }}</strong>
                 </h5>
 
-                <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+                <form action="{{ route('admin.users.update', $user) }}" method="POST">
                     @csrf
                     @method('PUT')
 

@@ -69,7 +69,7 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return redirect()->route('admin.users.index')->with('error', 'You cannot edit your own roles.');
         }
-
+      
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -79,12 +79,12 @@ class UserController extends Controller
         ]);
  
         $before = $user->toArray();
-
+        
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
         ]);
-
+        
         if (!empty($validated['password'])) {
             $user->password = $validated['password'];
             $user->save();
@@ -97,8 +97,8 @@ class UserController extends Controller
         }
 
         $after = $user->fresh()->toArray();
-
-        // AuditLog::record(auth()->user(), 'user.update', $user, $before, $after);
+        
+        AuditLog::record(auth()->user(), 'user.update', $user, $before, $after);
         
         
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');

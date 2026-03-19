@@ -191,10 +191,11 @@ class User extends Authenticatable
      */
     public function syncRoles(array|string $roles): void
     {
+        
         $roleIds = collect($roles)->map(function ($role) {
-            return is_string($role) ? Role::where('name', $role)->firstOrFail()->id : $role->id;
+            return $role;
         })->toArray();
-
+        
         $this->roles()->sync($roleIds);
     }
 }

@@ -422,7 +422,7 @@
 
                             @if(Auth::user()->hasRole('lab_technician'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->investigationRequests())}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -438,15 +438,20 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('department.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('department.reports.index') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Report</a>
+                            </li>
                             @endif
 
                             @if(Auth::user()->hasRole('radiologist'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{count(auth()->user()->department->investigationRequests())}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
                             </li>
+
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
                             </li>
+                            
                             @endif
 
                             @if(Auth::user()->hasRole('accountant'))
@@ -468,10 +473,14 @@
                                 </li>
                                 <!-- Add more admin-specific links here -->
                                  <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.users.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Manage Users</a>
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.users.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.services.index') }}"><i class="bi bi-gear-fill me-2 text-success"></i>Manage Services</a>
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.services.index') }}"><i class="bi bi-gear-fill me-2 text-success"></i>Services</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.departments.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Departments</a>
                                 </li>
                             @endif
 
@@ -708,5 +717,6 @@
             $('body').html(restorepage);
             }
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </body>
 </html>

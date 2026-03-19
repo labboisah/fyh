@@ -13,56 +13,85 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $roles = [
+
             [
                 'name' => 'administrator',
                 'display_name' => 'Administrator',
                 'description' => 'Full system access with ability to manage all users, roles, and permissions',
             ],
-            [
-                'name' => 'record_officer',
-                'display_name' => 'Record Officer',
-                'description' => 'Manages patient medical records and documentation',
-            ],
-            [
-                'name' => 'nurse',
-                'display_name' => 'Nurse',
-                'description' => 'Manages patient care, vital signs, and treatment notes',
-            ],
+
             [
                 'name' => 'doctor',
                 'display_name' => 'Doctor',
-                'description' => 'Diagnoses patients, prescribes treatments, and manages prescriptions',
+                'description' => 'Responsible for diagnosing patients, prescribing treatment, and requesting investigations',
             ],
+
             [
-                'name' => 'pharmacist',
-                'display_name' => 'Pharmacist',
-                'description' => 'Manages medications and pharmacy inventory',
+                'name' => 'nurse',
+                'display_name' => 'Nurse',
+                'description' => 'Handles patient care including vital signs, observations, and nursing notes',
             ],
+
             [
-                'name' => 'lab_technician',
-                'display_name' => 'Lab Technician',
-                'description' => 'Manages laboratory tests and test results',
+                'name' => 'record',
+                'display_name' => 'Record Officer',
+                'description' => 'Manages patient registration, records, and visits',
             ],
+
             [
                 'name' => 'accountant',
                 'display_name' => 'Accountant',
-                'description' => 'Manages billing, payments, and financial records',
+                'description' => 'billing, and payment',
             ],
+
+            [
+                'name' => 'lab_scientist',
+                'display_name' => 'Lab Scientist',
+                'description' => 'Conducts laboratory investigations, validates and submits results',
+            ],
+
+            [
+                'name' => 'lab_technician',
+                'display_name' => 'Lab Technician',
+                'description' => 'Assists in laboratory procedures and sample processing',
+            ],
+
             [
                 'name' => 'radiologist',
-                'display_name' => 'Accountant',
-                'description' => 'Manages billing, payments, and financial records',
+                'display_name' => 'Radiologist',
+                'description' => 'Interprets radiology results and provides diagnostic reports',
+            ],
+
+            [
+                'name' => 'radiographer',
+                'display_name' => 'Radiographer',
+                'description' => 'Performs imaging procedures such as X-rays and scans',
+            ],
+
+            [
+                'name' => 'pharmacist',
+                'display_name' => 'Pharmacist',
+                'description' => 'Manages medications, dispensing, pharmacy sales, and drug inventory',
             ],
 
             [
                 'name' => 'head_of_department',
                 'display_name' => 'Head of Department',
-                'description' => 'Manages expenses, consumable, and consumable stoch, financial records generation and reporting',
+                'description' => 'Manages consumables, stock, generate financial report, and general inventory',
             ],
+
         ];
 
-        foreach ($roles as $role) {
-            Role::firstOrCreate(['name' => $role['name']], $role);
+        foreach ($roles as $roleData) {
+
+            Role::updateOrCreate(
+                ['name' => $roleData['name']],
+                [
+                    'display_name' => $roleData['display_name'],
+                    'description' => $roleData['description']
+                ]
+            );
+
         }
     }
 }

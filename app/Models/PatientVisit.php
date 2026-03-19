@@ -107,6 +107,7 @@ class PatientVisit extends Model
 
     public function generateFileOpeningBill() {
         $this->bills()->create([
+            'department_id'=> auth()->user()->department->id,
             'service_description'=>'File Opening',
             'amount'=>'3000',
             'bill_number'=>Bill::generateBillNumber(),
@@ -125,7 +126,8 @@ class PatientVisit extends Model
             'issued_by'=>auth()->user()->id,
             'issued_date'=>date('d M, Y'),
             'due_date'=>now()->addDays(2)->toDateString(),
-            'bill_number'=>Bill::generateBillNumber()
+            'bill_number'=>Bill::generateBillNumber(),
+            'department_id'=> auth()->user()->department->id,
         ]);
         
     }
@@ -139,7 +141,8 @@ class PatientVisit extends Model
             'issued_by'=>auth()->user()->id,
             'issued_date'=>date('d M, Y'),
             'due_date'=>now()->addDays(2)->toDateString(),
-            'bill_number'=>Bill::generateBillNumber()
+            'bill_number'=>Bill::generateBillNumber(),
+            'department_id'=> auth()->user()->department->id,
         ]);
         
     }

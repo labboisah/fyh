@@ -32,8 +32,9 @@
                         </thead>
                         <tbody>
                             @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
+                            
                             <tr>
-                                <td>{{ $investigationRequest->lab_no }}</td>
+                                <td>{{ $investigationRequest->lab_no ?? ''}}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 <td>{{ $investigationRequest->investigation->name }}</td>

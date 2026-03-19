@@ -48,7 +48,8 @@ class InvestigationController extends Controller
             'issued_by' => auth()->id(),
             'issued_date' => now(),
             'bill_number' =>  Bill::generateBillNumber(),
-            'due_date'=>now()->addDays(2)->toDateString()
+            'due_date'=>now()->addDays(2)->toDateString(),
+            'department_id'=> $investigationRequest->investigation->investigationType->department->id,
         ]);
 
 

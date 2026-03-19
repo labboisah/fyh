@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use  App\Models\Traits\Auditable;
 
 class Role extends Model
 {
-    use \App\Models\Traits\Auditable;
+    use Auditable;
     /**
      * The attributes that are mass assignable.
      *
@@ -68,6 +69,16 @@ class Role extends Model
 
         if ($permission) {
             $this->permissions()->detach($permission->id);
+        }
+    }
+
+    public function sync(Array $permissions) {
+        foreach($permissions as $permission){
+            $perm = Permission::where('name', $permission)->get();
+            if(!$perm){
+                Permission::create(['name'=>$permission, 'display_name'=> ucwords(str_replace($permission, '.', ' '))]);
+            }
+            $this->grantPermission($permission);
         }
     }
 }
