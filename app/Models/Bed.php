@@ -12,4 +12,8 @@ class Bed extends Model
     {
         return $this->belongsTo(Ward::class);
     }
+
+    public function admissions() {
+        return $this->hasMany(Admission::class);
+    }
 }

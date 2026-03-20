@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'wards')
+@section('title', 'beds')
 
 @section('header')
 <div class="d-flex justify-content-between align-items-center">
     <h1 class="h3 d-flex align-items-center mb-0">
-        <i class="bi bi-buildings me-2 text-warning"></i>
-        Manage wards
+        <i class="bi bi-sick-bay me-2 text-warning"></i>
+        Manage {{$ward->name}} Beds
     </h1>
     <div class="ms-auto d-flex">
-        <a href="{{ route('admin.wards.create') }}" class="btn btn-sm btn-success ms-3">
-            <i class="bi bi-plus-circle me-1"></i>New Ward
+        <a href="{{ route('admin.beds.create',$ward) }}" class="btn btn-sm btn-success ms-3">
+            <i class="bi bi-plus-circle me-1"></i>New Bed
         </a>
     </div>
 </div>
@@ -42,35 +42,26 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>Price</th>
-                            <th>Capacity</th>
-                            <th>Occupied</th>
-                            <th>Vacant</th>
+                            <th>Status</th>
                             <th class="no-export">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($wards as $ward)
+                        @forelse ($ward->beds as $bed)
                             <tr>
                                 <td>{{$loop->iteration}}</td>
-                                <td>{{ $ward->name }}</td>
-                                <td>{{ $ward->price }}</td>
-                                <td>{{ $ward->capacity }}</td>
-                                <td>{{ $ward->beds->where('status', 'occupied')->count() }}</td>
-                                <td>{{ $ward->beds->where('status', 'vacant')->count() }}</td>
+                                <td>{{ $bed->bed_no }}</td>
+                                <td>{{ $bed->status }}</td>
                                 
                                 <td>
                                 
-                                    <a href="{{ route('admin.wards.edit', $ward->id) }}" class="btn btn-sm btn-outline-info">
+                                    <a href="{{ route('admin.beds.edit', $bed->id) }}" class="btn btn-sm btn-outline-info">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{{ route('admin.beds.index', $ward) }}" class="btn btn-sm btn-outline-success">
-                                        <i class="bi bi-eye"> </i> Beds
-                                    </a>
-                                    <form action="{{ route('admin.wards.destroy', $ward) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('admin.beds.destroy', $bed) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this ward?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this bed?');">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -79,7 +70,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No wards found.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No beds found.</td>
                             </tr>
                         @endforelse
                     </tbody>

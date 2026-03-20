@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\RecordOfficerController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\VitalSignsController;
+use App\Http\Controllers\Admin\BedController;
 use App\Http\Controllers\Admin\WardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use Illuminate\Support\Facades\Route;
@@ -50,7 +51,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('departments', DepartmentController::class);
 
         Route::resource('wards', WardController::class);
-        
+
+        Route::prefix('wards/beds')->name('beds.')->group(function () {
+            Route::get('/{ward}', [BedController::class, 'index'])->name('index');
+            Route::get('/{ward}/create', [BedController::class, 'create'])->name('create');
+            Route::post('/{ward}/store', [BedController::class, 'store'])->name('store');
+            Route::get('/{bed}/edit', [BedController::class, 'edit'])->name('edit');
+            Route::put('/{bed}/update', [BedController::class, 'update'])->name('update');
+            Route::delete('/{bed}/destroy', [BedController::class, 'destroy'])->name('destroy');
+        });
+
         Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
 
         // Temporary Permissions Management
