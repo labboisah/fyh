@@ -482,6 +482,10 @@
                                 <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center" href="{{ route('admin.departments.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Departments</a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.wards.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Wards</a>
+                                </li>
                             @endif
 
                             @if(Auth::user()->hasRole('pharmacist'))

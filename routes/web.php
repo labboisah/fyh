@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\RecordOfficerController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\VitalSignsController;
+use App\Http\Controllers\Admin\WardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('users', UserController::class);
 
         Route::resource('departments', DepartmentController::class);
+
+        Route::resource('wards', WardController::class);
         
         Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
 
