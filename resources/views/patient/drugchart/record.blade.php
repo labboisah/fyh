@@ -29,8 +29,8 @@
                         </div>
                         
                         <div class="form-group mb-2">
-                            <label for="time">Mode of Administration</label>
-                            <input type="text" class="form-control" name="mode_of_administration" placeholder="Example Oral, Injection">
+                            <label for="time">Route</label>
+                            <input type="text" class="form-control" name="route" placeholder="Example Oral, Injection">
                         </div>
 
                         <div class="form-group mb-2">

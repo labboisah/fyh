@@ -480,6 +480,10 @@
                                 </li>
 
                                 <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.investigations.index') }}"><i class="bi bi-clipboard2-data me-2 text-success"></i>Investigation</a>
+                                </li>
+
+                                <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center" href="{{ route('admin.departments.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Departments</a>
                                 </li>
 

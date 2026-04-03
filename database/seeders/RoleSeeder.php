@@ -33,6 +33,12 @@ class RoleSeeder extends Seeder
             ],
 
             [
+                'name' => 'midwife',
+                'display_name' => 'Midwife',
+                'description' => 'Manages antenatal care, visits, medication, labour, delivery, newborn care, and postnatal care',
+            ],
+
+            [
                 'name' => 'record',
                 'display_name' => 'Record Officer',
                 'description' => 'Manages patient registration, records, and visits',

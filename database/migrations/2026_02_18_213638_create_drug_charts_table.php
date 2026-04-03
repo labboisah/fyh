@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('drug_charts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('prescription_item_id');
-            $table->foreignId('medicine_id')->constraint('medicines');
-            $table->string('dosage');
-            $table->string('mode_of_administration');
+            $table->foreignId('medicine_id')->constraint('medicines')->nullable();
+            $table->foreignId('route_id')->constraint('routes')->nullable();
+            $table->string('dosage')->nullable();
+            $table->string('comment')->nullable();
             $table->string('time');
             $table->foreignId('dispensed_by');
             $table->timestamps();

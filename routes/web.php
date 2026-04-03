@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\InvestigationController;
 use App\Http\Controllers\Admin\TemporaryPermissionController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\RecordOfficerController;
@@ -51,6 +52,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('departments', DepartmentController::class);
 
         Route::resource('wards', WardController::class);
+
+        Route::resource('investigations', InvestigationController::class);
 
         Route::prefix('wards/beds')->name('beds.')->group(function () {
             Route::get('/{ward}', [BedController::class, 'index'])->name('index');

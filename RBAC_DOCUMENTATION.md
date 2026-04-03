@@ -35,7 +35,17 @@ This document outlines the Role-Based Access Control (RBAC) system implemented f
   - View patient information
   - Access prescriptions and lab tests
 
-### 4. **Doctor**
+### 4. **Midwife**
+- **Description**: Manages antenatal care, patient visits, medication administration, labour and delivery support, newborn care, and postnatal follow-up
+- **Key Permissions**:
+  - View patient records
+  - Create and view visits
+  - Access patient history
+  - Manage prescriptions and drug chart entries
+  - Manage admission and discharge related to labour/delivery
+  - Document observations and nursing notes
+
+### 5. **Doctor**
 - **Description**: Diagnoses patients, prescribes treatments, and manages prescriptions
 - **Key Permissions**:
   - View and edit patient records

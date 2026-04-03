@@ -238,6 +238,7 @@ class PermissionSeeder extends Seeder
             'record',
             'accountant',
             'nurse',
+            'midwife',
             'doctor',
             'pharmacist',
             'lab_scientist',
@@ -349,6 +350,25 @@ class PermissionSeeder extends Seeder
                 'observation.create','observation.read','observation.update',
                 'nursing_note.create','nursing_note.read','nursing_note.update',
                 'drug_chart.read','drug_chart.update',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Midwife
+        |--------------------------------------------------------------------------
+        */
+        if (isset($roles['midwife'])) {
+            $roles['midwife']->sync([
+                'patient.read',
+                'visit.create','visit.read',
+                'patient_history.read',
+                'prescription.create','prescription.read','prescription.update',
+                'drug_chart.create','drug_chart.read','drug_chart.update','drug_chart.delete',
+                'admission.create','admission.read','admission.update',
+                'discharge.create','discharge.read','discharge.update',
+                'observation.create','observation.read','observation.update',
+                'nursing_note.create','nursing_note.read','nursing_note.update',
             ]);
         }
 
