@@ -4,6 +4,10 @@
 
 @section('content')
 
+    @if(auth()->user()->hasRole('midwife'))
+        @include('midwife.dashboard')
+    @endif
+
     @if(auth()->user()->hasRole('record_officer'))
         @include('record_officer.dashboard')
     @endif

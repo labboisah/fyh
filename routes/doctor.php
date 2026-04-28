@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\NurseController;
+use App\Http\Controllers\Doctor\DoctorController;
 use App\Http\Controllers\Nurse\PatientController;
 use App\Http\Controllers\Nurse\VitalSignsController;
 use App\Http\Controllers\Nurse\InvestigationController;

@@ -57,6 +57,78 @@ class Patient extends Model
         return $this->hasMany(PatientVisit::class);
     }
 
+    /**
+     * Get all antenatal care records for this patient
+     */
+    public function antenatalCares()
+    {
+        return $this->hasMany(AntenatalCare::class);
+    }
+
+    /**
+     * Get all labour records for this patient
+     */
+    public function labours()
+    {
+        return $this->hasMany(Labour::class);
+    }
+
+    /**
+     * Get all deliveries for this patient
+     */
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class);
+    }
+
+    /**
+     * Get all newborns from this patient (as mother)
+     */
+    public function newborns()
+    {
+        return $this->hasMany(Newborn::class);
+    }
+
+    /**
+     * Get all postnatal examinations for this patient
+     */
+    public function postnatalExaminations()
+    {
+        return $this->hasMany(PostnatalExamination::class);
+    }
+
+    /**
+     * Get all child follow-ups related to this patient (as mother)
+     */
+    public function childFollowUps()
+    {
+        return $this->hasMany(ChildFollowUp::class);
+    }
+
+    /**
+     * Get the latest antenatal care record
+     */
+    public function latestAntenatalCare()
+    {
+        return $this->antenatalCares()->latest('created_at')->first();
+    }
+
+    /**
+     * Get the latest labour
+     */
+    public function latestLabour()
+    {
+        return $this->labours()->latest('labour_onset_time')->first();
+    }
+
+    /**
+     * Get the latest delivery
+     */
+    public function latestDelivery()
+    {
+        return $this->deliveries()->latest('delivery_date_time')->first();
+    }
+
    
     public function recordFirstVisit() {
 

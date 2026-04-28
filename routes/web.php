@@ -153,6 +153,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/auth.php';
 require __DIR__.'/nurse.php';
+require __DIR__.'/midwife.php';
 require __DIR__.'/lab.php';
 require __DIR__.'/radiograph.php';
 require __DIR__.'/doctor.php';

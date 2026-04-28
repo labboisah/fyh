@@ -102,8 +102,49 @@ class PermissionSeeder extends Seeder
             ['module'=>'Billing','name'=>'payment.read','display_name'=>'View Payments','description'=>'View payments'],
 
             /*
+            |--------------------------------------------------------------------------            | MIDWIFERY
             |--------------------------------------------------------------------------
-            | CLINICAL
+            */
+            ['module'=>'Midwifery','name'=>'antenatal_care.create','display_name'=>'Create Antenatal Care','description'=>'Create antenatal care record'],
+            ['module'=>'Midwifery','name'=>'antenatal_care.read','display_name'=>'View Antenatal Care','description'=>'View antenatal care records'],
+            ['module'=>'Midwifery','name'=>'antenatal_care.update','display_name'=>'Update Antenatal Care','description'=>'Edit antenatal care record'],
+            ['module'=>'Midwifery','name'=>'antenatal_care.delete','display_name'=>'Delete Antenatal Care','description'=>'Delete antenatal care record'],
+
+            ['module'=>'Midwifery','name'=>'labour.create','display_name'=>'Create Labour Record','description'=>'Create labour management record'],
+            ['module'=>'Midwifery','name'=>'labour.read','display_name'=>'View Labour Records','description'=>'View labour management records'],
+            ['module'=>'Midwifery','name'=>'labour.update','display_name'=>'Update Labour Record','description'=>'Edit labour management record'],
+            ['module'=>'Midwifery','name'=>'labour.delete','display_name'=>'Delete Labour Record','description'=>'Delete labour management record'],
+            ['module'=>'Midwifery','name'=>'labour_progress.create','display_name'=>'Create Labour Progress','description'=>'Create labour progress entry'],
+            ['module'=>'Midwifery','name'=>'labour_progress.read','display_name'=>'View Labour Progress','description'=>'View labour progress entries'],
+            ['module'=>'Midwifery','name'=>'labour_progress.update','display_name'=>'Update Labour Progress','description'=>'Update labour progress entry'],
+            ['module'=>'Midwifery','name'=>'labour_progress.delete','display_name'=>'Delete Labour Progress','description'=>'Delete labour progress entry'],
+
+            ['module'=>'Midwifery','name'=>'delivery.create','display_name'=>'Create Delivery','description'=>'Create delivery record'],
+            ['module'=>'Midwifery','name'=>'delivery.read','display_name'=>'View Delivery','description'=>'View delivery records'],
+            ['module'=>'Midwifery','name'=>'delivery.update','display_name'=>'Update Delivery','description'=>'Update delivery record'],
+            ['module'=>'Midwifery','name'=>'delivery.delete','display_name'=>'Delete Delivery','description'=>'Delete delivery record'],
+            ['module'=>'Midwifery','name'=>'newborn.create','display_name'=>'Create Newborn','description'=>'Create newborn record'],
+            ['module'=>'Midwifery','name'=>'newborn.read','display_name'=>'View Newborn','description'=>'View newborn records'],
+            ['module'=>'Midwifery','name'=>'newborn.update','display_name'=>'Update Newborn','description'=>'Update newborn record'],
+            ['module'=>'Midwifery','name'=>'newborn.delete','display_name'=>'Delete Newborn','description'=>'Delete newborn record'],
+
+            ['module'=>'Midwifery','name'=>'newborn_examination.create','display_name'=>'Create Newborn Examination','description'=>'Create newborn examination record'],
+            ['module'=>'Midwifery','name'=>'newborn_examination.read','display_name'=>'View Newborn Examination','description'=>'View newborn examination records'],
+            ['module'=>'Midwifery','name'=>'newborn_examination.update','display_name'=>'Update Newborn Examination','description'=>'Update newborn examination record'],
+            ['module'=>'Midwifery','name'=>'newborn_examination.delete','display_name'=>'Delete Newborn Examination','description'=>'Delete newborn examination record'],
+
+            ['module'=>'Midwifery','name'=>'postnatal_examination.create','display_name'=>'Create Postnatal Examination','description'=>'Create postnatal examination record'],
+            ['module'=>'Midwifery','name'=>'postnatal_examination.read','display_name'=>'View Postnatal Examination','description'=>'View postnatal examination records'],
+            ['module'=>'Midwifery','name'=>'postnatal_examination.update','display_name'=>'Update Postnatal Examination','description'=>'Update postnatal examination record'],
+            ['module'=>'Midwifery','name'=>'postnatal_examination.delete','display_name'=>'Delete Postnatal Examination','description'=>'Delete postnatal examination record'],
+
+            ['module'=>'Midwifery','name'=>'child_follow_up.create','display_name'=>'Create Child Follow-up','description'=>'Create child follow-up record'],
+            ['module'=>'Midwifery','name'=>'child_follow_up.read','display_name'=>'View Child Follow-up','description'=>'View child follow-up records'],
+            ['module'=>'Midwifery','name'=>'child_follow_up.update','display_name'=>'Update Child Follow-up','description'=>'Update child follow-up record'],
+            ['module'=>'Midwifery','name'=>'child_follow_up.delete','display_name'=>'Delete Child Follow-up','description'=>'Delete child follow-up record'],
+
+            /*
+            |--------------------------------------------------------------------------            | CLINICAL
             |--------------------------------------------------------------------------
             */
             ['module'=>'Clinical','name'=>'vital_sign.create','display_name'=>'Record Vital Signs','description'=>'Record vital signs'],
@@ -369,6 +410,12 @@ class PermissionSeeder extends Seeder
                 'discharge.create','discharge.read','discharge.update',
                 'observation.create','observation.read','observation.update',
                 'nursing_note.create','nursing_note.read','nursing_note.update',
+                'antenatal_care.create','antenatal_care.read','antenatal_care.update','antenatal_care.delete',
+                'labour.create','labour.read','labour.update','labour.delete',
+                'labour_progress.create','labour_progress.read','labour_progress.update','labour_progress.delete',
+                'delivery.create','delivery.read','delivery.update','delivery.delete',
+                'newborn.create','newborn.read','newborn.update','newborn.delete',
+                'newborn_examination.create','newborn_examination.read','newborn_examination.update','newborn_examination.delete',
             ]);
         }
 

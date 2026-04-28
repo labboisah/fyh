@@ -67,6 +67,14 @@ class PatientVisit extends Model
         return $this->hasMany(Continuation::Class);
     }
 
+    /**
+     * Get the antenatal care record for this visit (if applicable)
+     */
+    public function antenatalCare()
+    {
+        return $this->hasOne(AntenatalCare::class, 'patient_visit_id');
+    }
+
     public function registeredAdmission() {
         return $this->admissions->where('status','registered')->first();
     }

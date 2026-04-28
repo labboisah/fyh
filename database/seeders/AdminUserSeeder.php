@@ -88,6 +88,17 @@ class AdminUserSeeder extends Seeder
         if ($nurseRole && !$nurse->hasRole('nurse')) {
             $nurse->assignRole($nurseRole);
         }
+        $midwife = User::firstOrCreate(
+            ['email' => 'midwife@hospital.test'],
+            [
+                'name' => 'Midwife',
+                'password' => Hash::make('midwife@123'),
+            ]);
+        
+        $midwifeRole = Role::where('name', 'midwife')->first();
+        if ($midwifeRole && !$midwife->hasRole('midwife')) {
+            $midwife->assignRole($midwifeRole);
+        }
 
         $doctor = User::firstOrCreate(
             ['email' => 'doctor@hospital.test'],

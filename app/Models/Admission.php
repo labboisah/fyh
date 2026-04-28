@@ -28,4 +28,12 @@ class Admission extends Model
     public function discharge() {
         return $this->hasOne(Discharge::class);
     }
+
+    /**
+     * Get the labour associated with this admission (if applicable)
+     */
+    public function labour()
+    {
+        return $this->hasOne(Labour::class);
+    }
 }

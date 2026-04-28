@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Radiograph\InvestigationController;
-use App\Http\Controllers\Radiograph\PatientController;
 use App\Http\Controllers\Radiograph\RequestController;
 use App\Http\Controllers\Radiograph\ParameterController;
 
@@ -16,8 +15,8 @@ Route::middleware(['auth', 'verified', 'role:radiologist'])
     Route::name('requests.')
     ->prefix('requests')
     ->group(function () {
-        Route::get('/', [PatientController::class, 'index'])->name('index');
-        Route::get('/{investigationRequest}/show', [PatientController::class, 'show'])->name('show');
+        Route::get('/', [RequestController::class, 'index'])->name('index');
+        Route::get('/{investigationRequest}/show', [RequestController::class, 'show'])->name('show');
     });
     
     Route::name('investigations.')
