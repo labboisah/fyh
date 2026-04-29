@@ -33,35 +33,42 @@
 
             /* Navbar */
             .navbar {
-                background: linear-gradient(90deg, var(--primary-green) 0%, #229954 100%);
-                box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
+                background-color: white;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
                 padding: 1rem 0;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
             }
 
             .navbar-brand {
                 font-weight: 700;
-                font-size: 1.5rem;
-                color: white !important;
+                font-size: 1.35rem;
+                color: #1f2937 !important;
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 0.75rem;
             }
 
-            .navbar-brand i {
-                color: var(--primary-orange);
-                font-size: 1.8rem;
+            .navbar-brand img {
+                background: white;
+                border-radius: 12px;
+                padding: 0.25rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             }
 
             .nav-link {
-                color: rgba(255, 255, 255, 0.9) !important;
+                color: #475569 !important;
                 font-weight: 500;
                 margin: 0 0.5rem;
-                transition: all 0.3s ease;
+                transition: all 0.25s ease;
             }
 
             .nav-link:hover {
-                color: var(--primary-orange) !important;
-                text-shadow: 0 0 10px rgba(255, 140, 66, 0.3);
+                color: var(--primary-green) !important;
+                text-shadow: none;
+            }
+
+            .navbar-toggler {
+                border-color: rgba(71, 85, 105, 0.3);
             }
 
             .btn-success {
@@ -94,68 +101,78 @@
                 box-shadow: 0 6px 20px rgba(255, 140, 66, 0.3);
             }
 
-            /* Hero Section */
+            /* ================= HERO SECTION (REFINED) ================= */
             .hero-section {
-                background: linear-gradient(135deg, var(--primary-green) 0%, #229954 50%, var(--primary-orange) 100%);
-                color: white;
-                padding: 4rem 0;
-                margin-bottom: 3rem;
                 position: relative;
+                min-height: 90vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 overflow: hidden;
+
+                /* Background Image */
+                background-image: url('/images/hero-bg.png');
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+
+                /* Improve rendering */
+                image-rendering: auto;
             }
 
+            /* Softer overlay (less washout) */
             .hero-section::before {
                 content: '';
                 position: absolute;
-                top: -50%;
-                right: -10%;
-                width: 500px;
-                height: 500px;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 50%;
-            }
-
-            .hero-section::after {
-                content: '';
-                position: absolute;
-                bottom: -30%;
-                left: -5%;
-                width: 400px;
-                height: 400px;
-                background: rgba(255, 140, 66, 0.1);
-                border-radius: 50%;
-            }
-
-            .hero-content {
-                position: relative;
+                inset: 0;
+                background: linear-gradient(
+                    135deg,
+                    rgba(39, 174, 96, 0.35),   /* softer green */
+                    rgba(255, 140, 66, 0.25)   /* softer orange */
+                );
                 z-index: 1;
             }
 
-            .hero-icon {
-                font-size: 4rem;
-                margin-bottom: 1rem;
-                display: inline-block;
-                animation: bounce 2s infinite;
+            /* Content */
+            .hero-content {
+                position: relative;
+                z-index: 2;
+                color: #fff;
+                text-align: center;
+
+                /* Light glass effect (no blur distortion) */
+                background: rgba(0, 0, 0, 0.25);
+                padding: 30px;
+                border-radius: 15px;
+                backdrop-filter: blur(1px); /* reduced */
             }
 
-            @keyframes bounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-20px); }
+            /* Icon */
+            .hero-icon i {
+                font-size: 3rem;
+                color: #00ff88;
+                margin-bottom: 15px;
             }
 
+            /* Title */
             .hero-title {
+                font-size: 2.8rem;
                 font-weight: 700;
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                text-shadow: 0 4px 15px rgba(0,0,0,0.6);
             }
 
+            /* Subtitle */
             .hero-subtitle {
-                font-size: 1.1rem;
-                opacity: 0.95;
+                font-size: 1.3rem;
                 font-weight: 500;
+                opacity: 0.95;
             }
 
+            /* Tagline */
+            .hero-tagline {
+                font-size: 1rem;
+                opacity: 0.9;
+            }
             /* Feature Cards */
             .feature-card {
                 background: white;
@@ -305,17 +322,91 @@
                     font-size: 2rem;
                 }
             }
+
+            /* ================= DEPARTMENTS ================= */
+            .departments-section {
+                background: linear-gradient(
+                    135deg,
+                    rgba(39, 174, 96, 0.05),
+                    rgba(255, 140, 66, 0.05)
+                );
+                border-radius: 20px;
+            }
+
+            /* Section title */
+            .section-title {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #1a1a1a;
+            }
+
+            .section-subtitle {
+                color: #666;
+                font-size: 1rem;
+            }
+
+            /* Card */
+            .dept-card {
+                background: #fff;
+                border-radius: 15px;
+                padding: 25px;
+                text-align: center;
+                transition: all 0.3s ease;
+                height: 100%;
+                border: 1px solid transparent;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            }
+
+            .dept-card:hover {
+                transform: translateY(-8px);
+                border-color: var(--primary-green);
+                box-shadow: 0 15px 30px rgba(39, 174, 96, 0.15);
+            }
+
+            /* Icon container */
+            .dept-icon {
+                width: 65px;
+                height: 65px;
+                margin: 0 auto 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                font-size: 1.8rem;
+            }
+
+            /* Color variations */
+            .bg-green {
+                background: var(--light-green);
+                color: var(--primary-green);
+            }
+
+            .bg-orange {
+                background: var(--light-orange);
+                color: var(--primary-orange);
+            }
+
+            /* Text */
+            .dept-card h5 {
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+
+            .dept-card p {
+                font-size: 0.9rem;
+                color: #666;
+            }
         </style>
     </head>
     <body>
         <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top w-100">
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top w-100">
             <div class="container-fluid px-4">
                 <a class="navbar-brand" href="#">
-                    <i class="bi bi-hospital"></i>
-                    FYH Sifawa
+                    <img src="{{ asset('images/logo.png') }}" alt="FYH Logo" width="40" height="40" class="d-inline-block align-text-top">
+                    Fatima Yahaya Hospital, Sifawa
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -343,21 +434,121 @@
 
         <!-- Hero Section -->
         <section class="hero-section w-100 mt-5">
+            <div class="overlay"></div> <!-- for readability -->
+            
             <div class="container-lg">
                 <div class="hero-content text-center">
-                    <div class="hero-icon">
-                        <i class="bi bi-heart-pulse"></i>
-                    </div>
                     <h1 class="hero-title">Fatima Yahaya Hospital Sifawa</h1>
                     <p class="hero-subtitle mb-4">Patient Record Management System</p>
-                    <p style="font-size: 1rem; opacity: 0.9;">Revolutionizing Healthcare with Digital Excellence</p>
+                    <p class="hero-tagline">Revolutionizing Healthcare with Digital Excellence</p>
                 </div>
             </div>
         </section>
 
         <!-- Main Content -->
         <div class="container-lg py-5">
-            
+            <section class="departments-section py-5">
+                <div class="container-lg">
+                    <div class="text-center mb-5">
+                        <h2 class="section-title">Our Departments & Services</h2>
+                        <p class="section-subtitle">
+                            Comprehensive healthcare services powered by modern technology
+                        </p>
+                    </div>
+
+                    <div class="row g-4">
+
+                        <!-- Card 1 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-green">
+                                    <i class="bi bi-heart-pulse"></i>
+                                </div>
+                                <h5>Cardiology</h5>
+                                <p>Advanced heart care with ECG, ECHO, and monitoring systems.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-orange">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                </div>
+                                <h5>Laboratory</h5>
+                                <p>Accurate diagnostic testing with digital lab record integration.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-green">
+                                    <i class="bi bi-x-ray"></i>
+                                </div>
+                                <h5>Radiology</h5>
+                                <p>X-ray, ultrasound, and imaging services with digital storage.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-orange">
+                                    <i class="bi bi-hospital"></i>
+                                </div>
+                                <h5>Emergency</h5>
+                                <p>24/7 emergency response with fast patient record access.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 5 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-green">
+                                    <i class="bi bi-person-heart"></i>
+                                </div>
+                                <h5>Outpatient</h5>
+                                <p>Efficient patient consultations and appointment tracking.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 6 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-orange">
+                                    <i class="bi bi-capsule"></i>
+                                </div>
+                                <h5>Pharmacy</h5>
+                                <p>Medication management and prescription tracking system.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 7 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-green">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                                <h5>Diagnostics</h5>
+                                <p>Comprehensive health checks powered by smart analytics.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 8 -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dept-card">
+                                <div class="dept-icon bg-orange">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <h5>Health Records</h5>
+                                <p>Secure patient data management with instant accessibility.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
             <!-- Features Section -->
             <section class="mb-5">
                 <h2 class="text-center mb-5" style="font-size: 2rem; font-weight: 700; color: var(--primary-green);">
