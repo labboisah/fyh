@@ -13,7 +13,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
         <!-- Poppins Font -->
         <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700&display=swap" rel="stylesheet">
-
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <style>
             :root {
                 --primary-green: #27AE60;

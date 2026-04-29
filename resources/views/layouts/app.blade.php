@@ -21,6 +21,7 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
         <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <style>
             :root {
                 --primary-green: #27AE60;

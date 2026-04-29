@@ -13,7 +13,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700" rel="stylesheet" />
-
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <style>
             :root {
                 --primary-green: #27AE60;
