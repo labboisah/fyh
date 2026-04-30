@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('investigation_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_visit_id')->constrained('patient_visits');
-            $table->foreignId('investigation_id')->constrained('investigations');
-            $table->foreignId('requested_by')->constrained('users');
-            $table->foreignId('performed_by')->nullable()->constrained('users');
+            $table->foreignId('patient_visit_id');
+            $table->foreignId('investigation_id');
+            $table->foreignId('requested_by');
+            $table->foreignId('performed_by');
             $table->text('clinical_diagnoses');
             $table->date('requested_at');
             $table->date('completed_at')->nullable();

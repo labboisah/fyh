@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('patient_admissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id');
             $table->dateTime('admission_date');
             $table->dateTime('discharge_date')->nullable();
             $table->text('reason_for_admission');
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('bed_number')->nullable();
             $table->enum('status', ['Admitted', 'Discharged', 'Transferred'])->default('Admitted');
             $table->text('notes')->nullable();
-            $table->foreignId('admitted_by')->constrained('users')->onDelete('restrict');
-            $table->foreignId('discharged_by')->nullable()->constrained('users')->onDelete('restrict');
+            $table->foreignId('admitted_by');
+            $table->foreignId('discharged_by');
             $table->timestamps();
             $table->softDeletes();
         });

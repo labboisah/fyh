@@ -46,6 +46,7 @@ class RecordOfficerController extends Controller
      * Show patient registration form
      */
     public function registerForm()
+    
     {
         return view('record_officer.patient.register');
     }

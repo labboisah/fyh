@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_visit_id');
             $table->string('status')->default('active');
-            $table->foreignId('prescribe_by')->constrained('users');
+            $table->foreignId('prescribe_by');
             $table->timestamps();
         });
     }

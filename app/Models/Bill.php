@@ -44,6 +44,22 @@ class Bill extends Model
             ->withTimestamps();
     }
 
+    public function syncRelations(): array
+    {
+        return [
+            'patient_visit' => 'patient_visit_sync_uuid',
+            'issued_by' => 'user_sync_uuid',
+        ];
+    }
+
+    public function syncDependencies(): array
+    {
+        return [
+            'patient_visit_sync_uuid' => PatientVisit::class,
+            'user_sync_uuid' => User::class,
+        ];
+    }
+
     /**
      * Get all payments for this bill
      */

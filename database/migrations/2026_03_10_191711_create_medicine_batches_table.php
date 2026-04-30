@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('medicine_batches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medicine_id')->constrained();
-            $table->foreignId('supplier_id')->nullable()->constrained();
+            $table->foreignId('medicine_id');
+            $table->foreignId('supplier_id')->nullable();
 
             $table->string('batch_number');
 

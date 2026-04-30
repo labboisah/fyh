@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('continuations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_visit_id')->constraint('patient_visits');
-            $table->foreignId('written_by')->constraint('users');
+            $table->foreignId('patient_visit_id');
+            $table->foreignId('written_by');
             $table->text('note');
             $table->timestamp('date')->default(now());
             $table->string('time')->default(date('h:m:s A'));

@@ -28,10 +28,13 @@ class SyncObserver
             return;
         }
 
-        // Don't sync if only sync metadata changed
-        $syncFields = ['sync_uuid', 'sync_status', 'sync_origin', 'sync_updated_at', 'remote_id'];
+        if ($model->wasRecentlyCreated) {
+            return;
+        }
+
+        $syncFields = $this->syncFields();
         $changedFields = array_keys($model->getChanges());
-        $realChanges = array_filter($changedFields, fn($f) => !in_array($f, $syncFields));
+        $realChanges = array_filter($changedFields, fn($field) => !in_array($field, $syncFields, true));
 
         if (count($realChanges) > 0) {
             $this->dispatchSyncJob($model, 'update');
@@ -51,20 +54,26 @@ class SyncObserver
     }
 
     /**
-     * Dispatch sync job for the model
+     * Dispatch sync job for the model.
      */
     private function dispatchSyncJob(Model $model, string $operation): void
     {
-        // Ensure model has sync UUID
         if (method_exists($model, 'ensureSyncUuid')) {
             $model->ensureSyncUuid();
         }
 
         $syncOperation = $model->createSyncOperation($operation);
 
-        // Dispatch the sync job
+        $delay = config('sync.observer.dispatch_delay', 3);
+
         SyncRecordJob::dispatch($syncOperation)
+            ->delay($delay)
             ->onQueue(config('sync.queue.name', 'sync'))
             ->onConnection(config('sync.queue.connection', 'database'));
+    }
+
+    private function syncFields(): array
+    {
+        return ['sync_uuid', 'sync_status', 'sync_origin', 'sync_updated_at', 'remote_id'];
     }
 }

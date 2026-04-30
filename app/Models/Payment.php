@@ -45,6 +45,24 @@ class Payment extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function syncRelations(): array
+    {
+        return [
+            'bill' => 'bill_sync_uuid',
+            'patient' => 'patient_sync_uuid',
+            'paid_by' => 'user_sync_uuid',
+        ];
+    }
+
+    public function syncDependencies(): array
+    {
+        return [
+            'bill_sync_uuid' => Bill::class,
+            'patient_sync_uuid' => Patient::class,
+            'user_sync_uuid' => User::class,
+        ];
+    }
+
     /**
      * Get the user who recorded the payment
      */

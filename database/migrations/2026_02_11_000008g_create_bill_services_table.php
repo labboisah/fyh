@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('bill_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bill_id')->constrained('bills')->cascadeOnDelete();
-            $table->foreignId('service_id')->constrained('services')->cascadeOnDelete();
+            $table->foreignId('bill_id');
+            $table->foreignId('service_id');
             $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 10, 2);
             $table->decimal('subtotal', 10, 2);

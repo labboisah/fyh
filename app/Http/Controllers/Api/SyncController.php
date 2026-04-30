@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SyncController extends Controller
 {
@@ -39,15 +40,14 @@ class SyncController extends Controller
                 'remote_id' => $result['id'] ?? null,
                 'message' => 'Sync record received and processed',
             ], 200);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Sync validation failed', ['errors' => $e->errors()]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Sync record processing failed', [
                 'error' => $e->getMessage(),
@@ -95,9 +95,9 @@ class SyncController extends Controller
                 'count' => count($results),
                 'results' => $results,
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Batch sync failed', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -173,83 +173,76 @@ class SyncController extends Controller
             throw new \Exception("Model class not found: {$modelType}");
         }
 
-        // Check if model uses Syncable trait
-        if (!in_array('App\Models\Traits\Syncable', class_uses($modelType))) {
+        if (!in_array('App\Models\Traits\Syncable', class_uses($modelType), true)) {
             throw new \Exception("Model {$modelType} does not use Syncable trait");
         }
 
-        $model = $modelType::where('sync_uuid', $syncUuid)->first();
+        $this->resolveRelationshipSyncUuids($payload);
 
-        switch ($operation) {
-            case 'create':
-                if ($model) {
-                    // Already exists, treat as update
-                    $model->applySyncData($payload);
-                } else {
-                    // Create new record
-                    $payload['sync_uuid'] = $syncUuid;
-                    $payload['sync_status'] = 'synced';
-                    $payload['sync_origin'] = $data['origin'] ?? 'remote';
+        $payload['sync_uuid'] = $syncUuid;
+        $payload['sync_origin'] = config('sync.environment');
+        $payload['sync_status'] = 'synced';
 
-                    $model = $modelType::create($payload);
-                }
-                break;
+        return DB::transaction(function () use ($modelType, $operation, $payload, $syncUuid) {
+            $model = $modelType::where('sync_uuid', $syncUuid)->first();
 
-            case 'update':
-                if (!$model) {
-                    throw new \Exception("Cannot update: record not found with sync_uuid {$syncUuid}");
+            if ($operation === 'delete') {
+                if ($model && config('sync.behavior.allow_remote_deletes', false)) {
+                    $model->delete();
                 }
 
-                // Check conflict resolution
-                if ($this->hasConflict($model, $payload)) {
-                    if (config('sync.behavior.conflict_resolution') === 'last_write_wins') {
-                        // Check timestamps
-                        $remoteTime = strtotime($data['timestamp'] ?? now());
-                        $localTime = $model->updated_at ? $model->updated_at->timestamp : 0;
+                return ['success' => true, 'id' => $model ? $model->getKey() : null, 'model_type' => $modelType];
+            }
 
-                        if ($remoteTime > $localTime) {
-                            $model->applySyncData($payload);
-                        } else {
-                            Log::warning('Conflict: keeping local version', ['sync_uuid' => $syncUuid]);
-                        }
-                    } else {
-                        // origin_precedence - only apply if from origin
-                        if (config('sync.environment') !== $data['origin']) {
-                            $model->applySyncData($payload);
-                        }
-                    }
-                } else {
-                    $model->applySyncData($payload);
-                }
-                break;
+            $model = $modelType::updateOrCreate(['sync_uuid' => $syncUuid], $payload);
 
-            case 'delete':
-                if ($model) {
-                    if (config('sync.behavior.allow_remote_deletes', false)) {
-                        $model->delete();
-                    } else {
-                        Log::warning('Delete not allowed from remote', ['sync_uuid' => $syncUuid]);
-                    }
-                }
-                break;
-
-            default:
-                throw new \Exception("Unknown operation: {$operation}");
-        }
-
-        return [
-            'success' => true,
-            'id' => $model ? $model->getKey() : null,
-            'model_type' => $modelType,
-        ];
+            return ['success' => true, 'id' => $model->getKey(), 'model_type' => $modelType];
+        });
     }
 
-    /**
-     * Check if there's a conflict
-     */
-    private function hasConflict($model, array $remoteData): bool
+    private function resolveRelationshipSyncUuids(array &$payload): void
     {
-        // Simple conflict: check if local was updated after this sync started
-        return $model->updated_at && $model->sync_origin !== config('sync.environment');
+        foreach ($payload as $key => $value) {
+            if (!Str::endsWith($key, '_sync_uuid') || empty($value)) {
+                continue;
+            }
+
+            $foreignKey = Str::replaceLast('_sync_uuid', '_id', $key);
+            $relatedClass = $this->resolveModelClassFromSyncKey($key);
+
+            if (!$relatedClass || !class_exists($relatedClass)) {
+                unset($payload[$key]);
+                continue;
+            }
+
+            $related = $relatedClass::where('sync_uuid', $value)->first();
+
+            if (!$related) {
+                throw new \Exception("Cannot resolve relationship for {$key}: {$value}");
+            }
+
+            $payload[$foreignKey] = $related->getKey();
+            unset($payload[$key]);
+        }
+    }
+
+    private function resolveModelClassFromSyncKey(string $syncKey): ?string
+    {
+        $map = [
+            'patient_sync_uuid' => \App\Models\Patient::class,
+            'patient_visit_sync_uuid' => \App\Models\PatientVisit::class,
+            'bill_sync_uuid' => \App\Models\Bill::class,
+            'service_sync_uuid' => \App\Models\Service::class,
+            'user_sync_uuid' => \App\Models\User::class,
+        ];
+
+        if (isset($map[$syncKey])) {
+            return $map[$syncKey];
+        }
+
+        $base = Str::studly(Str::replaceLast('_sync_uuid', '', $syncKey));
+        $candidate = "App\\Models\\{$base}";
+
+        return class_exists($candidate) ? $candidate : null;
     }
 }

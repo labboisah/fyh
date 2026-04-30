@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('discharges', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admission_id');
-            $table->foreignId('discharge_by')->constraint('users');
+            $table->foreignId('discharge_by');
             $table->string('time')->nullable();
             $table->timestamp('date')->default(now());
             $table->timestamp('next_appointment_date')->nullable();

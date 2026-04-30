@@ -12,7 +12,6 @@ trait Syncable
      */
     public static function bootSyncable()
     {
-        // Register observer
         static::observe(\App\Observers\SyncObserver::class);
     }
 
@@ -71,7 +70,23 @@ trait Syncable
     }
 
     /**
-     * Get the payload to send during sync (override in model if needed)
+     * Define related models whose sync_uuid should be included in the payload.
+     */
+    public function syncRelations(): array
+    {
+        return [];
+    }
+
+    /**
+     * Define dependency fields that must exist remotely before syncing this model.
+     */
+    public function syncDependencies(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get the payload to send during sync.
      */
     public function getSyncPayload(): array
     {
@@ -79,12 +94,23 @@ trait Syncable
         $payload = [];
 
         foreach ($this->getAttributes() as $key => $value) {
-            if (!in_array($key, $excluded)) {
+            if (!in_array($key, $excluded, true)) {
                 $payload[$key] = $value;
             }
         }
 
         $payload['sync_uuid'] = $this->sync_uuid;
+
+        foreach ($this->syncRelations() as $relation => $payloadKey) {
+            if (!method_exists($this, $relation)) {
+                continue;
+            }
+
+            $related = $this->{$relation};
+            if ($related && isset($related->sync_uuid)) {
+                $payload[$payloadKey] = $related->sync_uuid;
+            }
+        }
 
         return $payload;
     }
@@ -100,7 +126,7 @@ trait Syncable
         $excluded[] = 'created_at';
 
         foreach ($data as $key => $value) {
-            if (!in_array($key, $excluded) && $this->isFillable($key)) {
+            if (!in_array($key, $excluded, true) && $this->isFillable($key)) {
                 $this->{$key} = $value;
             }
         }
@@ -116,10 +142,10 @@ trait Syncable
     public function isFillable($key): bool
     {
         if ($this->fillable) {
-            return in_array($key, $this->fillable);
+            return in_array($key, $this->fillable, true);
         }
 
-        return !in_array($key, $this->guarded);
+        return !in_array($key, $this->guarded, true);
     }
 
     /**

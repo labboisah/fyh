@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('observations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admission_id');
-            $table->foreignId('recorded_by')->constrained('users');
+            $table->foreignId('recorded_by');
             $table->time('time');
             $table->timestamp('date');
             $table->string('blood_pressure')->nullable();

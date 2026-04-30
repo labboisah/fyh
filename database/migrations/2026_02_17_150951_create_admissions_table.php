@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('date');
             $table->string('time');
             $table->text('note')->nullable();
-            $table->foreignId('admitted_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('admitted_by');
             $table->string('status')->default('registered');
             $table->timestamps();
         });

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('fluid_balances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admission_id')->constraint('admissions');
-            $table->foreignId('recorded_by')->constraint('users');
+            $table->foreignId('admission_id');
+            $table->foreignId('recorded_by');
             $table->timestamp('date');
             $table->string('time');
             $table->string('type_in')->nullable();

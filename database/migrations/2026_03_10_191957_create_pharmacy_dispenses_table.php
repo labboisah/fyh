@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pharmacy_dispenses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medicine_batch_id')->constrained();
+            $table->foreignId('medicine_batch_id');
 
             $table->enum('type',[
                 'purchase',
@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->string('reference')->nullable();
 
-            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->foreignId('created_by')->nullable();
             $table->timestamps();
         });
     }

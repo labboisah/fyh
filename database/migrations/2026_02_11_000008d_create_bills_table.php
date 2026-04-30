@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_visit_id')->nullable()->constrained('patient_visits')->onDelete('set null');
+            $table->foreignId('patient_visit_id')->nullable();
             $table->foreignId('investigation_request_id')->nullable();
             $table->foreignId('admission_id')->nullable();
             $table->foreignId('walkin_id')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('amount', 12, 2);
             $table->enum('status', ['pending', 'paid', 'partial', 'cancelled'])->default('pending');
             $table->text('notes')->nullable();
-            $table->foreignId('issued_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('issued_by');
             $table->dateTime('issued_date');
             $table->dateTime('due_date')->nullable();
             $table->softDeletes();

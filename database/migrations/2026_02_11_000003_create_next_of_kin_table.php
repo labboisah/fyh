@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('next_of_kin', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id');
             $table->string('name');
             $table->string('relationship');
             $table->text('contact_address')->nullable();

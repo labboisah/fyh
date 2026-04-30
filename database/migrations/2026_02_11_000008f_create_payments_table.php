@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bill_id')->nullable()->constrained('bills')->onDelete('set null');
+            $table->foreignId('bill_id')->nullable();
             $table->string('payment_id')->unique();
             $table->decimal('amount', 12, 2);
             $table->enum('payment_method', ['Cash', 'Card', 'Bank Transfer', 'NHIS', 'Private Insurance'])->default('Cash');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('reference_number')->nullable();
             $table->enum('status', ['pending', 'completed', 'failed', 'reversed'])->default('pending');
             $table->text('notes')->nullable();
-            $table->foreignId('paid_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('paid_by');
             $table->dateTime('payment_date');
             $table->softDeletes();
             $table->timestamps();

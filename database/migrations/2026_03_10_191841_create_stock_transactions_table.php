@@ -26,7 +26,7 @@ return new class extends Migration
 
             $table->string('reference')->nullable();
 
-            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->foreignId('created_by')->nullable();
             $table->timestamps();
         });
     }

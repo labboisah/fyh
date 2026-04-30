@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vital_signs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_visit_id')->constrained('patient_visits')->cascadeOnDelete();
+            $table->foreignId('patient_visit_id');
             $table->decimal('body_temperature', 5, 2);
             $table->integer('blood_pressure_systolic');
             $table->integer('blood_pressure_diastolic');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('weight', 6, 2)->nullable();
             $table->decimal('height', 6, 2)->nullable();
             $table->text('notes')->nullable();
-            $table->foreignId('recorded_by')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('recorded_by');
             $table->dateTime('recorded_date');
             $table->softDeletes();
             $table->timestamps();

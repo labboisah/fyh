@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('antenatal_cares', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
-            $table->foreignId('patient_visit_id')->constrained('patient_visits')->onDelete('cascade');
-            $table->foreignId('recorded_by')->constrained('users');
+            $table->foreignId('patient_id');
+            $table->foreignId('patient_visit_id');
+            $table->foreignId('recorded_by');
             
             // Pregnancy details
             $table->date('last_menstrual_period')->nullable();

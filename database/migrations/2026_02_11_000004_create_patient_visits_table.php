@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('patient_visits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id');
             $table->dateTime('visit_date');
             $table->string('visit_type'); // e.g., 'Consultation', 'Follow-up', 'Emergency'
             $table->text('reason_for_visit')->nullable();
             $table->text('clinical_notes')->nullable();
             $table->string('referred_to')->nullable();
             $table->enum('status', ['Active', 'Transferred', 'Admitted', 'Discharged'])->default('Active');
-            $table->foreignId('created_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('created_by');
             $table->timestamps();
             $table->softDeletes();
         });

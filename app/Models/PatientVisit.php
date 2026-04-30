@@ -32,6 +32,20 @@ class PatientVisit extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function syncRelations(): array
+    {
+        return [
+            'patient' => 'patient_sync_uuid',
+        ];
+    }
+
+    public function syncDependencies(): array
+    {
+        return [
+            'patient_sync_uuid' => Patient::class,
+        ];
+    }
+
     public function bills() {
         return $this->hasMany(Bill::class);
     }

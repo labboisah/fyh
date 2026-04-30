@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('patient_referrals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id');
             $table->dateTime('referral_date');
             $table->string('referred_to_department');
             $table->text('reason_for_referral');
             $table->enum('status', ['Pending', 'Accepted', 'Completed', 'Rejected'])->default('Pending');
             $table->text('notes')->nullable();
-            $table->foreignId('referred_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('referred_by');
             $table->dateTime('accepted_date')->nullable();
             $table->dateTime('completed_date')->nullable();
             $table->timestamps();

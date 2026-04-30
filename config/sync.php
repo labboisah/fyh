@@ -28,9 +28,9 @@ return [
     */
     'remote' => [
         // Endpoint URL for the remote server
-        'endpoint' => env('SYNC_REMOTE_ENDPOINT'),
+        'endpoint' => env('SYNC_REMOTE_ENDPOINT', 'https://fayhos.com'),
         // API token used for both outgoing remote auth and incoming sync requests
-        'token' => env('SYNC_API_TOKEN'),
+        'token' => env('SYNC_API_TOKEN', 'q8aT2K7pVzH4xR9m'),
         // Timeout in seconds
         'timeout' => (int) env('SYNC_REMOTE_TIMEOUT', 30),
     ],
@@ -41,7 +41,7 @@ return [
     |--------------------------------------------------------------------------
     | Token used by remote server to authenticate sync requests to this server
     */
-    'token' => env('SYNC_API_TOKEN'),
+    'token' => env('SYNC_API_TOKEN', 'q8aT2K7pVzH4xR9m'),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +52,17 @@ return [
         'connection' => env('SYNC_QUEUE_CONNECTION', 'database'),
         'name' => env('SYNC_QUEUE_NAME', 'sync'),
         'retry_after' => (int) env('SYNC_QUEUE_RETRY_AFTER', 300),
+        'dependency_delay' => (int) env('SYNC_QUEUE_DEPENDENCY_DELAY', 10),
         'max_attempts' => (int) env('SYNC_MAX_ATTEMPTS', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Observer settings
+    |--------------------------------------------------------------------------
+    */
+    'observer' => [
+        'dispatch_delay' => (int) env('SYNC_OBSERVER_DISPATCH_DELAY', 3),
     ],
 
     /*

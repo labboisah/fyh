@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('drug_charts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('prescription_item_id');
-            $table->foreignId('medicine_id')->constraint('medicines')->nullable();
-            $table->foreignId('route_id')->constraint('routes')->nullable();
+            $table->foreignId('medicine_id')->nullable();
+            $table->foreignId('route_id')->nullable();
             $table->string('dosage')->nullable();
             $table->string('comment')->nullable();
             $table->string('time');
