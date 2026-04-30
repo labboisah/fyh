@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Syncable;
 
     protected $fillable = [
         'bill_id',

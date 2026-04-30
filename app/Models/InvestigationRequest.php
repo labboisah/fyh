@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 
 class InvestigationRequest extends Model
 {
+    use Syncable;
     protected $guarded = [];
 
     protected $casts = [

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 
 class InvestigationResult extends Model
 {
+    use Syncable;
+    
     protected $fillable = [
         'investigation_request_id',
         'parameter_id',

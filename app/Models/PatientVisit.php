@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PatientVisit extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Syncable;
 
     protected $fillable = [
         'patient_id',

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 
 class DrugChart extends Model
 {
+    use Syncable;
+    
     protected $guarded = [];
 
     public function medicine() {
