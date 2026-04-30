@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')
+            $table->foreignId('patient_id');
             $table->date('appointment_date');
             $table->time('appointment_time');
             $table->enum('status', ['Scheduled', 'Completed', 'Cancelled', 'No-show'])->default('Scheduled');
