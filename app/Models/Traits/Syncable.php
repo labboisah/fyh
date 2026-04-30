@@ -113,7 +113,7 @@ trait Syncable
     /**
      * Check if attribute is fillable
      */
-    protected function isFillable($key): bool
+    public function isFillable($key): bool
     {
         if ($this->fillable) {
             return in_array($key, $this->fillable);

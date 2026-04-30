@@ -29,8 +29,8 @@ return [
     'remote' => [
         // Endpoint URL for the remote server
         'endpoint' => env('SYNC_REMOTE_ENDPOINT'),
-        // API token for authentication with remote
-        'token' => env('SYNC_REMOTE_TOKEN'),
+        // API token used for both outgoing remote auth and incoming sync requests
+        'token' => env('SYNC_API_TOKEN'),
         // Timeout in seconds
         'timeout' => (int) env('SYNC_REMOTE_TIMEOUT', 30),
     ],
@@ -77,14 +77,26 @@ return [
     */
     'syncable_models' => [
         'App\Models\Patient',
-        'App\Models\Admission',
+        'App\Models\PatientAdmission',
+        'App\Models\PatientVisit',
+        'App\Models\VitalSign',
+        'App\Models\Observation',
+        'App\Models\Diagnosis',
+        'App\Models\Discharge',
         'App\Models\AntenatalCare',
         'App\Models\Labour',
+        'App\Models\LabourProgress',
         'App\Models\Delivery',
         'App\Models\InvestigationRequest',
+        'App\Models\InvestigationResult',
         'App\Models\Prescription',
+        'App\Models\DrugChart',
+        'App\Models\Continuation',
         'App\Models\NewbornExamination',
         'App\Models\ChildFollowUp',
+        'App\Models\Bill',
+        'App\Models\Payment',
+        'App\Models\FluidBalance',
     ],
 
     /*

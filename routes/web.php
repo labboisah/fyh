@@ -80,7 +80,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Record Officer Routes - Patient Registration and Visit Recording
-Route::middleware(['auth', 'verified', 'role:record_officer'])->prefix('record-officer')->name('record_officer.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('record_officer.')->group(function () {
     Route::get('/', [RecordOfficerController::class, 'dashboard'])->name('dashboard');
     
     // Patient Management

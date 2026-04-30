@@ -27,7 +27,7 @@
             }
 
             body {
-                background: linear-gradient(135deg, var(--primary-green) 0%, #229954 50%, var(--primary-orange) 100%);
+                background-image: url('{{ asset("images/hero-bg.png") }}');
                 background-attachment: fixed;
                 min-height: 100vh;
                 display: flex;

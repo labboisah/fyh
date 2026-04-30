@@ -55,6 +55,7 @@ class RecordOfficerController extends Controller
      */
     public function register(Request $request)
     {
+       
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -72,10 +73,9 @@ class RecordOfficerController extends Controller
             'nok_contact_address' => 'nullable|string|max:500',
             'nok_telephone' => 'required|string|max:20',
         ]);
+       
         
-        try {
-            DB::beginTransaction();
-
+       
             // Create patient record
             $patient = Patient::create([
                 'hospital_number' => Patient::generateHospitalNumber(),
@@ -111,15 +111,10 @@ class RecordOfficerController extends Controller
                 'telephone' => $validated['nok_telephone'],
             ]);
             $patient->recordFirstVisit();
-            DB::commit();
-
+            
             return redirect()->route('record_officer.patients.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to register patient. ' . $e->getMessage()])->withInput();
-        }
+       
     }
 
     /**

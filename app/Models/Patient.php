@@ -10,12 +10,7 @@ class Patient extends Model
 {
     use SoftDeletes, Syncable;
 
-    protected $fillable = [
-        'hospital_number',
-        'payment_id',
-        'registration_date',
-        'is_walkIn',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'registration_date' => 'datetime',

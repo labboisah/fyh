@@ -8,7 +8,7 @@
         @include('midwife.dashboard')
     @endif
 
-    @if(auth()->user()->hasRole('record_officer'))
+    @if(auth()->user()->hasRole('record'))
         @include('record_officer.dashboard')
     @endif
 
