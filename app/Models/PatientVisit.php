@@ -142,7 +142,7 @@ class PatientVisit extends Model
     }
 
     public function generateServiceBillOf(Service $service) {
-        $this->bills()->create([
+        $bill = $this->bills()->create([
             'service_description'=>$service->description,
             'amount'=>$service->price,
             'status'=>'pending',
@@ -152,7 +152,7 @@ class PatientVisit extends Model
             'bill_number'=>Bill::generateBillNumber(),
             'department_id'=> auth()->user()->department->id,
         ]);
-        
+
     }
 
     public function generateBedSpaceBill(Admission $admission, Bed $bed, $days) {

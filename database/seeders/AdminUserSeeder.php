@@ -31,13 +31,13 @@ class AdminUserSeeder extends Seeder
         $recordOfficer = User::firstOrCreate(
             ['email' => 'record@hospital.test'],
             [
-                'name' => 'Record Officer',
+                'name' => 'Record',
                 'password' => Hash::make('record@123'),
                 'department_id'=>4
             ]);
             
-        $recordOfficerRole = Role::where('name', 'record_officer')->first();
-        if ($recordOfficerRole && !$recordOfficer->hasRole('record_officer')) {
+        $recordOfficerRole = Role::where('name', 'record')->first();
+        if ($recordOfficerRole && !$recordOfficer->hasRole('record')) {
             $recordOfficer->assignRole($recordOfficerRole);
         }
 

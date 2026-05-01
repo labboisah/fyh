@@ -18,6 +18,16 @@ class SyncRecordJob implements ShouldQueue
 
     protected SyncOperation $syncOperation;
 
+    /**
+     * Maximum number of attempts from Laravel's queue system
+     */
+    public $maxTries = 10;
+
+    /**
+     * Number of seconds to wait before retrying the job
+     */
+    public $backoff = [10, 30, 60, 120, 300];
+
     public function __construct(SyncOperation $syncOperation)
     {
         $this->syncOperation = $syncOperation;
@@ -38,7 +48,27 @@ class SyncRecordJob implements ShouldQueue
         $token = config('sync.remote.token');
 
         if (!$endpoint || !$token) {
-            $this->markFailed('Sync not configured: missing remote endpoint or token');
+            $this->syncOperation->markFailed('Sync not configured: missing remote endpoint or token');
+            return;
+        }
+
+        // Check if remote server is available
+        if (!$this->isRemoteAvailable()) {
+            if ($this->syncOperation->shouldRetry()) {
+                Log::info('Remote server unavailable, retrying later', [
+                    'sync_uuid' => $this->syncOperation->sync_uuid,
+                    'endpoint' => $endpoint,
+                ]);
+                $this->release(config('sync.queue.dependency_delay', 10));
+                return;
+            }
+
+            $this->syncOperation->markFailed('Remote server unreachable after max attempts');
+            Log::error('Remote server unavailable, sync failed', [
+                'sync_uuid' => $this->syncOperation->sync_uuid,
+                'endpoint' => $endpoint,
+                'attempts' => $this->syncOperation->attempts,
+            ]);
             return;
         }
 
@@ -171,7 +201,7 @@ class SyncRecordJob implements ShouldQueue
         $token = config('sync.remote.token');
 
         if (!$endpoint || !$token) {
-            $this->markFailed('Sync not configured: missing remote endpoint or token');
+            Log::warning('Sync not configured', ['sync_uuid' => $syncUuid]);
             return null;
         }
 
@@ -180,7 +210,7 @@ class SyncRecordJob implements ShouldQueue
                 ->timeout(config('sync.remote.timeout', 30))
                 ->get("{$endpoint}/api/v1/sync/status/{$syncUuid}");
 
-            if ($response->status() === 200) {
+            if ($response->successful()) {
                 return true;
             }
 
@@ -224,22 +254,72 @@ class SyncRecordJob implements ShouldQueue
         }
 
         $this->syncOperation->markFailed($reason);
+        Log::warning('Sync failed: max retries exceeded', [
+            'sync_uuid' => $this->syncOperation->sync_uuid,
+            'model_type' => $this->syncOperation->model_type,
+            'reason' => $reason,
+            'attempts' => $this->syncOperation->attempts,
+        ]);
     }
 
     private function retryOrFail(string $message): void
     {
         if ($this->syncOperation->shouldRetry()) {
             $delay = $this->retryDelay();
+            Log::info('Sync retry scheduled', [
+                'sync_uuid' => $this->syncOperation->sync_uuid,
+                'model_type' => $this->syncOperation->model_type,
+                'reason' => $message,
+                'delay_seconds' => $delay,
+                'attempts' => $this->syncOperation->attempts,
+            ]);
             $this->release($delay);
             return;
         }
 
         $this->syncOperation->markFailed($message);
+        Log::warning('Sync failed: max retries exceeded', [
+            'sync_uuid' => $this->syncOperation->sync_uuid,
+            'model_type' => $this->syncOperation->model_type,
+            'error' => $message,
+            'attempts' => $this->syncOperation->attempts,
+        ]);
     }
 
     private function retryDelay(): int
     {
-        return config('sync.queue.retry_after', 300) * max(1, $this->syncOperation->attempts);
+        $attempts = $this->syncOperation->attempts;
+        $baseDelay = config('sync.queue.retry_after', 300);
+        
+        // Use exponential backoff: 10, 30, 60, 120, 300...
+        return min($baseDelay, $baseDelay * max(1, $attempts - 1));
+    }
+
+    /**
+     * Check if remote endpoint is reachable
+     */
+    private function isRemoteAvailable(): bool
+    {
+        $endpoint = config('sync.remote.endpoint');
+        $token = config('sync.remote.token');
+
+        if (!$endpoint || !$token) {
+            return false;
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->timeout(5)
+                ->get("{$endpoint}/api/v1/health");
+
+            return $response->successful();
+        } catch (Throwable $exception) {
+            Log::warning('Remote server health check failed', [
+                'endpoint' => $endpoint,
+                'error' => $exception->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**

@@ -50,7 +50,7 @@ class Payment extends Model
         return [
             'bill' => 'bill_sync_uuid',
             'patient' => 'patient_sync_uuid',
-            'paid_by' => 'user_sync_uuid',
+            'recordedBy' => 'user_sync_uuid',
         ];
     }
 

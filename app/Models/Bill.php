@@ -47,8 +47,8 @@ class Bill extends Model
     public function syncRelations(): array
     {
         return [
-            'patient_visit' => 'patient_visit_sync_uuid',
-            'issued_by' => 'user_sync_uuid',
+            'patientVisit' => 'patient_visit_sync_uuid',
+            'issuedBy' => 'user_sync_uuid',
         ];
     }
 
