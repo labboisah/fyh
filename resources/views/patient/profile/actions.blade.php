@@ -77,7 +77,7 @@
 <div class="row">
     <div class="col-md-8">
         <div class="row">
-        @if(auth()->user()->hasRole('record_officer'))
+        @if(auth()->user()->hasRole('record'))
             <div class="col-md-2">
                 <div class="d-grid gap-2">
                     <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-outline-info">
@@ -123,7 +123,7 @@
         @endif  
         </div>
     </div>
-    @if(auth()->user()->hasRole('record_officer') || auth()->user()->hasRole('accountant'))
+    @if(auth()->user()->hasRole('record') || auth()->user()->hasRole('accountant'))
     <div class="col-md-4">
         <div class="workflow-steps">
             <div class="step completed">

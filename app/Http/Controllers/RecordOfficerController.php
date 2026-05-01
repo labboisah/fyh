@@ -296,7 +296,7 @@ class RecordOfficerController extends Controller
     public function createBill(Patient $patient)
     {
         // Check if user has accountant role
-        if (!auth()->user()->hasRole('accountant') && !auth()->user()->hasRole('record_officer')) {
+        if (!auth()->user()->hasRole('accountant') && !auth()->user()->hasRole('record')) {
             return redirect()->back()
                 ->with('error', 'You need accountant and record officer roles to generate bills.');
         }

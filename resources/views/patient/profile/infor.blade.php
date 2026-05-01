@@ -60,7 +60,7 @@
         <label class="form-label text-muted">Address</label>
         <p class="h6">{{ $patient->demographic->address ?? 'N/A' }}</p>
     </div>
-    @if(auth()->user()->hasRole('record_officer'))
+    @if(auth()->user()->hasRole('record'))
         <div class="d-flex gap-2 pt-3 border-top">
             <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-success">
                 <i class="bi bi-pencil-square me-2"></i>Edit Patient Information

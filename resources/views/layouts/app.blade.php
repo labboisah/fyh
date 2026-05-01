@@ -396,13 +396,14 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('dashboard') }}"><i class="bi bi-house-fill me-2 text-success"></i>Home</a>
                             </li>
 
-                            @if(Auth::user()->hasRole('record_officer'))
+                            @if(Auth::user()->hasRole('record'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ url('/patients') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
                             </li>
                             @endif
 
                             @if(Auth::user()->hasRole('nurse'))
+
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
                             </li>

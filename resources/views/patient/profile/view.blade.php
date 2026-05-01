@@ -15,7 +15,7 @@
                         </button>
                     </li>
 
-                    @if(auth()->user()->hasRole('record_officer'))
+                    @if(auth()->user()->hasRole('record'))
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
@@ -27,6 +27,7 @@
                     @endif
 
                     @if(auth()->user()->hasRole('accountant'))
+
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
