@@ -4,9 +4,11 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Bills Management</h1>
-        <a href="{{ route('accountant.bills.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Create New Bill
-        </a>
+        <div class="dropdown">
+            <a class="btn btn-primary" href="{{ route('accountant.bills.create') }}">
+                <i class="bi bi-plus-lg me-2"></i> New Bill
+            </a>
+        </div>
     </div>
 
     @if (session('success'))
@@ -41,7 +43,14 @@
                                 <td>
                                     <strong>{{ $bill->bill_number }}</strong>
                                 </td>
-                                <td>{{ $bill->patient->name }}</td>
+                                <td>
+                                    @if($bill->walkinPatient)
+                                        {{ $bill->walkinPatient->name }}
+                                        <br><small class="text-muted"><span class="badge bg-warning text-dark">Walk-In</span></small>
+                                    @else
+                                        {{ $bill->patient->name ?? 'N/A' }}
+                                    @endif
+                                </td>
                                 <td>{{ Str::limit($bill->service_description, 30) }}</td>
                                 <td class="fw-bold">{{ number_format($bill->amount, 2) }}</td>
                                 <td>{{ $bill->issued_date->format('M d, Y') }}</td>

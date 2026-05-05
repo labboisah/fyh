@@ -13,11 +13,125 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         $services = [
-            // Consultation Services
-            ['code' => 'SVC001', 'name' => 'General Consultation', 'description' => 'General medical consultation', 'price' => 50.00, 'category' => 'Consultation'],
-            ['code' => 'SVC002', 'name' => 'Specialized Consultation', 'description' => 'Consultation with specialist doctor', 'price' => 100.00, 'category' => 'Consultation'],
-            ['code' => 'SVC003', 'name' => 'Follow-up Consultation', 'description' => 'Follow-up consultation visit', 'price' => 35.00, 'category' => 'Consultation'],
-            
+            [
+            'code'=>'SVC01',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>2000, 
+            'name'=>'Opening of Personal File'
+            ],
+            [
+            'code'=>'SVC02',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>3000, 
+            'name'=>'Opening Family File'
+            ],
+            [
+            'code'=>'SVC03',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>1000,   
+            'name'=>'Family File Update'
+            ],
+            [
+            'code'=>'SVC04',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>2000,  
+            'name'=>'Normal Bed Space'
+            ],
+            [
+            'code'=>'SVC05',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>5000,    
+            'name'=>'Amenity Room'
+            ],
+            [
+            'code'=>'SVC06',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>2000,    
+            'name'=>'Specialist Consultation'
+            ],
+            [
+            'code'=>'SVC07',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>500,    
+            'name'=>'Nursing Service Fee'
+            ],
+            [
+            'code'=>'SVC08',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>1000,    
+            'name'=>'Observation Charges'
+            ],
+            [
+            'code'=>'SVC09',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>500,   
+            'name'=>'A & E Card'
+            ],
+            [
+            'code'=>'SVC10',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>1000,    
+            'name'=>'A & E Card'
+            ],
+            [
+            'code'=>'SVC11',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>2000,    
+            'name'=>'A & E Card'
+            ],
+            [
+            'code'=>'SVC12',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>10000,    
+            'name'=>'MVA'
+            ],
+            [
+            'code'=>'SVC13',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>10000,    
+            'name'=>'Normal Labour'
+            ],
+            [
+            'code'=>'SVC14',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>200000,    
+            'name'=>'CS Labour'
+            ],
+            [
+            'code'=>'SVC15',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>500,    
+            'name'=>'Dressing Fee'
+            ],
+            [
+            'code'=>'SVC16',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>1000,    
+            'name'=>'Dressing Fee'
+            ],
+            [
+            'code'=>'SVC17',
+            'description'=>'',
+            'category'=>'General',
+            'price'=>500,    
+            'name'=>'ANC Service Fee'
+            ]
         ];
 
         foreach ($services as $service) {

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('department_id')->nullable();
             $table->string('code')->unique();
             $table->string('name');
             $table->text('description')->nullable();

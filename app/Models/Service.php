@@ -23,6 +23,10 @@ class Service extends Model
         'is_active' => 'boolean',
     ];
 
+    public function serviceRequest() : Returntype {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
     /**
      * Get bills that include this service
      */

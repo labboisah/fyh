@@ -31,7 +31,7 @@ return new class extends Migration
         ];
 
         foreach($wards as $ward){
-            $ward['price'] = rand(5000,10000);
+            $ward['price'] = 2000; // Set a default price for all wards, can be adjusted as needed
             $w = Ward::firstOrCreate($ward);
             for($capacity = 1; $capacity <= $ward['capacity']; $capacity++){
                 $w->beds()->create(['bed_no'=>$this->format($capacity)]);

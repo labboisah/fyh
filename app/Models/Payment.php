@@ -15,7 +15,7 @@ class Payment extends Model
         'patient_id',
         'payment_id',
         'amount',
-        'payment_method',
+        'payment_method_id',
         'insurance_provider',
         'reference_number',
         'status',
@@ -37,6 +37,13 @@ class Payment extends Model
         return $this->belongsTo(Bill::class);
     }
 
+    /**
+     * Get the payment method associated with the payment
+     */
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
     /**
      * Get the patient associated with the payment
      */

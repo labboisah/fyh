@@ -9,7 +9,7 @@
                 <h1 class="h3 mb-0">Bill Details</h1>
                 <div>
                     @if($bill->status !== 'paid')
-                        <a href="{{ route('accountant.payments.create', $bill) }}" class="btn btn-success btn-sm">
+                        <a href="{{ route('accountant.bills.payments.create', $bill) }}" class="btn btn-success btn-sm">
                             <i class="bi bi-cash-coin"></i> Record Payment
                         </a>
                     @endif
@@ -51,8 +51,21 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Patient</p>
-                            <p class="fw-bold">{{ $bill->patientVisit->patient->name }}</p>
-                            <p class="text-muted small">Hospital #: {{ $bill->patientVisit->patient->hospital_number }}</p>
+                            @if($bill->walkinPatient)
+                                <p class="fw-bold">{{ $bill->walkinPatient->name }}</p>
+                                <p class="text-muted small">
+                                    <span class="badge bg-warning text-dark">Walk-In Patient</span>
+                                </p>
+                                @if($bill->walkinPatient->phone)
+                                    <p class="text-muted small">Phone: {{ $bill->walkinPatient->phone }}</p>
+                                @endif
+                                @if($bill->walkinPatient->email)
+                                    <p class="text-muted small">Email: {{ $bill->walkinPatient->email }}</p>
+                                @endif
+                            @else
+                                <p class="fw-bold">{{ $bill->patientVisit->patient->name }}</p>
+                                <p class="text-muted small">Hospital #: {{ $bill->patientVisit->patient->hospital_number }}</p>
+                            @endif
                         </div>
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Issued By</p>
@@ -123,6 +136,17 @@
                                             <td class="text-end fw-bold">{{ number_format($service->pivot->subtotal, 2) }}</td>
                                         </tr>
                                     @endforeach
+                                    @foreach($bill->investigations as $investigation)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $investigation->name }}</strong><br>
+                                                <small class="text-muted">{{ $investigation->description ?? 'No description available' }}</small>
+                                            </td>
+                                            <td class="text-end">{{ number_format($investigation->pivot->unit_price, 2) }}</td>
+                                            <td class="text-end">{{ $investigation->pivot->quantity }}</td>
+                                            <td class="text-end fw-bold">{{ number_format($investigation->pivot->subtotal, 2) }}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr class="fw-bold border-top">
@@ -152,6 +176,7 @@
                                         <th>Method</th>
                                         <th>Date</th>
                                         <th>Recorded By</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -162,6 +187,11 @@
                                             <td>{{ $payment->payment_method }}</td>
                                             <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                                             <td>{{ $payment->recordedBy->name }}</td>
+                                            <td>
+                                                <a href="{{ route('accountant.payments.receipt', $payment) }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-printer"></i> Print Receipt
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

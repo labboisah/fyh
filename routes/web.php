@@ -97,7 +97,7 @@ Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('
     Route::post('patients/{patient}/visits', [RecordOfficerController::class, 'storeVisit'])->name('visits.store');
     
     // Workflow - Create st (for dual-role users)
-    Route::get('patients/{patient}/bills/create', [RecordOfficerController::class, 'createBill'])->name('bills.create.form');
+    Route::get('patients/bills/create', [RecordOfficerController::class, 'createBill'])->name('bills.create.form');
     
     // Workflow - Create Payment (for dual-role users)
     Route::get('patients/{patient}/payments/create', [RecordOfficerController::class, 'createPayment'])->name('payments.create.form');
@@ -116,18 +116,23 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Bills Management
     Route::get('bills', [AccountantController::class, 'listBills'])->name('bills.index');
-    Route::get('/bills/{patient}/create', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::get('/bills/create', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::get('/bills/walkin/create', [AccountantController::class, 'createWalkinBill'])->name('bills.create-walkin');
     Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
     Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
     Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
     Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
     Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
     
+    // bill paymnt routes
+    Route::get('bills/{bill}/payments/create', [AccountantController::class, 'createPaymentForBill'])->name('bills.payments.create');
+    Route::post('bills/{bill}/payments', [AccountantController::class, 'storePaymentForBill'])->name('bills.payments.store');
+
     // Payments Management
     Route::get('payments', [AccountantController::class, 'listPayments'])->name('payments.index');
     Route::get('{patient}/payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
     Route::post('payments', [AccountantController::class, 'storePayment'])->name('payments.store');
-    Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payment-receipt');
+    Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payments.receipt');
     Route::get('patients/{patient}/payment-history', [AccountantController::class, 'patientPaymentHistory'])->name('patient-payment-history');
     
     // Insurance Billing

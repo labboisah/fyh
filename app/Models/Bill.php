@@ -27,6 +27,14 @@ class Bill extends Model
     }
 
     /**
+     * Get the walk-in patient associated with the bill
+     */
+    public function walkinPatient()
+    {
+        return $this->belongsTo(WalkinPatient::class, 'walkin_id');
+    }
+
+    /**
      * Get the user who issued the bill
      */
     public function issuedBy()
@@ -34,12 +42,28 @@ class Bill extends Model
         return $this->belongsTo(User::class, 'issued_by');
     }
 
+    public function investigationRequests()
+    {
+        return $this->hasMany(InvestigationRequest::class);
+    }
+
+    public function serviceRequests()
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
     /**
      * Get services included in this bill
      */
     public function services()
     {
         return $this->belongsToMany(Service::class, 'bill_services', 'bill_id', 'service_id')
+            ->withPivot('quantity', 'unit_price', 'subtotal')
+            ->withTimestamps();
+    }
+
+    public function investigations()
+    {
+        return $this->belongsToMany(Investigation::class, 'bill_investigations', 'bill_id', 'investigation_id')
             ->withPivot('quantity', 'unit_price', 'subtotal')
             ->withTimestamps();
     }

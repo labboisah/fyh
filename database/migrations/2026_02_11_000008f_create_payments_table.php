@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('bill_id')->nullable();
             $table->string('payment_id')->unique();
             $table->decimal('amount', 12, 2);
-            $table->enum('payment_method', ['Cash', 'Card', 'Bank Transfer', 'NHIS', 'Private Insurance'])->default('Cash');
+            $table->foreignId('payment_method_id')->constrained('payment_methods')->default(1);
             $table->string('insurance_provider')->nullable();
             $table->string('reference_number')->nullable();
             $table->enum('status', ['pending', 'completed', 'failed', 'reversed'])->default('pending');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->index('bill_id');
             $table->index('payment_id');
             $table->index('status');
-            $table->index('payment_method');
+            $table->index('payment_method_id');
             $table->index('payment_date');
         });
     }

@@ -7,11 +7,16 @@ use App\Models\Payment;
 use App\Models\Patient;
 use App\Models\PaymentMethod;
 use App\Models\Service;
+use App\Models\Investigation;
+use App\Models\InvestigationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\BillService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\WalkinPatient;
+use App\Models\ServiceRequest;
 
 
 class AccountantController extends Controller
@@ -69,14 +74,25 @@ class AccountantController extends Controller
     /**
      * Show form for creating a new bill.
      */
-    public function createBill(Request $request, Patient $patient)
+    public function createBill(Request $request)
     {
-       
         $services = Service::active()->get()->groupBy('category');
+        $investigations = Investigation::with('investigationType')->get()
+            ->groupBy(fn ($investigation) => $investigation->investigationType?->name ?? 'Other');
         
+
         // Pre-select patient if provided from quick action
-       
-        return view('accountant.bills.create', compact('patient', 'services'));
+        return view('accountant.bills.create', compact('services', 'investigations'));
+    }
+
+    /**
+     * Show form for creating a walk-in bill.
+     */
+    public function createWalkinBill()
+    {
+        $services = Service::active()->get()->groupBy('category');
+        $patients = Patient::with('demographic')->latest()->limit(100)->get();
+        return view('accountant.bills.create_walkin', compact('services', 'patients'));
     }
 
     /**
@@ -85,27 +101,68 @@ class AccountantController extends Controller
     public function storeBill(Request $request)
     {
         $validated = $request->validate([
-            'patient_visit_id' => 'required|exists:patient_visits,id',
-            'services' => 'required|array|min:1',
-            'services.*.id' => 'required|exists:services,id',
+            'hospital_number' => 'nullable|string|max:100',
+            'walkin_name' => 'nullable|string|max:255',
+            'walkin_phone' => 'nullable|string|max:20',
+            'walkin_email' => 'nullable|email|max:255',
+            'services' => 'nullable|array',
+            'services.*.id' => 'nullable|exists:services,id',
+            'investigations' => 'nullable|array',
+            'investigations.*.id' => 'nullable|exists:investigations,id',
             'issued_date' => 'required|date',
-            'due_date' => 'required|date|after:issued_date',
+            'due_date' => 'required|date',
         ]);
+
+        $services = collect($validated['services'] ?? [])->filter(function ($service) {
+            return !empty($service['id']);
+        })->values()->all();
+
+        $selectedInvestigations = collect($validated['investigations'] ?? [])->filter(function ($investigation) {
+            return !empty($investigation['id']);
+        })->values()->all();
+
+        if (empty($services) && empty($selectedInvestigations)) {
+            return back()->withErrors(['error' => 'Select at least one service or investigation.'])->withInput();
+        }
+
+        // Ensure either patient_visit_id or walkin details are provided
+        if (empty($validated['hospital_number']) && empty($validated['walkin_name'])) {
+            return back()->withErrors(['error' => 'Either Enter Hospital Number or provide walk-in patient details.']);
+        }
 
         $issued_by = Auth::id();
         $status = 'pending';
+        $walkinId = null;
+        $patient = Patient::where('hospital_number', $validated['hospital_number'])->first();
+        
+        if ($patient) {
+            $visit = $patient->currentVisit();
+            if (!$visit) {
+                $visit = $patient->patientVisits()->create([
+                    'visit_date' => now(),
+                    'reason_for_visit' => 'Walk-in bill creation',
+                ]);
+            }
+        }else if (!empty($validated['walkin_name'])) {
+            $walkinPatient = WalkinPatient::create([
+                'name' => $validated['walkin_name'],
+                'phone_number' => $validated['walkin_phone'] ?? 'something',
+                'address' => $validated['walkin_email'] ?? null,
+            ]);
+            $walkinId = $walkinPatient->id;
+        }
 
-        // Calculate total amount from services
+        // Calculate total amount from services and investigations
         $totalAmount = 0;
         $billServices = [];
+        $billInvestigations = [];
 
-        foreach ($validated['services'] as $service) {
+        foreach ($services as $service) {
             $svc = Service::findOrFail($service['id']);
             $totalAmount += $svc->price;
 
             // Allow same service to be added multiple times - each adds to billServices
             if (isset($billServices[$svc->id])) {
-                // If service already exists, increase the subtotal
                 $billServices[$svc->id]['quantity'] += 1;
                 $billServices[$svc->id]['subtotal'] += $svc->price;
             } else {
@@ -115,13 +172,42 @@ class AccountantController extends Controller
                     'subtotal' => $svc->price,
                 ];
             }
+            
+        }
+
+        $investigationNames = [];
+
+        foreach ($selectedInvestigations as $investigationData) {
+            $investigation = Investigation::findOrFail($investigationData['id']);
+            $totalAmount += $investigation->price;
+            $investigationNames[] = $investigation->name;
+
+            if (isset($billInvestigations[$investigation->id])) {
+                $billInvestigations[$investigation->id]['quantity'] += 1;
+                $billInvestigations[$investigation->id]['subtotal'] += $investigation->price;
+            } else {
+                $billInvestigations[$investigation->id] = [
+                    'quantity' => 1,
+                    'unit_price' => $investigation->price,
+                    'subtotal' => $investigation->price,
+                ];
+            }
+        }
+
+        $descriptionParts = [];
+        if (!empty($services)) {
+            $descriptionParts[] = 'Services';
+        }
+        if (!empty($selectedInvestigations)) {
+            $descriptionParts[] = 'Investigations';
         }
 
         // Create bill
         $bill = Bill::create([
-            'patient_visit_id' => $validated['patient_visit_id'],
+            'patient_visit_id' => $visit->id ?? null,
+            'walkin_id' => $walkinId ?? null,
             'bill_number' => Bill::generateBillNumber(),
-            'service_description' => 'Multiple services',
+            'service_description' => implode(' & ', $descriptionParts) ?: 'Bill items',
             'amount' => $totalAmount,
             'issued_by' => $issued_by,
             'status' => $status,
@@ -132,8 +218,137 @@ class AccountantController extends Controller
         // Attach services to bill
         $bill->services()->attach($billServices);
 
+        $bill->investigations()->attach($billInvestigations);
+
+        // Create investigation requests for lab/radiology services and selected investigations
+        $this->createInvestigationRequests($bill, $services, $selectedInvestigations);
+
+
+
         return redirect()->route('accountant.bills.show', $bill)
             ->with('success', 'Bill created successfully.');
+    }
+
+            
+   
+
+    public function createPaymentForBill(Bill $bill) {
+        return view('accountant.bills.payments.create', compact('bill'));
+    }
+
+    public function storePaymentForBill(Request $request, Bill $bill) {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method_id' => 'required',
+            'payment_date' => 'required|date',
+        ]);
+
+        $data = [];
+        $data['paid_by'] = Auth::id();
+        $data['status'] = 'completed';
+        $data['payment_id'] = Payment::generatePaymentID();
+        $data['payment_date'] = date('d M, Y');
+        $data['bill_id'] = $bill->id;
+        $data['payment_method_id'] = $validated['payment_method_id'];
+        $data['amount'] = $validated['amount'];
+        
+        $payment = Payment::create($data);
+
+        // Update bill status
+        $totalPaid = $bill->totalPaid();
+
+        $settlementAmount = $totalPaid;
+
+        
+        // fetch each service in the bill and update their payment status when payable by the pain amount
+        foreach ($bill->serviceRequests as $serviceRequest) {
+            if ($settlementAmount >= $serviceRequest->service->price) {
+                $serviceRequest->update(['payment_status' => 'paid']);
+                $settlementAmount -= $serviceRequest->service->price;
+            } else {
+                if($settlementAmount > 0){
+                    $serviceRequest->update(['payment_status' => 'partial']);
+                    $settlementAmount = 0;
+                }else{
+                    $serviceRequest->update(['payment_status' => 'pending']);
+                }
+            }
+        }
+
+        // fetch each investigation in the bill and update their payment status when payable by the pain amount
+        foreach ($bill->investigationRequests as $investigationRequest) {
+            if ($settlementAmount >= $investigationRequest->investigation->price) {
+                $investigationRequest->update(['payment_status' => 'paid']);
+                $settlementAmount -= $investigationRequest->investigation->price;
+            } else {
+                if($settlementAmount > 0){
+                    $investigationRequest->update(['payment_status' => 'partial']);
+                    $settlementAmount = 0;
+                }else{
+                    $investigationRequest->update(['payment_status' => 'pending']);
+                }
+            }
+        }
+
+        
+
+        if ($totalPaid >= $bill->amount) {
+            $bill->update(['status' => 'paid']);
+        } else {
+            $bill->update(['status' => 'partial']);
+        }
+
+        // Load relationships for receipt
+        $payment->load(['bill', 'recordedBy']);
+
+        return redirect()->route('accountant.payment-receipt', $payment)
+            ->with('success', 'Payment recorded successfully. Payment ID: ' . $payment->payment_id);
+    }
+
+    /**
+     * Create investigation requests for lab and radiology services
+     */
+    private function createInvestigationRequests(Bill $bill, array $services, array $investigations = [])
+    {
+        $investigationCategories = ['Laboratory', 'Imaging'];
+
+        foreach ($services as $serviceData) {
+            $service = Service::findOrFail($serviceData['id']);
+
+            if ($service) {
+                $serviceRequest = ServiceRequest::create([
+                    'service_id' => $service->id,
+                    'patient_visit_id' => $bill->patient_visit_id,
+                    'walkin_id' => $bill->walkin_id,
+                    'bill_id' => $bill->id,
+                    'requested_by' => $bill->issued_by,
+                    'requested_at' => now(),
+                    'status' => 'pending',
+                    'priority' => 'normal',
+                    'clinical_diagnoses' => 'Requested via billing system',
+                ]);
+            }
+           
+        }
+
+        foreach ($investigations as $investigationData) {
+            $investigation = Investigation::findOrFail($investigationData['id']);
+
+            $investigationRequest = InvestigationRequest::create([
+                'investigation_id' => $investigation->id,
+                'patient_visit_id' => $bill->patient_visit_id,
+                'walkin_id' => $bill->walkin_id,
+                'bill_id' => $bill->id,
+                'requested_by' => $bill->issued_by,
+                'requested_at' => now(),
+                'status' => 'pending',
+                'clinical_diagnoses' => 'Requested via billing system',
+            ]);
+
+            if (!$bill->investigation_request_id) {
+                $bill->update(['investigation_request_id' => $investigationRequest->id]);
+            }
+        }
     }
 
     /**
@@ -141,7 +356,7 @@ class AccountantController extends Controller
      */
     public function listBills()
     {
-        $bills = Bill::with(['patient', 'issuedBy'])
+        $bills = Bill::with(['patientVisit', 'walkinPatient', 'issuedBy'])
             ->latest('issued_date')
             ->paginate(25);
 
@@ -153,7 +368,7 @@ class AccountantController extends Controller
      */
     public function showBill(Bill $bill)
     {
-        $bill->load(['patientVisit', 'issuedBy', 'payments']);
+        $bill->load(['patientVisit.patient', 'walkinPatient', 'issuedBy', 'payments', 'services']);
         return view('accountant.bills.show', compact('bill'));
     }
 
@@ -203,9 +418,7 @@ class AccountantController extends Controller
     {
         
        
-        $paymentMethods = ['Cash', 'Card', 'Bank Transfer', 'NHIS', 'Private Insurance'];
-
-        
+    
 
         // Pre-select patient if patient_id is provided (from quick action)
         
@@ -221,9 +434,8 @@ class AccountantController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|in:Cash,Card,Bank Transfer,NHIS,Private Insurance',
+            'payment_method' => 'required',
             'insurance_provider' => 'nullable|string|max:100',
-            'reference_number' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
         ]);
         $patient = Patient::find($request->patient_id);

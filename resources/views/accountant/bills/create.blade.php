@@ -11,55 +11,120 @@
                     <form action="{{ route('accountant.bills.store') }}" method="POST" id="billForm">
                         @csrf
                         <div class="row">
-                            <div class="col-md-7">
-                                 <div class="mb-3">
-                            <input type="hidden" name="patient_visit_id" value="{{ $patient->currentVisit()->id }}">
-                            @if($patient->demographic)
-                                <div class="alert alert-info mt-2 small mb-0">
-                                    <strong>{{ $patient->demographic->full_name }}</strong> - Hospital #: <strong>{{ $patient->hospital_number }}</strong>
-                                </div>
-                            @endif
-
-                                                         
-                        </div>
-                        
-                        {{-- Services Selection --}}
-                        <div class="mb-4">
-                            <label class="form-label mb-3">Select Services <span class="text-danger">*</span></label>
-
-                            <div id="services-container">
-                                <div class="service-row mb-3 row g-2" data-service-index="0">
-                                    <div class="col-md-8">
-                                        <select class="form-control service-select @error('services.0.id') is-invalid @enderror" name="services[0][id]" required>
-                                            <option value="">-- Select Service --</option>
-                                            @foreach($services as $category => $categoryServices)
-                                                <optgroup label="{{ $category }}">
-                                                    @foreach($categoryServices as $service)
-                                                        <option value="{{ $service->id }}" data-price="{{ $service->price }}">
-                                                            {{ $service->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($service->price, 2) }}
-                                                        </option>
-                                                    @endforeach
-                                                </optgroup>
-                                            @endforeach
-                                        </select>
-                                        @error('services.0.id')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <button type="button" class="btn btn-danger btn-sm remove-service" onclick="this.closest('.service-row').remove(); calculateTotal();" style="display: none;">
-                                            <i class="bi bi-trash"></i> Remove
-                                        </button>
-                                    </div>
+                            <!-- hosppitan no input -->
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="hospital_number" class="form-label">Hospital Number</label>
+                                    <input type="text" id="hospital_number" name="hospital_number" class="form-control" value="{{ old('hospital_number') }}" placeholder="Enter hospital number">
                                 </div>
                             </div>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-service-btn" onclick="addServiceRow()">
-                                <i class="bi bi-plus-circle"></i> Service
-                            </button>
-                        </div>
+                            <!-- name, phone, and address for walkin patient-->
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="walkin_name" class="form-label">Name</label>
+                                    <input type="text" id="walkin_name" name="walkin_name" class="form-control" value="{{ old('walkin_name') }}" placeholder="Enter name">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="walkin_phone" class="form-label">Phone</label>
+                                    <input type="text" id="walkin_phone" name="walkin_phone" class="form-control" value="{{ old('walkin_phone') }}" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="walkin_email" class="form-label">Email</label>
+                                    <input type="email" id="walkin_email" name="walkin_email" class="form-control" value="{{ old('walkin_email') }}" placeholder="Enter email">
+                                </div>
+                            </div>
 
+                        </div>
+                        
+                        <div class="row">   
+                            <!-- services and investigations -->
+                            <div class="col-md-7">
+                                {{-- Services Selection --}}
+                                <div class="mb-4">
+                                    <label class="form-label mb-3">Select Services <span class="text-danger">*</span></label>
+
+                                    <div id="services-container">
+                                        <div class="service-row mb-3 row g-2" data-service-index="0">
+                                            <div class="col-md-8">
+                                                <select class="form-control service-select @error('services.0.id') is-invalid @enderror" name="services[0][id]">
+                                                    <option value="">-- Select Service --</option>
+                                                    @foreach($services as $category => $categoryServices)
+                                                        <optgroup label="{{ $category }}">
+                                                            @foreach($categoryServices as $service)
+                                                                <option value="{{ $service->id }}" data-price="{{ $service->price }}">
+                                                                    {{ $service->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($service->price, 2) }}
+                                                                </option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                    @endforeach
+                                                </select>
+                                                @error('services.0.id')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            
+                                            <div class="col-md-4">
+                                                <button type="button" class="btn btn-danger btn-sm remove-service" onclick="this.closest('.service-row').remove(); calculateTotal();" style="display: none;">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-service-btn" onclick="addServiceRow()">
+                                        <i class="bi bi-plus-circle"></i> Service
+                                    </button>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label mb-3">Select Investigations</label>
+
+                                    <div id="investigations-container">
+                                        
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-investigation-btn" onclick="addInvestigationRow()">
+                                        <i class="bi bi-plus-circle"></i> Investigation
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- calculator -->
+                             <div class="col-md-5">
+                                     {{-- Bill Summary Table --}}
+                                <div id="summary-section" style="display: none;" class="mb-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title mb-3">Bill Summary</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Item</th>
+                                                            <th class="text-end">Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="summary-tbody">
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="fw-bold border-top">
+                                                            <td>Total Amount Due:</td>
+                                                            <td class="text-end fs-5 text-success">
+                                                                <span class="fas fa-naira-sign"></span> <span id="total-amount">0.00</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -90,36 +155,7 @@
                             </a>
                         </div>
                             </div>
-                            <div class="col-md-5">
-                                 {{-- Service Summary Table --}}
-                                <div id="summary-section" style="display: none;" class="mb-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            <h6 class="card-title mb-3">Service Summary</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Service</th>
-                                                            <th class="text-end">Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="summary-tbody">
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr class="fw-bold border-top">
-                                                            <td>Total Amount Due:</td>
-                                                            <td class="text-end fs-5 text-success">
-                                                                <span class="fas fa-naira-sign"></span> <span id="total-amount">0.00</span>
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                        
                     </form>
@@ -131,6 +167,7 @@
 
 <script>
     let serviceIndex = 0;
+    let investigationIndex = 0;
 
     function addServiceRow() {
         serviceIndex++;
@@ -162,24 +199,68 @@
         calculateTotal();
     }
 
+    function addInvestigationRow() {
+        investigationIndex++;
+        const html = `
+            <div class="investigation-row mb-3 row g-2" data-investigation-index="${investigationIndex}">
+                <div class="col-md-8">
+                    <select class="form-control investigation-select" name="investigations[${investigationIndex}][id]" required onchange="calculateTotal()">
+                        <option value="">-- Select Investigation --</option>
+                        @foreach($investigations as $category => $categoryInvestigations)
+                            <optgroup label="{{ $category }}">
+                                @foreach($categoryInvestigations as $investigation)
+                                    <option value="{{ $investigation->id }}" data-price="{{ $investigation->price }}">
+                                        {{ $investigation->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($investigation->price, 2) }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-danger btn-sm remove-investigation" onclick="this.closest('.investigation-row').remove(); calculateTotal();">
+                        <i class="bi bi-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        `;
+        document.getElementById('investigations-container').insertAdjacentHTML('beforeend', html);
+        calculateTotal();
+    }
+
     function calculateTotal() {
-        const rows = document.querySelectorAll('.service-row');
+        const serviceRows = document.querySelectorAll('.service-row');
+        const investigationRows = document.querySelectorAll('.investigation-row');
         let totalAmount = 0;
         let summaryHtml = '';
-        let hasServices = false;
+        let hasItems = false;
 
-        rows.forEach(row => {
+        serviceRows.forEach(row => {
             const select = row.querySelector('.service-select');
-            
-            if (select.value) {
-                hasServices = true;
+            if (select && select.value) {
+                hasItems = true;
                 const option = select.options[select.selectedIndex];
                 const price = parseFloat(option.dataset.price);
                 totalAmount += price;
-
                 summaryHtml += `
                     <tr>
                         <td>${option.text.split(' - ')[0]}</td>
+                        <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${price.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+        });
+
+        investigationRows.forEach(row => {
+            const select = row.querySelector('.investigation-select');
+            if (select && select.value) {
+                hasItems = true;
+                const option = select.options[select.selectedIndex];
+                const price = parseFloat(option.dataset.price);
+                totalAmount += price;
+                summaryHtml += `
+                    <tr>
+                        <td>${option.text.split(' - ')[0]} (Investigation)</td>
                         <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${price.toFixed(2)}</td>
                     </tr>
                 `;
@@ -192,7 +273,7 @@
         const summarySection = document.getElementById('summary-section');
         const submitBtn = document.getElementById('submit-btn');
         
-        if (hasServices) {
+        if (hasItems) {
             summarySection.style.display = 'block';
             submitBtn.disabled = false;
         } else {
@@ -200,11 +281,17 @@
             submitBtn.disabled = true;
         }
 
-        // Update remove buttons visibility
-        const removeButtons = document.querySelectorAll('.remove-service');
-        if (removeButtons.length > 0) {
-            removeButtons.forEach((btn, idx) => {
-                btn.style.display = (removeButtons.length > 1) ? 'block' : 'none';
+        const serviceButtons = document.querySelectorAll('.remove-service');
+        if (serviceButtons.length > 0) {
+            serviceButtons.forEach((btn) => {
+                btn.style.display = (serviceButtons.length > 1) ? 'block' : 'none';
+            });
+        }
+
+        const investigationButtons = document.querySelectorAll('.remove-investigation');
+        if (investigationButtons.length > 0) {
+            investigationButtons.forEach((btn) => {
+                btn.style.display = 'block';
             });
         }
     }
