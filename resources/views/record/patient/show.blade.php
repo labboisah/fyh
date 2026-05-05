@@ -90,10 +90,10 @@
                 </div>
 
                 <div class="d-flex gap-2 pt-3 border-top">
-                    <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-success">
+                    <a href="{{ route('record.patients.edit.form', $patient) }}" class="btn btn-success">
                         <i class="bi bi-pencil-square me-2"></i>Edit Patient Information
                     </a>
-                    <a href="{{ route('record_officer.patients.list') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('record.patients.index') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Back to List
                     </a>
                 </div>
@@ -190,7 +190,7 @@
                         </div>
                         <div class="step-label">
                             Record Payment
-                            @if($patient->payment()['pending'] <= 0)
+                            @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists() && $patient->payment()['pending'] <= 0)
                                 <small class="text-success">({{ $patient->currentVisit()->bills()->count() }} payments)</small>
                             @endif
                         </div>
@@ -245,7 +245,7 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.visits.create.form', $patient) }}" class="btn btn-outline-success">
+                    <a href="{{ route('record.visits.create.form', $patient) }}" class="btn btn-outline-success">
                         <i class="bi bi-hospital me-2"></i>Record Visit
                     </a>
                 </div>
@@ -256,7 +256,7 @@
 
                     @if($patient->currentVisit() && $patient->currentVisit()->bills()->exists())
                         <div class="d-grid gap-2">
-                            <a href="{{ route('record_officer.payments.create.form', $patient) }}" class="btn btn-outline-success">
+                            <a href="{{ route('record.payments.create.form', $patient) }}" class="btn btn-outline-success">
                                 <i class="bi bi-cash-coin me-2"></i> Record Payment
                             </a>
                         </div>

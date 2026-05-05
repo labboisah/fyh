@@ -9,7 +9,7 @@
     @endif
 
     @if(auth()->user()->hasRole('record'))
-        @include('record_officer.dashboard')
+        @include('record.dashboard')
     @endif
 
     @if(auth()->user()->hasRole('doctor'))

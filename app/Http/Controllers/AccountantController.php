@@ -305,6 +305,29 @@ class AccountantController extends Controller
             ->with('success', 'Payment recorded successfully. Payment ID: ' . $payment->payment_id);
     }
 
+    public function verifyBill() {
+        return view('accountant.bills.payments.verify');
+    }
+
+    public function verifyBillNow(Request $request) {
+        $validated = $request->validate([
+            'bill_no' => 'required|string|exists:bills,bill_number',
+        ]);
+
+        $bill = Bill::where('bill_number', $validated['bill_no'])->first();
+        if(!$bill){
+            return back()->withErrors(['error' => 'Bill not found with the provided bill number.'])->withInput();
+        }
+
+        if($bill->status == 'paid'){
+            return back()->withSuccess(['error' => 'This bill has already been fully paid.'])->withInput();
+        }
+
+         // Redirect to payment creation form with bill details 
+
+        return redirect()->route('accountant.bills.payments.create', ['bill' => $bill]);
+    }
+
     /**
      * Create investigation requests for lab and radiology services
      */
@@ -558,7 +581,6 @@ class AccountantController extends Controller
         $revenueByMethod = Payment::where('status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->selectRaw('payment_method, SUM(amount) as total')
-            ->groupBy('payment_method')
             ->get();
 
         // Revenue by patient
@@ -575,8 +597,8 @@ class AccountantController extends Controller
         $insuranceClaims = Payment::whereIn('payment_method', ['NHIS', 'Private Insurance'])
             ->where('status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
-            ->selectRaw('insurance_provider, payment_method, SUM(amount) as total')
-            ->groupBy('insurance_provider', 'payment_method')
+            ->selectRaw('insurance_provider, SUM(amount) as total')
+            ->groupBy('insurance_provider')
             ->get();
 
         // Overall statistics

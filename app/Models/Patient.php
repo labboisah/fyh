@@ -25,6 +25,10 @@ class Patient extends Model
         return $this->hasOne(PatientDemographic::class);
     }
 
+    public function fileType() : Returntype {
+        return $this->belongsTo(FileType::class);
+    }
+
     /**
      * Get all visits for this patient
      */
@@ -136,9 +140,7 @@ class Patient extends Model
 
         $visit->generateFileOpeningBill();
 
-        $service = Service::where('name','General Consultation')->first();
-
-        $visit->generateServiceBillOf($service);
+        
 
     }
 

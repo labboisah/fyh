@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Payment History</h1>
-        <a href="{{ route('accountant.payments.create') }}" class="btn btn-success">
+        <a href="{{ route('accountant.bills.payments.verify') }}" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Record New Payment
         </a>
     </div>
@@ -33,6 +33,7 @@
                             <th>Payment Date</th>
                             <th>Status</th>
                             <th>Recorded By</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,9 +42,9 @@
                                 <td>
                                     <strong>{{ $payment->payment_id }}</strong>
                                 </td>
-                                <td>{{ $payment->patient->name }}</td>
+                                <td>{{ $payment->bill->patientVisit->demographic->first_name ?? $payment->bill->walkinPatient->name}} {{ $payment->bill->patientVisit->demographic->last_name ?? ''}}</td>
                                 <td class="fw-bold text-success">{{ number_format($payment->amount, 2) }}</td>
-                                <td>{{ $payment->payment_method }}</td>
+                                <td>{{ $payment->paymentMethod->name }}</td>
                                 <td>{{ $payment->insurance_provider ?? '-' }}</td>
                                 <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                                 <td>
@@ -58,11 +59,12 @@
                                     @endif
                                 </td>
                                 <td>{{ $payment->recordedBy->name }}</td>
+                                <td></td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center py-4 text-muted">
-                                    No payments recorded. <a href="{{ route('accountant.payments.create') }}">Record one now</a>
+                                    No payments recorded. <a href="{{ route('accountant.bills.payments.verify') }}">Record one now</a>
                                 </td>
                             </tr>
                         @endforelse

@@ -129,10 +129,11 @@ class PatientVisit extends Model
     }
 
     public function generateFileOpeningBill() {
+        $fileType = $this->patient->fileType;
         $this->bills()->create([
             'department_id'=> auth()->user()->department->id,
-            'service_description'=>'File Opening',
-            'amount'=>'3000',
+            'service_description'=>'File Opening Charges',
+            'amount'=>$fileType ? $fileType->price : '3000',
             'bill_number'=>Bill::generateBillNumber(),
             'status'=>'pending',
             'issued_by'=>auth()->user()->id,

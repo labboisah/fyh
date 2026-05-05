@@ -20,18 +20,31 @@
                 <h5 class="mb-0"><i class="bi bi-person-vcard me-2"></i>Patient Information</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('record_officer.patients.register') }}" method="POST">
+                <form action="{{ route('record.patients.register') }}" method="POST">
                     @csrf
 
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <!-- select file type individualor family -->
+                        <div class="col-md-4">
+                            <label for="file_type" class="form-label">File Type <span class="text-danger">*</span></label>
+                            <select class="form-select @error('file_type') is-invalid @enderror" id="file_type" name="file_type" required>
+                                <option value="">Select File Type</option>
+                                @foreach(App\Models\FileType::all() as $fileType)
+                                    <option value="{{ $fileType->id }}" {{ old('file_type') == $fileType->id ? 'selected' : '' }}>
+                                        {{ $fileType->name }} (₦{{ number_format($fileType->price, 2) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('file_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-4">
                             <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
                                    id="first_name" name="first_name" value="{{ old('first_name') }}" 
                                    placeholder="Isah" required>
                             @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
                                    id="last_name" name="last_name" value="{{ old('last_name') }}" 
@@ -155,7 +168,7 @@
                         <button type="submit" class="btn btn-success flex-grow-1">
                             <i class="bi bi-check-circle me-2"></i>Register Patient
                         </button>
-                        <a href="{{ route('record_officer.patients.list') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('record.patients.index') }}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancel
                         </a>
                     </div>

@@ -34,7 +34,7 @@ class RecordOfficerController extends Controller
             ->limit(5)
             ->get();
 
-        return view('record_officer.dashboard', compact(
+        return view('record.dashboard', compact(
             'totalPatients',
             'totalAppointments',
             'recentPatients',
@@ -48,7 +48,7 @@ class RecordOfficerController extends Controller
     public function registerForm()
     
     {
-        return view('record_officer.patient.register');
+        return view('record.patient.register');
     }
 
     /**
@@ -79,6 +79,7 @@ class RecordOfficerController extends Controller
        
             // Create patient record
             $patient = Patient::create([
+                'file_type_id'=>$request->file_type,
                 'hospital_number' => Patient::generateHospitalNumber(),
                 'registration_date' => now(),
                 'is_walkIn' => $validated['is_walkIn'] ?? false,
@@ -111,9 +112,9 @@ class RecordOfficerController extends Controller
                 'contact_address' => $validated['nok_contact_address'],
                 'telephone' => $validated['nok_telephone'],
             ]);
-            $patient->recordFirstVisit();
             
-            return redirect()->route('record_officer.patients.show', $patient->id)
+            
+            return redirect()->route('record.patients.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");
        
     }
@@ -127,7 +128,7 @@ class RecordOfficerController extends Controller
             ->latest('registration_date')
             ->paginate(15);
 
-        return view('record_officer.patient.list', compact('patients'));
+        return view('record.patient.list', compact('patients'));
     }
 
     /**
@@ -142,7 +143,7 @@ class RecordOfficerController extends Controller
             'appointments',
         ]);
 
-        return view('record_officer.patient.show', compact('patient'));
+        return view('record.patient.show', compact('patient'));
     }
 
     /**
@@ -151,7 +152,7 @@ class RecordOfficerController extends Controller
     public function editForm(Patient $patient)
     {
         $patient->load('demographic', 'nextOfKin');
-        return view('record_officer.patient.edit', compact('patient'));
+        return view('record.patient.edit', compact('patient'));
     }
 
     /**
@@ -208,7 +209,7 @@ class RecordOfficerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('record_officer.patients.show', $id)
+            return redirect()->route('record.patients.show', $id)
                 ->with('success', 'Patient information updated successfully');
 
         } catch (\Exception $e) {
@@ -247,7 +248,7 @@ class RecordOfficerController extends Controller
     public function visitForm(Patient $patient)
     {
         $patient->load('demographic');
-        return view('record_officer.visit.create', compact('patient'));
+        return view('record.visit.create', compact('patient'));
     }
 
     /**

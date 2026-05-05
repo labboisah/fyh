@@ -11,7 +11,7 @@
             <p class="mb-0 text-muted">Total Registered: <strong class="text-success">{{ $patients->total() }} patients</strong></p>
         </div>
     </div>
-    <a href="{{ route('record_officer.patients.register.form') }}" class="btn btn-success">
+    <a href="{{ route('record.patients.register.form') }}" class="btn btn-success">
         <i class="bi bi-plus-circle me-2"></i>Register New Patient
     </a>
 </div>
@@ -66,10 +66,10 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ route('record.patients.show', $patient) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye me-1"></i>View
                                         </a>
-                                        <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-sm btn-outline-success">
+                                        <a href="{{ route('record.patients.edit.form', $patient) }}" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-pencil me-1"></i>Edit
                                         </a>
                                     </td>
@@ -80,7 +80,7 @@
                                         <div class="text-muted">
                                             <i class="bi bi-inbox" style="font-size: 2rem;"></i>
                                             <p class="mt-2">No patients registered yet.</p>
-                                            <a href="{{ route('record_officer.patients.register.form') }}" class="btn btn-success btn-sm">
+                                            <a href="{{ route('record.patients.register.form') }}" class="btn btn-success btn-sm">
                                                 <i class="bi bi-plus-circle me-1"></i>Register First Patient
                                             </a>
                                         </div>

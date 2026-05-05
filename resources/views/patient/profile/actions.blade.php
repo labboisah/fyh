@@ -39,7 +39,7 @@
 
                 <div class="col-md-2">
                     <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('record_officer.payments.create.form', $patient) }}" class="btn btn-outline-warning">
+                        <a href="{{ route('record.payments.create.form', $patient) }}" class="btn btn-outline-warning">
                             <i class="bi bi-cash-coin me-2"></i>Record Nursing Note
                         </a>
                     </div>
@@ -55,7 +55,7 @@
                 
                 <div class="col-md-2">
                     <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('record_officer.vital-signs.request', $patient) }}" class="btn btn-outline-info">
+                        <a href="{{ route('record.vital-signs.request', $patient) }}" class="btn btn-outline-info">
                             <i class="bi bi-heart-pulse me-2"></i>Generate Patient Care Report
                         </a>
                     </div>
@@ -80,7 +80,7 @@
         @if(auth()->user()->hasRole('record'))
             <div class="col-md-2">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-outline-info">
+                    <a href="{{ route('record.patients.edit.form', $patient) }}" class="btn btn-outline-info">
                         <i class="bi bi-pencil-square me-2"></i>Edit Patient Information
                     </a>
                 </div>
@@ -88,14 +88,14 @@
             
             <div class="col-md-2">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.patients.list', $patient) }}" class="btn btn-outline-success">
+                    <a href="{{ route('record.patients.list', $patient) }}" class="btn btn-outline-success">
                         <i class="bi bi-eye me-2"></i>View All Patients
                     </a>
                 </div> 
             </div>
             <div class="col-md-2">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('record_officer.visits.create.form', $patient) }}" class="btn btn-outline-success">
+                    <a href="{{ route('record.visits.create.form', $patient) }}" class="btn btn-outline-success">
                         <i class="bi bi-hospital me-2"></i>Record Visit
                     </a>
                 </div> 

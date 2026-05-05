@@ -14,6 +14,7 @@ use App\Http\Controllers\VitalSignsController;
 use App\Http\Controllers\Admin\BedController;
 use App\Http\Controllers\Admin\WardController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 
 // ajax routes
@@ -33,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::prefix('/report')->name('report.')->group(function () {
+        Route::get('/', [ReportsController::class, 'index'])->name('index');
+        Route::post('/generate', [ReportsController::class, 'generate'])->name('generate');
+        Route::get('/show', [ReportsController::class, 'show'])->name('show');
+    });
 });
 
 // Admin Routes
@@ -80,11 +87,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Record Officer Routes - Patient Registration and Visit Recording
-Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('record_officer.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('record.')->group(function () {
     Route::get('/', [RecordOfficerController::class, 'dashboard'])->name('dashboard');
     
     // Patient Management
-    Route::get('patients/list', [RecordOfficerController::class, 'listPatients'])->name('patients.list');
+    Route::get('patients', [RecordOfficerController::class, 'listPatients'])->name('patients.index');
     Route::get('patients/search', [RecordOfficerController::class, 'search'])->name('patients.search');
     Route::get('patients/register', [RecordOfficerController::class, 'registerForm'])->name('patients.register.form');
     Route::post('patients/register', [RecordOfficerController::class, 'register'])->name('patients.register');
@@ -125,6 +132,8 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
     
     // bill paymnt routes
+    Route::get('bills/payments/verify', [AccountantController::class, 'verifyBill'])->name('bills.payments.verify');
+    Route::post('bills/payments/verify', [AccountantController::class, 'verifyBillNow'])->name('bills.payments.verify-now');
     Route::get('bills/{bill}/payments/create', [AccountantController::class, 'createPaymentForBill'])->name('bills.payments.create');
     Route::post('bills/{bill}/payments', [AccountantController::class, 'storePaymentForBill'])->name('bills.payments.store');
 
@@ -165,3 +174,9 @@ require __DIR__.'/doctor.php';
 require __DIR__.'/patient.php';
 require __DIR__.'/pharmacy.php';
 require __DIR__.'/department.php';
+
+// Reports Routes (for all authenticated users)
+Route::middleware(['auth', 'verified'])->prefix('reports')->name('reports.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ReportsController::class, 'index'])->name('index');
+    Route::match(['get', 'post'], '/generate', [App\Http\Controllers\ReportsController::class, 'generate'])->name('generate');
+});

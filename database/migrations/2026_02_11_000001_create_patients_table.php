@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
+        $table->foreignId('file_type_id');
             $table->string('hospital_number')->unique();
             $table->string('payment_id')->nullable()->unique();
             $table->dateTime('registration_date');

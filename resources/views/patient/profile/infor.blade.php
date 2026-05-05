@@ -62,10 +62,10 @@
     </div>
     @if(auth()->user()->hasRole('record'))
         <div class="d-flex gap-2 pt-3 border-top">
-            <a href="{{ route('record_officer.patients.edit.form', $patient) }}" class="btn btn-success">
+            <a href="{{ route('record.patients.edit.form', $patient) }}" class="btn btn-success">
                 <i class="bi bi-pencil-square me-2"></i>Edit Patient Information
             </a>
-            <a href="{{ route('record_officer.patients.list') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('record.patients.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>Back to List
             </a>
         </div>

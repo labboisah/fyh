@@ -398,7 +398,7 @@
 
                             @if(Auth::user()->hasRole('record'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ url('/patients') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('record.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
                             </li>
                             @endif
 
@@ -440,9 +440,7 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('department.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('department.reports.index') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Report</a>
-                            </li>
+                            
                             @endif
 
                             @if(Auth::user()->hasRole('radiologist'))
@@ -463,9 +461,7 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.payments.index') }}"><i class="bi bi-receipt me-2 text-success"></i>Payments</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('accountant.reports.financial') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Reports</a>
-                            </li>
+                            
                             @endif
 
                             @if(Auth::user()->hasRole('administrator'))
@@ -530,13 +526,12 @@
                                     </a>
                                 </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="bi bi-bar-chart-line me-1"></i>
-                                        Reports
-                                    </a>
-                                </li>
+                                
                             @endif
+
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('reports.index') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Report</a>
+                            </li>
 
                             @auth
                                 <li class="nav-item dropdown">

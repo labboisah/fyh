@@ -20,6 +20,7 @@ class ReportController extends Controller
     public function generate(Request $request)
     {
         $start = $request->start_date;
+        
         $end = $request->end_date;
         
         $department = auth()->user()->department;
