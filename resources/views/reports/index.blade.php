@@ -19,7 +19,7 @@
                     <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Generate Report</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('reports.generate') }}" method="POST" class="row g-3">
+                    <!-- <form action="{{ route('reports.generate') }}" method="POST" class="row g-3">
                         @csrf
                         <div class="col-md-2">
                             <label for="date" class="form-label">Report Date</label>
@@ -65,8 +65,10 @@
                                 <i class="bi bi-file-earmark-arrow-down"></i> Generate Report
                             </button>
                         </div>
-                    </form>
-                    
+                    </form> -->
+                    <div class="alert alert-info">
+                        We are working on the reporting system, and it will be available soon.
+                    </div>
                 </div>
             </div>
         </div>
