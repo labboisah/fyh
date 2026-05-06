@@ -140,6 +140,8 @@ class AccountantController extends Controller
             if (!$visit) {
                 $visit = $patient->patientVisits()->create([
                     'visit_date' => now(),
+                    'visit_type' => 'Walk-in',
+                    'created_by' => $issued_by,
                     'reason_for_visit' => 'Walk-in bill creation',
                 ]);
             }
@@ -301,7 +303,7 @@ class AccountantController extends Controller
         // Load relationships for receipt
         $payment->load(['bill', 'recordedBy']);
 
-        return redirect()->route('accountant.payment-receipt', $payment)
+        return redirect()->route('accountant.payments.receipt', $payment)
             ->with('success', 'Payment recorded successfully. Payment ID: ' . $payment->payment_id);
     }
 

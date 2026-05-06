@@ -486,7 +486,6 @@ class User extends Authenticatable
         $radiographs = \App\Models\InvestigationRequest::where('conducted_by', $this->id)
             ->whereHas('investigation', fn($q) => $q->whereIn('category', ['radiology', 'imaging', 'x-ray']))
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with('patient.demographic', 'investigation')
             ->get();
 
         $reports = $radiographs->filter(fn($r) => !is_null($r->report))->count();
@@ -520,22 +519,18 @@ class User extends Authenticatable
     {
         $patientVisits = \App\Models\PatientVisit::where('created_by', $this->id)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with('patient.demographic')
             ->get();
 
         $bills = \App\Models\Bill::where('issued_by', $this->id)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with('patientVisit.patient.demographic')
             ->get();
 
         $serviceRequests = \App\Models\ServiceRequest::where('requested_by', $this->id)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with('patientVisit.patient.demographic')
             ->get();
 
         $investigationRequests = \App\Models\InvestigationRequest::where('requested_by', $this->id)
             ->whereBetween('requested_at', [$startDate, $endDate])
-            ->with('patient.demographic', 'investigation')
             ->get();
 
         return [
@@ -552,18 +547,26 @@ class User extends Authenticatable
                 ];
             })->toArray(),
             'bills_details' => $bills->map(function ($bill) {
+                if($bill->walkinPatient) {
+                    $patientName = $bill->walkinPatient->name;
+                }else {
+                    $patientName = $bill->patientVisit->patient->demographic->first_name . ' ' . $bill->patientVisit->patient->demographic->last_name;
+                }
                 return [
-                    'patient_name' => $bill->patientVisit->patient->demographic->first_name . ' ' . 
-                                    $bill->patientVisit->patient->demographic->last_name,
+                    'patient_name' => $patientName,
                     'amount' => $bill->total_amount ?? '0',
                     'status' => $bill->status ?? 'Pending',
                     'date_created' => $bill->created_at->format('M d, Y'),
                 ];
             })->toArray(),
             'service_requests_details' => $serviceRequests->map(function ($service) {
+                if($service->patientVisit) {
+                    $patientName = $service->patientVisit->patient->demographic->first_name . ' ' . $service->patientVisit->patient->demographic->last_name;
+                }else {
+                    $patientName = $service->walkinPatient ? $service->walkinPatient->name : 'N/A';
+                }
                 return [
-                    'patient_name' => $service->patientVisit->patient->demographic->first_name . ' ' . 
-                                    $service->patientVisit->patient->demographic->last_name,
+                    'patient_name' => $patientName,
                     'type' => $service->type ?? 'N/A',
                     'status' => $service->status ?? 'Pending',
                     'date_created' => $service->created_at->format('M d, Y'),
@@ -579,12 +582,9 @@ class User extends Authenticatable
     {
         $payments = \App\Models\Payment::where('paid_by', $this->id)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with('bill.patientVisit.patient.demographic')
             ->get();
 
-        $bills = \App\Models\Bill::whereBetween('created_at', [$startDate, $endDate])
-            ->with('visit.patient.demographic')
-            ->get();
+        $bills = \App\Models\Bill::whereBetween('created_at', [$startDate, $endDate])->get();
 
         $totalPayments = $payments->sum('amount');
         $totalBills = $bills->sum('total_amount');
@@ -605,9 +605,13 @@ class User extends Authenticatable
                 ];
             })->toArray(),
             'bills_details' => $bills->map(function ($bill) {
+                if($bill->walkinPatient) {
+                    $patientName = $bill->walkinPatient->name;
+                }else {
+                        $patientName = $bill->patientVisit->patient->demographic->first_name . ' ' . $bill->patientVisit->patient->demographic->last_name;
+                    }   
                 return [
-                    'patient_name' => $bill->patientVisit->patient->demographic->first_name . ' ' . 
-                                    $bill->patientVisit->patient->demographic->last_name,
+                    'patient_name' => $patientName,
                     'amount' => number_format($bill->total_amount, 2),
                     'status' => $bill->status ?? 'Pending',
                     'date_created' => $bill->created_at->format('M d, Y'),

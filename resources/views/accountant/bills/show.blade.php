@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-    $patientName = $bill->walkinPatient ? $bill->walkinPatient->name : $bill->patientVisit->patient->name;
+    $patientName = $bill->walkinPatient ? $bill->walkinPatient->name : $bill->patientVisit->patient->demographic->getFullNameAttribute();
     $hospitalNumber = $bill->walkinPatient ? 'Walk-in Patient' : $bill->patientVisit->patient->hospital_number;
     $billDate = now()->format('M d, Y h:i A');
 @endphp
