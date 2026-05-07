@@ -1,7 +1,9 @@
 <?php
-namespace App\Services;
 
-trait Reportable {
+namespace App\Models\Traits;
+
+trait Reportable 
+{
      /**
      * Generate report data for the user based on their permissions and activities.
      */
