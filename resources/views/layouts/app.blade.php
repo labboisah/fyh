@@ -541,6 +541,12 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                         <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                        @if(Auth::user()->hasRole('administrator'))
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('admin.system.update') }}">Check System Update</a>
+                                            </li>
+                                        @endif
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form method="POST" action="{{ route('logout') }}">

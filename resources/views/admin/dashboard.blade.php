@@ -91,7 +91,7 @@
     </div>
 
     @php
-        $recentActivities = App\Models\AuditLog::with('actor')->latest()->get();
+        $recentActivities = App\Models\AuditLog::with('actor')->limit(10)->latest()->get();
     @endphp
 
     <div class="row mt-4">
