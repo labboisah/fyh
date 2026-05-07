@@ -24,19 +24,41 @@ class SystemUpdateController extends Controller
     {
         try {
 
-            $output = [];
+            $git = '"C:\\var\\bin\\git\\cmd\\git.exe"';
 
-            exec('git pull origin main 2>&1', $output);
+            $basePath = base_path();
 
-            exec('composer install --no-interaction 2>&1');
+            $commands = [
 
-            exec('php artisan migrate --force 2>&1');
+                'cd /d "'.$basePath.'" && '.$git.' pull origin main 2>&1',
 
-            exec('php artisan optimize:clear 2>&1');
+                'cd /d "'.$basePath.'" && composer install 2>&1',
 
-            return back()->with('success', 'System updated successfully');
+                'cd /d "'.$basePath.'" && php artisan migrate --force 2>&1',
 
-        } catch (\Exception $e) {
+                'cd /d "'.$basePath.'" && php artisan optimize:clear 2>&1',
+            ];
+
+            $logs = [];
+
+            foreach ($commands as $command) {
+
+                $output = [];
+                $returnCode = null;
+
+                exec($command, $output, $returnCode);
+
+                $logs[] = [
+                    'command' => $command,
+                    'output' => $output,
+                    'return_code' => $returnCode,
+                ];
+            }
+
+            return back()->with('success', 'System updated successfully')
+                        ->with('logs', $logs);
+
+        } catch (\Throwable $e) {
 
             return back()->with('error', $e->getMessage());
         }
