@@ -28,7 +28,7 @@ class UpdateService
     
     public function getLocalCommit()
     {
-        $git = '"C:\\laragon\\bin\\git\\cmd\\git.exe"';
+        $git = '"C:\\var\\bin\\git\\cmd\\git.exe"';
 
         $command = 'cd /d "'.base_path().'" && '.$git.' rev-parse HEAD 2>&1';
 

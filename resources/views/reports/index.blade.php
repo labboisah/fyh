@@ -19,7 +19,7 @@
                     <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Generate Report</h5>
                 </div>
                 <div class="card-body">
-                    <!-- <form action="{{ route('reports.generate') }}" method="POST" class="row g-3">
+                    <form action="{{ route('reports.generate') }}" method="POST" class="row g-3">
                         @csrf
                         <div class="col-md-2">
                             <label for="date" class="form-label">Report Date</label>
@@ -47,28 +47,14 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col-md-3">
-                            <label for="format" class="form-label">Report Format</label>
-                            <select class="form-select @error('format') is-invalid @enderror"
-                                    id="format" name="format" required>
-                                <option value="pdf" {{ old('format') == 'pdf' ? 'selected' : '' }}>PDF Document</option>
-                                <option value="excel" {{ old('format') == 'excel' ? 'selected' : '' }}>Excel Spreadsheet</option>
-                                <option value="word" {{ old('format') == 'word' ? 'selected' : '' }}>Word Document</option>
-                            </select>
-                            @error('format')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
+                    
                         <div class="col-md-4 d-flex align-items-end">
                             <button type="submit" class="btn btn-success w-100">
                                 <i class="bi bi-file-earmark-arrow-down"></i> Generate Report
                             </button>
                         </div>
-                    </form> -->
-                    <div class="alert alert-info">
-                        We are working on the reporting system, and it will be available soon.
-                    </div>
+                    </form>
+                    
                 </div>
             </div>
         </div>

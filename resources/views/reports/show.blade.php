@@ -3,7 +3,8 @@
 @section('content')
 
 @php 
-$reportData = Auth::user()->generateReportData($date, $fromDate ?? null, $toDate ?? null);    
+$reportData = Auth::user()->generateReportData($date, $fromDate ?? null, $toDate ?? null); 
+dd($reportData);   
 @endphp
 <div class="container-fluid">
     <div class="row justify-content-center">
