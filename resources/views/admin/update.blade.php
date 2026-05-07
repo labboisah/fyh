@@ -9,7 +9,7 @@
         <div class="card-body p-4">
 
             <h3 class="fw-bold mb-4">
-                System Update
+                System Updating
             </h3>
 
             <div class="mb-3">
