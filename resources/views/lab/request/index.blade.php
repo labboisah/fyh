@@ -44,7 +44,7 @@
                                 <td>{{ $investigationRequest->clinical_diagnoses }}</td>
                                 <td>{{ $investigationRequest->created_at }}</td>
                                 <td>
-                                    @if($investigationRequest->paymentStatus() == 'paid')
+                                    @if($investigationRequest->payment_status == 'paid')
                                         @if($investigationRequest->status !== 'Completed')
                                         <a href="{{ route('lab.requests.results.create', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-send me-1"></i> Send Result

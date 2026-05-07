@@ -11,7 +11,11 @@
                     <!-- lets display some information about patient and bill -->
                     
                         <div class="alert alert-info mb-3">
-                            <strong>Patient:</strong> {{ $bill->walkinPatient->name }} {{ $bill->walkinPatient->last_name }}<br>
+                            @if($bill->walkinPatient)
+                            <strong>Patient:</strong> {{ $bill->walkinPatient->name }}<br> 
+                            @elseif($bill->patientVisit)
+                            <strong>Patient:</strong> {{ $bill->patientVisit->patient->demographic->first_name }} {{ $bill->patientVisit->patient->demographic->last_name }}<br>
+                            @endif
                             <strong>Amount:</strong> {{ number_format($bill->amount, 2) }}<br>
                             <strong>Balance Due:</strong> {{ number_format($bill->getBalanceAttribute(), 2) }}
                         </div>

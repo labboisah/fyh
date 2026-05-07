@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Jobs\AuditLogJob;
+use App\Models\User;
 
 class AuditLog extends Model
 {
@@ -16,6 +17,11 @@ class AuditLog extends Model
         'after' => 'array',
         'meta' => 'array',
     ];
+
+    public function actor()
+    {
+        return $this->belongsTo(User::class, 'actor_id');
+    }
 
     public static function record($actor, string $action, $model = null, $before = null, $after = null, array $meta = [])
     {

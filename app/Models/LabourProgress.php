@@ -10,7 +10,6 @@ class LabourProgress extends Model
 {
     use SoftDeletes, Syncable;
 
-    protected $table = 'labour_progress';
 
     protected $fillable = [
         'labour_id',

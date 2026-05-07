@@ -16,7 +16,8 @@ class ServiceRequest extends Model
         'clinical_diagnoses',
         'requested_at',
         'completed_at',
-        'status'
+        'status',
+        'payment_status',
     ];
 
     public function patientVisit()

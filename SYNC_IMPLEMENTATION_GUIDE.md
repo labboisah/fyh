@@ -24,7 +24,7 @@ SYNC_REMOTE_TOKEN=your-sync-api-token-generated-on-online-server
 SYNC_API_TOKEN=local-server-sync-token-shared-with-online-server
 SYNC_QUEUE_CONNECTION=database
 SYNC_AUTO_SYNC_ENABLED=true
-SYNC_CONFLICT_RESOLUTION=last_write_wins
+SYNC_CONFLICT_RESOLUTION=last_write_wins.
 ```
 
 ### On Online Server (`.env`)
