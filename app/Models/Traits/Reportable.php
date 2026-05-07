@@ -337,8 +337,13 @@ trait Reportable
         $investigationRequests = \App\Models\InvestigationRequest::where('requested_by', $this->id)
             ->whereBetween('requested_at', [$startDate, $endDate])
             ->get();
+        $registeredPatients = \App\Models\PatientDemographic::whereBetween('created_at', [$startDate, $endDate])->count();
+
+        $walkinPatients = \App\Models\WalkinPatient::whereBetween('created_at', [$startDate, $endDate])->count();
 
         return [
+            'registered_patients' => $registeredPatients,
+            'walkin_patients' => $walkinPatients,
             'patient_visits' => $patientVisits->count(),
             'bills_created' => $bills->count(),
             'service_requests' => $serviceRequests->count(),
@@ -346,8 +351,8 @@ trait Reportable
             'patient_visits_details' => $patientVisits->map(function ($visit) {
                 return [
                     'patient_name' => $visit->patient->demographic->first_name . ' ' . $visit->patient->demographic->last_name,
-                    'visit_type' => $visit->visit_type ?? 'Consultation',
-                    'department' => 'N/A',
+                    'diagnosis' => $visit->diagnosis ?? 'N/A',
+                    'treatment' => $visit->treatment ?? 'N/A',
                     'time' => $visit->created_at->format('H:i'),
                 ];
             })->toArray(),
