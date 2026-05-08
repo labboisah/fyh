@@ -22,45 +22,62 @@ class SystemUpdateController extends Controller
 
     public function update()
     {
-        try {
+        $git = '"C:\\var\\bin\\git\\cmd\\git.exe"';
 
-            $git = '"C:\\var\\bin\\git\\cmd\\git.exe"';
+        $basePath = base_path();
 
-            $basePath = base_path();
+        $steps = [
 
-            $commands = [
+            [
+                'title' => 'Pulling latest update...',
+                'command' => 'cd /d "'.$basePath.'" && '.$git.' pull origin main 2>&1',
+            ],
 
-                'cd /d "'.$basePath.'" && '.$git.' pull origin main 2>&1',
+            [
+                'title' => 'Installing composer packages...',
+                'command' => 'cd /d "'.$basePath.'" && composer install 2>&1',
+            ],
 
-                'cd /d "'.$basePath.'" && composer install 2>&1',
+            [
+                'title' => 'Running database migrations...',
+                'command' => 'cd /d "'.$basePath.'" && php artisan migrate --force 2>&1',
+            ],
 
-                'cd /d "'.$basePath.'" && php artisan migrate --force 2>&1',
+            [
+                'title' => 'Clearing optimization cache...',
+                'command' => 'cd /d "'.$basePath.'" && php artisan optimize:clear 2>&1',
+            ],
+        ];
 
-                'cd /d "'.$basePath.'" && php artisan optimize:clear 2>&1',
+        $results = [];
+
+        foreach ($steps as $index => $step) {
+
+            $output = [];
+            $returnCode = null;
+
+            exec($step['command'], $output, $returnCode);
+
+            $results[] = [
+                'step' => $index + 1,
+                'title' => $step['title'],
+                'output' => $output,
+                'return_code' => $returnCode,
+                'progress' => intval((($index + 1) / count($steps)) * 100),
             ];
 
-            $logs = [];
+            if ($returnCode !== 0) {
 
-            foreach ($commands as $command) {
-
-                $output = [];
-                $returnCode = null;
-
-                exec($command, $output, $returnCode);
-
-                $logs[] = [
-                    'command' => $command,
-                    'output' => $output,
-                    'return_code' => $returnCode,
-                ];
+                return response()->json([
+                    'success' => false,
+                    'results' => $results,
+                ]);
             }
-
-            return back()->with('success', 'System updated successfully')
-                        ->with('logs', $logs);
-
-        } catch (\Throwable $e) {
-
-            return back()->with('error', $e->getMessage());
         }
+
+        return response()->json([
+            'success' => true,
+            'results' => $results,
+        ]);
     }
 }
