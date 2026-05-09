@@ -6,8 +6,6 @@
             <th>Payment ID</th>
             <th>Amount</th>
             <th>Method of Payment</th>
-            <th>Insurance Provider</th>
-            <th>Reference Number</th>
             <th>Status</th>
             <th>Payment Date</th>
             <th>Paid By</th>
@@ -22,13 +20,11 @@
                     <td>{{$bill->bill_number}}</td>
                     <td>{{$payment->payment_id}}</td>
                     <td>{{$payment->amount}}</td>
-                    <td>{{$payment->payment_method}}</td>
-                    <td>{{$payment->insurance_provider}}</td>
-                    <td>{{$payment->reference_number}}</td>
+                    <td>{{$payment->paymentMethod->name}}</td>
                     <td>{{$payment->status}}</td>
                     <td>{{$payment->payment_date}}</td>
                     <td>{{$payment->recordedBy->name}}</td>
-                    <td><a href="{{route('accountant.payment-receipt',$payment)}}">Print Receipt</a></td>
+                    <td><a href="{{route('accountant.payments.receipt',$payment)}}">Print Receipt</a></td>
                 </tr>
                 @endforeach
             @endforeach

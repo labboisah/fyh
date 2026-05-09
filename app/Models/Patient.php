@@ -25,7 +25,7 @@ class Patient extends Model
         return $this->hasOne(PatientDemographic::class);
     }
 
-    public function fileType() : Returntype {
+    public function fileType() {
         return $this->belongsTo(FileType::class);
     }
 
@@ -36,6 +36,32 @@ class Patient extends Model
     {
         return $this->hasMany(PatientVisit::class);
     }
+
+    public function generateFileOpeningBill($visit)
+    {
+        $bill = new Bill();
+        $bill->patient_visit_id = $visit->id;
+        $bill->amount = $this->fileType->price ?? 2000; // Example amount for file opening
+        $bill->service_description = 'File Opening Fee';
+        $bill->bill_number = Bill::generateBillNumber();
+        $bill->issued_by = auth()->user()->id;
+        $bill->issued_date= now();
+        $bill->due_date = now()->addDays(7); // Due in 7 days
+        $bill->status = 'pending';
+        $bill->notes = 'File Opening';
+        $bill->save();
+        
+    }
+
+    public function registerNewVisit() {
+        return $this->patientVisits()->create([
+            'visit_date'=>date('d M, Y'),
+            'visit_type'=>'Consultation',
+            'created_by'=>auth()->user()->id
+        ]);
+    }
+
+    
 
     /**
      * Get appointments for this patient

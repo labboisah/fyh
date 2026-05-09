@@ -33,7 +33,7 @@
                             <select id="payment_method" name="payment_method" class="form-control @error('payment_method') is-invalid @enderror" required onchange="toggleInsuranceProvider()">
                                 <option value="">-- Select Payment Method --</option>
                                 @foreach($paymentMethods as $method)
-                                    <option value="{{ $method }}" @selected(old('payment_method') == $method)>{{ $method }}</option>
+                                    <option value="{{ $method->id }}" @selected(old('payment_method') == $method)>{{ $method->name }}</option>
                                 @endforeach
                             </select>
                             @error('payment_method')
@@ -50,14 +50,7 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label for="reference_number" class="form-label">Reference Number</label>
-                            <input type="text" id="reference_number" name="reference_number" class="form-control @error('reference_number') is-invalid @enderror" placeholder="e.g., Receipt #, Check #, Transaction ID" value="{{ old('reference_number') }}">
-                            <small class="text-muted">Transaction reference or receipt number</small>
-                            @error('reference_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        
 
                         <div class="mb-3">
                             <label for="payment_date" class="form-label">Payment Date <span class="text-danger">*</span></label>

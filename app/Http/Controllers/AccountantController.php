@@ -446,7 +446,7 @@ class AccountantController extends Controller
     
 
         // Pre-select patient if patient_id is provided (from quick action)
-        
+        $paymentMethods = PaymentMethod::all();
         
         return view('accountant.payments.create', compact('patient', 'paymentMethods'));
     }
@@ -475,7 +475,7 @@ class AccountantController extends Controller
                     $data['payment_id'] = Payment::generatePaymentID();
                     $data['payment_date'] = date('d M, Y');
                     $data['bill_id'] = $bill->id;
-                    $data['reference_number'] = $request->reference_number;
+                    $data['payment_method_id'] = $request->payment_method;
                     
                     $billPendingPayment = $bill->getBalanceAttribute();
 
@@ -487,7 +487,7 @@ class AccountantController extends Controller
                     }
                     
 
-                    $payment = Payment::create($data);
+                    $payment = Payment::firstOrCreate($data);
 
                     // Update bill status if bill_id provided
                     
@@ -503,9 +503,10 @@ class AccountantController extends Controller
             }
         }
         // Load relationships for receipt
+        
         $payment->load(['bill', 'recordedBy']);
 
-        return redirect()->route('accountant.payment-receipt', $payment)
+        return redirect()->route('accountant.payments.receipt', $payment)
             ->with('success', 'Payment recorded successfully. Payment ID: ' . $payment->payment_id);
     }
 

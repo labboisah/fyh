@@ -25,7 +25,7 @@
 
                     <div class="row mb-4">
                         <!-- select file type individualor family -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="file_type" class="form-label">File Type <span class="text-danger">*</span></label>
                             <select class="form-select @error('file_type') is-invalid @enderror" id="file_type" name="file_type" required>
                                 <option value="">Select File Type</option>
@@ -37,14 +37,27 @@
                             </select>
                             @error('file_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-4">
+                        <!-- service applyingfor -->
+                        <div class="col-md-5">
+                            <label for="service" class="form-label">Service Applying for<span class="text-danger"></span></label>
+                            <select class="form-select @error('service') is-invalid @enderror" id="service" name="service" required>
+                                <option value="">Select Service</option>
+                                @foreach(App\Models\Service::all() as $service)
+                                    <option value="{{ $service->id }}" {{ old('service') == $service->id ? 'selected' : '' }}>
+                                        {{ $service->name }} (₦{{ number_format($service->price, 2) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('service')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
                             <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
                                    id="first_name" name="first_name" value="{{ old('first_name') }}" 
                                    placeholder="Isah" required>
                             @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
                                    id="last_name" name="last_name" value="{{ old('last_name') }}" 
@@ -119,15 +132,6 @@
                         <textarea class="form-control @error('address') is-invalid @enderror" 
                                   id="address" name="address" rows="3" placeholder="Full address">{{ old('address') }}</textarea>
                         @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="is_walkIn" class="form-label">Patient Type</label>
-                        <select class="form-select @error('is_walkIn') is-invalid @enderror" id="is_walkIn" name="is_walkIn">
-                            <option value="0" {{ old('is_walkIn') == '0' ? 'selected' : '' }}>Scheduled Patient</option>
-                            <option value="1" {{ old('is_walkIn') == '1' ? 'selected' : '' }}>Walk-In Patient</option>
-                        </select>
-                        @error('is_walkIn')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <hr class="my-4">

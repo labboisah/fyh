@@ -45,7 +45,7 @@
                         <button type="submit" class="btn btn-success flex-grow-1">
                             <i class="bi bi-check-circle me-2"></i>Record Visit
                         </button>
-                        <a href="{{ route('record_officer.patients.show', $patient->id) }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('record.patients.show', $patient->id) }}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancel
                         </a>
                     </div>

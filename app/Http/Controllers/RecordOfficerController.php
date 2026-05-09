@@ -58,6 +58,7 @@ class RecordOfficerController extends Controller
     {
        
         $validated = $request->validate([
+            'file_type' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'gender' => 'required|in:Male,Female,Other',
@@ -112,9 +113,21 @@ class RecordOfficerController extends Controller
                 'contact_address' => $validated['nok_contact_address'],
                 'telephone' => $validated['nok_telephone'],
             ]);
+
+            // generate file opening bill
+            $visit = $patient->registerNewVisit();
+            $patient->generateFileOpeningBill($visit);
+
+            $service = Service::find($request->service);
+
+            if($service){
+                
+                $visit->generateServiceBillOf($service);
+            }
             
             
-            return redirect()->route('record.patients.show', $patient->id)
+            
+            return redirect()->route('patient.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");
        
     }
@@ -252,7 +265,7 @@ class RecordOfficerController extends Controller
     }
 
     /**
-     * Store patient visit
+     *  patient visit
      */
     public function storeVisit(Request $request, Patient $patient)
     {

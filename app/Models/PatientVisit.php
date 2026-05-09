@@ -153,6 +153,18 @@ class PatientVisit extends Model
             'bill_number'=>Bill::generateBillNumber(),
             'department_id'=> auth()->user()->department->id,
         ]);
+        // create service request
+        $service->serviceRequests()->create([
+            'patient_visit_id'=>$this->id,
+            'requested_by'=>auth()->user()->id,
+            'status'=>'pending',
+            'payment_status'=>'pending',
+            'bill_id'=>$bill->id,
+            'request_date'=>date('d M, Y'),
+            'requested_at'=> now(),
+            'clinical_diagnoses'=> 'Request of '.$service->name
+        ]);
+        
 
     }
 

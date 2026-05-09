@@ -29,7 +29,7 @@
                             <th>Patient</th>
                             <th>Amount</th>
                             <th>Method</th>
-                            <th>Insurance Provider</th>
+                            <th>Bill Number</th>
                             <th>Payment Date</th>
                             <th>Status</th>
                             <th>Recorded By</th>
@@ -42,10 +42,15 @@
                                 <td>
                                     <strong>{{ $payment->payment_id }}</strong>
                                 </td>
-                                <td>{{ $payment->bill->patientVisit->demographic->first_name ?? $payment->bill->walkinPatient->name}} {{ $payment->bill->patientVisit->demographic->last_name ?? ''}}</td>
+                                @if($payment->bill->walkinPatient)
+                                    <td>{{ $payment->bill->walkinPatient->name}} </td>
+                                @else
+                                    <td>{{ $payment->bill->patientVisit->demographic->first_name ?? ''}} {{ $payment->bill->patientVisit->demographic->last_name ?? ''}}</td>
+                                @endif
+                                
                                 <td class="fw-bold text-success">{{ number_format($payment->amount, 2) }}</td>
                                 <td>{{ $payment->paymentMethod->name }}</td>
-                                <td>{{ $payment->insurance_provider ?? '-' }}</td>
+                                <td>{{ $payment->bill->bill_number ?? '-' }}</td>
                                 <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                                 <td>
                                     @if($payment->status === 'completed')

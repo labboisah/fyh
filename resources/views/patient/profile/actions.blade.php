@@ -88,7 +88,7 @@
             
             <div class="col-md-2">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('record.patients.list', $patient) }}" class="btn btn-outline-success">
+                    <a href="{{ route('record.patients.index', $patient) }}" class="btn btn-outline-success">
                         <i class="bi bi-eye me-2"></i>View All Patients
                     </a>
                 </div> 
