@@ -14,20 +14,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::firstOrCreate(
-            ['email' => 'muhammad.muntaka@fayhos.com'],
-            [
-                'name' => 'Administrator',
-                'password' => Hash::make('fayhos@2026'),
-            ]
-        );
-
-        // Assign administrator role
-        $adminRole = Role::where('name', 'administrator')->first();
-        if ($adminRole && !$admin->hasRole('administrator')) {
-            $admin->assignRole($adminRole);
-        }
-
+        
         // $recordOfficer = User::firstOrCreate(
         //     ['email' => 'record@fayhos.com'],
         //     [

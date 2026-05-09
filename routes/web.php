@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
+use App\Http\Controllers\SyncronizationController;
 
 // ajax routes
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
@@ -91,6 +92,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::post('/system/update/run', [SystemUpdateController::class, 'update'])
         ->name('system.update.run');
+
+    Route::get('/sync/dashboard', [SyncronizationController::class, 'index'])
+        ->name('sync.dashboard');
 });
 
 // Record Officer Routes - Patient Registration and Visit Recording

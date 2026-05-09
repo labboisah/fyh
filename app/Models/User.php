@@ -200,6 +200,32 @@ class User extends Authenticatable
         $this->roles()->sync($roleIds);
     }
 
-   
+    public function getModels()
+    {
+        $modelsPath = app_path('Models');
+
+        $models = [];
+
+        foreach (scandir($modelsPath) as $file) {
+
+            // Skip dots
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            // Only PHP files
+            if (pathinfo($file, PATHINFO_EXTENSION) !== 'php') {
+                continue;
+            }
+
+            // Remove .php extension
+            $modelName = pathinfo($file, PATHINFO_FILENAME);
+
+            // Full namespace
+        $models[] = ["name"=>$modelName, "class"=>"App\\Models\\{$modelName}",'table'=>(new ("App\\Models\\{$modelName}"))->getTable()];
+        }
+
+        return $models;
+    }
 }
 

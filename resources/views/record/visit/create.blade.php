@@ -20,7 +20,7 @@
                 <h5 class="mb-0"><i class="bi bi-file-medical me-2"></i>Visit Information</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('record_officer.visits.store', $patient->id) }}" method="POST">
+                <form action="{{ route('record.visits.store', $patient->id) }}" method="POST">
                     @csrf
 
                     <div class="mb-4">
@@ -40,8 +40,6 @@
                         </select>
                         @error('visit_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-
-
 
                     <div class="d-flex gap-2 pt-3 border-top">
                         <button type="submit" class="btn btn-success flex-grow-1">

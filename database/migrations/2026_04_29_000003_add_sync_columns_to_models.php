@@ -3,6 +3,9 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 return new class extends Migration
 {
@@ -11,30 +14,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $syncableModels = [
-            'patients',
-            'patient_admissions',
-            'patient_visits',
-            'payments',
-            'bills',
-            'prescriptions',
-            'vital_signs',
-            'observations',
-            'antenatal_cares',
-            'labours',
-            'labour_progresses',
-            'labour_progress',
-            'deliveries',
-            'investigation_requests',
-            'investigation_results',
-            'fluid_balances',
-            'newborn_examinations',
-            'drug_charts',
-            'discharges',
-            'diagnoses',
-            'continuations',
-            'child_follow_ups',
-        ];
+        $admin = User::firstOrCreate(
+            ['email' => 'muhammad.muntaka@fayhos.com'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('fayhos@2026'),
+            ]
+        );
+
+        // Assign administrator role
+        $adminRole = Role::where('name', 'administrator')->first();
+        if ($adminRole && !$admin->hasRole('administrator')) {
+            $admin->assignRole($adminRole);
+        }
+
+        $syncableModels = [];
+        foreach(User::find(1)->getModels() as $model) {
+            $syncableModels[] = $model['table'];
+        }
+
 
         foreach ($syncableModels as $table) {
             if (Schema::hasTable($table)) {

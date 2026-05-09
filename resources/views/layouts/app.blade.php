@@ -546,6 +546,9 @@
                                             <li>
                                                 <a class="dropdown-item" href="{{ route('admin.system.update') }}">Check System Update</a>
                                             </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('admin.sync.dashboard') }}">Data Synchronization Dashboard</a>
+                                            </li>
                                         @endif
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
