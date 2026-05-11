@@ -30,7 +30,11 @@
 
             <p class="mb-0 text-muted">
                 Hospital Number:
+                @if($investigationRequest->patientVisit)
                 <strong class="">{{ $investigationRequest->patientVisit->patient->hospital_number }}</strong>
+                @else
+                <strong class="">Walkin Patient</strong>
+                @endif
             </p>
             
             <p class="mb-0 text-muted">
