@@ -54,6 +54,18 @@
                         </div>
                     </div>
 
+                    <!-- department -->
+                    <div class="mb-3">
+                        <label for="department_id" class="form-label">Assign Department</label>
+                        <select id="department_id" name="department_id" class="form-select @error('department_id') is-invalid @enderror">
+                            <option value="">Select Department (optional)</option>
+                            @foreach(App\Models\Department::all() as $department)
+                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('department_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
                     <div class="d-flex gap-2">
                         <button class="btn btn-success" type="submit"><i class="bi bi-check-circle me-1"></i>Create User</button>
                         <a class="btn btn-secondary" href="{{ route('admin.users.index') }}">Cancel</a>

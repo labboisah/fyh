@@ -72,6 +72,7 @@ class UserController extends Controller
       
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
@@ -83,6 +84,7 @@ class UserController extends Controller
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'department_id' => $validated['department_id'],
         ]);
         
         if (!empty($validated['password'])) {
@@ -109,6 +111,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'department_id' => 'required|exists:departments,id',
             'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
@@ -119,6 +122,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'department_id' => $validated['department_id'],
             'password' => $password,
         ]);
 

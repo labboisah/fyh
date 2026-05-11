@@ -57,6 +57,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Roles</th>
+                    <th>Department</th>
                     <th class="no-export">Actions</th>
                 </tr>
             </thead>
@@ -79,6 +80,7 @@
                                 @endforelse
                             </small>
                         </td>
+                        <td>{{$user->department->name ?? 'Not assigned'}}</td>
                         <td>
                             @if($user->trashed())
                                 <form action="{{ route('admin.users.restore', $user->id) }}" method="POST" style="display:inline;">
