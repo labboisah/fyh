@@ -184,7 +184,7 @@
                                 </div>
                                 <small class="text-muted">Vaginal Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: {{ $delivery_total > 0 ? ($vaginal_deliveries / $delivery_total * 100) : 0 }}%"></div>
+                                    <div class="progress-bar bg-success" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +195,7 @@
                                 </div>
                                 <small class="text-muted">Caesarean Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" style="width: {{ $delivery_total > 0 ? ($caesarean_deliveries / $delivery_total * 100) : 0 }}%"></div>
+                                    <div class="progress-bar bg-warning" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
