@@ -4,9 +4,7 @@
 
 @section('content')
 
-    @if(auth()->user()->hasRole('midwife'))
-        @include('midwife.dashboard')
-    @endif
+    
 
     @if(auth()->user()->hasRole('record'))
         @include('record.dashboard')

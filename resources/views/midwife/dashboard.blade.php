@@ -27,8 +27,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Antenatal Records</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-success">{{ 0 }} today</small>
+                            <h3 class="h4 mb-0">{{ $antenatal_total }}</h3>
+                            <small class="text-success">{{ $antenatal_today }} today</small>
                         </div>
                     </div>
                 </div>
@@ -45,8 +45,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Labour Records</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-warning">{{  0 }} in progress</small>
+                            <h3 class="h4 mb-0">{{ $labour_total }}</h3>
+                            <small class="text-warning">{{ $labour_in_progress }} in progress</small>
                         </div>
                     </div>
                 </div>
@@ -63,8 +63,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Deliveries</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-info">{{  0 }} today</small>
+                            <h3 class="h4 mb-0">{{ $delivery_total }}</h3>
+                            <small class="text-info">{{ $delivery_today }} today</small>
                         </div>
                     </div>
                 </div>
@@ -81,8 +81,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Newborns Registered</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-success">{{  0 }} healthy</small>
+                            <h3 class="h4 mb-0">{{ $newborn_total }}</h3>
+                            <small class="text-success">{{ $newborn_healthy }} healthy</small>
                         </div>
                     </div>
                 </div>
@@ -102,8 +102,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Postnatal Exams</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-success">{{  0 }} normal</small>
+                            <h3 class="h4 mb-0">{{ $postnatal_examinations_total }}</h3>
+                            <small class="text-success">{{ $postnatal_normal }} normal</small>
                         </div>
                     </div>
                 </div>
@@ -120,8 +120,8 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Child Follow-ups</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
-                            <small class="text-success">{{  0 }} today</small>
+                            <h3 class="h4 mb-0">{{ $child_follow_ups_total }}</h3>
+                            <small class="text-success">{{ $child_follow_ups_today }} today</small>
                         </div>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Pregnant Patients</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
+                            <h3 class="h4 mb-0">{{ $pregnant_patients }}</h3>
                             <small class="text-muted">Under care</small>
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Newborn Exams</h6>
-                            <h3 class="h4 mb-0">{{  0 }}</h3>
+                            <h3 class="h4 mb-0">{{ $newborn_examinations_total }}</h3>
                             <small class="text-muted">Completed</small>
                         </div>
                     </div>
@@ -180,22 +180,22 @@
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #28a745;">
-                                    {{0}}
+                                    {{ $vaginal_deliveries }}
                                 </div>
                                 <small class="text-muted">Vaginal Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: 0%"></div>
+                                    <div class="progress-bar bg-success" style="width: {{ $delivery_total > 0 ? ($vaginal_deliveries / $delivery_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #ffc107;">
-                                    {{0}}
+                                    {{ $caesarean_deliveries }}
                                 </div>
                                 <small class="text-muted">Caesarean Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" style="width: 0%"></div>
+                                    <div class="progress-bar bg-warning" style="width: {{ $delivery_total > 0 ? ($caesarean_deliveries / $delivery_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -217,22 +217,22 @@
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #0dcaf0;">
-                                    {{0}}
+                                    {{ $newborn_males }}
                                 </div>
                                 <small class="text-muted">Male</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-info" style="width: 0%"></div>
+                                    <div class="progress-bar bg-info" style="width: {{ $newborn_total > 0 ? ($newborn_males / $newborn_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #f06595;">
-                                    {{0}}
+                                    {{ $newborn_females }}
                                 </div>
                                 <small class="text-muted">Female</small>
                                 <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                    <div class="progress-bar bg-danger" style="width: {{ $newborn_total > 0 ? ($newborn_females / $newborn_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -258,19 +258,19 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Healthy</span>
-                                    <span class="badge bg-success">{{ 0 }}</span>
+                                    <span class="badge bg-success">{{ $newborn_healthy }}</span>
                                 </div>
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 0%"></div>
+                                    <div class="progress-bar bg-success" style="width: {{ $newborn_total > 0 ? ($newborn_healthy / $newborn_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>At Risk</span>
-                                    <span class="badge bg-warning">{{ 0 }}</span>
+                                    <span class="badge bg-warning">{{ $newborn_at_risk }}</span>
                                 </div>
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: 0%"></div>
+                                    <div class="progress-bar bg-warning" style="width: {{ $newborn_total > 0 ? ($newborn_at_risk / $newborn_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -279,19 +279,19 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Normal</span>
-                                    <span class="badge bg-success">{{ 0 }}</span>
+                                    <span class="badge bg-success">{{ $postnatal_normal }}</span>
                                 </div>
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 0%"></div>
+                                    <div class="progress-bar bg-success" style="width: {{ $postnatal_examinations_total > 0 ? ($postnatal_normal / $postnatal_examinations_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>At Risk</span>
-                                    <span class="badge bg-warning">{{ 0 }}</span>
+                                    <span class="badge bg-warning">{{ $postnatal_at_risk }}</span>
                                 </div>
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: 0%"></div>
+                                    <div class="progress-bar bg-warning" style="width: {{ $postnatal_examinations_total > 0 ? ($postnatal_at_risk / $postnatal_examinations_total * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -395,9 +395,9 @@
         </div>
     </div>
 
-    <!-- Recent Records Section
+    <!-- Recent Records Section -->
     <div class="row mb-4">
-    
+        <!-- Recent Antenatal Care -->
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light border-bottom">
@@ -434,7 +434,7 @@
             </div>
         </div>
 
-        
+        <!-- Recent Deliveries -->
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light border-bottom">
@@ -472,9 +472,9 @@
         </div>
     </div>
 
-    
+    <!-- Recent Newborn & Follow-ups -->
     <div class="row mb-4">
-        
+        <!-- Recent Newborns -->
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light border-bottom">
@@ -517,7 +517,7 @@
             </div>
         </div>
 
-        
+        <!-- Recent Child Follow-ups -->
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light border-bottom">
@@ -558,7 +558,7 @@
                     @endif
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
 </div>
 @endsection
