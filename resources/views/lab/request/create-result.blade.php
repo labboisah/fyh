@@ -14,7 +14,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow p-4">
-                <form action="{{ route('lab.requests.storeResult', $investigationRequest) }}" method="POST">
+                <form action="{{ route('lab.requests.results.store', $investigationRequest) }}" method="POST">
                     @csrf
                     @foreach($investigationRequest->investigation->parameters as $parameter)
                     <div class="mb-3">
