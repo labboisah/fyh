@@ -36,7 +36,11 @@
                             <tr>
                                 <td>{{ $investigationRequest->lab_no ?? ''}}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
+                                @if($investigationRequest->patientVisit)
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
+                                @else
+                                <td>{{ $investigationRequest->walkinPatent->name ?? 'Walkin Patient' }}</td>
+                                @endif
                                 <td>{{ $investigationRequest->investigation->name }}</td>
                                 <td>{{ $investigationRequest->completed_at }}</td>
                                 <td>{{ $investigationRequest->performedBy ? $investigationRequest->performedBy->name : 'N/A' }}</td>
