@@ -180,7 +180,7 @@
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #28a745;">
-                                    {{ $vaginal_deliveries }}
+                                    {{ $vaginal_deliveries ?? 0}}
                                 </div>
                                 <small class="text-muted">Vaginal Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
@@ -191,7 +191,7 @@
                         <div class="col-6">
                             <div class="text-center">
                                 <div style="font-size: 2rem; font-weight: bold; color: #ffc107;">
-                                    {{ $caesarean_deliveries }}
+                                    {{ $caesarean_deliveries ?? 0 }}
                                 </div>
                                 <small class="text-muted">Caesarean Deliveries</small>
                                 <div class="progress mt-2" style="height: 6px;">
