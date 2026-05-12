@@ -6,6 +6,7 @@ use App\Models\Patient;
 use App\Models\PatientVisit;
 use App\Models\AntenatalCare;
 use Illuminate\Http\Request;
+use App\Models\Service;
 
 class AntenatalCareController extends Controller
 {
@@ -20,12 +21,12 @@ class AntenatalCareController extends Controller
         }
 
         // Get all female patients with reproductive age (13-55 years)
-        $patients = Patient::whereHas('demographic', function ($query) {
-            $query->where('gender', 'Female')
-                  ->whereRaw('YEAR(CURDATE()) - YEAR(date_of_birth) - (DATE_FORMAT(CURDATE(), \'%m%d\') < DATE_FORMAT(date_of_birth, \'%m%d\')) BETWEEN 13 AND 55');
-        })->with('demographic', 'antenatalCares')->get();
+        $service = Service::find(17);
+        
 
-        return view('midwife.antenatal.index', compact('patients'));
+        $requests = $service->serviceRequests->where('status','pending');
+
+        return view('midwife.antenatal.index', compact('requests'));
     }
 
     /**
@@ -44,13 +45,10 @@ class AntenatalCareController extends Controller
             return redirect()->back()->with('error', 'Antenatal care can only be created for female patients');
         }
 
-        $age = now()->diffInYears($patient->demographic->date_of_birth);
-        if ($age < 13 || $age > 55) {
-            return redirect()->back()->with('error', 'Patient is not of reproductive age for antenatal care');
-        }
+        
 
         // Get or create a visit for this patient
-        $visit = $patient->currentVisit() ?? $patient->patientVisits()->create([
+        $visit = $patient->currentVisit() ?? $patient->patientVisits()->firstOrCreate([
             'visit_date' => now(),
             'visit_type' => 'Antenatal Care',
             'created_by' => auth()->user()->id
@@ -104,13 +102,9 @@ class AntenatalCareController extends Controller
         // Create antenatal care record
         $antenatalCare = AntenatalCare::create($validated);
 
-        // Log activity
-        activity()
-            ->performedOn($antenatalCare)
-            ->withProperties(['action' => 'create'])
-            ->log('Antenatal care record created');
+       
 
-        return redirect()->route('antenatal.show', $antenatalCare->id)
+        return redirect()->route('midwife.antenatal.show', $antenatalCare->id)
                        ->with('success', 'Antenatal care record created successfully');
     }
 
@@ -185,13 +179,9 @@ class AntenatalCareController extends Controller
         // Update the record
         $antenatalCare->update($validated);
 
-        // Log activity
-        activity()
-            ->performedOn($antenatalCare)
-            ->withProperties(['action' => 'update', 'changes' => $validated])
-            ->log('Antenatal care record updated');
+        
 
-        return redirect()->route('antenatal.show', $antenatalCare->id)
+        return redirect()->route('midwife.antenatal.show', $antenatalCare->id)
                        ->with('success', 'Antenatal care record updated successfully');
     }
 

@@ -25,8 +25,22 @@ class Patient extends Model
         return $this->hasOne(PatientDemographic::class);
     }
 
+    public function patientAdmissions() {
+        return $this->hasMany(PatientAdmission::class);
+    }
+
+   
+
     public function fileType() {
         return $this->belongsTo(FileType::class);
+    }
+
+    public function age() {
+        return \Carbon\Carbon::parse($this->demographic->date_of_birth)->age;
+    }
+
+    public function name() {
+        return $this->demographic->first_name . ' ' . $this->demographic->last_name;
     }
 
     /**

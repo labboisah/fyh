@@ -12,34 +12,7 @@ class Labour extends Model
 
     protected $table = 'labours';
 
-    protected $fillable = [
-        'patient_id',
-        'admission_id',
-        'recorded_by',
-        'labour_onset_time',
-        'mode_of_onset',
-        'reason_for_induction',
-        'gestational_weeks',
-        'labour_type',
-        'previous_obstetric_history',
-        'cervical_state',
-        'show',
-        'rupture_of_membranes',
-        'liquor',
-        'blood_pressure',
-        'pulse_rate',
-        'temperature',
-        'respiration_rate',
-        'stage',
-        'first_stage_started_at',
-        'second_stage_started_at',
-        'third_stage_started_at',
-        'fetal_heart_rate',
-        'fetal_monitoring_notes',
-        'complications',
-        'clinical_notes',
-        'status',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'labour_onset_time' => 'datetime',

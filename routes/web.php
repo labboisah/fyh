@@ -134,7 +134,7 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Bills Management
     Route::get('bills', [AccountantController::class, 'listBills'])->name('bills.index');
-    Route::get('/bills/create', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::get('/bills/create/', [AccountantController::class, 'createBill'])->name('bills.create');
     Route::get('/bills/walkin/create', [AccountantController::class, 'createWalkinBill'])->name('bills.create-walkin');
     Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
     Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');

@@ -85,7 +85,6 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        
                         <div class="col-12 col-sm-6 col-lg-3">
                             <a href="#" class="btn btn-outline-info w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
@@ -104,6 +103,17 @@
                                     <div>
                                         <div class="fw-bold">Search Patient</div>
                                         <small class="text-muted">Find by phone/number</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <a href="{{ route('midwife.dashboard') }}" class="btn btn-outline-warning w-100 py-3 text-start">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-people-fill me-2" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <div class="fw-bold">ANC Dashboard</div>
+                                        <small class="text-muted">Manage ANC records</small>
                                     </div>
                                 </div>
                             </a>

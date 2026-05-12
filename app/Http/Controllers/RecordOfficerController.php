@@ -9,6 +9,8 @@ use App\Models\PatientVisit;
 use App\Models\Service;
 use App\Models\PatientAdmission;
 use App\Models\PatientReferral;
+use App\Models\Ward;
+use App\Models\Bill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -76,7 +78,7 @@ class RecordOfficerController extends Controller
             'nok_telephone' => 'required|string|max:20',
         ]);
        
-        
+
        
             // Create patient record
             $patient = Patient::create([
@@ -123,9 +125,38 @@ class RecordOfficerController extends Controller
             if($service){
                 
                 $visit->generateServiceBillOf($service);
+                // if service is labour admit a patient
+
+                if($service->id == 13 || $service->id == 14){
+                    // admit the patient
+                    $visit = $patient->currentVisit();
+                    $ward = Ward::find(2);
+
+                    $visit->admissions()->create([
+                        'date' => now(),
+                        'time' => now()->toTimeString(),
+                        'note' => $service->name,
+                        'bed_id' => $ward->getAvailableBed()->id ?? null,
+                        'status' => 'Registered',
+                        'admitted_by' => auth()->user()->id,
+                    ]);
+
+                    // generate another bill for bed space bill for the patient
+
+                    Bill::create([
+                        'patient_visit_id' => $visit->id ?? null,
+                        'walkin_id' => $walkinId ?? null,
+                        'bill_number' => Bill::generateBillNumber(),
+                        'service_description' => 'Bed space charge for ' . $service->name,
+                        'amount' => $ward->price,
+                        'issued_by' => auth()->user()->id,
+                        'status' => 'pending',
+                        'issued_date' => now(),
+                        'due_date' => now()->addDays(7),
+                    ]);
+
+                }
             }
-            
-            
             
             return redirect()->route('patient.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");

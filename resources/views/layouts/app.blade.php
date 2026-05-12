@@ -409,6 +409,8 @@
                             </li>
                             @endif
 
+
+
                             @if(Auth::user()->hasRole('doctor'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
@@ -420,6 +422,12 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Discharge</a>
                             </li>
                             
+                            @endif
+
+                            @if(Auth::user()->hasRole('midwife'))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.dashboard') }}"><i class="bi bi-people-fill me-2 text-success"></i>ANC Portal</a>
+                            </li>
                             @endif
 
                             @if(Auth::user()->hasRole('lab_technician'))

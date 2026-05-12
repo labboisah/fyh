@@ -82,6 +82,27 @@ class PatientVisit extends Model
         return $this->hasMany(Continuation::Class);
     }
 
+    // get or create admission for this visit
+
+    public function currentAdmission(Ward $ward = null) {
+        $admission = null;
+        foreach($this->admissions->whereIn('status',['registered','confirmed']) as $adm){
+            $admission = $adm;
+        }
+
+        if(!$admission){
+            $admission = $this->admissions()->create([
+                'date' => now(),
+                'bed_id' => $ward->getAvailableBed()->id ?? null,
+                
+                'time' => now()->toTimeString(),
+                'status' => 'Registered',
+                'admitted_by' => auth()->user()->id
+            ]);
+        }
+        return $admission;
+    }
+
     /**
      * Get the antenatal care record for this visit (if applicable)
      */
@@ -144,7 +165,7 @@ class PatientVisit extends Model
 
     public function generateServiceBillOf(Service $service) {
         $bill = $this->bills()->create([
-            'service_description'=>$service->description,
+            'service_description'=>'Charges for '.$service->name,
             'amount'=>$service->price,
             'status'=>'pending',
             'issued_by'=>auth()->user()->id,

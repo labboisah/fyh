@@ -43,7 +43,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="text-muted">Age</label>
-                    <p class="fw-bold">{{ now()->diffInYears($patient->demographic->date_of_birth) }} years</p>
+                    <p class="fw-bold">{{ $patient->age() }} years</p>
                 </div>
                 <div class="col-md-3">
                     <label class="text-muted">Gender</label>

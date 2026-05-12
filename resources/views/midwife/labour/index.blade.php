@@ -27,14 +27,14 @@
         </div>
     @endif
 
-    @if($patients->isEmpty())
+    @if(count($patients) == 0)
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> No female patients of reproductive age (13-55 years) found in the system.
         </div>
     @else
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="card-title mb-0">Female Patients Eligible for Labour Management</h5>
+                <h5 class="card-title mb-0">Labour Management</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -45,6 +45,7 @@
                                 <th><i class="bi bi-person"></i> Name</th>
                                 <th><i class="bi bi-calendar"></i> Age</th>
                                 <th><i class="bi bi-telephone"></i> Phone</th>
+                                <th><i class="bi bi-gender"></i> Gender</th>
                                 <th><i class="bi bi-file-text"></i> Labour Records</th>
                                 <th><i class="bi bi-clock-history"></i> Last Record</th>
                                 <th><i class="bi bi-gear"></i> Actions</th>
@@ -59,13 +60,16 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <strong>{{ $patient->full_name }}</strong>
+                                        <strong>{{ $patient->name() }}</strong>
                                     </td>
                                     <td>
-                                        {{ now()->diffInYears($patient->demographic->date_of_birth) }} years
+                                        {{ $patient->age() }} years
                                     </td>
                                     <td>
                                         {{ $patient->demographic->phone_number ?? 'N/A' }}
+                                    </td>
+                                    <td>
+                                        {{$patient->demographic->gender ?? 'N/A'}}
                                     </td>
                                     <td>
                                         <span class="badge bg-info">
@@ -74,18 +78,22 @@
                                     </td>
                                     <td>
                                         @if($patient->labours->isNotEmpty())
-                                            {{ $patient->labours->first()->date_of_admission->format('M d, Y') }}
+                                            {{ $patient->labours->first()->admission->date }}
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('midwife.labour.create', $patient) }}"
-                                               class="btn btn-outline-primary"
-                                               title="Create new labour record">
-                                                <i class="bi bi-plus-circle"></i> New
-                                            </a>
+                                            @if($patient->payment()['pending'] == 0)
+                                                <a href="{{ route('midwife.labour.create', $patient) }}"
+                                                    class="btn btn-outline-primary"
+                                                    title="Create new labour record">
+                                                        <i class="bi bi-plus-circle"></i> New
+                                                    </a>
+                                            @else
+                                            Patient has pending payment of <span class="badge bg-danger my-1">{{ number_format($patient->payment()['pending'], 2) }}</span> Naira
+                                            @endif
                                             @if($patient->labours->isNotEmpty())
                                                 <a href="{{ route('midwife.labour.patient-records', $patient) }}"
                                                    class="btn btn-outline-info"
@@ -108,7 +116,7 @@
                 </div>
             </div>
             <div class="card-footer text-muted">
-                Total: <strong>{{ $patients->count() }}</strong> patients eligible for labour management
+                Total: <strong>{{ count($patients) }}</strong> patients eligible for labour management
             </div>
         </div>
     @endif

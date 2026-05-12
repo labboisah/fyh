@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('reason_for_visit')->nullable();
             $table->text('clinical_notes')->nullable();
             $table->string('referred_to')->nullable();
-            $table->enum('status', ['Active', 'Transferred', 'Admitted', 'Discharged'])->default('Active');
+            $table->enum('status', ['Active', 'Transferred', 'Admitted', 'Discharged','Closed'])->default('Active');
             $table->foreignId('created_by');
             $table->timestamps();
             $table->softDeletes();

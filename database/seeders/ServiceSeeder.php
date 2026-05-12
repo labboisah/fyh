@@ -132,6 +132,7 @@ class ServiceSeeder extends Seeder
             'price'=>500,    
             'name'=>'ANC Service Fee'
             ]
+            
         ];
 
         foreach ($services as $service) {

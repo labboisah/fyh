@@ -12,4 +12,9 @@ class Ward extends Model
     {
         return $this->hasMany(Bed::class);
     }
+
+    public function getAvailableBed()
+    {
+        return $this->beds()->where('status', 'vacant')->first();
+    }
 }

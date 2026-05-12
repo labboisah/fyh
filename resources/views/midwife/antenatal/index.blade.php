@@ -37,12 +37,12 @@
                     <h5 class="mb-0">Female Patients (Reproductive Age)</h5>
                 </div>
                 <div class="col-md-6 text-end">
-                    <span class="badge bg-info">{{ $patients->count() }} Patients</span>
+                    <span class="badge bg-info">{{ $requests->count() }} ANC Service Requests</span>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            @if($patients->count() > 0)
+            @if($requests->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-light">
@@ -58,7 +58,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($patients as $patient)
+                            @foreach($requests as $ANCRequest)
+                            @php 
+                                $patient= $ANCRequest->patientVisit->patient
+                            @endphp
                                 <tr>
                                     <td>
                                         <span class="badge bg-secondary">{{ $patient->hospital_number }}</span>
@@ -67,7 +70,7 @@
                                         <strong>{{ $patient->demographic->first_name ?? 'N/A' }} {{ $patient->demographic->last_name ?? '' }}</strong>
                                     </td>
                                     <td>
-                                        {{ now()->diffInYears($patient->demographic->date_of_birth) }} years
+                                        {{ $patient->age() }} years
                                     </td>
                                     <td>{{ $patient->demographic->phone ?? 'N/A' }}</td>
                                     <td>
@@ -107,13 +110,15 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            @if(auth()->user()->hasAnyRole(['midwife', 'administrator']))
+                                            @if($patient->payment()['pending'] == 0)
                                                 <a href="{{ route('midwife.antenatal.create', $patient) }}" class="btn btn-outline-primary" title="New Record">
                                                     <i class="bi bi-plus-circle"></i>
                                                 </a>
                                                 <a href="{{ route('midwife.antenatal.patient-records', $patient) }}" class="btn btn-outline-info" title="View Records">
                                                     <i class="bi bi-file-text"></i>
                                                 </a>
+                                            @else
+                                                <span class="text-muted">Payment not recorded</span>    
                                             @endif
                                         </div>
                                     </td>

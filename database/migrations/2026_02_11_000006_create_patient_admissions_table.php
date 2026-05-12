@@ -17,12 +17,11 @@ return new class extends Migration
             $table->dateTime('admission_date');
             $table->dateTime('discharge_date')->nullable();
             $table->text('reason_for_admission');
-            $table->string('department')->nullable();
-            $table->string('bed_number')->nullable();
-            $table->enum('status', ['Admitted', 'Discharged', 'Transferred'])->default('Admitted');
+            $table->string('bed_id')->nullable();
+            $table->enum('status', ['Admitted', 'Discharged', 'Transferred', 'Confirmed'])->default('Admitted');
             $table->text('notes')->nullable();
             $table->foreignId('admitted_by');
-            $table->foreignId('discharged_by');
+            $table->foreignId('discharged_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

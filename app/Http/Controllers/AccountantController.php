@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\Patient;
 use App\Models\PaymentMethod;
 use App\Models\Service;
+use App\Models\Ward;
 use App\Models\Investigation;
 use App\Models\InvestigationRequest;
 use Illuminate\Http\Request;
@@ -174,6 +175,49 @@ class AccountantController extends Controller
                     'subtotal' => $svc->price,
                 ];
             }
+
+            // if service is labour admit a patient
+
+            if($patient && ($svc->id == 13 || $svc->id == 14)){
+                // admit the patient
+                $visit = $patient->currentVisit();
+                if(!$visit){
+                    $visit = $patient->patientVisits()->create([
+                        'visit_date' => now(),
+                        'visit_type' => 'Labour',
+                        'created_by' => $issued_by,
+                        'reason_for_visit' => 'labour bill creation',
+                    ]);
+                }
+
+                $ward = Ward::find(2);
+
+                $visit->admissions()->create([
+                    'date' => now(),
+                    'time' => now()->toTimeString(),
+                    'note' => $svc->name,
+                    'bed_id' => $ward->getAvailableBed()->id ?? null,
+                    'status' => 'Registered',
+                    'admitted_by' => auth()->user()->id,
+                ]);
+
+                // generate another bill for bed space bill for the patient
+
+                Bill::create([
+                    'patient_visit_id' => $visit->id ?? null,
+                    'walkin_id' => $walkinId ?? null,
+                    'bill_number' => Bill::generateBillNumber(),
+                    'service_description' => 'Bed space charge for ' . $svc->name,
+                    'amount' => $ward->price,
+                    'issued_by' => auth()->user()->id,
+                    'status' => 'pending',
+                    'issued_date' => now(),
+                    'due_date' => now()->addDays(7),
+                ]);
+
+            }
+
+            // create bill for bed space charges
             
         }
 
