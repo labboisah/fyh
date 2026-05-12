@@ -56,9 +56,9 @@ class Labour extends Model
     /**
      * Get the delivery associated with this labour
      */
-    public function delivery()
+    public function deliveries()
     {
-        return $this->hasOne(Delivery::class);
+        return $this->hasMany(Delivery::class);
     }
 
     /**

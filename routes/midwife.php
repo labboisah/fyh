@@ -87,13 +87,13 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
             ->prefix('delivery')
             ->group(function () {
                 Route::get('/', [DeliveryController::class, 'index'])->name('index');
-                Route::get('/patient/{patient}/create', [DeliveryController::class, 'create'])->name('create');
-                Route::post('/patient/{patient}/store', [DeliveryController::class, 'store'])->name('store');
+                Route::get('/labour/{labour}/create', [DeliveryController::class, 'create'])->name('create');
+                Route::post('/labour/{labour}/store', [DeliveryController::class, 'store'])->name('store');
                 Route::get('/{delivery}/show', [DeliveryController::class, 'show'])->name('show');
                 Route::get('/{delivery}/edit', [DeliveryController::class, 'edit'])->name('edit');
                 Route::put('/{delivery}/update', [DeliveryController::class, 'update'])->name('update');
                 Route::delete('/{delivery}/delete', [DeliveryController::class, 'destroy'])->name('destroy');
-                Route::get('/patient/{patient}/records', [DeliveryController::class, 'patientRecords'])->name('patient-records');
+                Route::get('/patient/{patient}/records', [DeliveryController::class, 'labourRecords'])->name('labour-records');
             });
 
         // Newborn routes

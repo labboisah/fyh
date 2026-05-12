@@ -27,14 +27,14 @@
         </div>
     @endif
 
-    @if($patients->isEmpty())
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No female patients of reproductive age (13-55 years) found in the system.
+    @if(count($labours) == 0)
+         <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No completed labour records found in the system. Please ensure patients have completed labours to manage deliveries.
         </div>
     @else
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="card-title mb-0">Patients Eligible for Delivery Management</h5>
+                <h5 class="card-title mb-0">Labours Eligible for Delivery Management</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -50,20 +50,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($patients as $patient)
+                            @foreach($labours as $labour)
                                 <tr>
-                                    <td>{{ $patient->hospital_number }}</td>
-                                    <td>{{ $patient->full_name }}</td>
-                                    <td>{{ now()->diffInYears($patient->demographic->date_of_birth) }} years</td>
-                                    <td>{{ $patient->demographic->phone_number ?? 'N/A' }}</td>
-                                    <td>{{ $patient->deliveries->count() }}</td>
+                                    <td>{{ $labour->patient->hospital_number }}</td>
+                                    <td>{{ $labour->patient->name() }}</td>
+                                    <td>{{ $labour->patient->age() }} years</td>
+                                    <td>{{ $labour->patient->demographic->phone_number ?? 'N/A' }}</td>
+                                    <td>{{ $labour->patient->deliveries->count() }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('midwife.delivery.create', $patient) }}" class="btn btn-outline-primary">
+                                            <a href="{{ route('midwife.delivery.create', $labour) }}" class="btn btn-outline-primary">
                                                 <i class="bi bi-plus-circle"></i> New
                                             </a>
-                                            @if($patient->deliveries->isNotEmpty())
-                                                <a href="{{ route('midwife.delivery.patient-records', $patient) }}" class="btn btn-outline-info">
+                                            @if($labour->patient->deliveries->isNotEmpty())
+                                                <a href="{{ route('midwife.delivery.patient-records', $labour->patient) }}" class="btn btn-outline-info">
                                                     <i class="bi bi-file-earmark-text"></i> Records
                                                 </a>
                                             @endif
@@ -75,7 +75,7 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer text-muted">Total: <strong>{{ $patients->count() }}</strong> patients</div>
+            <div class="card-footer text-muted">Total: <strong>{{ $labours->count() }}</strong> labours</div>
         </div>
     @endif
 </div>
