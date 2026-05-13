@@ -9,16 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PostnatalExaminationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'verified']);
-    }
+    
 
-    public function index(Delivery $delivery)
+    public function index()
     {
-        $delivery->load('patient.demographic', 'postnatalExaminations.recordedBy');
+        $deliveries = Delivery::with('patient.demographic')->get();
 
-        return view('midwife.postnatal-examination.index', compact('delivery'));
+        return view('midwife.postnatal-examination.index', compact('deliveries'));
     }
 
     public function create(Delivery $delivery)
@@ -26,82 +23,573 @@ class PostnatalExaminationController extends Controller
         return view('midwife.postnatal-examination.create', compact('delivery'));
     }
 
+    public function record(Delivery $delivery)
+    {
+
+        return view('midwife.postnatal-examination.record', compact('delivery'));
+    }
+
     public function store(Request $request, Delivery $delivery)
     {
         $validated = $request->validate([
-            'examination_date_time' => 'required|date',
-            'hours_post_delivery' => 'required|integer|min=0|max=168',
-            'examination_time' => 'nullable|in:immediate,early,late',
-            'blood_pressure' => 'nullable|string|max:20',
-            'pulse_rate' => 'nullable|integer|min:40|max:200',
-            'temperature' => 'nullable|numeric|min=34|max:42',
-            'respiration_rate' => 'nullable|integer|min:10|max:40',
-            'general_appearance' => 'nullable|string|max:500',
-            'consciousness_level' => 'nullable|in:alert,drowsy,unconscious',
-            'skin_colour' => 'nullable|string|max:255',
-            'uterine_size' => 'nullable|string|max:255',
-            'uterine_consistency' => 'nullable|string|max:255',
-            'uterine_tenderness' => 'nullable|string|max:255',
-            'fundal_height' => 'nullable|string|max:255',
-            'lochia_type' => 'nullable|in:rubra,serosa,alba',
-            'lochia_amount' => 'nullable|in:scanty,moderate,heavy',
-            'lochia_odour' => 'nullable|string|max:255',
-            'clot_presence' => 'nullable|boolean',
-            'perineal_assessment' => 'nullable|string|max:500',
-            'perineal_wound_status' => 'nullable|string|max:500',
-            'perineal_pain' => 'nullable|string|max:255',
-            'vaginal_examination' => 'nullable|string|max:500',
-            'breast_examination' => 'nullable|string|max:500',
-            'nipple_condition' => 'nullable|string|max:255',
-            'breast_engorgement' => 'nullable|string|max:255',
-            'breast_milk_expression' => 'nullable|string|max:255',
-            'breastfeeding_successful' => 'nullable|boolean',
-            'breastfeeding_problems' => 'nullable|string|max:500',
-            'abdominal_examination' => 'nullable|string|max:500',
-            'wound_assessment' => 'nullable|string|max:500',
-            'drain_status' => 'nullable|string|max:255',
-            'lower_limbs_examination' => 'nullable|string|max:500',
-            'oedema_assessment' => 'nullable|string|max:255',
-            'calf_tenderness' => 'nullable|string|max:255',
-            'signs_of_dvt' => 'nullable|string|max:255',
-            'maternal_mood' => 'nullable|string|max:255',
-            'emotional_state' => 'nullable|string|max:500',
-            'signs_of_depression' => 'nullable|boolean',
-            'bonding_with_baby' => 'nullable|string|max:500',
-            'complications_identified' => 'nullable|string|max:1000',
-            'infection_signs' => 'nullable|string|max:500',
-            'bleeding_assessment' => 'nullable|string|max:500',
-            'hypertension_assessment' => 'nullable|string|max:500',
-            'sleep_patterns' => 'nullable|string|max:255',
-            'pain_level' => 'nullable|string|max:255',
-            'activity_tolerance' => 'nullable|string|max:255',
-            'perineal_care_ability' => 'nullable|string|max:255',
-            'counseling_topics' => 'nullable|string|max:1000',
-            'contraception_discussed' => 'nullable|boolean',
-            'contraception_method_chosen' => 'nullable|string|max:255',
-            'hygiene_taught' => 'nullable|boolean',
-            'danger_signs_explained' => 'nullable|boolean',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'recovery_status' => 'required|in:normal,needs_attention,needs_referral',
-            'management_plan' => 'nullable|string|max:1000',
-            'medications_prescribed' => 'nullable|string|max:1000',
-            'follow_up_plan' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Examination Details
+            |--------------------------------------------------------------------------
+            */
+
+            'examination_date_time' => [
+                'required',
+                'date',
+            ],
+
+            'hours_post_delivery' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+
+            'examination_time' => [
+                'required',
+                'in:immediate_0-2h,6-12h,24h,48h,day4_6,week1,week2,week6',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'blood_pressure' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'pulse_rate' => [
+                'nullable',
+                'integer',
+                'between:30,200',
+            ],
+
+            'temperature' => [
+                'nullable',
+                'numeric',
+                'between:30,45',
+            ],
+
+            'respiration_rate' => [
+                'nullable',
+                'integer',
+                'between:5,80',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | General Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'general_appearance' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'consciousness_level' => [
+                'nullable',
+                'in:alert,drowsy,unconscious',
+            ],
+
+            'skin_colour' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Uterine Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'uterine_size' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'uterine_consistency' => [
+                'nullable',
+                'in:firm,soft,boggy',
+            ],
+
+            'uterine_tenderness' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'fundal_height' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lochia Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'lochia_type' => [
+                'nullable',
+                'in:rubra,serosa,alba',
+            ],
+
+            'lochia_amount' => [
+                'nullable',
+                'in:minimal,moderate,heavy',
+            ],
+
+            'lochia_odour' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'clot_presence' => [
+                'nullable',
+                'boolean',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Perineal Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'perineal_assessment' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'perineal_wound_status' => [
+                'nullable',
+                'in:intact,sutured,healing,healed',
+            ],
+
+            'perineal_pain' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'vaginal_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Breastfeeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'breast_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'nipple_condition' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breast_engorgement' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breast_milk_expression' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breastfeeding_successful' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'breastfeeding_problems' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Additional Assessments
+            |--------------------------------------------------------------------------
+            */
+
+            'abdominal_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'wound_assessment' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'drain_status' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'lower_limbs_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'oedema_assessment' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'calf_tenderness' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'signs_of_dvt' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mental Health
+            |--------------------------------------------------------------------------
+            */
+
+            'maternal_mood' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'emotional_state' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'signs_of_depression' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'bonding_with_baby' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Summary & Management
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'recovery_status' => [
+                'required',
+                'in:normal,complicated,needs_referral',
+            ],
+
+            'management_plan' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'medications_prescribed' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'follow_up_plan' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'next_follow_up_date' => [
+                'nullable',
+                'date',
+            ],
+
+            'contraception_discussed' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'contraception_method_chosen' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
         ]);
 
-        $validated['delivery_id'] = $delivery->id;
-        $validated['patient_id'] = $delivery->patient_id;
-        $validated['recorded_by'] = Auth::id();
+        /*
+        |--------------------------------------------------------------------------
+        | Store Postnatal Examination
+        |--------------------------------------------------------------------------
+        */
 
-        $examination = PostnatalExamination::create($validated);
+        $postnatalExamination = PostnatalExamination::create([
 
-        activity()
-            ->performedOn($examination)
-            ->withProperties(['action' => 'create'])
-            ->log('Postnatal examination record created');
+            'delivery_id' => $delivery->id,
 
-        return redirect()->route('midwife.postnatal-examination.show', $examination)
-            ->with('success', 'Postnatal examination record created successfully.');
+            'patient_id' => $delivery->patient_id,
+
+            'recorded_by' => auth()->id(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Examination Details
+            |--------------------------------------------------------------------------
+            */
+
+            'examination_date_time'
+                => $validated['examination_date_time'],
+
+            'hours_post_delivery'
+                => $validated['hours_post_delivery'] ?? null,
+
+            'examination_time'
+                => $validated['examination_time'],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'blood_pressure'
+                => $validated['blood_pressure'] ?? null,
+
+            'pulse_rate'
+                => $validated['pulse_rate'] ?? null,
+
+            'temperature'
+                => $validated['temperature'] ?? null,
+
+            'respiration_rate'
+                => $validated['respiration_rate'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | General Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'general_appearance'
+                => $validated['general_appearance'] ?? null,
+
+            'consciousness_level'
+                => $validated['consciousness_level'] ?? null,
+
+            'skin_colour'
+                => $validated['skin_colour'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Uterine Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'uterine_size'
+                => $validated['uterine_size'] ?? null,
+
+            'uterine_consistency'
+                => $validated['uterine_consistency'] ?? null,
+
+            'uterine_tenderness'
+                => $validated['uterine_tenderness'] ?? null,
+
+            'fundal_height'
+                => $validated['fundal_height'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lochia Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'lochia_type'
+                => $validated['lochia_type'] ?? null,
+
+            'lochia_amount'
+                => $validated['lochia_amount'] ?? null,
+
+            'lochia_odour'
+                => $validated['lochia_odour'] ?? null,
+
+            'clot_presence'
+                => $request->boolean('clot_presence'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Perineal Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'perineal_assessment'
+                => $validated['perineal_assessment'] ?? null,
+
+            'perineal_wound_status'
+                => $validated['perineal_wound_status'] ?? null,
+
+            'perineal_pain'
+                => $validated['perineal_pain'] ?? null,
+
+            'vaginal_examination'
+                => $validated['vaginal_examination'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Breastfeeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'breast_examination'
+                => $validated['breast_examination'] ?? null,
+
+            'nipple_condition'
+                => $validated['nipple_condition'] ?? null,
+
+            'breast_engorgement'
+                => $validated['breast_engorgement'] ?? null,
+
+            'breast_milk_expression'
+                => $validated['breast_milk_expression'] ?? null,
+
+            'breastfeeding_successful'
+                => $request->boolean('breastfeeding_successful'),
+
+            'breastfeeding_problems'
+                => $validated['breastfeeding_problems'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Additional Assessments
+            |--------------------------------------------------------------------------
+            */
+
+            'abdominal_examination'
+                => $validated['abdominal_examination'] ?? null,
+
+            'wound_assessment'
+                => $validated['wound_assessment'] ?? null,
+
+            'drain_status'
+                => $validated['drain_status'] ?? null,
+
+            'lower_limbs_examination'
+                => $validated['lower_limbs_examination'] ?? null,
+
+            'oedema_assessment'
+                => $validated['oedema_assessment'] ?? null,
+
+            'calf_tenderness'
+                => $validated['calf_tenderness'] ?? null,
+
+            'signs_of_dvt'
+                => $validated['signs_of_dvt'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mental Health
+            |--------------------------------------------------------------------------
+            */
+
+            'maternal_mood'
+                => $validated['maternal_mood'] ?? null,
+
+            'emotional_state'
+                => $validated['emotional_state'] ?? null,
+
+            'signs_of_depression'
+                => $request->boolean('signs_of_depression'),
+
+            'bonding_with_baby'
+                => $validated['bonding_with_baby'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Summary & Management
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary'
+                => $validated['clinical_summary'] ?? null,
+
+            'recovery_status'
+                => $validated['recovery_status'],
+
+            'management_plan'
+                => $validated['management_plan'] ?? null,
+
+            'medications_prescribed'
+                => $validated['medications_prescribed'] ?? null,
+
+            'follow_up_plan'
+                => $validated['follow_up_plan'] ?? null,
+
+            'next_follow_up_date'
+                => $validated['next_follow_up_date'] ?? null,
+
+            'contraception_discussed'
+                => $request->boolean('contraception_discussed'),
+
+            'contraception_method_chosen'
+                => $validated['contraception_method_chosen'] ?? null,
+
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('midwife.postnatal-examination.show', $postnatalExamination)
+            ->with('success', 'Postnatal examination recorded successfully.');
     }
 
     public function show(PostnatalExamination $postnatalExamination)
@@ -119,75 +607,558 @@ class PostnatalExaminationController extends Controller
     public function update(Request $request, PostnatalExamination $postnatalExamination)
     {
         $validated = $request->validate([
-            'examination_date_time' => 'required|date',
-            'hours_post_delivery' => 'required|integer|min=0|max=168',
-            'examination_time' => 'nullable|in:immediate,early,late',
-            'blood_pressure' => 'nullable|string|max:20',
-            'pulse_rate' => 'nullable|integer|min:40|max:200',
-            'temperature' => 'nullable|numeric|min=34|max:42',
-            'respiration_rate' => 'nullable|integer|min:10|max:40',
-            'general_appearance' => 'nullable|string|max:500',
-            'consciousness_level' => 'nullable|in:alert,drowsy,unconscious',
-            'skin_colour' => 'nullable|string|max:255',
-            'uterine_size' => 'nullable|string|max:255',
-            'uterine_consistency' => 'nullable|string|max:255',
-            'uterine_tenderness' => 'nullable|string|max:255',
-            'fundal_height' => 'nullable|string|max:255',
-            'lochia_type' => 'nullable|in:rubra,serosa,alba',
-            'lochia_amount' => 'nullable|in:scanty,moderate,heavy',
-            'lochia_odour' => 'nullable|string|max:255',
-            'clot_presence' => 'nullable|boolean',
-            'perineal_assessment' => 'nullable|string|max:500',
-            'perineal_wound_status' => 'nullable|string|max:500',
-            'perineal_pain' => 'nullable|string|max:255',
-            'vaginal_examination' => 'nullable|string|max:500',
-            'breast_examination' => 'nullable|string|max:500',
-            'nipple_condition' => 'nullable|string|max:255',
-            'breast_engorgement' => 'nullable|string|max:255',
-            'breast_milk_expression' => 'nullable|string|max:255',
-            'breastfeeding_successful' => 'nullable|boolean',
-            'breastfeeding_problems' => 'nullable|string|max:500',
-            'abdominal_examination' => 'nullable|string|max:500',
-            'wound_assessment' => 'nullable|string|max:500',
-            'drain_status' => 'nullable|string|max:255',
-            'lower_limbs_examination' => 'nullable|string|max:500',
-            'oedema_assessment' => 'nullable|string|max:255',
-            'calf_tenderness' => 'nullable|string|max:255',
-            'signs_of_dvt' => 'nullable|string|max:255',
-            'maternal_mood' => 'nullable|string|max:255',
-            'emotional_state' => 'nullable|string|max:500',
-            'signs_of_depression' => 'nullable|boolean',
-            'bonding_with_baby' => 'nullable|string|max:500',
-            'complications_identified' => 'nullable|string|max:1000',
-            'infection_signs' => 'nullable|string|max:500',
-            'bleeding_assessment' => 'nullable|string|max:500',
-            'hypertension_assessment' => 'nullable|string|max:500',
-            'sleep_patterns' => 'nullable|string|max:255',
-            'pain_level' => 'nullable|string|max:255',
-            'activity_tolerance' => 'nullable|string|max:255',
-            'perineal_care_ability' => 'nullable|string|max:255',
-            'counseling_topics' => 'nullable|string|max:1000',
-            'contraception_discussed' => 'nullable|boolean',
-            'contraception_method_chosen' => 'nullable|string|max:255',
-            'hygiene_taught' => 'nullable|boolean',
-            'danger_signs_explained' => 'nullable|boolean',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'recovery_status' => 'required|in:normal,needs_attention,needs_referral',
-            'management_plan' => 'nullable|string|max:1000',
-            'medications_prescribed' => 'nullable|string|max:1000',
-            'follow_up_plan' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Examination Details
+            |--------------------------------------------------------------------------
+            */
+
+            'examination_date_time' => [
+                'required',
+                'date',
+            ],
+
+            'hours_post_delivery' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+
+            'examination_time' => [
+                'required',
+                'in:immediate_0-2h,6-12h,24h,48h,day4_6,week1,week2,week6',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'blood_pressure' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'pulse_rate' => [
+                'nullable',
+                'integer',
+                'between:30,200',
+            ],
+
+            'temperature' => [
+                'nullable',
+                'numeric',
+                'between:30,45',
+            ],
+
+            'respiration_rate' => [
+                'nullable',
+                'integer',
+                'between:5,80',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | General Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'general_appearance' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'consciousness_level' => [
+                'nullable',
+                'in:alert,drowsy,unconscious',
+            ],
+
+            'skin_colour' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Uterine Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'uterine_size' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'uterine_consistency' => [
+                'nullable',
+                'in:firm,soft,boggy',
+            ],
+
+            'uterine_tenderness' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'fundal_height' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lochia Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'lochia_type' => [
+                'nullable',
+                'in:rubra,serosa,alba',
+            ],
+
+            'lochia_amount' => [
+                'nullable',
+                'in:minimal,moderate,heavy',
+            ],
+
+            'lochia_odour' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'clot_presence' => [
+                'nullable',
+                'boolean',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Perineal Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'perineal_assessment' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'perineal_wound_status' => [
+                'nullable',
+                'in:intact,sutured,healing,healed',
+            ],
+
+            'perineal_pain' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'vaginal_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Breastfeeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'breast_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'nipple_condition' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breast_engorgement' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breast_milk_expression' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'breastfeeding_successful' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'breastfeeding_problems' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Additional Assessments
+            |--------------------------------------------------------------------------
+            */
+
+            'abdominal_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'wound_assessment' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'drain_status' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'lower_limbs_examination' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'oedema_assessment' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'calf_tenderness' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'signs_of_dvt' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mental Health
+            |--------------------------------------------------------------------------
+            */
+
+            'maternal_mood' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'emotional_state' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'signs_of_depression' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'bonding_with_baby' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Summary & Management
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'recovery_status' => [
+                'required',
+                'in:normal,complicated,needs_referral',
+            ],
+
+            'management_plan' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'medications_prescribed' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'follow_up_plan' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'next_follow_up_date' => [
+                'nullable',
+                'date',
+            ],
+
+            'contraception_discussed' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'contraception_method_chosen' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
         ]);
 
-        $postnatalExamination->update($validated);
+        /*
+        |--------------------------------------------------------------------------
+        | Update Postnatal Examination
+        |--------------------------------------------------------------------------
+        */
 
-        activity()
-            ->performedOn($postnatalExamination)
-            ->withProperties(['action' => 'update'])
-            ->log('Postnatal examination record updated');
+        $postnatalExamination->update([
 
-        return redirect()->route('midwife.postnatal-examination.show', $postnatalExamination)
-            ->with('success', 'Postnatal examination record updated successfully.');
+            /*
+            |--------------------------------------------------------------------------
+            | Examination Details
+            |--------------------------------------------------------------------------
+            */
+
+            'examination_date_time'
+                => $validated['examination_date_time'],
+
+            'hours_post_delivery'
+                => $validated['hours_post_delivery'] ?? null,
+
+            'examination_time'
+                => $validated['examination_time'],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'blood_pressure'
+                => $validated['blood_pressure'] ?? null,
+
+            'pulse_rate'
+                => $validated['pulse_rate'] ?? null,
+
+            'temperature'
+                => $validated['temperature'] ?? null,
+
+            'respiration_rate'
+                => $validated['respiration_rate'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | General Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'general_appearance'
+                => $validated['general_appearance'] ?? null,
+
+            'consciousness_level'
+                => $validated['consciousness_level'] ?? null,
+
+            'skin_colour'
+                => $validated['skin_colour'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Uterine Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'uterine_size'
+                => $validated['uterine_size'] ?? null,
+
+            'uterine_consistency'
+                => $validated['uterine_consistency'] ?? null,
+
+            'uterine_tenderness'
+                => $validated['uterine_tenderness'] ?? null,
+
+            'fundal_height'
+                => $validated['fundal_height'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lochia Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'lochia_type'
+                => $validated['lochia_type'] ?? null,
+
+            'lochia_amount'
+                => $validated['lochia_amount'] ?? null,
+
+            'lochia_odour'
+                => $validated['lochia_odour'] ?? null,
+
+            'clot_presence'
+                => $request->boolean('clot_presence'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Perineal Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'perineal_assessment'
+                => $validated['perineal_assessment'] ?? null,
+
+            'perineal_wound_status'
+                => $validated['perineal_wound_status'] ?? null,
+
+            'perineal_pain'
+                => $validated['perineal_pain'] ?? null,
+
+            'vaginal_examination'
+                => $validated['vaginal_examination'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Breastfeeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'breast_examination'
+                => $validated['breast_examination'] ?? null,
+
+            'nipple_condition'
+                => $validated['nipple_condition'] ?? null,
+
+            'breast_engorgement'
+                => $validated['breast_engorgement'] ?? null,
+
+            'breast_milk_expression'
+                => $validated['breast_milk_expression'] ?? null,
+
+            'breastfeeding_successful'
+                => $request->boolean('breastfeeding_successful'),
+
+            'breastfeeding_problems'
+                => $validated['breastfeeding_problems'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Additional Assessments
+            |--------------------------------------------------------------------------
+            */
+
+            'abdominal_examination'
+                => $validated['abdominal_examination'] ?? null,
+
+            'wound_assessment'
+                => $validated['wound_assessment'] ?? null,
+
+            'drain_status'
+                => $validated['drain_status'] ?? null,
+
+            'lower_limbs_examination'
+                => $validated['lower_limbs_examination'] ?? null,
+
+            'oedema_assessment'
+                => $validated['oedema_assessment'] ?? null,
+
+            'calf_tenderness'
+                => $validated['calf_tenderness'] ?? null,
+
+            'signs_of_dvt'
+                => $validated['signs_of_dvt'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mental Health
+            |--------------------------------------------------------------------------
+            */
+
+            'maternal_mood'
+                => $validated['maternal_mood'] ?? null,
+
+            'emotional_state'
+                => $validated['emotional_state'] ?? null,
+
+            'signs_of_depression'
+                => $request->boolean('signs_of_depression'),
+
+            'bonding_with_baby'
+                => $validated['bonding_with_baby'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Summary & Management
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary'
+                => $validated['clinical_summary'] ?? null,
+
+            'recovery_status'
+                => $validated['recovery_status'],
+
+            'management_plan'
+                => $validated['management_plan'] ?? null,
+
+            'medications_prescribed'
+                => $validated['medications_prescribed'] ?? null,
+
+            'follow_up_plan'
+                => $validated['follow_up_plan'] ?? null,
+
+            'next_follow_up_date'
+                => $validated['next_follow_up_date'] ?? null,
+
+            'contraception_discussed'
+                => $request->boolean('contraception_discussed'),
+
+            'contraception_method_chosen'
+                => $validated['contraception_method_chosen'] ?? null,
+
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('midwife.postnatal-examination.show', $postnatalExamination)
+            ->with('success', 'Postnatal examination updated successfully.');
     }
 
     public function destroy(PostnatalExamination $postnatalExamination)

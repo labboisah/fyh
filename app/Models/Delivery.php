@@ -92,9 +92,9 @@ class Delivery extends Model
     /**
      * Get the postnatal examination
      */
-    public function postnatalExamination()
+    public function postnatalExaminations()
     {
-        return $this->hasOne(PostnatalExamination::class);
+        return $this->hasMany(PostnatalExamination::class);
     }
 
     /**

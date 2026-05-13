@@ -128,7 +128,8 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         Route::name('postnatal-examination.')
             ->prefix('postnatal-examination')
             ->group(function () {
-                Route::get('/delivery/{delivery}', [PostnatalExaminationController::class, 'index'])->name('index');
+                Route::get('/deliveries', [PostnatalExaminationController::class, 'index'])->name('index');
+                Route::get('/delivery/{delivery}/record', [PostnatalExaminationController::class, 'record'])->name('record');
                 Route::get('/delivery/{delivery}/create', [PostnatalExaminationController::class, 'create'])->name('create');
                 Route::post('/delivery/{delivery}/store', [PostnatalExaminationController::class, 'store'])->name('store');
                 Route::get('/{postnatalExamination}/show', [PostnatalExaminationController::class, 'show'])->name('show');

@@ -4,15 +4,10 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-clipboard-check"></i> Postnatal Examinations for {{ $delivery->patient->full_name }}</h1>
+    <h1 class="h3 mb-4"><i class="bi bi-clipboard-check"></i> Postnatal Examinations Registration</h1>
 
-    <p><strong>Delivery Date/Time:</strong> {{ optional($delivery->delivery_date_time)->format('M d, Y H:i') }}</p>
-    <p><strong>Delivery Type:</strong> {{ $delivery->delivery_type }}</p>
-
-    <a href="{{ route('midwife.postnatal-examination.create', $delivery) }}" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Add Postnatal Examination</a>
-
-    @if($delivery->postnatalExaminations->isEmpty())
-        <div class="alert alert-info">No postnatal examinations recorded for this delivery yet.</div>
+    @if($deliveries->isEmpty())
+        <div class="alert alert-info">No deliveries found with postnatal examinations.</div>
     @else
         <div class="card">
             <div class="card-body p-0">
@@ -21,37 +16,28 @@
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Examination Date/Time</th>
-                                <th>Hours Post Delivery</th>
-                                <th>Recovery Status</th>
-                                <th>Recorded By</th>
+                                <th>Patient Name</th>
+                                <th>Delivery Date</th>
+                                <th>Delivery Type</th>
+                                <th>Delivery Status</th>
+                                <th>Delivery Summary</th>
+                                <th>Delivered By</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($delivery->postnatalExaminations as $examination)
+                            @foreach($deliveries as $delivery)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $examination->examination_date_time?->format('M d, Y H:i') }}</td>
-                                    <td>{{ $examination->hours_post_delivery }} hours</td>
+                                    <td>{{ $delivery->patient->name() ?? 'N/A' }}</td>
+                                    <td>{{ optional($delivery->delivery_date_time)->format('M d, Y H:i') }}</td>
+                                    <td>{{ $delivery->delivery_type ?? 'N/A' }}</td>
+                                    <td>{{ $delivery->delivery_status ?? 'N/A' }}</td>
+                                    <td>{{ $delivery->delivery_summary ?? 'N/A' }}</td>
+                                    <td>{{ $delivery->deliveredBy->name ?? 'N/A' }}</td>
                                     <td>
-                                        @if($examination->recovery_status === 'normal')
-                                            <span class="badge bg-success">Normal</span>
-                                        @elseif($examination->recovery_status === 'needs_attention')
-                                            <span class="badge bg-warning">Needs Attention</span>
-                                        @else
-                                            <span class="badge bg-danger">Needs Referral</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $examination->recordedBy->name ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('midwife.postnatal-examination.show', $examination) }}" class="btn btn-sm btn-info">View</a>
-                                        <a href="{{ route('midwife.postnatal-examination.edit', $examination) }}" class="btn btn-sm btn-warning">Edit</a>
-                                        <form method="POST" action="{{ route('midwife.postnatal-examination.destroy', $examination) }}" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this postnatal examination?')">Delete</button>
-                                        </form>
+                                        <a href="{{ route('midwife.postnatal-examination.create', $delivery) }}" class="btn btn-sm btn-info"><i class="bi bi-plus-circle"></i> New</a>
+                                        <a href="{{ route('midwife.postnatal-examination.record', $delivery) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Records</a>
                                     </td>
                                 </tr>
                             @endforeach
