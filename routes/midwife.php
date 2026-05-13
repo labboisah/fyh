@@ -100,7 +100,7 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         Route::name('newborn.')
             ->prefix('newborn')
             ->group(function () {
-                Route::get('/delivery/{delivery}', [NewbornController::class, 'index'])->name('index');
+                Route::get('/deliveries', [NewbornController::class, 'index'])->name('index');
                 Route::get('/delivery/{delivery}/create', [NewbornController::class, 'create'])->name('create');
                 Route::post('/delivery/{delivery}/store', [NewbornController::class, 'store'])->name('store');
                 Route::get('/{newborn}/show', [NewbornController::class, 'show'])->name('show');

@@ -16,8 +16,8 @@
             </h1>
 
             <small class="text-muted">
-                {{ $labour->patient->name() }}
-                -
+                {{ $labour->patient->name() ?? 'N/A' }} -
+                {{ $labour->patient->hospital_number ?? 'N/A' }} -
                 {{ $labour->created_at->format('M d, Y') }}
             </small>
         </div>

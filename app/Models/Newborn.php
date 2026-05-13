@@ -85,6 +85,11 @@ class Newborn extends Model
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
     /**
      * Get all examinations for this newborn
      */

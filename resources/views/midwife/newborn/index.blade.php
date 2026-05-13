@@ -4,14 +4,11 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-baby-carriage"></i> Newborns for Delivery {{ $delivery->id }}</h1>
+    <h1 class="h3 mb-4"><i class="bi bi-baby-carriage"></i> Newborns Babies</h1>
 
-    <p><strong>Mother:</strong> {{ $delivery->patient->full_name }}</p>
 
-    <a href="{{ route('midwife.newborn.create', $delivery) }}" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Add Newborn</a>
-
-    @if($delivery->newborns->isEmpty())
-        <div class="alert alert-info">No newborns registered for this delivery yet.</div>
+    @if($deliveries->isEmpty())
+        <div class="alert alert-info">No deliveries with newborns found.</div>
     @else
         <div class="card">
             <div class="card-body p-0">
@@ -20,24 +17,26 @@
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Registry #</th>
-                                <th>Sex</th>
-                                <th>Birth Weight (g)</th>
-                                <th>Status</th>
+                                <th>Patient Name</th>
+                                <th>Admission Date</th>
+                                <th>Delivery Type</th>
+                                <th>Delivery Status</th>
+                                <th>Delivery Summary</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($delivery->newborns as $newborn)
+                            @foreach($deliveries as $delivery)
+                                <!-- delivery information -->
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $newborn->newborn_registration_number }}</td>
-                                    <td>{{ ucfirst($newborn->sex) }}</td>
-                                    <td>{{ $newborn->birth_weight }}</td>
-                                    <td>{{ ucfirst($newborn->status) }}</td>
+                                    <td>{{ $delivery->patient->name() }}</td>
+                                    <td>{{ $delivery->patient->demographic->admission_date ?? 'N/A' }}</td>
+                                    <td>{{ $delivery->type ?? 'N/A' }}</td>
+                                    <td>{{ ucfirst($delivery->status ?? 'N/A') }}</td>
+                                    <td>{{ $delivery->summary ?? 'N/A' }}</td>
                                     <td>
-                                        <a href="{{ route('midwife.newborn.show', $newborn) }}" class="btn btn-sm btn-info">View</a>
-                                        <a href="{{ route('midwife.newborn.edit', $newborn) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="{{ route('midwife.newborn.create', $delivery) }}" class="btn btn-sm btn-info"><i class="bi bi-plus-circle"></i> New</a>
                                     </td>
                                 </tr>
                             @endforeach

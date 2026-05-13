@@ -346,7 +346,7 @@
                             </a>
                         </div>
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="#" class="btn btn-outline-warning w-100 py-3 text-start">
+                            <a href="{{ route('midwife.newborn.index') }}" class="btn btn-outline-warning w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-brightness-high-fill me-2" style="font-size: 1.5rem;"></i>
                                     <div>
