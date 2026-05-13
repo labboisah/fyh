@@ -3,217 +3,1041 @@
 @section('title', 'New Newborn Examination')
 
 @section('content')
-<div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-plus-circle"></i> Record Newborn Examination for {{ $newborn->newborn_registration_number }}</h1>
 
-    <form action="{{ route('midwife.newborn-examination.store', $newborn) }}" method="POST">
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="row mb-4">
+
+        <div class="col-md-8">
+
+            <h1 class="h3 mb-0">
+                <i class="bi bi-clipboard2-pulse"></i>
+                Record Newborn Examination
+            </h1>
+
+            <small class="text-muted">
+                Newborn:
+                {{ $newborn->newborn_registration_number ?? 'N/A' }}
+            </small>
+
+        </div>
+
+        <div class="col-md-4 text-end">
+
+            <a href="{{ route('midwife.newborn.show', $newborn) }}"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <form action="{{ route('midwife.newborn-examination.store', $newborn) }}"
+          method="POST">
+
         @csrf
 
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="examination_date_time" class="form-label">Examination Date & Time</label>
-                <input type="datetime-local" id="examination_date_time" name="examination_date_time" class="form-control @error('examination_date_time') is-invalid @enderror" value="{{ old('examination_date_time') }}" required>
-                @error('examination_date_time')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+        <div class="row">
 
-            <div class="col-md-4">
-                <label for="hours_after_birth" class="form-label">Hours After Birth</label>
-                <input type="number" id="hours_after_birth" name="hours_after_birth" class="form-control @error('hours_after_birth') is-invalid @enderror" value="{{ old('hours_after_birth') }}" min="0" max="168" required>
-                @error('hours_after_birth')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+            <!-- Main Content -->
+            <div class="col-lg-9">
 
-            <div class="col-md-4">
-                <label for="exam_status" class="form-label">Examination Status</label>
-                <select id="exam_status" name="exam_status" class="form-select @error('exam_status') is-invalid @enderror" required>
-                    <option value="">Choose...</option>
-                    <option value="normal" {{ old('exam_status') == 'normal' ? 'selected' : '' }}>Normal</option>
-                    <option value="needs_follow_up" {{ old('exam_status') == 'needs_follow_up' ? 'selected' : '' }}>Needs Follow-up</option>
-                    <option value="referral_needed" {{ old('exam_status') == 'referral_needed' ? 'selected' : '' }}>Referral Needed</option>
-                </select>
-                @error('exam_status')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                <!-- Examination Details -->
+                <div class="card mb-3 shadow-sm">
 
-            <div class="col-md-3">
-                <label for="temperature" class="form-label">Temperature (°C)</label>
-                <input type="number" step="0.1" id="temperature" name="temperature" class="form-control @error('temperature') is-invalid @enderror" value="{{ old('temperature') }}" min="34" max="42">
-                @error('temperature')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                    <div class="card-header bg-light">
 
-            <div class="col-md-3">
-                <label for="heart_rate" class="form-label">Heart Rate (bpm)</label>
-                <input type="number" id="heart_rate" name="heart_rate" class="form-control @error('heart_rate') is-invalid @enderror" value="{{ old('heart_rate') }}" min="80" max="200">
-                @error('heart_rate')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                        <h6 class="mb-0">
+                            <i class="bi bi-calendar-check"></i>
+                            Examination Details
+                        </h6>
 
-            <div class="col-md-3">
-                <label for="respiratory_rate" class="form-label">Respiratory Rate</label>
-                <input type="number" id="respiratory_rate" name="respiratory_rate" class="form-control @error('respiratory_rate') is-invalid @enderror" value="{{ old('respiratory_rate') }}" min="20" max="80">
-                @error('respiratory_rate')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                    </div>
 
-            <div class="col-md-3">
-                <label for="weight" class="form-label">Weight (g)</label>
-                <input type="number" id="weight" name="weight" class="form-control @error('weight') is-invalid @enderror" value="{{ old('weight') }}" min="500" max="6000">
-                @error('weight')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                    <div class="card-body">
 
-            <div class="col-md-3">
-                <label for="length" class="form-label">Length (cm)</label>
-                <input type="number" step="0.1" id="length" name="length" class="form-control @error('length') is-invalid @enderror" value="{{ old('length') }}" min="25" max="70">
-                @error('length')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                        <div class="row">
 
-            <div class="col-md-3">
-                <label for="head_circumference" class="form-label">Head Circumference (cm)</label>
-                <input type="number" step="0.1" id="head_circumference" name="head_circumference" class="form-control @error('head_circumference') is-invalid @enderror" value="{{ old('head_circumference') }}" min="20" max="50">
-                @error('head_circumference')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            <div class="col-md-4 mb-3">
 
-            <div class="col-md-3">
-                <label for="chest_circumference" class="form-label">Chest Circumference (cm)</label>
-                <input type="number" step="0.1" id="chest_circumference" name="chest_circumference" class="form-control @error('chest_circumference') is-invalid @enderror" value="{{ old('chest_circumference') }}" min="20" max="50">
-                @error('chest_circumference')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <label class="form-label">
+                                    Examination Date & Time
+                                </label>
 
-            <div class="col-md-6">
-                <label for="general_appearance" class="form-label">General Appearance</label>
-                <textarea id="general_appearance" name="general_appearance" rows="2" class="form-control @error('general_appearance') is-invalid @enderror">{{ old('general_appearance') }}</textarea>
-                @error('general_appearance')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <input type="datetime-local"
+                                       name="examination_date_time"
+                                       class="form-control @error('examination_date_time') is-invalid @enderror"
+                                       value="{{ old('examination_date_time') }}">
 
-            <div class="col-md-6">
-                <label for="skin_examination" class="form-label">Skin Examination</label>
-                <textarea id="skin_examination" name="skin_examination" rows="2" class="form-control @error('skin_examination') is-invalid @enderror">{{ old('skin_examination') }}</textarea>
-                @error('skin_examination')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                @error('examination_date_time')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-            <div class="col-md-4">
-                <label for="head_and_neck" class="form-label">Head & Neck</label>
-                <textarea id="head_and_neck" name="head_and_neck" rows="2" class="form-control @error('head_and_neck') is-invalid @enderror">{{ old('head_and_neck') }}</textarea>
-                @error('head_and_neck')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            </div>
 
-            <div class="col-md-4">
-                <label for="eyes_examination" class="form-label">Eyes</label>
-                <textarea id="eyes_examination" name="eyes_examination" rows="2" class="form-control @error('eyes_examination') is-invalid @enderror">{{ old('eyes_examination') }}</textarea>
-                @error('eyes_examination')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            <div class="col-md-4 mb-3">
 
-            <div class="col-md-4">
-                <label for="ear_examination" class="form-label">Ears</label>
-                <textarea id="ear_examination" name="ear_examination" rows="2" class="form-control @error('ear_examination') is-invalid @enderror">{{ old('ear_examination') }}</textarea>
-                @error('ear_examination')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <label class="form-label">
+                                    Hours After Birth
+                                </label>
 
-            <div class="col-md-4">
-                <label for="mouth_and_throat" class="form-label">Mouth & Throat</label>
-                <textarea id="mouth_and_throat" name="mouth_and_throat" rows="2" class="form-control @error('mouth_and_throat') is-invalid @enderror">{{ old('mouth_and_throat') }}</textarea>
-                @error('mouth_and_throat')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <input type="number"
+                                       name="hours_after_birth"
+                                       class="form-control"
+                                       value="{{ old('hours_after_birth') }}"
+                                       min="0">
 
-            <div class="col-md-4">
-                <label for="heart_sounds" class="form-label">Heart Sounds</label>
-                <textarea id="heart_sounds" name="heart_sounds" rows="2" class="form-control @error('heart_sounds') is-invalid @enderror">{{ old('heart_sounds') }}</textarea>
-                @error('heart_sounds')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            </div>
 
-            <div class="col-md-4">
-                <label for="breath_sounds" class="form-label">Breath Sounds</label>
-                <textarea id="breath_sounds" name="breath_sounds" rows="2" class="form-control @error('breath_sounds') is-invalid @enderror">{{ old('breath_sounds') }}</textarea>
-                @error('breath_sounds')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            <div class="col-md-4 mb-3">
 
-            <div class="col-md-6">
-                <label for="abdomen_shape" class="form-label">Abdomen Shape</label>
-                <textarea id="abdomen_shape" name="abdomen_shape" rows="2" class="form-control @error('abdomen_shape') is-invalid @enderror">{{ old('abdomen_shape') }}</textarea>
-                @error('abdomen_shape')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <label class="form-label">
+                                    Examination Status
+                                </label>
 
-            <div class="col-md-6">
-                <label for="genitalia_examination" class="form-label">Genitalia</label>
-                <textarea id="genitalia_examination" name="genitalia_examination" rows="2" class="form-control @error('genitalia_examination') is-invalid @enderror">{{ old('genitalia_examination') }}</textarea>
-                @error('genitalia_examination')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                <select name="exam_status"
+                                        class="form-select">
 
-            <div class="col-md-4">
-                <label for="reflex_assessment" class="form-label">Reflex Assessment</label>
-                <textarea id="reflex_assessment" name="reflex_assessment" rows="2" class="form-control @error('reflex_assessment') is-invalid @enderror">{{ old('reflex_assessment') }}</textarea>
-                @error('reflex_assessment')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                    <option value="normal">
+                                        Normal
+                                    </option>
 
-            <div class="col-md-4">
-                <label for="muscle_tone" class="form-label">Muscle Tone</label>
-                <textarea id="muscle_tone" name="muscle_tone" rows="2" class="form-control @error('muscle_tone') is-invalid @enderror">{{ old('muscle_tone') }}</textarea>
-                @error('muscle_tone')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                    <option value="abnormal">
+                                        Abnormal
+                                    </option>
 
-            <div class="col-md-4">
-                <label for="hip_examination" class="form-label">Hip Examination</label>
-                <textarea id="hip_examination" name="hip_examination" rows="2" class="form-control @error('hip_examination') is-invalid @enderror">{{ old('hip_examination') }}</textarea>
-                @error('hip_examination')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                    <option value="needs_follow_up">
+                                        Needs Follow-up
+                                    </option>
 
-            <div class="col-md-6">
-                <label for="feeding_type" class="form-label">Feeding Type</label>
-                <textarea id="feeding_type" name="feeding_type" rows="2" class="form-control @error('feeding_type') is-invalid @enderror">{{ old('feeding_type') }}</textarea>
-                @error('feeding_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                    <option value="referral_needed">
+                                        Referral Needed
+                                    </option>
 
-            <div class="col-md-6">
-                <label for="feeding_tolerance" class="form-label">Feeding Tolerance</label>
-                <textarea id="feeding_tolerance" name="feeding_tolerance" rows="2" class="form-control @error('feeding_tolerance') is-invalid @enderror">{{ old('feeding_tolerance') }}</textarea>
-                @error('feeding_tolerance')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                                </select>
 
-            <div class="col-md-6">
-                <label for="abnormal_findings" class="form-label">Abnormal Findings</label>
-                <textarea id="abnormal_findings" name="abnormal_findings" rows="3" class="form-control @error('abnormal_findings') is-invalid @enderror">{{ old('abnormal_findings') }}</textarea>
-                @error('abnormal_findings')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                            </div>
 
-            <div class="col-md-6">
-                <label for="clinical_summary" class="form-label">Clinical Summary</label>
-                <textarea id="clinical_summary" name="clinical_summary" rows="3" class="form-control @error('clinical_summary') is-invalid @enderror">{{ old('clinical_summary') }}</textarea>
-                @error('clinical_summary')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+                        </div>
 
-            <div class="col-md-4">
-                <label for="jaundice_present" class="form-label">Jaundice Present</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="jaundice_present" name="jaundice_present" value="1" {{ old('jaundice_present') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="jaundice_present">Yes</label>
+                    </div>
+
                 </div>
+
+                <!-- Vital Signs -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-heart-pulse"></i>
+                            Vital Signs
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Temperature (°C)
+                                </label>
+
+                                <input type="number"
+                                       step="0.1"
+                                       name="temperature"
+                                       class="form-control"
+                                       value="{{ old('temperature') }}">
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Heart Rate (bpm)
+                                </label>
+
+                                <input type="number"
+                                       name="heart_rate"
+                                       class="form-control"
+                                       value="{{ old('heart_rate') }}">
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Respiratory Rate
+                                </label>
+
+                                <input type="number"
+                                       name="respiratory_rate"
+                                       class="form-control"
+                                       value="{{ old('respiratory_rate') }}">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Anthropometry -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-rulers"></i>
+                            Anthropometry
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Weight (g)
+                                </label>
+
+                                <input type="number"
+                                       name="weight"
+                                       class="form-control"
+                                       value="{{ old('weight') }}">
+
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Length (cm)
+                                </label>
+
+                                <input type="number"
+                                       step="0.1"
+                                       name="length"
+                                       class="form-control"
+                                       value="{{ old('length') }}">
+
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Head Circumference
+                                </label>
+
+                                <input type="number"
+                                       step="0.1"
+                                       name="head_circumference"
+                                       class="form-control"
+                                       value="{{ old('head_circumference') }}">
+
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Chest Circumference
+                                </label>
+
+                                <input type="number"
+                                       step="0.1"
+                                       name="chest_circumference"
+                                       class="form-control"
+                                       value="{{ old('chest_circumference') }}">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- General Examination -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-person-check"></i>
+                            General Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    General Appearance
+                                </label>
+
+                                <textarea name="general_appearance"
+                                          rows="2"
+                                          class="form-control">{{ old('general_appearance') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Skin Examination
+                                </label>
+
+                                <textarea name="skin_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('skin_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Head & Neck
+                                </label>
+
+                                <textarea name="head_and_neck"
+                                          rows="2"
+                                          class="form-control">{{ old('head_and_neck') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Eyes Examination
+                                </label>
+
+                                <textarea name="eyes_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('eyes_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Ear Examination
+                                </label>
+
+                                <textarea name="ear_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('ear_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+
+                                <label class="form-label">
+                                    Mouth & Throat
+                                </label>
+
+                                <textarea name="mouth_and_throat"
+                                          rows="2"
+                                          class="form-control">{{ old('mouth_and_throat') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Cardiovascular -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-heart"></i>
+                            Cardiovascular Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Heart Sounds
+                                </label>
+
+                                <textarea name="heart_sounds"
+                                          rows="2"
+                                          class="form-control">{{ old('heart_sounds') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Pulses
+                                </label>
+
+                                <textarea name="pulses"
+                                          rows="2"
+                                          class="form-control">{{ old('pulses') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Capillary Refill
+                                </label>
+
+                                <textarea name="capillary_refill"
+                                          rows="2"
+                                          class="form-control">{{ old('capillary_refill') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Respiratory -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-lungs"></i>
+                            Respiratory Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Chest Expansion
+                                </label>
+
+                                <textarea name="chest_expansion"
+                                          rows="2"
+                                          class="form-control">{{ old('chest_expansion') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Breath Sounds
+                                </label>
+
+                                <textarea name="breath_sounds"
+                                          rows="2"
+                                          class="form-control">{{ old('breath_sounds') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Nasal Breathing
+                                </label>
+
+                                <textarea name="nasal_breathing"
+                                          rows="2"
+                                          class="form-control">{{ old('nasal_breathing') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Abdominal Examination -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-circle"></i>
+                            Abdominal Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Abdomen Shape
+                                </label>
+
+                                <textarea name="abdomen_shape"
+                                          rows="2"
+                                          class="form-control">{{ old('abdomen_shape') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Umbilical Cord Check
+                                </label>
+
+                                <textarea name="umbilical_cord_check"
+                                          rows="2"
+                                          class="form-control">{{ old('umbilical_cord_check') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Hepatomegaly / Splenomegaly
+                                </label>
+
+                                <textarea name="hepatomegaly_splenomegaly"
+                                          rows="2"
+                                          class="form-control">{{ old('hepatomegaly_splenomegaly') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Bowel Sounds
+                                </label>
+
+                                <textarea name="bowel_sounds"
+                                          rows="2"
+                                          class="form-control">{{ old('bowel_sounds') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Genitourinary -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-droplet"></i>
+                            Genitourinary Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Genitalia Examination
+                                </label>
+
+                                <textarea name="genitalia_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('genitalia_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Urinary Output
+                                </label>
+
+                                <textarea name="urinary_output"
+                                          rows="2"
+                                          class="form-control">{{ old('urinary_output') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Stool Output
+                                </label>
+
+                                <textarea name="stool_output"
+                                          rows="2"
+                                          class="form-control">{{ old('stool_output') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Neurological -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-cpu"></i>
+                            Neurological Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Reflex Assessment
+                                </label>
+
+                                <textarea name="reflex_assessment"
+                                          rows="2"
+                                          class="form-control">{{ old('reflex_assessment') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Muscle Tone
+                                </label>
+
+                                <textarea name="muscle_tone"
+                                          rows="2"
+                                          class="form-control">{{ old('muscle_tone') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Developmental Screening
+                                </label>
+
+                                <textarea name="developmental_screening"
+                                          rows="2"
+                                          class="form-control">{{ old('developmental_screening') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Musculoskeletal -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-universal-access"></i>
+                            Musculoskeletal Examination
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Extremities Examination
+                                </label>
+
+                                <textarea name="extremities_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('extremities_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Hip Examination
+                                </label>
+
+                                <textarea name="hip_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('hip_examination') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Spine Examination
+                                </label>
+
+                                <textarea name="spine_examination"
+                                          rows="2"
+                                          class="form-control">{{ old('spine_examination') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Special Findings -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Special Findings
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Abnormal Findings
+                            </label>
+
+                            <textarea name="abnormal_findings"
+                                      rows="3"
+                                      class="form-control">{{ old('abnormal_findings') }}</textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Congenital Anomalies
+                            </label>
+
+                            <textarea name="congenital_anomalies"
+                                      rows="3"
+                                      class="form-control">{{ old('congenital_anomalies') }}</textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Jaundice -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-sun"></i>
+                            Jaundice Assessment
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Jaundice Present
+                                </label>
+
+                                <select name="jaundice_present"
+                                        class="form-select">
+
+                                    <option value="0">
+                                        No
+                                    </option>
+
+                                    <option value="1">
+                                        Yes
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Jaundice Level
+                                </label>
+
+                                <textarea name="jaundice_level"
+                                          rows="2"
+                                          class="form-control">{{ old('jaundice_level') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Jaundice Management
+                                </label>
+
+                                <textarea name="jaundice_management"
+                                          rows="2"
+                                          class="form-control">{{ old('jaundice_management') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Feeding Assessment -->
+                <div class="card mb-3 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-cup-hot"></i>
+                            Feeding Assessment
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Feeding Type
+                                </label>
+
+                                <select name="feeding_type"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select
+                                    </option>
+
+                                    <option value="breast">
+                                        Breast Feeding
+                                    </option>
+
+                                    <option value="bottle">
+                                        Bottle Feeding
+                                    </option>
+
+                                    <option value="mixed">
+                                        Mixed Feeding
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Feeding Tolerance
+                                </label>
+
+                                <textarea name="feeding_tolerance"
+                                          rows="2"
+                                          class="form-control">{{ old('feeding_tolerance') }}</textarea>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Feeding Challenges
+                                </label>
+
+                                <textarea name="feeding_challenges"
+                                          rows="2"
+                                          class="form-control">{{ old('feeding_challenges') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Overall Assessment -->
+                <div class="card mb-4 shadow-sm">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-journal-medical"></i>
+                            Overall Assessment
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Clinical Summary
+                            </label>
+
+                            <textarea name="clinical_summary"
+                                      rows="4"
+                                      class="form-control">{{ old('clinical_summary') }}</textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Follow-up Plans
+                            </label>
+
+                            <textarea name="follow_up_plans"
+                                      rows="3"
+                                      class="form-control">{{ old('follow_up_plans') }}</textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Next Follow-up Date
+                            </label>
+
+                            <input type="datetime-local"
+                                   name="next_follow_up_date"
+                                   class="form-control"
+                                   value="{{ old('next_follow_up_date') }}">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 mb-5">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-save"></i>
+                        Save Examination
+
+                    </button>
+
+                    <a href="{{ route('midwife.newborn.show', $newborn) }}"
+                       class="btn btn-outline-secondary">
+
+                        Cancel
+
+                    </a>
+
+                </div>
+
             </div>
 
-            <div class="col-md-4">
-                <label for="jaundice_level" class="form-label">Jaundice Level</label>
-                <input type="text" id="jaundice_level" name="jaundice_level" class="form-control @error('jaundice_level') is-invalid @enderror" value="{{ old('jaundice_level') }}">
-                @error('jaundice_level')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm sticky-top"
+                     style="top:20px;">
+
+                    <div class="card-header bg-light">
+
+                        <h6 class="mb-0">
+                            <i class="bi bi-info-circle"></i>
+                            Neonatal Guide
+                        </h6>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+
+                            <strong>Normal Temperature</strong>
+                            <br>
+                            36.5°C - 37.5°C
+
+                            <hr>
+
+                            <strong>Normal Heart Rate</strong>
+                            <br>
+                            120 - 160 bpm
+
+                            <hr>
+
+                            <strong>Normal Respiratory Rate</strong>
+                            <br>
+                            30 - 60 breaths/min
+
+                            <hr>
+
+                            <strong>Normal Weight</strong>
+                            <br>
+                            2500g - 4000g
+
+                        </small>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="col-md-4">
-                <label for="jaundice_management" class="form-label">Jaundice Management</label>
-                <textarea id="jaundice_management" name="jaundice_management" rows="2" class="form-control @error('jaundice_management') is-invalid @enderror">{{ old('jaundice_management') }}</textarea>
-                @error('jaundice_management')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="col-md-6">
-                <label for="follow_up_plans" class="form-label">Follow-up Plans</label>
-                <textarea id="follow_up_plans" name="follow_up_plans" rows="2" class="form-control @error('follow_up_plans') is-invalid @enderror">{{ old('follow_up_plans') }}</textarea>
-                @error('follow_up_plans')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="col-md-6">
-                <label for="next_follow_up_date" class="form-label">Next Follow-up Date</label>
-                <input type="date" id="next_follow_up_date" name="next_follow_up_date" class="form-control @error('next_follow_up_date') is-invalid @enderror" value="{{ old('next_follow_up_date') }}">
-                @error('next_follow_up_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Examination</button>
-                <a href="{{ route('midwife.newborn-examination.index', $newborn) }}" class="btn btn-outline-secondary">Cancel</a>
-            </div>
         </div>
+
     </form>
+
 </div>
+
 @endsection

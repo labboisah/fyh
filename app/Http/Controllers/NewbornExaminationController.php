@@ -9,16 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class NewbornExaminationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'verified']);
-    }
+    
 
-    public function index(Newborn $newborn)
+    public function index()
     {
-        $newborn->load('delivery.patient.demographic', 'examinations.recordedBy');
+        $newborns = Newborn::with('delivery.patient.demographic', 'examinations.recordedBy')->get();
 
-        return view('midwife.newborn-examination.index', compact('newborn'));
+        return view('midwife.newborn-examination.index', compact('newborns'));
     }
 
     public function create(Newborn $newborn)
@@ -27,75 +24,625 @@ class NewbornExaminationController extends Controller
     }
 
     public function store(Request $request, Newborn $newborn)
-    {
-        $validated = $request->validate([
-            'examination_date_time' => 'required|date',
-            'hours_after_birth' => 'required|integer|min:0|max:168',
-            'temperature' => 'nullable|numeric|min:34|max:42',
-            'heart_rate' => 'nullable|integer|min:80|max:200',
-            'respiratory_rate' => 'nullable|integer|min:20|max:80',
-            'weight' => 'nullable|numeric|min:500|max:6000',
-            'length' => 'nullable|numeric|min:25|max:70',
-            'head_circumference' => 'nullable|numeric|min:20|max:50',
-            'chest_circumference' => 'nullable|numeric|min:20|max:50',
-            'general_appearance' => 'nullable|string|max:500',
-            'skin_examination' => 'nullable|string|max:500',
-            'head_and_neck' => 'nullable|string|max:500',
-            'eyes_examination' => 'nullable|string|max:500',
-            'ear_examination' => 'nullable|string|max:500',
-            'mouth_and_throat' => 'nullable|string|max:500',
-            'heart_sounds' => 'nullable|string|max:500',
-            'pulses' => 'nullable|string|max:500',
-            'capillary_refill' => 'nullable|string|max:500',
-            'chest_expansion' => 'nullable|string|max:500',
-            'breath_sounds' => 'nullable|string|max:500',
-            'nasal_breathing' => 'nullable|string|max:500',
-            'abdomen_shape' => 'nullable|string|max:500',
-            'umbilical_cord_check' => 'nullable|string|max:500',
-            'hepatomegaly_splenomegaly' => 'nullable|string|max:500',
-            'bowel_sounds' => 'nullable|string|max:500',
-            'genitalia_examination' => 'nullable|string|max:500',
-            'urinary_output' => 'nullable|string|max:500',
-            'stool_output' => 'nullable|string|max:500',
-            'reflex_assessment' => 'nullable|string|max:500',
-            'muscle_tone' => 'nullable|string|max:500',
-            'developmental_screening' => 'nullable|string|max:500',
-            'extremities_examination' => 'nullable|string|max:500',
-            'hip_examination' => 'nullable|string|max:500',
-            'spine_examination' => 'nullable|string|max:500',
-            'abnormal_findings' => 'nullable|string|max:1000',
-            'congenital_anomalies' => 'nullable|string|max:1000',
-            'jaundice_present' => 'nullable|boolean',
-            'jaundice_level' => 'nullable|string|max:500',
-            'jaundice_management' => 'nullable|string|max:500',
-            'feeding_type' => 'nullable|string|max:500',
-            'feeding_tolerance' => 'nullable|string|max:500',
-            'feeding_challenges' => 'nullable|string|max:500',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'exam_status' => 'required|in:normal,needs_follow_up,referral_needed',
-            'follow_up_plans' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
-        ]);
+{
+    $validated = $request->validate([
 
-        $validated['newborn_id'] = $newborn->id;
-        $validated['recorded_by'] = Auth::id();
+        /*
+        |--------------------------------------------------------------------------
+        | Examination Details
+        |--------------------------------------------------------------------------
+        */
 
-        $examination = NewbornExamination::create($validated);
+        'examination_date_time' => [
+            'required',
+            'date',
+        ],
 
-        activity()
-            ->performedOn($examination)
-            ->withProperties(['action' => 'create'])
-            ->log('Newborn examination record created');
+        'hours_after_birth' => [
+            'nullable',
+            'integer',
+            'min:0',
+        ],
 
-        return redirect()->route('midwife.newborn-examination.show', $examination)
-            ->with('success', 'Newborn examination record created successfully.');
-    }
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature' => [
+            'nullable',
+            'numeric',
+            'between:30,45',
+        ],
+
+        'heart_rate' => [
+            'nullable',
+            'integer',
+            'between:50,250',
+        ],
+
+        'respiratory_rate' => [
+            'nullable',
+            'integer',
+            'between:10,120',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Anthropometry
+        |--------------------------------------------------------------------------
+        */
+
+        'weight' => [
+            'nullable',
+            'numeric',
+            'min:300',
+            'max:10000',
+        ],
+
+        'length' => [
+            'nullable',
+            'numeric',
+            'between:20,100',
+        ],
+
+        'head_circumference' => [
+            'nullable',
+            'numeric',
+            'between:10,80',
+        ],
+
+        'chest_circumference' => [
+            'nullable',
+            'numeric',
+            'between:10,80',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | General Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'general_appearance' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'skin_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'head_and_neck' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'eyes_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'ear_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'mouth_and_throat' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cardiovascular Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'heart_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'pulses' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'capillary_refill' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Respiratory Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'chest_expansion' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'breath_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'nasal_breathing' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Abdominal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'abdomen_shape' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'umbilical_cord_check' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'hepatomegaly_splenomegaly' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'bowel_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Genitourinary Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'genitalia_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'urinary_output' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'stool_output' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Neurological Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'reflex_assessment' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'muscle_tone' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'developmental_screening' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Musculoskeletal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'extremities_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'hip_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'spine_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Special Findings
+        |--------------------------------------------------------------------------
+        */
+
+        'abnormal_findings' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'congenital_anomalies' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'jaundice_level' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'jaundice_management' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type' => [
+            'nullable',
+            'in:breast,bottle,mixed',
+        ],
+
+        'feeding_tolerance' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'feeding_challenges' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Overall Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'exam_status' => [
+            'required',
+            'in:normal,abnormal,needs_follow_up,referral_needed',
+        ],
+
+        'follow_up_plans' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'next_follow_up_date' => [
+            'nullable',
+            'date',
+        ],
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Store Examination
+    |--------------------------------------------------------------------------
+    */
+
+    $newbornExamination = NewbornExamination::create([
+
+        'newborn_id' => $newborn->id,
+
+        'recorded_by' => auth()->id(),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Examination Details
+        |--------------------------------------------------------------------------
+        */
+
+        'examination_date_time'
+            => $validated['examination_date_time'],
+
+        'hours_after_birth'
+            => $validated['hours_after_birth'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature'
+            => $validated['temperature'] ?? null,
+
+        'heart_rate'
+            => $validated['heart_rate'] ?? null,
+
+        'respiratory_rate'
+            => $validated['respiratory_rate'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Anthropometry
+        |--------------------------------------------------------------------------
+        */
+
+        'weight'
+            => $validated['weight'] ?? null,
+
+        'length'
+            => $validated['length'] ?? null,
+
+        'head_circumference'
+            => $validated['head_circumference'] ?? null,
+
+        'chest_circumference'
+            => $validated['chest_circumference'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | General Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'general_appearance'
+            => $validated['general_appearance'] ?? null,
+
+        'skin_examination'
+            => $validated['skin_examination'] ?? null,
+
+        'head_and_neck'
+            => $validated['head_and_neck'] ?? null,
+
+        'eyes_examination'
+            => $validated['eyes_examination'] ?? null,
+
+        'ear_examination'
+            => $validated['ear_examination'] ?? null,
+
+        'mouth_and_throat'
+            => $validated['mouth_and_throat'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cardiovascular Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'heart_sounds'
+            => $validated['heart_sounds'] ?? null,
+
+        'pulses'
+            => $validated['pulses'] ?? null,
+
+        'capillary_refill'
+            => $validated['capillary_refill'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Respiratory Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'chest_expansion'
+            => $validated['chest_expansion'] ?? null,
+
+        'breath_sounds'
+            => $validated['breath_sounds'] ?? null,
+
+        'nasal_breathing'
+            => $validated['nasal_breathing'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Abdominal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'abdomen_shape'
+            => $validated['abdomen_shape'] ?? null,
+
+        'umbilical_cord_check'
+            => $validated['umbilical_cord_check'] ?? null,
+
+        'hepatomegaly_splenomegaly'
+            => $validated['hepatomegaly_splenomegaly'] ?? null,
+
+        'bowel_sounds'
+            => $validated['bowel_sounds'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Genitourinary Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'genitalia_examination'
+            => $validated['genitalia_examination'] ?? null,
+
+        'urinary_output'
+            => $validated['urinary_output'] ?? null,
+
+        'stool_output'
+            => $validated['stool_output'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Neurological Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'reflex_assessment'
+            => $validated['reflex_assessment'] ?? null,
+
+        'muscle_tone'
+            => $validated['muscle_tone'] ?? null,
+
+        'developmental_screening'
+            => $validated['developmental_screening'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Musculoskeletal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'extremities_examination'
+            => $validated['extremities_examination'] ?? null,
+
+        'hip_examination'
+            => $validated['hip_examination'] ?? null,
+
+        'spine_examination'
+            => $validated['spine_examination'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Special Findings
+        |--------------------------------------------------------------------------
+        */
+
+        'abnormal_findings'
+            => $validated['abnormal_findings'] ?? null,
+
+        'congenital_anomalies'
+            => $validated['congenital_anomalies'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present'
+            => $request->boolean('jaundice_present'),
+
+        'jaundice_level'
+            => $validated['jaundice_level'] ?? null,
+
+        'jaundice_management'
+            => $validated['jaundice_management'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type'
+            => $validated['feeding_type'] ?? null,
+
+        'feeding_tolerance'
+            => $validated['feeding_tolerance'] ?? null,
+
+        'feeding_challenges'
+            => $validated['feeding_challenges'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Overall Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary'
+            => $validated['clinical_summary'] ?? null,
+
+        'exam_status'
+            => $validated['exam_status'],
+
+        'follow_up_plans'
+            => $validated['follow_up_plans'] ?? null,
+
+        'next_follow_up_date'
+            => $validated['next_follow_up_date'] ?? null,
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect
+    |--------------------------------------------------------------------------
+    */
+        
+    return redirect()
+        ->route('midwife.newborn-examination.show', $newbornExamination)
+        ->with('success', 'Newborn examination recorded successfully.');
+}
 
     public function show(NewbornExamination $newbornExamination)
     {
-        $newbornExamination->load('newborn.delivery.patient.demographic', 'recordedBy');
-
+        
         return view('midwife.newborn-examination.show', compact('newbornExamination'));
+    }
+
+    public function record(Newborn $newborn)
+    {
+        $newborn->load('delivery.patient.demographic', 'examinations.recordedBy');
+
+        return view('midwife.newborn-examination.record', compact('newborn'));
     }
 
     public function edit(NewbornExamination $newbornExamination)
@@ -104,66 +651,609 @@ class NewbornExaminationController extends Controller
     }
 
     public function update(Request $request, NewbornExamination $newbornExamination)
-    {
-        $validated = $request->validate([
-            'examination_date_time' => 'required|date',
-            'hours_after_birth' => 'required|integer|min:0|max:168',
-            'temperature' => 'nullable|numeric|min:34|max:42',
-            'heart_rate' => 'nullable|integer|min:80|max:200',
-            'respiratory_rate' => 'nullable|integer|min:20|max:80',
-            'weight' => 'nullable|numeric|min:500|max:6000',
-            'length' => 'nullable|numeric|min:25|max:70',
-            'head_circumference' => 'nullable|numeric|min:20|max:50',
-            'chest_circumference' => 'nullable|numeric|min:20|max:50',
-            'general_appearance' => 'nullable|string|max:500',
-            'skin_examination' => 'nullable|string|max:500',
-            'head_and_neck' => 'nullable|string|max:500',
-            'eyes_examination' => 'nullable|string|max:500',
-            'ear_examination' => 'nullable|string|max:500',
-            'mouth_and_throat' => 'nullable|string|max:500',
-            'heart_sounds' => 'nullable|string|max:500',
-            'pulses' => 'nullable|string|max:500',
-            'capillary_refill' => 'nullable|string|max:500',
-            'chest_expansion' => 'nullable|string|max:500',
-            'breath_sounds' => 'nullable|string|max:500',
-            'nasal_breathing' => 'nullable|string|max:500',
-            'abdomen_shape' => 'nullable|string|max:500',
-            'umbilical_cord_check' => 'nullable|string|max:500',
-            'hepatomegaly_splenomegaly' => 'nullable|string|max:500',
-            'bowel_sounds' => 'nullable|string|max:500',
-            'genitalia_examination' => 'nullable|string|max:500',
-            'urinary_output' => 'nullable|string|max:500',
-            'stool_output' => 'nullable|string|max:500',
-            'reflex_assessment' => 'nullable|string|max:500',
-            'muscle_tone' => 'nullable|string|max:500',
-            'developmental_screening' => 'nullable|string|max:500',
-            'extremities_examination' => 'nullable|string|max:500',
-            'hip_examination' => 'nullable|string|max:500',
-            'spine_examination' => 'nullable|string|max:500',
-            'abnormal_findings' => 'nullable|string|max:1000',
-            'congenital_anomalies' => 'nullable|string|max:1000',
-            'jaundice_present' => 'nullable|boolean',
-            'jaundice_level' => 'nullable|string|max:500',
-            'jaundice_management' => 'nullable|string|max:500',
-            'feeding_type' => 'nullable|string|max:500',
-            'feeding_tolerance' => 'nullable|string|max:500',
-            'feeding_challenges' => 'nullable|string|max:500',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'exam_status' => 'required|in:normal,needs_follow_up,referral_needed',
-            'follow_up_plans' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
-        ]);
+{
+    $validated = $request->validate([
 
-        $newbornExamination->update($validated);
+        /*
+        |--------------------------------------------------------------------------
+        | Examination Details
+        |--------------------------------------------------------------------------
+        */
 
-        activity()
-            ->performedOn($newbornExamination)
-            ->withProperties(['action' => 'update'])
-            ->log('Newborn examination record updated');
+        'examination_date_time' => [
+            'required',
+            'date',
+        ],
 
-        return redirect()->route('midwife.newborn-examination.show', $newbornExamination)
-            ->with('success', 'Newborn examination record updated successfully.');
-    }
+        'hours_after_birth' => [
+            'nullable',
+            'integer',
+            'min:0',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature' => [
+            'nullable',
+            'numeric',
+            'between:30,45',
+        ],
+
+        'heart_rate' => [
+            'nullable',
+            'integer',
+            'between:50,250',
+        ],
+
+        'respiratory_rate' => [
+            'nullable',
+            'integer',
+            'between:10,120',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Anthropometry
+        |--------------------------------------------------------------------------
+        */
+
+        'weight' => [
+            'nullable',
+            'numeric',
+            'min:300',
+            'max:10000',
+        ],
+
+        'length' => [
+            'nullable',
+            'numeric',
+            'between:20,100',
+        ],
+
+        'head_circumference' => [
+            'nullable',
+            'numeric',
+            'between:10,80',
+        ],
+
+        'chest_circumference' => [
+            'nullable',
+            'numeric',
+            'between:10,80',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | General Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'general_appearance' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'skin_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'head_and_neck' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'eyes_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'ear_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'mouth_and_throat' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cardiovascular Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'heart_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'pulses' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'capillary_refill' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Respiratory Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'chest_expansion' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'breath_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'nasal_breathing' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Abdominal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'abdomen_shape' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'umbilical_cord_check' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'hepatomegaly_splenomegaly' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'bowel_sounds' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Genitourinary Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'genitalia_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'urinary_output' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'stool_output' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Neurological Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'reflex_assessment' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'muscle_tone' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'developmental_screening' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Musculoskeletal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'extremities_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'hip_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'spine_examination' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Special Findings
+        |--------------------------------------------------------------------------
+        */
+
+        'abnormal_findings' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'congenital_anomalies' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'jaundice_level' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'jaundice_management' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type' => [
+            'nullable',
+            'in:breast,bottle,mixed',
+        ],
+
+        'feeding_tolerance' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'feeding_challenges' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Overall Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'exam_status' => [
+            'required',
+            'in:normal,abnormal,needs_follow_up,referral_needed',
+        ],
+
+        'follow_up_plans' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'next_follow_up_date' => [
+            'nullable',
+            'date',
+        ],
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Examination
+    |--------------------------------------------------------------------------
+    */
+
+    $newbornExamination->update([
+
+        /*
+        |--------------------------------------------------------------------------
+        | Examination Details
+        |--------------------------------------------------------------------------
+        */
+
+        'examination_date_time'
+            => $validated['examination_date_time'],
+
+        'hours_after_birth'
+            => $validated['hours_after_birth'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature'
+            => $validated['temperature'] ?? null,
+
+        'heart_rate'
+            => $validated['heart_rate'] ?? null,
+
+        'respiratory_rate'
+            => $validated['respiratory_rate'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Anthropometry
+        |--------------------------------------------------------------------------
+        */
+
+        'weight'
+            => $validated['weight'] ?? null,
+
+        'length'
+            => $validated['length'] ?? null,
+
+        'head_circumference'
+            => $validated['head_circumference'] ?? null,
+
+        'chest_circumference'
+            => $validated['chest_circumference'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | General Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'general_appearance'
+            => $validated['general_appearance'] ?? null,
+
+        'skin_examination'
+            => $validated['skin_examination'] ?? null,
+
+        'head_and_neck'
+            => $validated['head_and_neck'] ?? null,
+
+        'eyes_examination'
+            => $validated['eyes_examination'] ?? null,
+
+        'ear_examination'
+            => $validated['ear_examination'] ?? null,
+
+        'mouth_and_throat'
+            => $validated['mouth_and_throat'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cardiovascular Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'heart_sounds'
+            => $validated['heart_sounds'] ?? null,
+
+        'pulses'
+            => $validated['pulses'] ?? null,
+
+        'capillary_refill'
+            => $validated['capillary_refill'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Respiratory Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'chest_expansion'
+            => $validated['chest_expansion'] ?? null,
+
+        'breath_sounds'
+            => $validated['breath_sounds'] ?? null,
+
+        'nasal_breathing'
+            => $validated['nasal_breathing'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Abdominal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'abdomen_shape'
+            => $validated['abdomen_shape'] ?? null,
+
+        'umbilical_cord_check'
+            => $validated['umbilical_cord_check'] ?? null,
+
+        'hepatomegaly_splenomegaly'
+            => $validated['hepatomegaly_splenomegaly'] ?? null,
+
+        'bowel_sounds'
+            => $validated['bowel_sounds'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Genitourinary Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'genitalia_examination'
+            => $validated['genitalia_examination'] ?? null,
+
+        'urinary_output'
+            => $validated['urinary_output'] ?? null,
+
+        'stool_output'
+            => $validated['stool_output'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Neurological Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'reflex_assessment'
+            => $validated['reflex_assessment'] ?? null,
+
+        'muscle_tone'
+            => $validated['muscle_tone'] ?? null,
+
+        'developmental_screening'
+            => $validated['developmental_screening'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Musculoskeletal Examination
+        |--------------------------------------------------------------------------
+        */
+
+        'extremities_examination'
+            => $validated['extremities_examination'] ?? null,
+
+        'hip_examination'
+            => $validated['hip_examination'] ?? null,
+
+        'spine_examination'
+            => $validated['spine_examination'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Special Findings
+        |--------------------------------------------------------------------------
+        */
+
+        'abnormal_findings'
+            => $validated['abnormal_findings'] ?? null,
+
+        'congenital_anomalies'
+            => $validated['congenital_anomalies'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present'
+            => $request->boolean('jaundice_present'),
+
+        'jaundice_level'
+            => $validated['jaundice_level'] ?? null,
+
+        'jaundice_management'
+            => $validated['jaundice_management'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type'
+            => $validated['feeding_type'] ?? null,
+
+        'feeding_tolerance'
+            => $validated['feeding_tolerance'] ?? null,
+
+        'feeding_challenges'
+            => $validated['feeding_challenges'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Overall Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary'
+            => $validated['clinical_summary'] ?? null,
+
+        'exam_status'
+            => $validated['exam_status'],
+
+        'follow_up_plans'
+            => $validated['follow_up_plans'] ?? null,
+
+        'next_follow_up_date'
+            => $validated['next_follow_up_date'] ?? null,
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect
+    |--------------------------------------------------------------------------
+    */
+
+    return redirect()
+        ->route('midwife.newborn-examination.show', $newbornExamination)
+        ->with('success', 'Newborn examination updated successfully.');
+}
 
     public function destroy(NewbornExamination $newbornExamination)
     {

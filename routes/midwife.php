@@ -114,11 +114,12 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         Route::name('newborn-examination.')
             ->prefix('newborn-examination')
             ->group(function () {
-                Route::get('/newborn/{newborn}', [NewbornExaminationController::class, 'index'])->name('index');
+                Route::get('/newborns', [NewbornExaminationController::class, 'index'])->name('index');
+                Route::get('/newborn/{newborn}/record', [NewbornExaminationController::class, 'record'])->name('record');
                 Route::get('/newborn/{newborn}/create', [NewbornExaminationController::class, 'create'])->name('create');
                 Route::post('/newborn/{newborn}/store', [NewbornExaminationController::class, 'store'])->name('store');
                 Route::get('/{newbornExamination}/show', [NewbornExaminationController::class, 'show'])->name('show');
-                Route::get('/{newbornExamination}/edit', [NewbornExaminationController::class, 'edit'])->name('edit');
+                Route::get('/{newbornExamination}/edit/', [NewbornExaminationController::class, 'edit'])->name('edit');
                 Route::put('/{newbornExamination}/update', [NewbornExaminationController::class, 'update'])->name('update');
                 Route::delete('/{newbornExamination}/delete', [NewbornExaminationController::class, 'destroy'])->name('destroy');
             });
