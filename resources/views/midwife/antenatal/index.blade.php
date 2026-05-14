@@ -67,12 +67,12 @@
                                         <span class="badge bg-secondary">{{ $patient->hospital_number }}</span>
                                     </td>
                                     <td>
-                                        <strong>{{ $patient->demographic->first_name ?? 'N/A' }} {{ $patient->demographic->last_name ?? '' }}</strong>
+                                        <strong>{{ $patient->name() ?? 'N/A' }}</strong>
                                     </td>
                                     <td>
                                         {{ $patient->age() }} years
                                     </td>
-                                    <td>{{ $patient->demographic->phone ?? 'N/A' }}</td>
+                                    <td>{{ $patient->demographic->phone_number ?? 'N/A' }}</td>
                                     <td>
                                         {{ $patient->antenatalCares->count() }}
                                         @if($patient->antenatalCares->count() > 0)

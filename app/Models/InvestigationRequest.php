@@ -44,6 +44,10 @@ class InvestigationRequest extends Model
         return $this->hasOne(Bill::class);
     }
 
+    public function walkinPatient() {
+        return $this->belongsTo(WalkinPatient::class, 'walkin_id');
+    }
+
     public function paymentStatus() {
         if($this->bill)
             return $this->bill->status;

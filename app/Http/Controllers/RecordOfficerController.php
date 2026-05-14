@@ -117,10 +117,11 @@ class RecordOfficerController extends Controller
             ]);
 
             // generate file opening bill
-            $visit = $patient->registerNewVisit();
+            $service = Service::find($request->service);
+            $visit = $patient->registerNewVisit($service);
             $patient->generateFileOpeningBill($visit);
 
-            $service = Service::find($request->service);
+            
 
             if($service){
                 
@@ -253,7 +254,7 @@ class RecordOfficerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('record.patients.show', $id)
+            return redirect()->route('record.patients.show', $patient)
                 ->with('success', 'Patient information updated successfully');
 
         } catch (\Exception $e) {

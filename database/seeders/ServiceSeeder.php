@@ -16,56 +16,56 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC01',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'File',
             'price'=>2000, 
             'name'=>'Opening of Personal File'
             ],
             [
             'code'=>'SVC02',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'File',
             'price'=>3000, 
             'name'=>'Opening Family File'
             ],
             [
             'code'=>'SVC03',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'File',
             'price'=>1000,   
             'name'=>'Family File Update'
             ],
             [
             'code'=>'SVC04',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Admission',
             'price'=>2000,  
             'name'=>'Normal Bed Space'
             ],
             [
             'code'=>'SVC05',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Admission',
             'price'=>5000,    
             'name'=>'Amenity Room'
             ],
             [
             'code'=>'SVC06',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Consultation',
             'price'=>2000,    
             'name'=>'Specialist Consultation'
             ],
             [
             'code'=>'SVC07',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Consultation',
             'price'=>500,    
             'name'=>'Nursing Service Fee'
             ],
             [
             'code'=>'SVC08',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Consultation',
             'price'=>1000,    
             'name'=>'Observation Charges'
             ],
@@ -100,14 +100,14 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC13',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Labour',
             'price'=>10000,    
             'name'=>'Normal Labour'
             ],
             [
             'code'=>'SVC14',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'Labour',
             'price'=>200000,    
             'name'=>'CS Labour'
             ],
@@ -128,7 +128,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC17',
             'description'=>'',
-            'category'=>'General',
+            'category'=>'ANC',
             'price'=>500,    
             'name'=>'ANC Service Fee'
             ]

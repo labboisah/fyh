@@ -67,10 +67,13 @@ class Patient extends Model
         
     }
 
-    public function registerNewVisit() {
+    public function registerNewVisit(Service $service = null) {
+
+        
         return $this->patientVisits()->create([
             'visit_date'=>date('d M, Y'),
-            'visit_type'=>'Consultation',
+            'visit_type'=>$service->name ?? 'Consultation',
+            'flag'=>$service->category ?? 'Normal',
             'created_by'=>auth()->user()->id
         ]);
     }

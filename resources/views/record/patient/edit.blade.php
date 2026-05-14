@@ -20,7 +20,7 @@
                 <h5 class="mb-0"><i class="bi bi-person-vcard me-2"></i>Patient Demographics</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('record_officer.patients.update', $patient->id) }}" method="POST">
+                <form action="{{ route('record.patients.update', $patient->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -144,7 +144,7 @@
                         <button type="submit" class="btn btn-success flex-grow-1">
                             <i class="bi bi-check-circle me-2"></i>Save Changes
                         </button>
-                        <a href="{{ route('record_officer.patients.show', $patient->id) }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('record.patients.show', $patient->id) }}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancel
                         </a>
                     </div>

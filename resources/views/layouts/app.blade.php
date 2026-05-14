@@ -421,7 +421,7 @@
     <body class="font-sans antialiased">
         <div id="page-loader" class="page-loader">
             <div class="loader-box">
-                <img src="{{ asset('images/logo.png') }}" alt="FAYHOS Logo" class="loader-logo">
+                
                 <div class="spinner-border text-success" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -435,7 +435,7 @@
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
                         <x-hospital-logo class="me-2" />
                         <div class="ms-2">
-                            <div class="fw-bold brand-accent" ><img src="{{asset('images/logo.png')}}" alt="logo" width="60"> <span style="transform: scaleY(2);">FYH</span> </div>
+                            <div class="fw-bold brand-accent" ><img src="{{asset('images/logo.png')}}" alt="logo" width="60"> <span style="transform: scaleY(2);">FAYHOS</span> </div>
                         </div>
                     </a>
 
@@ -477,13 +477,102 @@
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('midwife'))
+                            @if(Auth::user()->hasRole('midwife') && Auth::user()->hasRole('nurse'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('midwife.dashboard') }}"><i class="bi bi-people-fill me-2 text-success"></i>ANC Portal</a>
                             </li>
                             @endif
 
-                            @if(Auth::user()->hasRole('lab_technician'))
+                            @if(Auth::user()->hasRole('midwife'))
+                            <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-lightning-fill me-2 text-success"></i>
+                                        Quick Actions
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.antenatal.index') }}">
+
+                                                <i class="bi bi-heart-pulse-fill me-2 text-primary"></i>
+                                                Antenatal Care
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Labour -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.labour.index') }}">
+
+                                                <i class="bi bi-activity me-2 text-warning"></i>
+                                                Labour Management
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Delivery -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.delivery.index') }}">
+
+                                                <i class="bi bi-hospital-fill me-2 text-danger"></i>
+                                                Delivery Records
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Newborn -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.newborn.index') }}">
+
+                                                <i class="bi bi-bandaid-fill me-2 text-info"></i>
+                                                Newborn Records
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Newborn Examinations -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.newborn-examination.index') }}">
+
+                                                <i class="bi bi-clipboard2-pulse-fill me-2 text-success"></i>
+                                                Newborn Examinations
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Postnatal Examination -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.postnatal-examination.index') }}">
+
+                                                <i class="bi bi-journal-medical me-2 text-secondary"></i>
+                                                Postnatal Examination
+
+                                            </a>
+                                        </li>
+
+                                        <!-- Child Follow Up -->
+                                        <li>
+                                            <a class="dropdown-item"
+                                            href="{{ route('midwife.child-follow-up.index') }}">
+
+                                                <i class="bi bi-arrow-repeat me-2 text-dark"></i>
+                                                Child Follow-up
+
+                                            </a>
+                                        </li>
+                                        
+                                    </ul>
+                                </li>
+                            
+
+                            @endif
+
+                            @if(Auth::user()->hasRole('lab_technician') || Auth::user()->hasRole('lab_scientist'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
                             </li>

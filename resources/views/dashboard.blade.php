@@ -4,7 +4,13 @@
 
 @section('content')
 
-    
+    @if(auth()->user()->hasRole('midwife'))
+        @php 
+            $data = auth()->user()->getMidwifeData();
+        @endphp
+    @include('midwife.dashboard', $data)
+    @endif
+
 
     @if(auth()->user()->hasRole('record'))
         @include('record.dashboard')
