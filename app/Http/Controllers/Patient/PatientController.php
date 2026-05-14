@@ -12,7 +12,8 @@ use App\Models\NextOfKin;
 class PatientController extends Controller
 {
      public function index() {
-        return view('nurse.patient.index');
+        $patients = \App\Models\Patient::with('demographic')->paginate(10);
+        return view('patient.index', compact('patients'));
     }
 
     public function show(Patient $patient) {

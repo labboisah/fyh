@@ -107,6 +107,7 @@
                                 </div>
                             </a>
                         </div>
+                        @if(auth()->user()->hasRole('midwife'))
                         <div class="col-12 col-sm-6 col-lg-3">
                             <a href="{{ route('midwife.dashboard') }}" class="btn btn-outline-warning w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
@@ -118,6 +119,7 @@
                                 </div>
                             </a>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -141,6 +143,7 @@
                                     <tr>
                                         <th><i class="bi bi-hash me-2"></i>Hospital Number</th>
                                         <th><i class="bi bi-person me-2"></i>Name</th>
+                                        <th>Visit Type</th>
                                         <th><i class="bi bi-telephone me-2"></i>Phone</th>
                                         <th><i class="bi bi-calendar-check me-2"></i>Visit Date</th>
                                         <th class="text-center no-export">Action</th>
@@ -153,6 +156,7 @@
                                                 <span class="badge bg-primary">{{ $patientVisit->patient->hospital_number }}</span>
                                             </td>
                                             <td>{{ $patientVisit->patient->demographic->full_name ?? 'N/A' }}</td>
+                                            <td>{{ $patientVisit->visit_type }}</td>
                                             <td>{{ $patientVisit->patient->demographic->phone_number ?? 'N/A' }}</td>
                                             <td>{{ $patientVisit->created_at->format('M d, Y') }}</td>
                                             <td class="text-center">
@@ -184,7 +188,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-light border-bottom">
                         <h5 class="mb-0">
-                            <i class="bi bi-clock-history text-info me-2"></i>Fital Signs Recorded Today
+                            <i class="bi bi-clock-history text-info me-2"></i>Vital Signs Recorded Today
                         </h5>
                     </div>
                     <div class="card-body">
@@ -220,7 +224,7 @@
                                             <td>{{ $vitalSign->oxygen_saturation ?? 'N/A' }}%</td>
                                             <td>{{ $vitalSign->blood_glucose ?? 'N/A' }}</td>
                                             <td>{{ $vitalSign->recordedBy->name ?? 'N/A' }}</td>
-                                            
+                                            <td>{{ $vitalSign->patientVisit->visit_type ?? 'N/A' }}</td>
                                             <td class="text-center">
                                                 <a href="{{ route('patient.show', $vitalSign->patientVisit->patient) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View

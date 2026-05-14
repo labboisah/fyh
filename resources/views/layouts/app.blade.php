@@ -371,10 +371,63 @@
     .table tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.02);
     }
+
+    .page-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.95);
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .page-loader .loader-box {
+        text-align: center;
+        padding: 1.5rem 2rem;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    .page-loader .loader-box .loader-logo {
+        width: 80px;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .page-loader .loader-box .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .toast-spinner {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 </style>
         @yield('styles')
     </head>
     <body class="font-sans antialiased">
+        <div id="page-loader" class="page-loader">
+            <div class="loader-box">
+                <img src="{{ asset('images/logo.png') }}" alt="FAYHOS Logo" class="loader-logo">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-3">Loading page...</div>
+            </div>
+        </div>
         <div class="min-h-screen bg-light">
 
             <nav class="navbar navbar-expand-lg hospital-navbar shadow-sm">
@@ -405,7 +458,7 @@
                             @if(Auth::user()->hasRole('nurse'))
 
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
                             </li>
                             @endif
 
@@ -610,8 +663,23 @@
             <!-- Page Content -->
             <main class="py-4">
                 <div class="container">
+                    @if(session('success'))
+                    <div id="toast"
+                        class="fixed top-5 right-5 bg-accent text-white px-6 py-3 rounded-xl shadow-lg">
+                        {{ session('success') }}
+                    </div>
+
+                    <script>
+                        setTimeout(() => {
+                            document.getElementById("toast").remove();
+                        }, 3000);
+                    </script>
+                    @endif
+
                     @yield('content')
                 </div>
+
+                
             </main>
 
             
@@ -729,6 +797,135 @@
                     });
                 }
             });
+        </script>
+
+        <script>
+            (function () {
+                const pageLoader = document.getElementById('page-loader');
+
+                const showPageLoader = () => {
+                    if (pageLoader) {
+                        pageLoader.classList.remove('hidden');
+                    }
+                };
+
+                const hidePageLoader = () => {
+                    if (pageLoader) {
+                        pageLoader.classList.add('hidden');
+                    }
+                };
+
+                const disableElement = (element) => {
+                    if (!element || element.dataset.loading === 'true') {
+                        return;
+                    }
+
+                    element.dataset.loading = 'true';
+
+                    if (element.tagName === 'A') {
+                        element.style.pointerEvents = 'none';
+                        element.setAttribute('aria-disabled', 'true');
+                        element.classList.add('disabled');
+                        return;
+                    }
+
+                    element.disabled = true;
+                };
+
+                const setButtonLoading = (button, label) => {
+                    if (!button || button.dataset.loading === 'true') {
+                        return;
+                    }
+
+                    disableElement(button);
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.innerHTML = `
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        ${label}
+                    `;
+
+                    setTimeout(() => {
+                        if (button.dataset.originalHtml) {
+                            button.innerHTML = button.dataset.originalHtml;
+                            button.disabled = false;
+                            delete button.dataset.loading;
+                            delete button.dataset.originalHtml;
+                        }
+                    }, 5000);
+                };
+
+                const isActionableLink = (link) => {
+                    if (!link || !link.href) {
+                        return false;
+                    }
+
+                    const href = link.getAttribute('href');
+                    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href === 'mailto:' || href === 'tel:') {
+                        return false;
+                    }
+
+                    if (link.target && link.target !== '_self') {
+                        return false;
+                    }
+
+                    if (link.hasAttribute('download')) {
+                        return false;
+                    }
+
+                    return link.hostname === window.location.hostname;
+                };
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    hidePageLoader();
+
+                    document.querySelectorAll('a').forEach(link => {
+                        if (!isActionableLink(link)) {
+                            return;
+                        }
+
+                        link.addEventListener('click', function () {
+                            disableElement(link);
+                            showPageLoader();
+
+                            if (typeof NProgress !== 'undefined') {
+                                NProgress.start();
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('button, input[type="submit"], input[type="button"], input[type="reset"]').forEach(control => {
+                        control.addEventListener('click', function (event) {
+                            const button = event.currentTarget;
+
+                            if (button.matches('[data-bs-toggle], [data-toggle], .dropdown-toggle')) {
+                                return;
+                            }
+
+                            if (button.closest('form') && (button.type === 'submit' || button.getAttribute('type') === 'submit')) {
+                                return;
+                            }
+
+                            setButtonLoading(button, button.dataset.loadingText || 'Loading...');
+                        });
+                    });
+
+                    document.querySelectorAll('form').forEach(form => {
+                        form.addEventListener('submit', function () {
+                            const button = form.querySelector("button[type='submit'], input[type='submit']");
+                            if (button) {
+                                setButtonLoading(button, button.dataset.loadingText || 'Processing...');
+                            }
+                        });
+                    });
+                });
+
+                window.addEventListener('load', function () {
+                    hidePageLoader();
+                    if (typeof NProgress !== 'undefined') {
+                        NProgress.done();
+                    }
+                });
+            })();
         </script>
         <script>
             function printContent(el) {

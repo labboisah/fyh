@@ -281,10 +281,58 @@
                     font-size: 0.9rem;
                 }
             }
-            
+
+            .page-loader {
+                position: fixed;
+                inset: 0;
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.96);
+                transition: opacity 0.25s ease, visibility 0.25s ease;
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .page-loader.hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+            .loader-box {
+                text-align: center;
+                padding: 1.5rem 2rem;
+                border-radius: 1rem;
+                background: #fff;
+                box-shadow: 0 18px 60px rgba(0, 0, 0, 0.12);
+            }
+
+            .loader-logo {
+                width: 80px;
+                max-width: 100%;
+                display: block;
+                margin: 0 auto 1rem;
+            }
+
+            .page-loader .spinner-border {
+                width: 3rem;
+                height: 3rem;
+            }
         </style>
     </head>
     <body>
+        <div id="page-loader" class="page-loader">
+            <div class="loader-box">
+                <img src="{{ asset('images/logo.png') }}" alt="FAYHOS Logo" class="loader-logo">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-3">Loading page...</div>
+            </div>
+        </div>
+
         <div class="auth-container">
             
             <div class="auth-body">
@@ -297,5 +345,106 @@
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            (function () {
+                const pageLoader = document.getElementById('page-loader');
+
+                const hidePageLoader = () => {
+                    if (pageLoader) {
+                        pageLoader.classList.add('hidden');
+                    }
+                };
+
+                const disableElement = (element) => {
+                    if (!element || element.dataset.loading === 'true') {
+                        return;
+                    }
+
+                    element.dataset.loading = 'true';
+
+                    if (element.tagName === 'A') {
+                        element.style.pointerEvents = 'none';
+                        element.setAttribute('aria-disabled', 'true');
+                        element.classList.add('disabled');
+                        return;
+                    }
+
+                    element.disabled = true;
+                };
+
+                const setButtonLoading = (button, label) => {
+                    if (!button || button.dataset.loading === 'true') {
+                        return;
+                    }
+
+                    disableElement(button);
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.innerHTML = `
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        ${label}
+                    `;
+                };
+
+                const isActionableLink = (link) => {
+                    if (!link || !link.href) {
+                        return false;
+                    }
+
+                    const href = link.getAttribute('href');
+                    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href === 'mailto:' || href === 'tel:') {
+                        return false;
+                    }
+
+                    if (link.target && link.target !== '_self') {
+                        return false;
+                    }
+
+                    if (link.hasAttribute('download')) {
+                        return false;
+                    }
+
+                    return link.hostname === window.location.hostname;
+                };
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    hidePageLoader();
+
+                    document.querySelectorAll('a').forEach(link => {
+                        if (!isActionableLink(link)) {
+                            return;
+                        }
+
+                        link.addEventListener('click', function () {
+                            disableElement(link);
+                        });
+                    });
+
+                    document.querySelectorAll('button, input[type="submit"], input[type="button"], input[type="reset"]').forEach(control => {
+                        control.addEventListener('click', function (event) {
+                            const button = event.currentTarget;
+
+                            if (button.matches('[data-bs-toggle], [data-toggle], .dropdown-toggle')) {
+                                return;
+                            }
+
+                            if (button.closest('form') && (button.type === 'submit' || button.getAttribute('type') === 'submit')) {
+                                return;
+                            }
+
+                            setButtonLoading(button, button.dataset.loadingText || 'Loading...');
+                        });
+                    });
+
+                    document.querySelectorAll('form').forEach(form => {
+                        form.addEventListener('submit', function () {
+                            const button = form.querySelector("button[type='submit'], input[type='submit']");
+                            if (button) {
+                                setButtonLoading(button, button.dataset.loadingText || 'Processing...');
+                            }
+                        });
+                    });
+                });
+            })();
+        </script>
     </body>
 </html>
