@@ -1165,11 +1165,6 @@ class PostnatalExaminationController extends Controller
     {
         $postnatalExamination->delete();
 
-        activity()
-            ->performedOn($postnatalExamination)
-            ->withProperties(['action' => 'delete'])
-            ->log('Postnatal examination record deleted');
-
         return redirect()->route('midwife.postnatal-examination.index', $postnatalExamination->delivery)
             ->with('success', 'Postnatal examination record deleted successfully.');
     }

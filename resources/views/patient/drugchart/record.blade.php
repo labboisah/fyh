@@ -39,6 +39,11 @@
                         </div>
 
                         <div class="form-group mb-2">
+                            <label for="comment">Reason for Not Dispensing</label>
+                            <textarea class="form-control" name="comment" placeholder="Add reason for not dispensing..."></textarea>
+                        </div>
+
+                        <div class="form-group mb-2">
                             <label for="time">Dispensed By</label>
                             <input type="text" class="form-control" name="dispensed_by" value="{{auth()->user()->name}}" disabled>
                         </div>

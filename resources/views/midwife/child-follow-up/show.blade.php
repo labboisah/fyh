@@ -3,632 +3,754 @@
 @section('title', 'Child Follow-up Details')
 
 @section('content')
+
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0"><i class="bi bi-clipboard-check"></i> Child Follow-up Details</h1>
-        <div>
-            <a href="{{ route('midwife.child-follow-up.edit', $childFollowUp) }}" class="btn btn-warning">Edit</a>
-            <a href="{{ route('midwife.child-follow-up.index', $childFollowUp->newborn) }}" class="btn btn-outline-secondary">Back to List</a>
+
+    <!-- Header -->
+    <div class="row mb-4">
+
+        <div class="col-md-8">
+
+            <h1 class="h3 mb-0">
+                <i class="bi bi-clipboard2-pulse"></i>
+                Child Follow-up Details
+            </h1>
+
+            <small class="text-muted">
+
+                Baby:
+                <strong>
+                    {{ $childFollowUp->newborn->newborn_registration_number ?? 'N/A' }}
+                </strong>
+
+                |
+
+                Mother:
+                <strong>
+                    {{ $childFollowUp->mother->name() ?? 'N/A' }}
+                </strong>
+
+            </small>
+
         </div>
+
+        <div class="col-md-4 text-end">
+
+            <a href="{{ route('midwife.child-follow-up.edit', $childFollowUp) }}"
+               class="btn btn-primary">
+
+                <i class="bi bi-pencil-square"></i>
+                Edit
+
+            </a>
+
+            <a href="{{ route('midwife.child-follow-up.index') }}"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block">
+                        Follow-up Period
+                    </small>
+
+                    <h5 class="fw-bold text-primary">
+
+                        {{ str_replace('_', ' ', $childFollowUp->follow_up_period) }}
+
+                    </h5>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block">
+                        Days of Life
+                    </small>
+
+                    <h5 class="fw-bold">
+
+                        {{ $childFollowUp->days_of_life ?? 'N/A' }}
+
+                    </h5>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block">
+                        Weight
+                    </small>
+
+                    <h5 class="fw-bold">
+
+                        {{ $childFollowUp->weight ?? 'N/A' }} kg
+
+                    </h5>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block">
+                        Health Status
+                    </small>
+
+                    @if($childFollowUp->health_status == 'normal')
+
+                        <span class="badge bg-success">
+                            Normal
+                        </span>
+
+                    @elseif($childFollowUp->health_status == 'at_risk')
+
+                        <span class="badge bg-warning text-dark">
+                            At Risk
+                        </span>
+
+                    @elseif($childFollowUp->health_status == 'needs_referral')
+
+                        <span class="badge bg-danger">
+                            Needs Referral
+                        </span>
+
+                    @else
+
+                        <span class="badge bg-dark">
+                            Referred
+                        </span>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Patient & Follow-up Information</h5>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+
+            <!-- Follow-up Information -->
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-calendar-check"></i>
+                        Follow-up Information
+                    </h6>
+
                 </div>
+
                 <div class="card-body">
+
                     <div class="row">
-                        <div class="col-md-6">
-                            <strong>Newborn:</strong> {{ $childFollowUp->newborn->newborn_registration_number }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother:</strong> {{ $childFollowUp->newborn->patient->full_name }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Follow-up Date/Time:</strong><br>
-                            {{ $childFollowUp->follow_up_date_time?->format('M d, Y H:i') }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Days of Life:</strong><br>
-                            {{ $childFollowUp->days_of_life }} days
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Period:</strong><br>
-                            @switch($childFollowUp->follow_up_period)
-                                @case('day_3')
-                                    <span class="badge bg-info">Day 3</span>
-                                    @break
-                                @case('day_7')
-                                    <span class="badge bg-info">Day 7</span>
-                                    @break
-                                @case('day_10')
-                                    <span class="badge bg-info">Day 10</span>
-                                    @break
-                                @case('day_14')
-                                    <span class="badge bg-info">Day 14</span>
-                                    @break
-                                @case('6weeks')
-                                    <span class="badge bg-primary">6 Weeks</span>
-                                    @break
-                                @case('3months')
-                                    <span class="badge bg-primary">3 Months</span>
-                                    @break
-                                @case('6months')
-                                    <span class="badge bg-primary">6 Months</span>
-                                    @break
-                                @case('year1')
-                                    <span class="badge bg-success">1 Year</span>
-                                    @break
-                            @endswitch
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Location:</strong><br>
-                            @switch($childFollowUp->location)
-                                @case('home')
-                                    <span class="badge bg-light text-dark">Home Visit</span>
-                                    @break
-                                @case('clinic')
-                                    <span class="badge bg-info">Clinic</span>
-                                    @break
-                                @case('hospital')
-                                    <span class="badge bg-warning">Hospital</span>
-                                    @break
-                                @case('other')
-                                    <span class="badge bg-secondary">Other</span>
-                                    @break
-                            @endswitch
-                            @if($childFollowUp->location_details)
-                                <br><small>{{ $childFollowUp->location_details }}</small>
-                            @endif
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Health Status:</strong><br>
-                            @if($childFollowUp->health_status === 'normal')
-                                <span class="badge bg-success">Normal</span>
-                            @elseif($childFollowUp->health_status === 'at_risk')
-                                <span class="badge bg-warning">At Risk</span>
-                            @elseif($childFollowUp->health_status === 'needs_referral')
-                                <span class="badge bg-danger">Needs Referral</span>
-                            @else
-                                <span class="badge bg-dark">Referred</span>
-                            @endif
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Recorded By:</strong><br>
-                            {{ $childFollowUp->recordedBy->name ?? 'N/A' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Recorded At:</strong><br>
-                            {{ $childFollowUp->created_at?->format('M d, Y H:i') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Feeding Assessment</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Feeding Type:</strong><br>
-                            @switch($childFollowUp->feeding_type)
-                                @case('breastfeeding')
-                                    <span class="badge bg-success">Exclusive Breastfeeding</span>
-                                    @break
-                                @case('bottle_feeding')
-                                    <span class="badge bg-info">Bottle Feeding</span>
-                                    @break
-                                @case('mixed')
-                                    <span class="badge bg-warning">Mixed Feeding</span>
-                                    @break
-                                @case('other')
-                                    <span class="badge bg-secondary">Other</span>
-                                    @break
-                            @endswitch
-                        </div>
-                        <div class="col-md-6">
-                            <strong>How Baby is Feeding:</strong><br>
-                            {{ $childFollowUp->how_baby_is_feeding ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Mother's Observations:</strong><br>
-                            {{ $childFollowUp->mother_observations ?: 'None recorded' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <div class="col-md-4">
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Vital Signs & Growth</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <strong>Temperature:</strong><br>
-                            {{ $childFollowUp->temperature ? $childFollowUp->temperature . ' °C' : 'Not recorded' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Heart Rate:</strong><br>
-                            {{ $childFollowUp->heart_rate ? $childFollowUp->heart_rate . ' bpm' : 'Not recorded' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Respiratory Rate:</strong><br>
-                            {{ $childFollowUp->respiratory_rate ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Weight:</strong><br>
-                            {{ $childFollowUp->weight ? $childFollowUp->weight . ' kg' : 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Length:</strong><br>
-                            {{ $childFollowUp->length ? $childFollowUp->length . ' cm' : 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Head Circumference:</strong><br>
-                            {{ $childFollowUp->head_circumference ? $childFollowUp->head_circumference . ' cm' : 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Weight Percentile:</strong><br>
-                            {{ $childFollowUp->weight_percentile ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Weight Change Since Birth:</strong><br>
-                            {{ $childFollowUp->weight_change_since_birth ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Weight Gain Rate:</strong><br>
-                            {{ $childFollowUp->weight_gain_rate ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Weight Assessment:</strong><br>
-                            @if($childFollowUp->weight_assessment === 'adequate')
-                                <span class="badge bg-success">Adequate</span>
-                            @elseif($childFollowUp->weight_assessment === 'inadequate')
-                                <span class="badge bg-warning">Inadequate</span>
-                            @elseif($childFollowUp->weight_assessment === 'excessive')
-                                <span class="badge bg-danger">Excessive</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <small class="text-muted">
+                                Follow-up Date
+                            </small>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Physical Examination</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>General Appearance:</strong><br>
-                            {{ $childFollowUp->general_appearance ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Activity Level:</strong><br>
-                            @if($childFollowUp->activity_level === 'active')
-                                <span class="badge bg-success">Active</span>
-                            @elseif($childFollowUp->activity_level === 'lethargic')
-                                <span class="badge bg-warning">Lethargic</span>
-                            @elseif($childFollowUp->activity_level === 'normal')
-                                <span class="badge bg-info">Normal</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Alertness:</strong><br>
-                            @if($childFollowUp->alertness === 'alert')
-                                <span class="badge bg-success">Alert</span>
-                            @elseif($childFollowUp->alertness === 'drowsy')
-                                <span class="badge bg-warning">Drowsy</span>
-                            @elseif($childFollowUp->alertness === 'unresponsive')
-                                <span class="badge bg-danger">Unresponsive</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Skin Examination:</strong><br>
-                            {{ $childFollowUp->skin_examination ?: 'Not recorded' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <p class="fw-bold">
+                                {{ optional($childFollowUp->follow_up_date_time)->format('M d, Y h:i A') }}
+                            </p>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Umbilical Cord & Jaundice</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>Umbilical Cord Status:</strong><br>
-                            {{ $childFollowUp->umbilical_cord_status ?: 'Not recorded' }}
                         </div>
-                        <div class="col-md-4">
-                            <strong>Umbilical Discharge:</strong><br>
-                            {{ $childFollowUp->umbilical_discharge ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Signs of Infection:</strong><br>
-                            {{ $childFollowUp->signs_of_infection ?: 'None recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Jaundice Present:</strong><br>
-                            {{ $childFollowUp->jaundice_present ? 'Yes' : 'No' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Jaundice Level:</strong><br>
-                            @if($childFollowUp->jaundice_level === 'mild')
-                                <span class="badge bg-warning">Mild</span>
-                            @elseif($childFollowUp->jaundice_level === 'moderate')
-                                <span class="badge bg-orange">Moderate</span>
-                            @elseif($childFollowUp->jaundice_level === 'high')
-                                <span class="badge bg-danger">High</span>
-                            @elseif($childFollowUp->jaundice_level === 'severe')
-                                <span class="badge bg-dark">Severe</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Jaundice Management:</strong><br>
-                            {{ $childFollowUp->jaundice_management ?: 'Not recorded' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Breastfeeding Assessment</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong>Breast Examination:</strong><br>
-                            {{ $childFollowUp->breast_examination ?: 'Not recorded' }}
-                        </div>
                         <div class="col-md-4">
-                            <strong>Latching Quality:</strong><br>
-                            @if($childFollowUp->latching_quality === 'good')
-                                <span class="badge bg-success">Good</span>
-                            @elseif($childFollowUp->latching_quality === 'fair')
-                                <span class="badge bg-warning">Fair</span>
-                            @elseif($childFollowUp->latching_quality === 'poor')
-                                <span class="badge bg-danger">Poor</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Suckling Pattern:</strong><br>
-                            @if($childFollowUp->suckling_pattern === 'good')
-                                <span class="badge bg-success">Good</span>
-                            @elseif($childFollowUp->suckling_pattern === 'fair')
-                                <span class="badge bg-warning">Fair</span>
-                            @elseif($childFollowUp->suckling_pattern === 'poor')
-                                <span class="badge bg-danger">Poor</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Milk Transfer:</strong><br>
-                            @if($childFollowUp->milk_transfer === 'good')
-                                <span class="badge bg-success">Good</span>
-                            @elseif($childFollowUp->milk_transfer === 'fair')
-                                <span class="badge bg-warning">Fair</span>
-                            @elseif($childFollowUp->milk_transfer === 'poor')
-                                <span class="badge bg-danger">Poor</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Bottle Feeding:</strong><br>
-                            {{ $childFollowUp->bottle_feeding_if_applicable ?: 'Not applicable' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother Nipple Problems:</strong><br>
-                            {{ $childFollowUp->mother_nipple_problems ?: 'None reported' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Feeding & Elimination</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <strong>Feeding Frequency:</strong><br>
-                            {{ $childFollowUp->feeding_frequency ?: 'Not recorded' }}
+                            <small class="text-muted">
+                                Follow-up Location
+                            </small>
+
+                            <p class="fw-bold text-capitalize">
+                                {{ $childFollowUp->location ?? 'N/A' }}
+                            </p>
+
                         </div>
-                        <div class="col-md-3">
-                            <strong>Feeding Duration:</strong><br>
-                            {{ $childFollowUp->feeding_duration ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Feeding Problems:</strong><br>
-                            {{ $childFollowUp->feeding_problems ?: 'None reported' }}
-                        </div>
+
                         <div class="col-md-4">
-                            <strong>Urinary Output:</strong><br>
-                            {{ $childFollowUp->urinary_output ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Stool Output:</strong><br>
-                            {{ $childFollowUp->stool_output ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Stool Characteristics:</strong><br>
-                            {{ $childFollowUp->stool_characteristics ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Elimination Problems:</strong><br>
-                            {{ $childFollowUp->elimination_problems ?: 'None reported' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Neurological Assessment</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>Responsiveness:</strong><br>
-                            @if($childFollowUp->responsiveness === 'good')
-                                <span class="badge bg-success">Good</span>
-                            @elseif($childFollowUp->responsiveness === 'fair')
-                                <span class="badge bg-warning">Fair</span>
-                            @elseif($childFollowUp->responsiveness === 'poor')
-                                <span class="badge bg-danger">Poor</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Cry Quality:</strong><br>
-                            @if($childFollowUp->cry_quality === 'strong')
-                                <span class="badge bg-success">Strong</span>
-                            @elseif($childFollowUp->cry_quality === 'weak')
-                                <span class="badge bg-warning">Weak</span>
-                            @elseif($childFollowUp->cry_quality === 'normal')
-                                <span class="badge bg-info">Normal</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Muscle Tone:</strong><br>
-                            @if($childFollowUp->muscle_tone === 'normal')
-                                <span class="badge bg-success">Normal</span>
-                            @elseif($childFollowUp->muscle_tone === 'increased')
-                                <span class="badge bg-warning">Increased</span>
-                            @elseif($childFollowUp->muscle_tone === 'decreased')
-                                <span class="badge bg-danger">Decreased</span>
-                            @else
-                                Not assessed
-                            @endif
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Reflex Assessment:</strong><br>
-                            {{ $childFollowUp->reflex_assessment ?: 'Not recorded' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <small class="text-muted">
+                                Recorded By
+                            </small>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Immunizations & Screenings</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <strong>Immunizations Up to Date:</strong><br>
-                            {{ $childFollowUp->immunizations_up_to_date ? 'Yes' : 'No' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Newborn Screening Done:</strong><br>
-                            {{ $childFollowUp->newborn_screening_done ? 'Yes' : 'No' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Hearing Screening Done:</strong><br>
-                            {{ $childFollowUp->hearing_screening_done ? 'Yes' : 'No' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Hearing Screening Results:</strong><br>
-                            {{ $childFollowUp->hearing_screening_results ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Immunizations Given:</strong><br>
-                            {{ $childFollowUp->immunizations_given ?: 'None recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Immunizations Planned:</strong><br>
-                            {{ $childFollowUp->immunizations_planned ?: 'None planned' }}
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Newborn Screening Results:</strong><br>
-                            {{ $childFollowUp->newborn_screening_results ?: 'Not recorded' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <p class="fw-bold">
+                                {{ $childFollowUp->recordedBy->name ?? 'N/A' }}
+                            </p>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Development & Concerns</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong>Developmental Milestones:</strong><br>
-                            {{ $childFollowUp->developmental_milestones ?: 'Not assessed' }}
                         </div>
-                        <div class="col-md-12">
-                            <strong>Developmental Concerns:</strong><br>
-                            {{ $childFollowUp->developmental_concerns ?: 'None reported' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother Recovery Status:</strong><br>
-                            {{ $childFollowUp->mother_recovery_status ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother Emotional Wellbeing:</strong><br>
-                            {{ $childFollowUp->mother_emotional_wellbeing ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother Breastfeeding Support:</strong><br>
-                            {{ $childFollowUp->mother_breastfeeding_support ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Baby Concerns:</strong><br>
-                            {{ $childFollowUp->baby_concerns ?: 'None reported' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Mother Concerns:</strong><br>
-                            {{ $childFollowUp->mother_concerns ?: 'None reported' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Complications Identified:</strong><br>
-                            {{ $childFollowUp->complications_identified ?: 'None identified' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Counseling & Education</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong>Counseling Topics Covered:</strong><br>
-                            {{ $childFollowUp->counseling_topics ?: 'None recorded' }}
-                        </div>
-                        <div class="col-md-2">
-                            <strong>Infant Care Advice:</strong><br>
-                            {{ $childFollowUp->infant_care_advice_given ? 'Given' : 'Not given' }}
-                        </div>
-                        <div class="col-md-2">
-                            <strong>Feeding Guidance:</strong><br>
-                            {{ $childFollowUp->feeding_guidance_given ? 'Given' : 'Not given' }}
-                        </div>
-                        <div class="col-md-2">
-                            <strong>Cord Care Advice:</strong><br>
-                            {{ $childFollowUp->cord_care_advice_given ? 'Given' : 'Not given' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Hygiene/Safety Advice:</strong><br>
-                            {{ $childFollowUp->hygiene_safety_advice_given ? 'Given' : 'Not given' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Danger Signs Explained:</strong><br>
-                            {{ $childFollowUp->danger_signs_explained ? 'Explained' : 'Not explained' }}
-                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Summary & Plan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong>Clinical Summary:</strong><br>
-                            {{ $childFollowUp->clinical_summary ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Referral Reason:</strong><br>
-                            {{ $childFollowUp->referral_reason ?: 'Not applicable' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Referral Destination:</strong><br>
-                            {{ $childFollowUp->referral_destination ?: 'Not applicable' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Management Plan:</strong><br>
-                            {{ $childFollowUp->management_plan ?: 'Not recorded' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Next Follow-up Date:</strong><br>
-                            {{ $childFollowUp->next_follow_up_date?->format('M d, Y') ?: 'Not scheduled' }}
-                        </div>
-                        <div class="col-md-12">
-                            <strong>Next Follow-up Reason:</strong><br>
-                            {{ $childFollowUp->next_follow_up_reason ?: 'Not specified' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    @if($childFollowUp->location_details)
 
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('midwife.child-follow-up.edit', $childFollowUp) }}" class="btn btn-warning">Edit Follow-up</a>
-                        <a href="{{ route('midwife.newborn.show', $childFollowUp->newborn) }}" class="btn btn-info">View Newborn</a>
-                        <a href="{{ route('midwife.child-follow-up.index', $childFollowUp->newborn) }}" class="btn btn-outline-secondary">Back to Follow-ups</a>
-                    </div>
-                </div>
-            </div>
+                        <hr>
 
-            @if($childFollowUp->health_status === 'needs_referral' || $childFollowUp->health_status === 'referred')
-            <div class="card mt-3">
-                <div class="card-header bg-danger">
-                    <h5 class="mb-0 text-white">⚠️ Referral Required</h5>
-                </div>
-                <div class="card-body">
-                    <p>This child requires referral for further evaluation.</p>
-                    @if($childFollowUp->referral_destination)
-                        <strong>Referral Destination:</strong> {{ $childFollowUp->referral_destination }}
+                        <small class="text-muted d-block">
+                            Location Details
+                        </small>
+
+                        <p>
+                            {{ $childFollowUp->location_details }}
+                        </p>
+
                     @endif
-                </div>
-            </div>
-            @elseif($childFollowUp->health_status === 'at_risk')
-            <div class="card mt-3">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0 text-white">⚠️ At Risk</h5>
-                </div>
-                <div class="card-body">
-                    <p>This child is at risk and requires close monitoring.</p>
-                </div>
-            </div>
-            @endif
 
-            @if($childFollowUp->needsPhototherapy())
-            <div class="card mt-3">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0 text-white">🍼 Jaundice Treatment Needed</h5>
                 </div>
-                <div class="card-body">
-                    <p>This child may need phototherapy for jaundice treatment.</p>
-                </div>
+
             </div>
-            @endif
+
+            <!-- Feeding Assessment -->
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-heart"></i>
+                        Feeding Assessment
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Feeding Type
+                            </small>
+
+                            <p class="fw-bold text-capitalize">
+
+                                {{ str_replace('_', ' ', $childFollowUp->feeding_type ?? 'N/A') }}
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Feeding Frequency
+                            </small>
+
+                            <p class="fw-bold">
+                                {{ $childFollowUp->feeding_frequency ?? 'N/A' }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Feeding Duration
+                            </small>
+
+                            <p class="fw-bold">
+                                {{ $childFollowUp->feeding_duration ?? 'N/A' }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                How Baby is Feeding
+                            </small>
+
+                            <div class="border rounded p-2 bg-light">
+
+                                {{ $childFollowUp->how_baby_is_feeding ?? 'N/A' }}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Feeding Problems
+                            </small>
+
+                            <div class="border rounded p-2 bg-light">
+
+                                {{ $childFollowUp->feeding_problems ?? 'None Reported' }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Vital Signs & Growth -->
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-heart-pulse"></i>
+                        Vital Signs & Growth Parameters
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row text-center">
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted d-block">
+                                Temperature
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->temperature ?? 'N/A' }} °C
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted d-block">
+                                Heart Rate
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->heart_rate ?? 'N/A' }} bpm
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted d-block">
+                                Respiratory Rate
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->respiratory_rate ?? 'N/A' }}
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted d-block">
+                                Weight Percentile
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->weight_percentile ?? 'N/A' }}
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="row text-center">
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Weight
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->weight ?? 'N/A' }} kg
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Length
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->length ?? 'N/A' }} cm
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Head Circumference
+                            </small>
+
+                            <h6 class="fw-bold">
+                                {{ $childFollowUp->head_circumference ?? 'N/A' }} cm
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Jaundice & Immunization -->
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-shield-check"></i>
+                        Jaundice & Immunization
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Jaundice Present
+                            </small>
+
+                            <p>
+
+                                @if($childFollowUp->jaundice_present)
+
+                                    <span class="badge bg-warning text-dark">
+                                        Yes
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-success">
+                                        No
+                                    </span>
+
+                                @endif
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Immunization Status
+                            </small>
+
+                            <p>
+
+                                @if($childFollowUp->immunizations_up_to_date)
+
+                                    <span class="badge bg-success">
+                                        Up to Date
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-danger">
+                                        Pending
+                                    </span>
+
+                                @endif
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Hearing Screening
+                            </small>
+
+                            <p>
+
+                                @if($childFollowUp->hearing_screening_done)
+
+                                    <span class="badge bg-success">
+                                        Done
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+
+                                @endif
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    @if($childFollowUp->immunizations_given)
+
+                        <div class="mb-3">
+
+                            <small class="text-muted d-block">
+                                Immunizations Given
+                            </small>
+
+                            <div class="border rounded p-2 bg-light">
+
+                                {{ $childFollowUp->immunizations_given }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                    @if($childFollowUp->jaundice_management)
+
+                        <div>
+
+                            <small class="text-muted d-block">
+                                Jaundice Management
+                            </small>
+
+                            <div class="border rounded p-2 bg-light">
+
+                                {{ $childFollowUp->jaundice_management }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+            <!-- Clinical Summary -->
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-journal-medical"></i>
+                        Clinical Summary & Management
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+
+                        <small class="text-muted d-block">
+                            Clinical Summary
+                        </small>
+
+                        <div class="border rounded p-3 bg-light">
+
+                            {{ $childFollowUp->clinical_summary ?? 'No Summary Provided' }}
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <small class="text-muted d-block">
+                            Management Plan
+                        </small>
+
+                        <div class="border rounded p-3 bg-light">
+
+                            {{ $childFollowUp->management_plan ?? 'No Management Plan' }}
+
+                        </div>
+
+                    </div>
+
+                    @if($childFollowUp->referral_reason)
+
+                        <div class="mb-3">
+
+                            <small class="text-muted d-block">
+                                Referral Reason
+                            </small>
+
+                            <div class="border rounded p-3 bg-light">
+
+                                {{ $childFollowUp->referral_reason }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
         </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+
+            <!-- Follow-up Status -->
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-activity"></i>
+                        Follow-up Status
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <small class="text-muted d-block mb-2">
+                        Danger Signs Explained
+                    </small>
+
+                    @if($childFollowUp->danger_signs_explained)
+
+                        <span class="badge bg-success">
+                            Explained
+                        </span>
+
+                    @else
+
+                        <span class="badge bg-warning text-dark">
+                            Not Explained
+                        </span>
+
+                    @endif
+
+                    <hr>
+
+                    <small class="text-muted d-block mb-2">
+                        Next Follow-up
+                    </small>
+
+                    <strong>
+
+                        {{ optional($childFollowUp->next_follow_up_date)->format('M d, Y h:i A') ?? 'Not Scheduled' }}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <!-- Child Information -->
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-light">
+
+                    <h6 class="mb-0">
+                        <i class="bi bi-baby"></i>
+                        Child Information
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+
+                        <strong>Sex:</strong>
+                        <br>
+                        {{ ucfirst($childFollowUp->newborn->sex) }}
+
+                        <hr>
+
+                        <strong>Birth Weight:</strong>
+                        <br>
+                        {{ $childFollowUp->newborn->birth_weight ?? 'N/A' }}
+
+                        <hr>
+
+                        <strong>Birth Date:</strong>
+                        <br>
+                        {{ optional($childFollowUp->newborn->birth_date_time)->format('M d, Y') }}
+
+                        <hr>
+
+                        <strong>Recorded:</strong>
+                        <br>
+                        {{ $childFollowUp->created_at->format('M d, Y h:i A') }}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
+
 @endsection

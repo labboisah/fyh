@@ -73,10 +73,7 @@ class LabourProgressController extends Controller
 
         $progress = $labour->progressRecords()->create($validated);
 
-        activity()
-            ->performedOn($progress)
-            ->withProperties(['action' => 'create'])
-            ->log('Labour progress record created');
+        
 
         return redirect()->route('midwife.labour-progress.show', $progress)
             ->with('success', 'Labour progress entry created successfully.');
@@ -128,10 +125,6 @@ class LabourProgressController extends Controller
 
         $labourProgress->update($validated);
 
-        activity()
-            ->performedOn($labourProgress)
-            ->withProperties(['action' => 'update'])
-            ->log('Labour progress record updated');
 
         return redirect()->route('midwife.labour-progress.show', $labourProgress)
             ->with('success', 'Labour progress entry updated successfully.');
@@ -140,11 +133,6 @@ class LabourProgressController extends Controller
     public function destroy(LabourProgress $labourProgress)
     {
         $labourProgress->delete();
-
-        activity()
-            ->performedOn($labourProgress)
-            ->withProperties(['action' => 'delete'])
-            ->log('Labour progress record deleted');
 
         return redirect()->route('midwife.labour.progress.index', $labourProgress->labour_id)
             ->with('success', 'Labour progress entry deleted successfully.');

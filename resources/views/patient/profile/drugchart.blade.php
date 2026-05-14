@@ -42,13 +42,19 @@
             </thead>
             <tbody>
                 @foreach($pItem->drugCharts as $drugChart)
-                <tr>
-                    <td>{{ $drugChart->dispensedBy->name ?? ''}}</td>
-                    <td>{{ $pItem->dosage }}</td>
-                    <td>{{ $drugChart->mode_of_administration }}</td>
-                    <td>{{ $drugChart->time }}</td>
-                    <td>{{ $drugChart->created_at->format('d M, Y') }}</td>
-                </tr>
+                    @if($drugChart->comment == null)
+                    <tr>
+                        <td>{{ $drugChart->dispensedBy->name ?? ''}}</td>
+                        <td>{{ $pItem->dosage }}</td>
+                        <td>{{ $drugChart->mode_of_administration }}</td>
+                        <td>{{ $drugChart->time }}</td>
+                        <td>{{ $drugChart->created_at->format('d M, Y') }}</td>
+                    </tr>
+                    @else
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">{{ $drugChart->comment ?? 'No reason provided' }}</td>
+                    </tr>
+                    @endif
                 @endforeach
             </tbody>
            </table>

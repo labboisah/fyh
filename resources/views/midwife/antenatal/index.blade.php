@@ -112,10 +112,16 @@
                                         <div class="btn-group btn-group-sm" role="group">
                                             @if($patient->payment()['pending'] == 0)
                                                 <a href="{{ route('midwife.antenatal.create', $patient) }}" class="btn btn-outline-primary" title="New Record">
-                                                    <i class="bi bi-plus-circle"></i>
+                                                    <i class="bi bi-plus-circle"></i> New 
                                                 </a>
                                                 <a href="{{ route('midwife.antenatal.patient-records', $patient) }}" class="btn btn-outline-info" title="View Records">
-                                                    <i class="bi bi-file-text"></i>
+                                                    <i class="bi bi-file-text"></i> Records
+                                                </a>
+                                                <a href="#" class="btn btn-outline-secondary" title="View Medications">
+                                                    <i class="bi bi-capsule"></i> Medications
+                                                </a>
+                                                <a href="{{ route('midwife.progress', $patient) }}" class="btn btn-outline-secondary" title="View Progress">
+                                                   <i class="bi bi-graph-up"></i> Track Progress
                                                 </a>
                                             @else
                                                 <span class="text-muted">Payment not recorded</span>    

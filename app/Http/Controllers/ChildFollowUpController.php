@@ -9,16 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ChildFollowUpController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'verified']);
-    }
+    
 
     public function index(Newborn $newborn)
     {
-        $newborn->load('patient.demographic', 'childFollowUps.recordedBy');
+        $newborns = Newborn::with('patient.demographic', 'followUps.recordedBy')->get();
 
-        return view('midwife.child-follow-up.index', compact('newborn'));
+        return view('midwife.child-follow-up.index', compact('newborns'));
     }
 
     public function create(Newborn $newborn)
@@ -26,97 +23,426 @@ class ChildFollowUpController extends Controller
         return view('midwife.child-follow-up.create', compact('newborn'));
     }
 
+    public function record(Newborn $newborn)
+    {
+        $childFollowUps = $newborn->followUps()->with('recordedBy')->get();
+
+        return view('midwife.child-follow-up.record', compact('newborn', 'childFollowUps'));
+    }
+
     public function store(Request $request, Newborn $newborn)
     {
         $validated = $request->validate([
-            'follow_up_date_time' => 'required|date',
-            'days_of_life' => 'required|integer|min=1|max=365',
-            'follow_up_period' => 'required|in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
-            'location' => 'required|in:home,clinic,hospital,other',
-            'location_details' => 'nullable|string|max:255',
-            'feeding_type' => 'required|in:breastfeeding,bottle_feeding,mixed,other',
-            'how_baby_is_feeding' => 'nullable|string|max:500',
-            'mother_observations' => 'nullable|string|max:1000',
-            'temperature' => 'nullable|numeric|min=34|max:42',
-            'heart_rate' => 'nullable|integer|min:80|max:200',
-            'respiratory_rate' => 'nullable|integer|min:20|max:80',
-            'weight' => 'nullable|numeric|min:0|max:20',
-            'length' => 'nullable|numeric|min:20|max:80',
-            'head_circumference' => 'nullable|numeric|min:20|max:50',
-            'weight_percentile' => 'nullable|string|max:50',
-            'weight_change_since_birth' => 'nullable|string|max:255',
-            'weight_gain_rate' => 'nullable|string|max:255',
-            'weight_assessment' => 'nullable|in:adequate,inadequate,excessive',
-            'general_appearance' => 'nullable|string|max:500',
-            'activity_level' => 'nullable|in:active,lethargic,normal',
-            'alertness' => 'nullable|in:alert,drowsy,unresponsive',
-            'skin_examination' => 'nullable|string|max:500',
-            'umbilical_cord_status' => 'nullable|string|max:255',
-            'umbilical_discharge' => 'nullable|string|max:255',
-            'signs_of_infection' => 'nullable|string|max:500',
-            'jaundice_present' => 'nullable|boolean',
-            'jaundice_level' => 'nullable|in:mild,moderate,high,severe',
-            'jaundice_management' => 'nullable|string|max:500',
-            'breast_examination' => 'nullable|string|max:500',
-            'latching_quality' => 'nullable|in:good,fair,poor',
-            'suckling_pattern' => 'nullable|in:good,fair,poor',
-            'milk_transfer' => 'nullable|in:good,fair,poor',
-            'bottle_feeding_if_applicable' => 'nullable|string|max:500',
-            'feeding_frequency' => 'nullable|string|max:255',
-            'feeding_duration' => 'nullable|string|max:255',
-            'feeding_problems' => 'nullable|string|max:500',
-            'mother_nipple_problems' => 'nullable|string|max:500',
-            'urinary_output' => 'nullable|string|max:255',
-            'stool_output' => 'nullable|string|max:255',
-            'stool_characteristics' => 'nullable|string|max:255',
-            'elimination_problems' => 'nullable|string|max:500',
-            'responsiveness' => 'nullable|in:good,fair,poor',
-            'cry_quality' => 'nullable|in:strong,weak,normal',
-            'reflex_assessment' => 'nullable|string|max:500',
-            'muscle_tone' => 'nullable|in:normal,increased,decreased',
-            'immunizations_up_to_date' => 'nullable|boolean',
-            'immunizations_given' => 'nullable|string|max:1000',
-            'immunizations_planned' => 'nullable|string|max:1000',
-            'newborn_screening_done' => 'nullable|boolean',
-            'newborn_screening_results' => 'nullable|string|max:1000',
-            'hearing_screening_done' => 'nullable|boolean',
-            'hearing_screening_results' => 'nullable|string|max:255',
-            'developmental_milestones' => 'nullable|string|max:1000',
-            'developmental_concerns' => 'nullable|string|max:1000',
-            'mother_recovery_status' => 'nullable|string|max:500',
-            'mother_emotional_wellbeing' => 'nullable|string|max:500',
-            'mother_breastfeeding_support' => 'nullable|string|max:500',
-            'baby_concerns' => 'nullable|string|max:1000',
-            'mother_concerns' => 'nullable|string|max:1000',
-            'complications_identified' => 'nullable|string|max:1000',
-            'counseling_topics' => 'nullable|string|max:1000',
-            'infant_care_advice_given' => 'nullable|boolean',
-            'feeding_guidance_given' => 'nullable|boolean',
-            'cord_care_advice_given' => 'nullable|boolean',
-            'hygiene_safety_advice_given' => 'nullable|boolean',
-            'danger_signs_explained' => 'nullable|boolean',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'health_status' => 'required|in:normal,at_risk,needs_referral,referred',
-            'referral_reason' => 'nullable|string|max:1000',
-            'referral_destination' => 'nullable|string|max:255',
-            'management_plan' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
-            'next_follow_up_reason' => 'nullable|string|max:500',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Follow-up Details
+            |--------------------------------------------------------------------------
+            */
+
+            'follow_up_date_time' => [
+                'required',
+                'date',
+            ],
+
+            'days_of_life' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+
+            'follow_up_period' => [
+                'required',
+                'in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Follow-up Location
+            |--------------------------------------------------------------------------
+            */
+
+            'location' => [
+                'nullable',
+                'in:hospital,clinic,home,other',
+            ],
+
+            'location_details' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Feeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'feeding_type' => [
+                'nullable',
+                'in:exclusive_breastfeeding,formula,mixed,complementary_feeding',
+            ],
+
+            'feeding_frequency' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'feeding_duration' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'how_baby_is_feeding' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'feeding_problems' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'latching_quality' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'suckling_pattern' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'temperature' => [
+                'nullable',
+                'numeric',
+                'between:30,45',
+            ],
+
+            'heart_rate' => [
+                'nullable',
+                'integer',
+                'between:50,250',
+            ],
+
+            'respiratory_rate' => [
+                'nullable',
+                'integer',
+                'between:10,120',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Growth Parameters
+            |--------------------------------------------------------------------------
+            */
+
+            'weight' => [
+                'nullable',
+                'numeric',
+                'between:0.5,50',
+            ],
+
+            'length' => [
+                'nullable',
+                'numeric',
+                'between:10,150',
+            ],
+
+            'head_circumference' => [
+                'nullable',
+                'numeric',
+                'between:10,80',
+            ],
+
+            'weight_percentile' => [
+                'nullable',
+                'numeric',
+                'between:0,100',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Jaundice Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'jaundice_present' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'jaundice_level' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'jaundice_management' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Immunization & Screening
+            |--------------------------------------------------------------------------
+            */
+
+            'immunizations_up_to_date' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'newborn_screening_done' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'hearing_screening_done' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'immunizations_given' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'immunizations_planned' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Clinical Summary & Plan
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'health_status' => [
+                'required',
+                'in:normal,at_risk,needs_referral,referred',
+            ],
+
+            'management_plan' => [
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+
+            'next_follow_up_date' => [
+                'nullable',
+                'date',
+            ],
+
+            'danger_signs_explained' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'referral_reason' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
         ]);
 
-        $validated['newborn_id'] = $newborn->id;
-        $validated['patient_id'] = $newborn->patient_id;
-        $validated['recorded_by'] = Auth::id();
+        /*
+        |--------------------------------------------------------------------------
+        | Store Child Follow-up
+        |--------------------------------------------------------------------------
+        */
 
-        $followUp = ChildFollowUp::create($validated);
+        $childFollowUp = ChildFollowUp::create([
 
-        activity()
-            ->performedOn($followUp)
-            ->withProperties(['action' => 'create'])
-            ->log('Child follow-up record created');
+            'newborn_id' => $newborn->id,
 
-        return redirect()->route('midwife.child-follow-up.show', $followUp)
-            ->with('success', 'Child follow-up record created successfully.');
+            'patient_id' => $newborn->patient_id,
+
+            'recorded_by' => auth()->id(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Follow-up Details
+            |--------------------------------------------------------------------------
+            */
+
+            'follow_up_date_time'
+                => $validated['follow_up_date_time'],
+
+            'days_of_life'
+                => $validated['days_of_life'] ?? null,
+
+            'follow_up_period'
+                => $validated['follow_up_period'],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Follow-up Location
+            |--------------------------------------------------------------------------
+            */
+
+            'location'
+                => $validated['location'] ?? null,
+
+            'location_details'
+                => $validated['location_details'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Feeding Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'feeding_type'
+                => $validated['feeding_type'] ?? null,
+
+            'feeding_frequency'
+                => $validated['feeding_frequency'] ?? null,
+
+            'feeding_duration'
+                => $validated['feeding_duration'] ?? null,
+
+            'how_baby_is_feeding'
+                => $validated['how_baby_is_feeding'] ?? null,
+
+            'feeding_problems'
+                => $validated['feeding_problems'] ?? null,
+
+            'latching_quality'
+                => $validated['latching_quality'] ?? null,
+
+            'suckling_pattern'
+                => $validated['suckling_pattern'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vital Signs
+            |--------------------------------------------------------------------------
+            */
+
+            'temperature'
+                => $validated['temperature'] ?? null,
+
+            'heart_rate'
+                => $validated['heart_rate'] ?? null,
+
+            'respiratory_rate'
+                => $validated['respiratory_rate'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Growth Parameters
+            |--------------------------------------------------------------------------
+            */
+
+            'weight'
+                => $validated['weight'] ?? null,
+
+            'length'
+                => $validated['length'] ?? null,
+
+            'head_circumference'
+                => $validated['head_circumference'] ?? null,
+
+            'weight_percentile'
+                => $validated['weight_percentile'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Jaundice Assessment
+            |--------------------------------------------------------------------------
+            */
+
+            'jaundice_present'
+                => $request->boolean('jaundice_present'),
+
+            'jaundice_level'
+                => $validated['jaundice_level'] ?? null,
+
+            'jaundice_management'
+                => $validated['jaundice_management'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Immunization & Screening
+            |--------------------------------------------------------------------------
+            */
+
+            'immunizations_up_to_date'
+                => $request->boolean('immunizations_up_to_date'),
+
+            'newborn_screening_done'
+                => $request->boolean('newborn_screening_done'),
+
+            'hearing_screening_done'
+                => $request->boolean('hearing_screening_done'),
+
+            'immunizations_given'
+                => $validated['immunizations_given'] ?? null,
+
+            'immunizations_planned'
+                => $validated['immunizations_planned'] ?? null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Clinical Summary & Plan
+            |--------------------------------------------------------------------------
+            */
+
+            'clinical_summary'
+                => $validated['clinical_summary'] ?? null,
+
+            'health_status'
+                => $validated['health_status'],
+
+            'management_plan'
+                => $validated['management_plan'] ?? null,
+
+            'next_follow_up_date'
+                => $validated['next_follow_up_date'] ?? null,
+
+            'danger_signs_explained'
+                => $request->boolean('danger_signs_explained'),
+
+            'referral_reason'
+                => $validated['referral_reason'] ?? null,
+
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('midwife.child-follow-up.show', $childFollowUp)
+            ->with('success', 'Child follow-up recorded successfully.');
     }
 
     public function show(ChildFollowUp $childFollowUp)
@@ -132,102 +458,419 @@ class ChildFollowUpController extends Controller
     }
 
     public function update(Request $request, ChildFollowUp $childFollowUp)
-    {
-        $validated = $request->validate([
-            'follow_up_date_time' => 'required|date',
-            'days_of_life' => 'required|integer|min=1|max=365',
-            'follow_up_period' => 'required|in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
-            'location' => 'required|in:home,clinic,hospital,other',
-            'location_details' => 'nullable|string|max:255',
-            'feeding_type' => 'required|in:breastfeeding,bottle_feeding,mixed,other',
-            'how_baby_is_feeding' => 'nullable|string|max:500',
-            'mother_observations' => 'nullable|string|max:1000',
-            'temperature' => 'nullable|numeric|min=34|max:42',
-            'heart_rate' => 'nullable|integer|min:80|max:200',
-            'respiratory_rate' => 'nullable|integer|min:20|max:80',
-            'weight' => 'nullable|numeric|min:0|max:20',
-            'length' => 'nullable|numeric|min:20|max:80',
-            'head_circumference' => 'nullable|numeric|min:20|max:50',
-            'weight_percentile' => 'nullable|string|max:50',
-            'weight_change_since_birth' => 'nullable|string|max:255',
-            'weight_gain_rate' => 'nullable|string|max:255',
-            'weight_assessment' => 'nullable|in:adequate,inadequate,excessive',
-            'general_appearance' => 'nullable|string|max:500',
-            'activity_level' => 'nullable|in:active,lethargic,normal',
-            'alertness' => 'nullable|in:alert,drowsy,unresponsive',
-            'skin_examination' => 'nullable|string|max:500',
-            'umbilical_cord_status' => 'nullable|string|max:255',
-            'umbilical_discharge' => 'nullable|string|max:255',
-            'signs_of_infection' => 'nullable|string|max:500',
-            'jaundice_present' => 'nullable|boolean',
-            'jaundice_level' => 'nullable|in:mild,moderate,high,severe',
-            'jaundice_management' => 'nullable|string|max:500',
-            'breast_examination' => 'nullable|string|max:500',
-            'latching_quality' => 'nullable|in:good,fair,poor',
-            'suckling_pattern' => 'nullable|in:good,fair,poor',
-            'milk_transfer' => 'nullable|in:good,fair,poor',
-            'bottle_feeding_if_applicable' => 'nullable|string|max:500',
-            'feeding_frequency' => 'nullable|string|max:255',
-            'feeding_duration' => 'nullable|string|max:255',
-            'feeding_problems' => 'nullable|string|max:500',
-            'mother_nipple_problems' => 'nullable|string|max:500',
-            'urinary_output' => 'nullable|string|max:255',
-            'stool_output' => 'nullable|string|max:255',
-            'stool_characteristics' => 'nullable|string|max:255',
-            'elimination_problems' => 'nullable|string|max:500',
-            'responsiveness' => 'nullable|in:good,fair,poor',
-            'cry_quality' => 'nullable|in:strong,weak,normal',
-            'reflex_assessment' => 'nullable|string|max:500',
-            'muscle_tone' => 'nullable|in:normal,increased,decreased',
-            'immunizations_up_to_date' => 'nullable|boolean',
-            'immunizations_given' => 'nullable|string|max:1000',
-            'immunizations_planned' => 'nullable|string|max:1000',
-            'newborn_screening_done' => 'nullable|boolean',
-            'newborn_screening_results' => 'nullable|string|max:1000',
-            'hearing_screening_done' => 'nullable|boolean',
-            'hearing_screening_results' => 'nullable|string|max:255',
-            'developmental_milestones' => 'nullable|string|max:1000',
-            'developmental_concerns' => 'nullable|string|max:1000',
-            'mother_recovery_status' => 'nullable|string|max:500',
-            'mother_emotional_wellbeing' => 'nullable|string|max:500',
-            'mother_breastfeeding_support' => 'nullable|string|max:500',
-            'baby_concerns' => 'nullable|string|max:1000',
-            'mother_concerns' => 'nullable|string|max:1000',
-            'complications_identified' => 'nullable|string|max:1000',
-            'counseling_topics' => 'nullable|string|max:1000',
-            'infant_care_advice_given' => 'nullable|boolean',
-            'feeding_guidance_given' => 'nullable|boolean',
-            'cord_care_advice_given' => 'nullable|boolean',
-            'hygiene_safety_advice_given' => 'nullable|boolean',
-            'danger_signs_explained' => 'nullable|boolean',
-            'clinical_summary' => 'nullable|string|max:2000',
-            'health_status' => 'required|in:normal,at_risk,needs_referral,referred',
-            'referral_reason' => 'nullable|string|max:1000',
-            'referral_destination' => 'nullable|string|max:255',
-            'management_plan' => 'nullable|string|max:1000',
-            'next_follow_up_date' => 'nullable|date',
-            'next_follow_up_reason' => 'nullable|string|max:500',
-        ]);
+{
+    $validated = $request->validate([
 
-        $childFollowUp->update($validated);
+        /*
+        |--------------------------------------------------------------------------
+        | Follow-up Details
+        |--------------------------------------------------------------------------
+        */
 
-        activity()
-            ->performedOn($childFollowUp)
-            ->withProperties(['action' => 'update'])
-            ->log('Child follow-up record updated');
+        'follow_up_date_time' => [
+            'required',
+            'date',
+        ],
 
-        return redirect()->route('midwife.child-follow-up.show', $childFollowUp)
-            ->with('success', 'Child follow-up record updated successfully.');
-    }
+        'days_of_life' => [
+            'nullable',
+            'integer',
+            'min:0',
+        ],
+
+        'follow_up_period' => [
+            'required',
+            'in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Follow-up Location
+        |--------------------------------------------------------------------------
+        */
+
+        'location' => [
+            'nullable',
+            'in:hospital,clinic,home,other',
+        ],
+
+        'location_details' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type' => [
+            'nullable',
+            'in:exclusive_breastfeeding,formula,mixed,complementary_feeding',
+        ],
+
+        'feeding_frequency' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+
+        'feeding_duration' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+
+        'how_baby_is_feeding' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'feeding_problems' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'latching_quality' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'suckling_pattern' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature' => [
+            'nullable',
+            'numeric',
+            'between:30,45',
+        ],
+
+        'heart_rate' => [
+            'nullable',
+            'integer',
+            'between:50,250',
+        ],
+
+        'respiratory_rate' => [
+            'nullable',
+            'integer',
+            'between:10,120',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Growth Parameters
+        |--------------------------------------------------------------------------
+        */
+
+        'weight' => [
+            'nullable',
+            'numeric',
+            'between:0.5,50',
+        ],
+
+        'length' => [
+            'nullable',
+            'numeric',
+            'between:10,150',
+        ],
+
+        'head_circumference' => [
+            'nullable',
+            'numeric',
+            'between:10,80',
+        ],
+
+        'weight_percentile' => [
+            'nullable',
+            'numeric',
+            'between:0,100',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'jaundice_level' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'jaundice_management' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Immunization & Screening
+        |--------------------------------------------------------------------------
+        */
+
+        'immunizations_up_to_date' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'newborn_screening_done' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'hearing_screening_done' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'immunizations_given' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        'immunizations_planned' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clinical Summary & Plan
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'health_status' => [
+            'required',
+            'in:normal,at_risk,needs_referral,referred',
+        ],
+
+        'management_plan' => [
+            'nullable',
+            'string',
+            'max:10000',
+        ],
+
+        'next_follow_up_date' => [
+            'nullable',
+            'date',
+        ],
+
+        'danger_signs_explained' => [
+            'nullable',
+            'boolean',
+        ],
+
+        'referral_reason' => [
+            'nullable',
+            'string',
+            'max:5000',
+        ],
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Child Follow-up
+    |--------------------------------------------------------------------------
+    */
+
+    $childFollowUp->update([
+
+        /*
+        |--------------------------------------------------------------------------
+        | Follow-up Details
+        |--------------------------------------------------------------------------
+        */
+
+        'follow_up_date_time'
+            => $validated['follow_up_date_time'],
+
+        'days_of_life'
+            => $validated['days_of_life'] ?? null,
+
+        'follow_up_period'
+            => $validated['follow_up_period'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Follow-up Location
+        |--------------------------------------------------------------------------
+        */
+
+        'location'
+            => $validated['location'] ?? null,
+
+        'location_details'
+            => $validated['location_details'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feeding Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'feeding_type'
+            => $validated['feeding_type'] ?? null,
+
+        'feeding_frequency'
+            => $validated['feeding_frequency'] ?? null,
+
+        'feeding_duration'
+            => $validated['feeding_duration'] ?? null,
+
+        'how_baby_is_feeding'
+            => $validated['how_baby_is_feeding'] ?? null,
+
+        'feeding_problems'
+            => $validated['feeding_problems'] ?? null,
+
+        'latching_quality'
+            => $validated['latching_quality'] ?? null,
+
+        'suckling_pattern'
+            => $validated['suckling_pattern'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vital Signs
+        |--------------------------------------------------------------------------
+        */
+
+        'temperature'
+            => $validated['temperature'] ?? null,
+
+        'heart_rate'
+            => $validated['heart_rate'] ?? null,
+
+        'respiratory_rate'
+            => $validated['respiratory_rate'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Growth Parameters
+        |--------------------------------------------------------------------------
+        */
+
+        'weight'
+            => $validated['weight'] ?? null,
+
+        'length'
+            => $validated['length'] ?? null,
+
+        'head_circumference'
+            => $validated['head_circumference'] ?? null,
+
+        'weight_percentile'
+            => $validated['weight_percentile'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jaundice Assessment
+        |--------------------------------------------------------------------------
+        */
+
+        'jaundice_present'
+            => $request->boolean('jaundice_present'),
+
+        'jaundice_level'
+            => $validated['jaundice_level'] ?? null,
+
+        'jaundice_management'
+            => $validated['jaundice_management'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Immunization & Screening
+        |--------------------------------------------------------------------------
+        */
+
+        'immunizations_up_to_date'
+            => $request->boolean('immunizations_up_to_date'),
+
+        'newborn_screening_done'
+            => $request->boolean('newborn_screening_done'),
+
+        'hearing_screening_done'
+            => $request->boolean('hearing_screening_done'),
+
+        'immunizations_given'
+            => $validated['immunizations_given'] ?? null,
+
+        'immunizations_planned'
+            => $validated['immunizations_planned'] ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clinical Summary & Plan
+        |--------------------------------------------------------------------------
+        */
+
+        'clinical_summary'
+            => $validated['clinical_summary'] ?? null,
+
+        'health_status'
+            => $validated['health_status'],
+
+        'management_plan'
+            => $validated['management_plan'] ?? null,
+
+        'next_follow_up_date'
+            => $validated['next_follow_up_date'] ?? null,
+
+        'danger_signs_explained'
+            => $request->boolean('danger_signs_explained'),
+
+        'referral_reason'
+            => $validated['referral_reason'] ?? null,
+
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect
+    |--------------------------------------------------------------------------
+    */
+
+    return redirect()
+        ->route('midwife.child-follow-up.show', $childFollowUp)
+        ->with('success', 'Child follow-up updated successfully.');
+}
 
     public function destroy(ChildFollowUp $childFollowUp)
     {
         $childFollowUp->delete();
 
-        activity()
-            ->performedOn($childFollowUp)
-            ->withProperties(['action' => 'delete'])
-            ->log('Child follow-up record deleted');
+       
 
         return redirect()->route('midwife.child-follow-up.index', $childFollowUp->newborn)
             ->with('success', 'Child follow-up record deleted successfully.');

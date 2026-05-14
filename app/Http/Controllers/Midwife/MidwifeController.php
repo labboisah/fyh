@@ -88,4 +88,120 @@ class MidwifeController extends Controller
 
         return view('midwife.dashboard', $data);
     }
+
+    /**
+     * Display the progress of a specific patient
+      */
+    public function progress(Patient $patient)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Antenatal Care
+    |--------------------------------------------------------------------------
+    */
+
+    $antenatalCare = AntenatalCare::where('patient_id', $patient->id)
+        ->latest()
+        ->first();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Labour
+    |--------------------------------------------------------------------------
+    */
+
+    $labour = Labour::where('patient_id', $patient->id)
+        ->latest()
+        ->first();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delivery
+    |--------------------------------------------------------------------------
+    */
+
+    $delivery = Delivery::where('patient_id', $patient->id)
+        ->latest()
+        ->first();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Newborns
+    |--------------------------------------------------------------------------
+    */
+
+    $newborns = Newborn::where('patient_id', $patient->id)
+        ->latest()
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Newborn Examinations
+    |--------------------------------------------------------------------------
+    */
+
+    $newbornExaminations = NewbornExamination::whereIn(
+            'newborn_id',
+            $newborns->pluck('id')
+        )
+        ->latest()
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Postnatal Examinations
+    |--------------------------------------------------------------------------
+    */
+
+    $postnatalExaminations = collect();
+
+    if ($delivery) {
+
+        $postnatalExaminations = PostnatalExamination::where(
+                'delivery_id',
+                $delivery->id
+            )
+            ->latest()
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Child Follow-ups
+    |--------------------------------------------------------------------------
+    */
+
+    $childFollowUps = ChildFollowUp::whereIn(
+            'newborn_id',
+            $newborns->pluck('id')
+        )
+        ->latest()
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render View
+    |--------------------------------------------------------------------------
+    */
+
+    return view('midwife.progress', [
+
+        'patient' => $patient,
+
+        'antenatalCare' => $antenatalCare,
+
+        'labour' => $labour,
+
+        'delivery' => $delivery,
+
+        'newborns' => $newborns,
+
+        'newbornExaminations' => $newbornExaminations,
+
+        'postnatalExaminations' => $postnatalExaminations,
+
+        'childFollowUps' => $childFollowUps,
+
+    ]);
+}
 }

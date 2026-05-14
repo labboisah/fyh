@@ -1259,11 +1259,6 @@ class NewbornExaminationController extends Controller
     {
         $newbornExamination->delete();
 
-        activity()
-            ->performedOn($newbornExamination)
-            ->withProperties(['action' => 'delete'])
-            ->log('Newborn examination record deleted');
-
         return redirect()->route('midwife.newborn-examination.index', $newbornExamination->newborn)
             ->with('success', 'Newborn examination record deleted successfully.');
     }

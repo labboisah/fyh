@@ -10,6 +10,7 @@ use App\Http\Controllers\NewbornController;
 use App\Http\Controllers\NewbornExaminationController;
 use App\Http\Controllers\PostnatalExaminationController;
 use App\Http\Controllers\ChildFollowUpController;
+use App\Http\Controllers\MaternalMedicationController;
 
 Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
     ->prefix('midwife')
@@ -18,6 +19,8 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         
         // Dashboard route
         Route::get('/', [MidwifeController::class, 'dashboard'])->name('dashboard');
+        
+        Route::get('/{patient}/progress', [MidwifeController::class, 'progress'])->name('progress');
         
         // Antenatal Care routes
         Route::name('antenatal.')
@@ -142,7 +145,8 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         Route::name('child-follow-up.')
             ->prefix('child-follow-up')
             ->group(function () {
-                Route::get('/newborn/{newborn}', [ChildFollowUpController::class, 'index'])->name('index');
+                Route::get('/newborns', [ChildFollowUpController::class, 'index'])->name('index');
+                Route::get('/newborn/{newborn}/record', [ChildFollowUpController::class, 'record'])->name('record');
                 Route::get('/newborn/{newborn}/create', [ChildFollowUpController::class, 'create'])->name('create');
                 Route::post('/newborn/{newborn}/store', [ChildFollowUpController::class, 'store'])->name('store');
                 Route::get('/{childFollowUp}/show', [ChildFollowUpController::class, 'show'])->name('show');
@@ -150,4 +154,17 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
                 Route::put('/{childFollowUp}/update', [ChildFollowUpController::class, 'update'])->name('update');
                 Route::delete('/{childFollowUp}/delete', [ChildFollowUpController::class, 'destroy'])->name('destroy');
             });
+
+            // medications routes
+            Route::name('medications.')
+                ->prefix('medications')
+                ->group(function () {
+                    Route::get('/{patient}', [MaternalMedicationController::class, 'index'])->name('index');
+                    Route::get('/patient/{patient}/create', [MaternalMedicationController::class, 'create'])->name('create');
+                    Route::post('/patient/{patient}/store', [MaternalMedicationController::class, 'store'])->name('store');
+                    Route::get('/{medication}/show', [MaternalMedicationController::class, 'show'])->name('show');
+                    Route::get('/{medication}/edit', [MaternalMedicationController::class, 'edit'])->name('edit');
+                    Route::put('/{medication}/update', [MaternalMedicationController::class, 'update'])->name('update');
+                    Route::delete('/{medication}/delete', [MaternalMedicationController::class, 'destroy'])->name('destroy');
+                });
     });

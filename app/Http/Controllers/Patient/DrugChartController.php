@@ -20,6 +20,7 @@ class DrugChartController extends Controller
             'dosage' => $request->dosage,
             'medicine_id'=>$prescriptionItem->medicine->id,
             'mode_of_administration' => $request->mode_of_administration,
+            'comment' => $request->comment,
             'time' => date("h:i:s A"),
             'dispensed_by' => auth()->user()->id,
         ]);

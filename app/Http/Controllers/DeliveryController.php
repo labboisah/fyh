@@ -733,10 +733,7 @@ class DeliveryController extends Controller
     {
         $delivery->delete();
 
-        activity()
-            ->performedOn($delivery)
-            ->withProperties(['action' => 'delete'])
-            ->log('Delivery record deleted');
+        
 
         return redirect()->route('midwife.delivery.index')
             ->with('success', 'Delivery record deleted successfully.');

@@ -380,12 +380,25 @@
                         </div>
                         
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="" class="btn btn-outline-success w-100 py-3 text-start">
+                            <a href="{{route('midwife.child-follow-up.index')}}" class="btn btn-outline-success w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-graph-up me-2" style="font-size: 1.5rem;"></i>
                                     <div>
                                         <div class="fw-bold">Child Follow-ups</div>
                                         <small class="text-muted">Track child growth</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- medications -->
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <a href="#" class="btn btn-outline-success w-100 py-3 text-start">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-capsule me-2" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <div class="fw-bold">Medication</div>
+                                        <small class="text-muted">Manage medications</small>
                                     </div>
                                 </div>
                             </a>

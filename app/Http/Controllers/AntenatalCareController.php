@@ -196,10 +196,7 @@ class AntenatalCareController extends Controller
         }
 
         // Log activity before deletion
-        activity()
-            ->performedOn($antenatalCare)
-            ->withProperties(['action' => 'delete'])
-            ->log('Antenatal care record deleted');
+       
 
         // Soft delete
         $antenatalCare->delete();

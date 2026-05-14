@@ -51,13 +51,6 @@ class NewbornController extends Controller
             'max:10',
         ],
 
-        'newborn_registration_number' => [
-            'nullable',
-            'string',
-            'max:255',
-            'unique:newborns,newborn_registration_number',
-        ],
-
         'birth_date_time' => [
             'required',
             'date',
@@ -324,7 +317,7 @@ class NewbornController extends Controller
         'birth_order' => $validated['birth_order'] ?? 1,
 
         'newborn_registration_number'
-            => $validated['newborn_registration_number'] ?? null,
+            => Newborn::generateRegistrationNumber(),
 
         'birth_date_time' => $validated['birth_date_time'],
 
@@ -947,11 +940,6 @@ class NewbornController extends Controller
     public function destroy(Newborn $newborn)
     {
         $newborn->delete();
-
-        activity()
-            ->performedOn($newborn)
-            ->withProperties(['action' => 'delete'])
-            ->log('Newborn record deleted');
 
         return redirect()->route('midwife.delivery.show', $newborn->delivery)
             ->with('success', 'Newborn record deleted successfully.');

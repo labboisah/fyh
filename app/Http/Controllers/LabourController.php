@@ -501,10 +501,6 @@ class LabourController extends Controller
         
         $labour->delete();
 
-        activity()
-            ->performedOn($labour)
-            ->withProperties(['action' => 'delete'])
-            ->log('Labour record deleted');
 
         return redirect()->route('midwife.labour.index')
                        ->with('success', 'Labour record deleted successfully.');

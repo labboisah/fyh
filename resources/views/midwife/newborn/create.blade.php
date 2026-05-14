@@ -182,18 +182,7 @@
 
                             </div>
 
-                            <div class="col-md-4 mb-3">
-
-                                <label class="form-label">
-                                    Registration Number
-                                </label>
-
-                                <input type="text"
-                                       name="newborn_registration_number"
-                                       class="form-control"
-                                       value="{{ old('newborn_registration_number') }}">
-
-                            </div>
+                        
 
                             <div class="col-md-6 mb-3">
 

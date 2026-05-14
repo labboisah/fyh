@@ -98,6 +98,10 @@ class Newborn extends Model
         return $this->hasMany(NewbornExamination::class);
     }
 
+    public function generateRegistrationNumber() {
+        return 'NB' . now()->format('YmdHis') . rand(1000, 9999);
+    }
+
     /**
      * Get all follow-up visits for this baby
      */
