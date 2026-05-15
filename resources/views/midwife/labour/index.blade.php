@@ -120,5 +120,7 @@
             </div>
         </div>
     @endif
+    <a href="{{ route('midwife.antenatal.index') }}" class="btn btn-outline-secondary mt-3">Back to Antenatal Care</a>
+
 </div>
 @endsection

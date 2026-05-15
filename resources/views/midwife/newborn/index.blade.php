@@ -47,6 +47,6 @@
         </div>
     @endif
 
-    <a href="{{ route('midwife.delivery.show', $delivery) }}" class="btn btn-outline-secondary mt-3">Back to Delivery</a>
+    <a href="{{ route('midwife.delivery.index') }}" class="btn btn-outline-secondary mt-3">Back to Delivery</a>
 </div>
 @endsection

@@ -34,7 +34,7 @@
         <div class="card-header bg-light">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5 class="mb-0">Female Patients (Reproductive Age)</h5>
+                    <h5 class="mb-0">Antenatal Care Patients</h5>
                 </div>
                 <div class="col-md-6 text-end">
                     <span class="badge bg-info">{{ $requests->count() }} ANC Service Requests</span>
@@ -117,10 +117,10 @@
                                                 <a href="{{ route('midwife.antenatal.patient-records', $patient) }}" class="btn btn-outline-info" title="View Records">
                                                     <i class="bi bi-file-text"></i> Records
                                                 </a>
-                                                <a href="#" class="btn btn-outline-secondary" title="View Medications">
+                                                <a href="#" class="btn btn-outline-danger" title="View Medications">
                                                     <i class="bi bi-capsule"></i> Medications
                                                 </a>
-                                                <a href="{{ route('midwife.progress', $patient) }}" class="btn btn-outline-secondary" title="View Progress">
+                                                <a href="{{ route('midwife.progress', $patient) }}" class="btn btn-outline-success" title="View Progress">
                                                    <i class="bi bi-graph-up"></i> Track Progress
                                                 </a>
                                             @else

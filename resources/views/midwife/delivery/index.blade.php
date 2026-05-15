@@ -78,5 +78,7 @@
             <div class="card-footer text-muted">Total: <strong>{{ $labours->count() }}</strong> labours</div>
         </div>
     @endif
+    <a href="{{ route('midwife.labour.index') }}" class="btn btn-outline-secondary mt-3">Back to Labour</a>
+
 </div>
 @endsection
