@@ -9,6 +9,8 @@ use App\Http\Controllers\Patient\DrugChartController;
 use App\Http\Controllers\Patient\FluidBalanceController;
 use App\Http\Controllers\Patient\ContinuationController;
 use App\Http\Controllers\Patient\DischargeController;
+use App\Http\Controllers\Patient\VisitController;
+use Illuminate\Support\Facades\Route;
 
 Route::name('patient.')
     ->middleware('auth')
@@ -35,6 +37,14 @@ Route::name('patient.')
             Route::get('/{patient}/create', [InvestigationController::class, 'create'])->name('create');
             Route::post('/{patient}/store', [InvestigationController::class, 'store'])->name('store');
             Route::get('/{investigationRequest}/show', [InvestigationController::class, 'show'])->name('show');
+        });
+
+        // investigation request routes
+        Route::name('visit.')
+        ->prefix('visit')
+        ->group(function () {
+            Route::get('/{patient}/referred-to-nurse', [VisitController::class, 'referredToNurse'])->name('referred-to-nurse');
+            Route::get('/{patient}/referred-to-doctor', [VisitController::class, 'referredToDoctor'])->name('referred-to-doctor');
         });
 
          Route::name('continuation.')

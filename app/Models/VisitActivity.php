@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class VisitActivity extends Model
 {
     protected $guarded =[];
-     
+    
+    
+    public function recordedBy() {
+        return $this->belongsTo(User::class, 'recorded_by');
+    }
 }

@@ -5,10 +5,8 @@
     </div>
     <div class="card-body">
        
-        @foreach($patient->visits as $visit)
-            @if($visit->admissions()->count() > 0)
-            @foreach($visit->admissions as $admission)
-                @foreach($admission->observations as $observation)
+        
+                @foreach($patient->currentVisit()->observations as $observation)
                 <div class="row mb-3">
                     <p class="mb-0 text-muted">
                         Visit on:
@@ -62,11 +60,7 @@
                     </div>
                 </div>
                 <hr>
-            @endforeach
-            @endforeach
-            @else
-            <div class="alert alert-warning">No Admission Record for this visit on this patient</div>
-            @endif
+            
             @endforeach
         
     </div>

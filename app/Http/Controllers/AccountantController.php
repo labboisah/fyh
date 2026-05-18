@@ -130,7 +130,7 @@ class AccountantController extends Controller
         if (empty($validated['hospital_number']) && empty($validated['walkin_name'])) {
             return back()->withErrors(['error' => 'Either Enter Hospital Number or provide walk-in patient details.']);
         }
-
+        $visit = null;
         $issued_by = Auth::id();
         $status = 'pending';
         $walkinId = null;
@@ -146,6 +146,7 @@ class AccountantController extends Controller
                     'reason_for_visit' => 'Walk-in bill creation',
                 ]);
             }
+            // send department service request
         }else if (!empty($validated['walkin_name'])) {
             $walkinPatient = WalkinPatient::create([
                 'name' => $validated['walkin_name'],
@@ -175,7 +176,20 @@ class AccountantController extends Controller
                     'subtotal' => $svc->price,
                 ];
             }
+            // send department service request
+            if(!$visit){
+                $visit= $walkinPatient;
+            }
 
+            $visit->departmentServiceRequests()->create([
+                'requested_by'=>auth()->user()->id,
+                'department_id'=>$svc->department_id ?? null,
+                'service_id'=>$svc->id,
+                'status'=>'pending'
+            ]);
+            // log activities
+
+            
             // if service is labour admit a patient
 
             if($patient && ($svc->id == 13 || $svc->id == 14)){

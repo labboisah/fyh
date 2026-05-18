@@ -5,7 +5,7 @@
                 
                 <div>
                     <p class="mb-0">{{ $activity->activity }}</p>
-                    <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
+                    <small class="text-muted">{{ $activity->created_at->diffForHumans() }} by <span class="fw-bold">{{ $activity->recordedBy->name }}</span></small>
                 </div>
             </div>
         </li>

@@ -39,7 +39,7 @@
 
                 <div class="col-md-2">
                     <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('record.payments.create.form', $patient) }}" class="btn btn-outline-warning">
+                        <a href="#" class="btn btn-outline-warning">
                             <i class="bi bi-cash-coin me-2"></i>Record Nursing Note
                         </a>
                     </div>
@@ -47,8 +47,8 @@
                 
                 <div class="col-md-2">
                     <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('accountant.bills.create', $patient) }}" class="btn btn-outline-success">
-                            <i class="bi bi-file-earmark-medical me-2"></i>Referrer Patient to Doctor
+                        <a href="{{ route('patient.visit.referred-to-doctor', $patient) }}" class="btn btn-outline-success">
+                            <i class="bi bi-file-earmark-medical me-2"></i>Referrer to Doctor
                         </a>
                     </div>
                 </div>
@@ -190,8 +190,8 @@
     </div>
     <div class="col-md-2">
         <div class="d-grid gap-2 mb-3">
-            <a href="{{ route('patient.admission.create', $patient) }}" class="btn btn-outline-success">
-                <i class="bi bi-pencil me-2"></i>Referred Patient
+            <a href="{{ route('patient.visit.referred-to-nurse', $patient) }}" class="btn btn-outline-success">
+                <i class="bi bi-file-earmark-medical me-2"></i>Referred Back to Nurse
             </a>
         </div>
     </div>

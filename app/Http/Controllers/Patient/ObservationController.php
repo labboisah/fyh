@@ -27,9 +27,10 @@ class ObservationController extends Controller
             "remark" => "required"
         ]);
         
-        $admission = $patient->currentVisit()->confirmAdmission();
-        if($admission){
-            $admission->observations()->create([
+        $visit = $patient->currentVisit();
+
+        if($visit){
+            $visit->observations()->create([
                 "temperature" => $request->temperature,
                 "mate_pulse" => $request->mate_pulse,
                 "blood_pressure" => $request->blood_pressure_systolic.'/'.$request->blood_pressure_diastolic,

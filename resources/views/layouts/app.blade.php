@@ -890,16 +890,24 @@
         <script>
             (function () {
                 const pageLoader = document.getElementById('page-loader');
+                let loaderHideTimeout;
 
                 const showPageLoader = () => {
                     if (pageLoader) {
                         pageLoader.classList.remove('hidden');
+                    }
+                    // Clear any pending hide timeout
+                    if (loaderHideTimeout) {
+                        clearTimeout(loaderHideTimeout);
                     }
                 };
 
                 const hidePageLoader = () => {
                     if (pageLoader) {
                         pageLoader.classList.add('hidden');
+                    }
+                    if (loaderHideTimeout) {
+                        clearTimeout(loaderHideTimeout);
                     }
                 };
 
@@ -1007,12 +1015,37 @@
                     });
                 });
 
+                // Handle both normal load and cache restoration (back button)
                 window.addEventListener('load', function () {
                     hidePageLoader();
                     if (typeof NProgress !== 'undefined') {
                         NProgress.done();
                     }
                 });
+
+                // Handle pageshow event (fires on load and cache restoration)
+                window.addEventListener('pageshow', function (event) {
+                    // Hide loader immediately when page is shown from cache or normal load
+                    hidePageLoader();
+                    if (typeof NProgress !== 'undefined') {
+                        NProgress.done();
+                    }
+                    // If this is a cached page restoration, ensure loader is hidden
+                    if (event.persisted) {
+                        loaderHideTimeout = setTimeout(hidePageLoader, 50);
+                    }
+                });
+
+                // Handle pagehide event to prepare for navigation
+                window.addEventListener('pagehide', function () {
+                    // Clear any pending operations
+                    if (loaderHideTimeout) {
+                        clearTimeout(loaderHideTimeout);
+                    }
+                });
+
+                // Safety timeout: hide loader if still visible after 3 seconds
+                loaderHideTimeout = setTimeout(hidePageLoader, 3000);
             })();
         </script>
         <script>

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('department_service_requests', function (Blueprint $table) {
-            $table->foreignId('patient_visit_id');
+        Schema::table('observations', function (Blueprint $table) {
+            $table->foreignId('patient_visit_id')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('department_service_requests', function (Blueprint $table) {
+        Schema::table('observations', function (Blueprint $table) {
             //
         });
     }

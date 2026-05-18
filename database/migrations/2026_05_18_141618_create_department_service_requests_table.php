@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
             $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('patient_visit_id')->constrained('patient_visits')->onDelete('cascade');
+            $table->foreignId('patient_visit_id')->nullable();
+            $table->foreignId('walkin_patient_id')->nullable();
             $table->string('status')->default('Pending');
             $table->timestamps();
         });

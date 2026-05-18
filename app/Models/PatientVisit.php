@@ -94,7 +94,6 @@ class PatientVisit extends Model
             $admission = $this->admissions()->create([
                 'date' => now(),
                 'bed_id' => $ward->getAvailableBed()->id ?? null,
-                
                 'time' => now()->toTimeString(),
                 'status' => 'Registered',
                 'admitted_by' => auth()->user()->id
@@ -110,6 +109,8 @@ class PatientVisit extends Model
     {
         return $this->hasOne(AntenatalCare::class, 'patient_visit_id');
     }
+
+   
 
     public function registeredAdmission() {
         return $this->admissions->where('status','registered')->first();

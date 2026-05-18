@@ -15,7 +15,7 @@
 @section('content')
 <div class="row">
     <div class="col-lg-8">
-        @if($patient->currentVisit()->admissions()->count()> 0)
+        
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-danger text-white">
                 <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Observation Recording</h5>
@@ -174,9 +174,7 @@
                 </form>
             </div>
         </div>
-        @else
-        <div class="alert alert-warning">No Admission Record found to record the observation  <a class="btn btn-outline-secondary" href="{{route('patient.show',$patient)}}"><i class="bi bi-arrow-left me-2"></i>Back to Patient Profile</a></div>
-        @endif
+       
     </div>
 
     <!-- Reference Card -->

@@ -11,4 +11,8 @@ class WalkinPatient extends Model
     public function bills() {
         return $this->hasMany(Bill::class);
     }
+
+    public function departmentServiceRequests() {
+        return $this->hasMany(DepartmentServiceRequest::class);
+    }
 }
