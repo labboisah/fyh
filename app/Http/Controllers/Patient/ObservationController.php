@@ -43,6 +43,12 @@ class ObservationController extends Controller
                 'recorded_by'=>auth()->user()->id
             ]);
 
+            // Log activity
+            $patient->currentVisit()->visitActivities()->create([
+                'activity' => "Observation recorded",    
+                'recorded_by' => auth()->id(),
+            ]);
+
             return redirect()->route('patient.show',$patient)->with('success', 'Observation Recorded Successfully');
         }
         return redirect()->back()->with('error', 'No admission available, pls confirm the patient admission');

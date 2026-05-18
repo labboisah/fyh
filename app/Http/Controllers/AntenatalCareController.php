@@ -102,6 +102,11 @@ class AntenatalCareController extends Controller
         // Create antenatal care record
         $antenatalCare = AntenatalCare::create($validated);
 
+        // Log activity
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Antenatal care record created",
+            'recorded_by' => auth()->id(),
+        ]);
        
 
         return redirect()->route('midwife.antenatal.show', $antenatalCare->id)
@@ -179,7 +184,12 @@ class AntenatalCareController extends Controller
         // Update the record
         $antenatalCare->update($validated);
 
-        
+        // Log activity
+        $patient = $antenatalCare->patient;
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Antenatal care record updated",
+            'recorded_by' => auth()->id(),
+        ]);
 
         return redirect()->route('midwife.antenatal.show', $antenatalCare->id)
                        ->with('success', 'Antenatal care record updated successfully');
@@ -196,7 +206,11 @@ class AntenatalCareController extends Controller
         }
 
         // Log activity before deletion
-       
+        $patient = $antenatalCare->patient;
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Antenatal care record deleted",
+            'recorded_by' => auth()->id(),
+        ]);
 
         // Soft delete
         $antenatalCare->delete();

@@ -433,7 +433,11 @@ class ChildFollowUpController extends Controller
                 => $validated['referral_reason'] ?? null,
 
         ]);
-
+        // Log activity
+        $newborn->patient->currentVisit()->visitActivities()->create([
+            'activity' => "Child follow-up recorded for {$childFollowUp->follow_up_period}",
+            'recorded_by' => auth()->id(),
+        ]);
         /*
         |--------------------------------------------------------------------------
         | Redirect
@@ -855,6 +859,13 @@ class ChildFollowUpController extends Controller
 
     ]);
 
+    // log activity 
+    $newborn = $childFollowUp->newborn;
+    $newborn->patient->currentVisit()->visitActivities()->create([
+        'activity' => "Child follow-up updated for {$childFollowUp->follow_up_period}",
+        'recorded_by' => auth()->id(),
+    ]);
+    
     /*
     |--------------------------------------------------------------------------
     | Redirect

@@ -620,12 +620,18 @@ class NewbornExaminationController extends Controller
             => $validated['next_follow_up_date'] ?? null,
 
     ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Redirect
-    |--------------------------------------------------------------------------
-    */
+    // log activity
+    $newborn->patient->currentVisit()->visitActivities()->create([
+        'activity' => "Newborn examination recorded with status: {$newbornExamination->exam_status}",
+        'recorded_by' => auth()->id(),
+    ]);
+    
+     /*
+     |--------------------------------------------------------------------------
+     | Redirect
+     |--------------------------------------------------------------------------
+     */ 
+   
         
     return redirect()
         ->route('midwife.newborn-examination.show', $newbornExamination)
@@ -1243,12 +1249,18 @@ class NewbornExaminationController extends Controller
             => $validated['next_follow_up_date'] ?? null,
 
     ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Redirect
-    |--------------------------------------------------------------------------
-    */
+    // log activity
+    $newborn = $newbornExamination->newborn;
+    $newborn->patient->currentVisit()->visitActivities()->create([
+        'activity' => "Newborn examination updated with status: {$newbornExamination->exam_status}",
+        'recorded_by' => auth()->id(),
+    ]);
+    
+     /*
+     |--------------------------------------------------------------------------
+     | Redirect
+     |--------------------------------------------------------------------------
+     */
 
     return redirect()
         ->route('midwife.newborn-examination.show', $newbornExamination)

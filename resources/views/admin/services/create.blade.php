@@ -65,7 +65,7 @@
                                     <select id="category" name="category" 
                                         class="form-select @error('category') is-invalid @enderror" required>
                                         <option value="">-- Select Category --</option>
-                                        @foreach(['Consultations', 'Laboratory', 'Imaging', 'Procedures', 'Medication', 'Vaccination'] as $cat)
+                                        @foreach($categories as $cat)
                                             <option value="{{ $cat }}" @selected(old('category') == $cat)>
                                                 {{ $cat }}
                                             </option>
@@ -76,6 +76,22 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="department_id" class="form-label">Department</label>
+                            <select id="department_id" name="department_id" 
+                                class="form-select @error('department_id') is-invalid @enderror">
+                                <option value="">-- Select Department --</option>
+                                @foreach(App\Models\Department::all() as $dept)
+                                    <option value="{{ $dept->id }}" @selected(old('department_id') == $dept->id)>
+                                        {{ $dept->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('department_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">

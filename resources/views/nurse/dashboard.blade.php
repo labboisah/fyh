@@ -127,6 +127,7 @@
     </div>
 
     <!-- Recently Registered Patients -->
+    
     @if(App\Models\PatientVisit::whereDate('created_at', today())->count() > 0)
         <div class="row mb-4">
             <div class="col-12">

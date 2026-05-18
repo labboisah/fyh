@@ -29,7 +29,12 @@ class DischargeController extends Controller
 
         $admission->update(['status'=>'discharged']);
         $admission->patientVisit->update(['status'=>'discharged']);
-
+        // Log activity
+        $admission->patientVisit->visitActivities()->create([
+            'activity' => "Patient discharged with reason: {$request->reason}",
+            'recorded_by' => auth()->id(),
+        ]);
+        
         return redirect()->route('patient.show', $admission->patientVisit->patient)
         ->with('success', 'Admission discharged successfully');
 

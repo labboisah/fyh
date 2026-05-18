@@ -41,6 +41,12 @@ class RequestController extends Controller
             'status' => 'Completed',
         ]);
 
+        // Log activity
+        $investigationRequest->patientVisit->visitActivities()->create([
+            'activity' => "Lab results recorded for {$investigationRequest->service->name}",
+            'recorded_by' => auth()->id(),
+        ]);
+
         return redirect()->route('lab.requests.index')->with('success', 'Investigation result recorded successfully.');
     }
 }

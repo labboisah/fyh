@@ -70,12 +70,25 @@ class Patient extends Model
     public function registerNewVisit(Service $service = null) {
 
         
-        return $this->patientVisits()->create([
+        $visit = $this->patientVisits()->create([
             'visit_date'=>date('d M, Y'),
             'visit_type'=>$service->name ?? 'Consultation',
             'flag'=>$service->category ?? 'Normal',
             'created_by'=>auth()->user()->id
         ]);
+
+        if(!$service){
+            $service = Service::where('category', 'Consultation')->first();
+        }
+
+        $visit->departmentServiceRequests()->create([
+            'requested_by'=>auth()->user()->id,
+            'department_id'=>$service->department_id ?? null,
+            'service_id'=>$service->id,
+            'status'=>'pending'
+        ]);
+
+        return $visit;
     }
 
     

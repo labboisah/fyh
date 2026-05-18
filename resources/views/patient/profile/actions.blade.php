@@ -53,25 +53,9 @@
                     </div>
                 </div>
                 
-                <div class="col-md-2">
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('record.vital-signs.request', $patient) }}" class="btn btn-outline-info">
-                            <i class="bi bi-heart-pulse me-2"></i>Generate Patient Care Report
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('nurse.patients.history', $patient) }}" class="btn btn-outline-info">
-                            <i class="bi bi-clock-history me-2"></i>View Patient History
-                        </a>
-                    </div>
-                </div>
+               
             </div>
-            <p class="text-muted small mt-3 mb-0">
-                <i class="bi bi-info-circle me-1"></i>
-                Follow the workflow: Record Vital Signs → Add Nursing Note → Record Drug Chart → Record Observations → Generate Patient Care Report → Submit to Doctor.
-            </p>
+            
         </div>
 @endif
 <div class="row">

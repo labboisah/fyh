@@ -42,17 +42,6 @@ class AccountantSeeder extends Seeder
             Permission::whereIn('name', array_keys($permissions))->pluck('id')
         );
 
-        // Create a test accountant user
-        $accountant = User::firstOrCreate(
-            ['email' => 'accountant@hospital.test'],
-            [
-                'name' => 'Accountant',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-
-        // Assign accountant role to user
-        $accountant->assignRole('accountant');
+        
     }
 }

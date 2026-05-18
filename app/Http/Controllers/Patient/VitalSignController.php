@@ -38,7 +38,11 @@ class VitalSignController extends Controller
         $validated['recorded_by'] = Auth::id();
 
         VitalSign::create($validated);
-
+            // Log activity
+            $patient->currentVisit()->visitActivities()->create([
+                'activity' => "Vital signs recorded",
+                'recorded_by' => auth()->id(),
+            ]);
         return redirect()->route('patient.show', $patient)
             ->with('success', 'Vital signs recorded successfully.');
     }

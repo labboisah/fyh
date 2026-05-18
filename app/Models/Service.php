@@ -16,12 +16,21 @@ class Service extends Model
         'price',
         'category',
         'is_active',
+        'department_id'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
     ];
+
+        /**
+        * Get the department that offers this service
+        */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     public function serviceRequests() {
         return $this->hasMany(ServiceRequest::class);

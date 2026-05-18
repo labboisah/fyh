@@ -361,7 +361,12 @@ class DeliveryController extends Controller
         'stage' => 'completed',
 
     ]);
-
+    // Log activity
+    $labour->patient->currentVisit()->visitActivities()->create([
+        'activity' => "Delivery registered with status: {$delivery->delivery_status}",
+        'recorded_by' => auth()->id(),
+    ]);
+    
     /*
     |--------------------------------------------------------------------------
     | Redirect

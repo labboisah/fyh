@@ -24,6 +24,12 @@ class DrugChartController extends Controller
             'time' => date("h:i:s A"),
             'dispensed_by' => auth()->user()->id,
         ]);
+        // Log activity
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Drug chart updated for medicine: {$prescriptionItem->medicine->name}",
+            'recorded_by' => auth()->id(),
+        ]);
+        
         return redirect()->route('patient.show', $patient)->with('success','Drug Chart Recorded Successfully');
     }
 }

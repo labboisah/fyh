@@ -25,9 +25,9 @@
                     <tr>
                         <td>{{ $model['name'] }}</td>
                         <td>{{ $model['class']::count() }}</td>
-                        <td>{{ $model['class']::where('status', 'synced')->count() ?? 0 }}</td>
-                        <td>{{ $model['class']::where('status', 'pending')->count() ?? 0 }}</td>
-                        <td>{{ $model['class']::where('status', 'failed')->count() ?? 0 }}</td>
+                        <td>{{ $model['class']::where('sync_status', 'synced')->count() ?? 0 }}</td>
+                        <td>{{ $model['class']::where('sync_status', 'pending')->count() ?? 0 }}</td>
+                        <td>{{ $model['class']::where('sync_status', 'failed')->count() ?? 0 }}</td>
                         <td>{{ $model['class']::where('sync_origin', 'local')->count() ?? 0 }}</td>
                         <td>{{ $model['class']::where('sync_origin', 'online')->count() ?? 0 }}</td>
                         <td>

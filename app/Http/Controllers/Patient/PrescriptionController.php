@@ -50,6 +50,11 @@ class PrescriptionController extends Controller
             'period'=>$request->period,
             'duration'=>$request->duration,
             ]);
+            // Log activity
+            $patient->currentVisit()->visitActivities()->create([
+                'activity' => "Prescription created for medicine: {$medicine->name}",
+                'recorded_by' => auth()->id(),
+            ]);
         return redirect()->route('patient.prescription.show',$prescription)->with('success', 'Prescription registered but you can prescribe more and submit to pharmacy');    
     }
 

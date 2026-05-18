@@ -60,10 +60,18 @@ class ServiceController extends Controller
             'Consultations',
             'Laboratory',
             'Imaging',
-            'Procedures',
             'Medication',
             'Vaccination',
+            'File',
+            'Admission',
+            'General',
+            'Labour',
+            'ANC',
+            'Pediatric',
+            'Family',
+            'Vaccination',
         ];
+        sort($categories);
         
         return view('admin.services.create', compact('categories'));
     }
@@ -105,10 +113,17 @@ class ServiceController extends Controller
             'Consultations',
             'Laboratory',
             'Imaging',
-            'Procedures',
             'Medication',
+            'File',
+            'Admission',
+            'General',
+            'Labour',
+            'ANC',
+            'Pediatric',
+            'Family',
             'Vaccination',
         ];
+        sort($categories);
         
         return view('admin.services.edit', compact('service', 'categories'));
     }
@@ -121,6 +136,7 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|unique:services,code,' . $service->id . '|max:50',
             'name' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
             'description' => 'nullable|string|max:500',
             'price' => 'required|numeric|min:0|max:999999.99',
             'category' => 'required|string|max:100',

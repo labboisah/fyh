@@ -69,6 +69,7 @@
                             <tr>
                                 <th>Code</th>
                                 <th>Name</th>
+                                <th>Department</th>
                                 <th>Category</th>
                                 <th>Price</th>
                                 <th>Status</th>
@@ -83,7 +84,10 @@
                                     </td>
                                     <td>{{ $service->name }}</td>
                                     <td>
-                                        <span class="badge bg-info">{{ $service->category }}</span>
+                                        <span class="badge bg-info">{{ $service->department->name ?? '' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ $service->category }}</span>
                                     </td>
                                     <td class="fw-bold">{{ number_format($service->price, 2) }}</td>
                                     <td>

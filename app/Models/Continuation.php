@@ -19,4 +19,8 @@ class Continuation extends Model
     public function writtenBy() {
         return $this->belongsTo(User::class, 'written_by');
     }
+
+    public function sendTo() {
+        return $this->belongsTo(Department::class, 'send_to');
+    }
 }

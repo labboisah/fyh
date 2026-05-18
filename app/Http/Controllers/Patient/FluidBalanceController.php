@@ -28,6 +28,11 @@ class FluidBalanceController extends Controller
                 "faces" => $request->faces,
                 'recorded_by'=>auth()->user()->id
             ]);
+            // Log activity
+            $patient->currentVisit()->visitActivities()->create([
+                'activity' => "Fluid balance chart updated",    
+                'recorded_by' => auth()->id(),
+            ]);
         }else{
             return redirect()->route('patient.show',$patient)->with('error', 'No patient Admission record found');
 

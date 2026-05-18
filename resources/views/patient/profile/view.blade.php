@@ -26,6 +26,15 @@
                     </li>
                     @endif
 
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#activities"
+                                type="button">
+                            <i class="bi bi-activity me-1"></i> Activities
+                        </button>
+                    </li>
+
                     @if(auth()->user()->hasRole('accountant'))
 
                     <li class="nav-item">
@@ -185,6 +194,11 @@
                 <div class="tab-pane fade" id="continuations">
                     @include('patient.profile.continuations')
                 </div>
+                <!-- ACTIVITIES -->
+                <div class="tab-pane fade" id="activities">
+                    @include('patient.profile.activities')
+                </div>
+                
                 <!-- QUICK ACTIONS -->
                 <div class="tab-pane fade" id="actions">
                     

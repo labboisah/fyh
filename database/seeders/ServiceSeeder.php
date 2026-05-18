@@ -16,6 +16,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC01',
             'description'=>'',
+            'department_id'=>4,
             'category'=>'File',
             'price'=>2000, 
             'name'=>'Opening of Personal File'
@@ -23,6 +24,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC02',
             'description'=>'',
+            'department_id'=>4,
             'category'=>'File',
             'price'=>3000, 
             'name'=>'Opening Family File'
@@ -30,6 +32,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC03',
             'description'=>'',
+            'department_id'=>4,
             'category'=>'File',
             'price'=>1000,   
             'name'=>'Family File Update'
@@ -37,6 +40,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC04',
             'description'=>'',
+            'department_id'=>10,
             'category'=>'Admission',
             'price'=>2000,  
             'name'=>'Normal Bed Space'
@@ -44,6 +48,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC05',
             'description'=>'',
+            'department_id'=>10,
             'category'=>'Admission',
             'price'=>5000,    
             'name'=>'Amenity Room'
@@ -51,6 +56,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC06',
             'description'=>'',
+            'department_id'=>8,
             'category'=>'Consultation',
             'price'=>2000,    
             'name'=>'Specialist Consultation'
@@ -58,6 +64,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC07',
             'description'=>'',
+            'department_id'=>7,
             'category'=>'Consultation',
             'price'=>500,    
             'name'=>'Nursing Service Fee'
@@ -65,6 +72,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC08',
             'description'=>'',
+            'department_id'=>7,
             'category'=>'Consultation',
             'price'=>1000,    
             'name'=>'Observation Charges'
@@ -72,6 +80,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC09',
             'description'=>'',
+            'department_id'=>5,
             'category'=>'General',
             'price'=>500,   
             'name'=>'A & E Card'
@@ -79,6 +88,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC10',
             'description'=>'',
+            'department_id'=>5,
             'category'=>'General',
             'price'=>1000,    
             'name'=>'A & E Card'
@@ -86,6 +96,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC11',
             'description'=>'',
+            'department_id'=>5,
             'category'=>'General',
             'price'=>2000,    
             'name'=>'A & E Card'
@@ -93,6 +104,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC12',
             'description'=>'',
+            'department_id'=>8,
             'category'=>'General',
             'price'=>10000,    
             'name'=>'MVA'
@@ -100,6 +112,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC13',
             'description'=>'',
+            'department_id'=>11,
             'category'=>'Labour',
             'price'=>10000,    
             'name'=>'Normal Labour'
@@ -107,6 +120,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC14',
             'description'=>'',
+            'department_id'=>11,
             'category'=>'Labour',
             'price'=>200000,    
             'name'=>'CS Labour'
@@ -114,6 +128,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC15',
             'description'=>'',
+            'department_id'=>7,
             'category'=>'General',
             'price'=>500,    
             'name'=>'Dressing Fee'
@@ -121,6 +136,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC16',
             'description'=>'',
+            'department_id'=>7,
             'category'=>'General',
             'price'=>1000,    
             'name'=>'Dressing Fee'
@@ -128,6 +144,7 @@ class ServiceSeeder extends Seeder
             [
             'code'=>'SVC17',
             'description'=>'',
+            'department_id'=>11,
             'category'=>'ANC',
             'price'=>500,    
             'name'=>'ANC Service Fee'

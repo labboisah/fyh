@@ -21,6 +21,12 @@ class ContinuationController extends Controller
             'note'=>$request->notes,
             'written_by'=>auth()->user()->id
         ]);
+        // Log activity
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Continuation sheet updated",
+            'recorded_by' => auth()->id(),
+        ]);
+        
         return redirect()->route('patient.show',$patient)->with('success', 'Continuation Sheet Recorded');
 
     }

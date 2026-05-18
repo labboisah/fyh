@@ -141,6 +141,14 @@ class PatientVisit extends Model
         return $status;
     }
 
+    public function departmentServiceRequests() {
+        return $this->hasMany(DepartmentServiceRequest::class);
+    }
+
+    public function visitActivities() {
+        return $this->hasMany(VisitActivity::class);
+    }
+
     public function observations() {
         return $this->hasMany(Observation::class);
     }

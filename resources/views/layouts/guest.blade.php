@@ -7,12 +7,11 @@
 
         <title>{{ config('app.name', 'Fatima Yahaya Hospital') }}</title>
 
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap CSS (local) -->
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
         <!-- Bootstrap Icons -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-        <!-- Poppins Font -->
-        <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
+        <!-- Fonts: using local/system fonts -->
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <style>
             :root {
@@ -344,7 +343,7 @@
         </div>
 
         <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script>
             (function () {
                 const pageLoader = document.getElementById('page-loader');

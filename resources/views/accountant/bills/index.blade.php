@@ -24,7 +24,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover datatable">
+                <table class="table table-striped datatable">
                     <thead>
                         <tr>
                             <th>Bill Number</th>
@@ -48,7 +48,7 @@
                                         {{ $bill->walkinPatient->name }}
                                         <br><small class="text-muted"><span class="badge bg-warning text-dark">Walk-In</span></small>
                                     @else
-                                        {{ $bill->patient->name ?? 'N/A' }}
+                                        {{ $bill->patientVisit->patient->name() ?? 'N/A' }}
                                     @endif
                                 </td>
                                 <td>{{ Str::limit($bill->service_description, 30) }}</td>
@@ -89,6 +89,18 @@
                                 </td>
                             </tr>
                         @endforelse
+                        <!-- total -->
+                        <tr class="fw-bold">
+                            <td class="text-end"></td>
+                            <td class="text-end"></td>
+                            <td class="text-end"></td>
+                            <td class="text-end"></td>
+                            <td>{{ number_format($bills->sum('amount'), 2) }}</td>
+                            <td colspan="4"></td>
+                            <td colspan="4"></td>
+                            <td colspan="4"></td>
+                            <td colspan="4"></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

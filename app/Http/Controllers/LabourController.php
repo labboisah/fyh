@@ -276,8 +276,12 @@ class LabourController extends Controller
         $validated['recorded_by'] = Auth::id();
 
         $labour = Labour::create($validated);
+        // Log activity
+        $labour->patient->currentVisit()->visitActivities()->create([
+            'activity' => "Labour record created with status: {$labour->status}",
+            'recorded_by' => auth()->id(),
+        ]);
 
-        
         return redirect()->route('midwife.labour.show', $labour)
                        ->with('success', 'Labour record created successfully.');
     }

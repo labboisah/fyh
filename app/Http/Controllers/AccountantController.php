@@ -424,10 +424,10 @@ class AccountantController extends Controller
      * Display all bills.
      */
     public function listBills()
+
     {
-        $bills = Bill::with(['patientVisit', 'walkinPatient', 'issuedBy'])
-            ->latest('issued_date')
-            ->paginate(25);
+        // bills created by the accountant today
+        $bills = auth()->user()->bills()->whereDate('issued_date', Carbon::today())->with(['patientVisit.patient', 'walkinPatient'])->latest()->paginate(25);
 
         return view('accountant.bills.index', compact('bills'));
     }

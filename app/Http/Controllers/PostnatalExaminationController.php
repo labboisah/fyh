@@ -580,7 +580,12 @@ class PostnatalExaminationController extends Controller
                 => $validated['contraception_method_chosen'] ?? null,
 
         ]);
-
+        // Log activity
+        $postnatalExamination->delivery->patient->currentVisit()->visitActivities()->create([
+            'activity' => "Postnatal examination recorded for delivery ID: {$delivery->id}",
+            'recorded_by' => auth()->id(),
+        ]);
+        
         /*
         |--------------------------------------------------------------------------
         | Redirect

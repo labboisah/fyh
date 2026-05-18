@@ -57,6 +57,10 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    public function bills() {
+        return $this->hasMany(Bill::class, 'issued_by');
+    }
+
     /**
      * Get the roles this user has.
      */

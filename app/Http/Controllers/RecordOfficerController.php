@@ -158,11 +158,17 @@ class RecordOfficerController extends Controller
 
                 }
             }
+
+            $visit->visitActivities()->create([
+                'recorded_by' => auth()->user()->id,
+                'activity' => "Visit Registerred"
+            ]); 
             
             return redirect()->route('patient.show', $patient->id)
                 ->with('success', "Patient {$patient->demographic->full_name} registered successfully with Hospital Number: {$patient->hospital_number}");
-       
     }
+    
+
 
     /**
      * List all patients

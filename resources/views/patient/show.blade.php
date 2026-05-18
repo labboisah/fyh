@@ -30,6 +30,11 @@
         </p>
 
         <p class="mb-0 text-muted">
+           Last Continuation Note:
+           <strong class="text-success">{{ $patient->currentVisit()->continuations()->latest()->first()->note ?? 'Not available'}}</strong>
+        </p>
+
+        <p class="mb-0 text-muted">
            Pending Balance:
            <strong class="{{$patient->payment()['pending']> 0 ? 'text-danger' : 'text-success'}}">{{ number_format($patient->payment()['pending'], 2) }}</strong>
         </p>

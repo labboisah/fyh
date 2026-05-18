@@ -34,6 +34,11 @@ class AdmissionController extends Controller
         $bed->update(['status'=>'occupied']);
 
         $patient->currentVisit()->generateBedSpaceBill($admission, $bed, $request->days);
+        // Log activity        
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Patient admitted to bed {$bed->name} for {$request->days} days",
+            'recorded_by' => auth()->id(),
+        ]); 
 
         return redirect()->route('patient.show',$patient)->with('success','Admission Registerred');
     }

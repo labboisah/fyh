@@ -8,19 +8,18 @@
         <title>{{ config('app.name') }} | @yield('title')</title>
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+        <!-- Bootstrap CSS (local) -->
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
         <!-- Icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
         <!-- DataTables CSS -->
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="{{ asset('vendor/datatables/css/dataTables.bootstrap5.min.css') }}">
         <!-- DataTables Buttons CSS -->
-        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+        <link rel="stylesheet" href="{{ asset('vendor/datatables/css/buttons.bootstrap5.min.css') }}">
         <!-- Scripts -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+        <script src="{{ asset('js/bootstrap.bundle.min.js') }}" defer></script>
+        
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
         <style>
             :root {
@@ -776,20 +775,20 @@
             
         </div>
 
-        <!-- jQuery (required by DataTables) -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <!-- jQuery (required by DataTables) ante-->
+        <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
         <!-- DataTables JS -->
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+        <script src="{{ asset('vendor/datatables/js/dataTables.bootstrap5.min.js') }}"></script>
         <!-- DataTables Buttons -->
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+        <script src="{{ asset('vendor/datatables/js/dataTables.buttons.min.js') }}"></script>
+        <script src="{{ asset('vendor/datatables/js/buttons.bootstrap5.min.js') }}"></script>
         <!-- Export Libraries -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+        <script src="{{ asset('vendor/jszip/jszip.min.js') }}"></script>
+        <script src="{{ asset('vendor/pdfmake/pdfmake.min.js') }}"></script>
+        <script src="{{ asset('vendor/pdfmake/vfs_fonts.min.js') }}"></script>
+        <script src="{{ asset('vendor/datatables/js/buttons.html5.min.js') }}"></script>
+        <script src="{{ asset('vendor/datatables/js/buttons.print.min.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -1025,6 +1024,6 @@
             $('body').html(restorepage);
             }
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
     </body>
 </html>

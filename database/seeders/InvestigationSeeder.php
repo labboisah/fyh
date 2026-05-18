@@ -1260,25 +1260,11 @@ foreach($microTests as $test){
         $otherDepartments = [
             'Accident & Emergency (A&E) / Emergency Department',
             'General Outpatient Department (GOPD)',
-            'Internal Medicine',
-            'Surgery',
+            'Nursing Services',
+            'Medical Services',
             'Pediatrics',
-            'Obstetrics & Gynecology',
-            'Orthopedics',
-            'Cardiology',
-            'Neurology',
-            'Nephrology',
-            'Urology',
-            'Gastroenterology',
-            'Dermatology',
-            'Psychiatry',
-            'Oncology',
-            'Ophthalmology (Eye Clinic)',
-            'Ear, Nose & Throat (ENT)',
-            'Dental / Dentistry',
-            'Physiotherapy / Rehabilitation',
             'Family Medicine',
-            'Infectious Diseases'
+            'Obstetrics & Gynecology',
         ];
 
         foreach($otherDepartments as $department){

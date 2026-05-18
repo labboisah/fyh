@@ -461,7 +461,11 @@ class NewbornController extends Controller
             => $validated['neonatal_observations'] ?? null,
 
     ]);
-
+    // Log activity
+    $newborn->patient->currentVisit()->visitActivities()->create([
+        'activity' => "Newborn registered with status: {$newborn->status}",
+        'recorded_by' => auth()->id(),
+    ]);
     /*
     |--------------------------------------------------------------------------
     | Redirect
@@ -932,6 +936,12 @@ class NewbornController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        // Log activity
+        $newborn->patient->currentVisit()->visitActivities()->create([
+            'activity' => "Newborn record updated with status: {$newborn->status}",
+            'recorded_by' => auth()->id(),
+        ]);
+
         return redirect()
             ->route('midwife.newborn.show', $newborn)
             ->with('success', 'Newborn record updated successfully.');
@@ -940,7 +950,11 @@ class NewbornController extends Controller
     public function destroy(Newborn $newborn)
     {
         $newborn->delete();
-
+        // Log activity
+        $newborn->patient->currentVisit()->visitActivities()->create([
+            'activity' => "Newborn record deleted with status: {$newborn->status}",
+            'recorded_by' => auth()->id(),
+        ]);
         return redirect()->route('midwife.delivery.show', $newborn->delivery)
             ->with('success', 'Newborn record deleted successfully.');
     }

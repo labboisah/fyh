@@ -11,7 +11,6 @@
     @include('midwife.dashboard', $data)
     @endif
 
-
     @if(auth()->user()->hasRole('record'))
         @include('record.dashboard')
     @endif

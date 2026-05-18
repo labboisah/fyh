@@ -52,6 +52,11 @@ class InvestigationController extends Controller
             'department_id'=> $investigationRequest->investigation->investigationType->department->id,
         ]);
 
+        // Log activity
+        $patient->currentVisit()->visitActivities()->create([
+            'activity' => "Investigation request created for {$investigationRequest->investigation->name}",
+            'recorded_by' => auth()->id(),
+        ]);
 
         return redirect()->route('patient.show', $patient)->with('success', 'Investigation request created successfully.');
     }
