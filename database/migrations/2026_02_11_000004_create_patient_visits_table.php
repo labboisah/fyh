@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id');
             $table->dateTime('visit_date');
             $table->string('visit_type'); // e.g., 'Consultation', 'Follow-up', 'Emergency'
+            $table->string('flag')->default('Normal');
             $table->text('reason_for_visit')->nullable();
             $table->text('clinical_notes')->nullable();
             $table->string('referred_to')->nullable();
