@@ -40,7 +40,7 @@
                         <!-- service applyingfor -->
                         <div class="col-md-5">
                             <label for="service" class="form-label">Service Applying for<span class="text-danger"></span></label>
-                            <select class="form-select @error('service') is-invalid @enderror" id="service" name="service" required>
+                            <select class="form-select @error('service') is-invalid @enderror" id="service" name="service">
                                 <option value="">Select Service</option>
                                 @foreach(App\Models\Service::all() as $service)
                                     <option value="{{ $service->id }}" {{ old('service') == $service->id ? 'selected' : '' }}>
