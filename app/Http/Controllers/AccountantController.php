@@ -381,7 +381,7 @@ class AccountantController extends Controller
             ->all();
 
         if (empty($investigations)) {
-            $investigations = $bill->investigations()->pluck('id')->map(fn($id) => ['id' => $id])->values()->all();
+            $investigations = $bill->investigations()->pluck('investigations.id')->map(fn($id) => ['id' => $id])->values()->all();
         }
 
         foreach ($services as $serviceData) {
