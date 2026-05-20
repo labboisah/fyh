@@ -49,7 +49,7 @@
                                     @if($bill->walkinPatient)
                                         {{ $bill->walkinPatient->name }}
                                         <br><small class="text-muted"><span class="badge bg-warning text-dark">Walk-In</span></small>
-                                    @else
+                                    @elseif($bill->patientVisit)
                                         {{ $bill->patientVisit->patient->name() ?? 'N/A' }}
                                     @endif
                                 </td>
