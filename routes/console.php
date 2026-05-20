@@ -77,3 +77,35 @@ Artisan::command('investigation:create-missing-requests {--dry-run}', function (
         $this->info('Dry-run mode: no requests were persisted.');
     }
 })->purpose('Create missing investigation requests from existing bill investigations');
+
+Artisan::command('bill:copy-amount-to-due-amount {--dry-run}', function () {
+    $this->info('Copying bill amount to due_amount...');
+
+    $processed = 0;
+    $updated = 0;
+    $skipped = 0;
+
+    Bill::chunkById(200, function ($bills) use (&$processed, &$updated, &$skipped) {
+        foreach ($bills as $bill) {
+            $processed++;
+            if ($bill->due_amount == $bill->amount) {
+                $skipped++;
+                continue;
+            }
+
+            if (!$this->option('dry-run')) {
+                $bill->due_amount = $bill->amount;
+                $bill->save();
+            }
+            $updated++;
+        }
+    });
+
+    $this->info('Copy complete.');
+    $this->line("Processed: {$processed}");
+    $this->line("Updated: {$updated}");
+    $this->line("Skipped (already equal): {$skipped}");
+    if ($this->option('dry-run')) {
+        $this->info('Dry-run mode: no records were modified.');
+    }
+})->purpose('Copy each bill amount into due_amount for existing bills');
