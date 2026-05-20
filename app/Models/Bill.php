@@ -178,7 +178,7 @@ class Bill extends Model
         
         if ($lastBill) {
             $lastNumber = (int) substr($lastBill->bill_number, -5);
-            $newNumber = str_pad($lastNumber + 2, 5, '0', STR_PAD_LEFT);
+            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '00001';
         }
@@ -186,7 +186,7 @@ class Bill extends Model
         // check if the bill no exists
         while (self::where('bill_number', $bill_no)->exists()) {
             $lastNumber = (int) substr($bill_no, -5);
-            $newNumber = str_pad($lastNumber + 2, 5, '0', STR_PAD_LEFT);
+            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
             $bill_no = "BL{$year}{$newNumber}";
         }
 
