@@ -25,7 +25,7 @@ class Bill extends Model
      */
     public function patientVisit()
     {
-        return $this->belongsTo(PatientVisit::class, 'walkin_id');
+        return $this->belongsTo(PatientVisit::class);
     }
 
     /**

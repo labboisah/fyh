@@ -2,9 +2,18 @@
 
 @section('content')
 @php
-    $patientName = $bill->walkinPatient ? $bill->walkinPatient->name : $bill->patientVisit->patient->demographic->getFullNameAttribute();
-    $hospitalNumber = $bill->walkinPatient ? 'Walk-in Patient' : $bill->patientVisit->patient->hospital_number;
-    $billDate = now()->format('M d, Y h:i A');
+
+if($bill->walkinPatient) {
+    $patientName = $bill->walkinPatient->name;
+    $hospitalNumber = 'Walk-in Patient';
+} else if($bill->patientVisit) {
+    $patientName = $bill->patientVisit->patient->demographic->getFullNameAttribute();
+    $hospitalNumber = $bill->patientVisit->patient->hospital_number;
+}else{
+    $patientName = 'N/A';
+    $hospitalNumber = 'N/A';    
+}
+$billDate = now()->format('M d, Y h:i A');
 @endphp
 
 <div class="container-fluid">
@@ -62,11 +71,11 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Patient Name</p>
-                            <p class="fw-bold">{{ $patientName }}</p>
+                            <p class="fw-bold">{{ $patientName ?? 'N/A' }}</p>
                         </div>
                         <div class="col-md-6">
                             <p class="text-muted small mb-1">Hospital Number</p>
-                            <p class="fw-bold">{{ $hospitalNumber }}</p>
+                            <p class="fw-bold">{{ $hospitalNumber ?? 'N/A' }}</p>
                         </div>
                     </div>
 
@@ -208,8 +217,8 @@
                         <div class="mb-2 small">
                             <p class="mb-1"><strong>Bill:</strong> {{ $bill->bill_number }}</p>
                             <p class="mb-1"><strong>Date:</strong> {{ $billDate }}</p>
-                            <p class="mb-1"><strong>Patient:</strong> {{ $patientName }}</p>
-                            <p class="mb-1"><strong>Hospital No:</strong> {{ $hospitalNumber }}</p>
+                            <p class="mb-1"><strong>Patient:</strong> {{ $patientName ?? 'N/A' }}</p>
+                            <p class="mb-1"><strong>Hospital No:</strong> {{ $hospitalNumber ?? 'N/A' }}</p>
                             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($bill->status) }}</p>
                         </div>
 
@@ -317,11 +326,11 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <p class="mb-1 text-muted small">Patient Name</p>
-                    <p class="mb-0 fw-bold">{{ $patientName }}</p>
+                    <p class="mb-0 fw-bold">{{ $patientName ?? 'N/A' }}</p>
                 </div>
                 <div>
                     <p class="mb-1 text-muted small">Hospital Number</p>
-                    <p class="mb-0 fw-bold">{{ $hospitalNumber }}</p>
+                    <p class="mb-0 fw-bold">{{ $hospitalNumber ?? 'N/A' }}</p>
                 </div>
             </div>
         </div>
@@ -428,8 +437,8 @@
 
         <p><strong>Bill:</strong> {{ $bill->bill_number }}</p>
         <p><strong>Date:</strong> {{ $billDate }}</p>
-        <p><strong>Patient:</strong> {{ $patientName }}</p>
-        <p><strong>Hospital No:</strong> {{ $hospitalNumber }}</p>
+        <p><strong>Patient:</strong> {{ $patientName ?? 'N/A' }}</p>
+        <p><strong>Hospital No:</strong> {{ $hospitalNumber ?? 'N/A' }}</p>
         <p><strong>Status:</strong> {{ ucfirst($bill->status) }}</p>
 
         <div class="divider"></div>
