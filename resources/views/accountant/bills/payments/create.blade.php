@@ -16,7 +16,7 @@
                             @elseif($bill->patientVisit)
                             <strong>Patient:</strong> {{ $bill->patientVisit->patient->demographic->first_name }} {{ $bill->patientVisit->patient->demographic->last_name }}<br>
                             @endif
-                            <strong>Amount:</strong> {{ number_format($bill->amount, 2) }}<br>
+                            <strong>Amount:</strong> {{ number_format($bill->due_amount, 2) }}<br>
                             <strong>Balance Due:</strong> {{ number_format($bill->getBalanceAttribute(), 2) }}
                         </div>
                     

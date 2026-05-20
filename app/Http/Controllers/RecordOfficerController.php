@@ -76,6 +76,7 @@ class RecordOfficerController extends Controller
             'nok_relationship' => 'required|string|max:255',
             'nok_contact_address' => 'nullable|string|max:500',
             'nok_telephone' => 'required|string|max:20',
+            'discount' => 'required|numeric|min:0|max:100',
         ]);
        
 
@@ -116,16 +117,17 @@ class RecordOfficerController extends Controller
                 'telephone' => $validated['nok_telephone'],
             ]);
 
-            // generate file opening bill
+            // generate file opening bill with discount
             $service = Service::find($request->service);
             $visit = $patient->registerNewVisit($service);
-            $patient->generateFileOpeningBill($visit);
+            $discount = $validated['discount'] ?? 0;
+            $patient->generateFileOpeningBill($visit, $discount);
 
             
 
             if($service){
                 
-                $visit->generateServiceBillOf($service);
+                $visit->generateServiceBillOf($service, $discount);
                 // if service is labour admit a patient
 
                 if($service->id == 13 || $service->id == 14){
@@ -142,14 +144,18 @@ class RecordOfficerController extends Controller
                         'admitted_by' => auth()->user()->id,
                     ]);
 
-                    // generate another bill for bed space bill for the patient
+                    // generate another bill for bed space bill for the patient with discount
+                    $bedAmount = $ward->price;
+                    $bedDiscount = $bedAmount * ($discount / 100);
+                    $bedAmountAfterDiscount = max(0, $bedAmount - $bedDiscount);
 
                     Bill::create([
                         'patient_visit_id' => $visit->id ?? null,
                         'walkin_id' => $walkinId ?? null,
                         'bill_number' => Bill::generateBillNumber(),
                         'service_description' => 'Bed space charge for ' . $service->name,
-                        'amount' => $ward->price,
+                        'amount' => $bedAmountAfterDiscount,
+                        'discount' => $discount,
                         'issued_by' => auth()->user()->id,
                         'status' => 'pending',
                         'issued_date' => now(),

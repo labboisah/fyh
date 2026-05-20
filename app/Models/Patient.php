@@ -51,11 +51,15 @@ class Patient extends Model
         return $this->hasMany(PatientVisit::class);
     }
 
-    public function generateFileOpeningBill($visit)
+    public function generateFileOpeningBill($visit, $discount = 0)
     {
         $bill = new Bill();
         $bill->patient_visit_id = $visit->id;
-        $bill->amount = $this->fileType->price ?? 2000; // Example amount for file opening
+        $baseAmount = $this->fileType->price ?? 2000; // Example amount for file opening
+        $discountAmount = $baseAmount * ($discount / 100);
+        $bill->amount = $baseAmount;
+        $bill->due_amount = max(0, $baseAmount - $discountAmount);
+        $bill->discount = $discount;
         $bill->service_description = 'File Opening Fee';
         $bill->bill_number = Bill::generateBillNumber();
         $bill->issued_by = auth()->user()->id;

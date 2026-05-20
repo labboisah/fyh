@@ -39,7 +39,7 @@
                                 @if($investigationRequest->patientVisit)
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 @else
-                                <td>{{ $investigationRequest->bill->walkinPatent->name ?? 'Walkin Patient' }}</td>
+                                <td>{{ strtoupper($investigationRequest->bill->walkinPatient->name) ?? 'Walkin Patient' }}</td>
                                 @endif
                                 <td>{{ $investigationRequest->investigation->name }}</td>
                                 <td>{{ $investigationRequest->completed_at }}</td>

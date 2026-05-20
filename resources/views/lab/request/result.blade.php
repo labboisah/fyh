@@ -184,7 +184,7 @@
 
     <!-- Main Content -->
     <div class="print-content p-4">
-        @for($i=1; $i<=2; $i++)
+        
         <!-- Header -->
         <div class="text-center mb-4">
 
@@ -339,7 +339,7 @@
         </table>
 
     </div>
-    @endfor
+    
 </div>
 
 <button onclick="window.print()"

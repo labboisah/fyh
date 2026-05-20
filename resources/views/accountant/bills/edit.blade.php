@@ -44,6 +44,18 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3">
+                            <label for="discount" class="form-label">Discount (%)</label>
+                            <select id="discount" name="discount" class="form-control @error('discount') is-invalid @enderror">
+                                @for($percent = 0; $percent <= 100; $percent++)
+                                    <option value="{{ $percent }}" @selected(old('discount', $bill->discount) == $percent)>{{ $percent }} %</option>
+                                @endfor
+                            </select>
+                            @error('discount')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">

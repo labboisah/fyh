@@ -38,7 +38,7 @@
                             @error('file_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <!-- service applyingfor -->
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="service" class="form-label">Service Applying for<span class="text-danger"></span></label>
                             <select class="form-select @error('service') is-invalid @enderror" id="service" name="service">
                                 <option value="">Select Service</option>
@@ -49,6 +49,16 @@
                                 @endforeach
                             </select>
                             @error('service')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <!-- discount on registration -->
+                        <div class="col-md-3">
+                            <label for="discount" class="form-label">Discount (%)</label>
+                            <select class="form-select @error('discount') is-invalid @enderror" id="discount" name="discount">
+                                @for($i = 0; $i <= 100; $i++)
+                                    <option value="{{ $i }}" {{ old('discount', 0) == $i ? 'selected' : '' }}>{{ $i }}%</option>
+                                @endfor
+                            </select>
+                            @error('discount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>

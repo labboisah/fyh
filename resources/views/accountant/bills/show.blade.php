@@ -92,14 +92,17 @@
                     </div>
 
                     <div class="row mb-4">
-                        <div class="col-md-6">
-                            <p class="text-muted small mb-1">Issued Date</p>
-                            <p class="fw-bold">{{ $bill->issued_date->format('M d, Y') }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p class="text-muted small mb-1">Due Date</p>
-                            <p class="fw-bold">{{ $bill->due_date->format('M d, Y') }}</p>
-                        </div>
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Issued Date</p>
+                                <p class="fw-bold">{{ $bill->issued_date->format('M d, Y') }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Due Date</p>
+                                <p class="fw-bold">{{ $bill->due_date->format('M d, Y') }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Discount</p>
+                                <p class="fw-bold">{{ number_format($bill->discount, 0) }}%</p>
                     </div>
 
                     <hr>
@@ -161,7 +164,7 @@
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <p class="text-muted small mb-1">Amount Due</p>
-                            <h4 class="text-primary mb-0">{{ number_format($bill->amount, 2) }}</h4>
+                            <h4 class="text-primary mb-0">{{ number_format($bill->due_amount, 2) }}</h4>
                         </div>
                         <div class="col-md-4">
                             <p class="text-muted small mb-1">Total Paid</p>
@@ -243,7 +246,7 @@
                         </table>
                         <div class="divider"></div>
 
-                        <p class="mb-1"><strong>Total Due:</strong> {{ number_format($bill->amount, 2) }}</p>
+                        <p class="mb-1"><strong>Total Due:</strong> {{ number_format($bill->due_amount, 2) }}</p>
                         <p class="mb-1"><strong>Total Paid:</strong> {{ number_format($bill->totalPaid(), 2) }}</p>
                         <p class="mb-0"><strong>Balance:</strong> {{ number_format($bill->balance, 2) }}</p>
                         <div class="divider"></div>
@@ -391,10 +394,10 @@
             </div>
         @endif
 
-        <div class="d-flex justify-content-between mb-3">
+            <div class="d-flex justify-content-between mb-3">
             <div>
                 <p class="mb-1 text-muted small">Amount Due</p>
-                <p class="mb-0 fw-bold">{{ number_format($bill->amount, 2) }}</p>
+                <p class="mb-0 fw-bold">{{ number_format($bill->due_amount, 2) }}</p>
             </div>
             <div>
                 <p class="mb-1 text-muted small">Total Paid</p>
@@ -462,7 +465,7 @@
         </table>
         <div class="divider"></div>
 
-        <p><strong>Total Due:</strong> {{ number_format($bill->amount, 2) }}</p>
+        <p><strong>Total Due:</strong> {{ number_format($bill->due_amount, 2) }}</p>
         <p><strong>Total Paid:</strong> {{ number_format($bill->totalPaid(), 2) }}</p>
         <p><strong>Balance:</strong> {{ number_format($bill->balance, 2) }}</p>
 

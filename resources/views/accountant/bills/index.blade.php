@@ -31,6 +31,8 @@
                             <th>Patient</th>
                             <th>Service</th>
                             <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Due Amount</th>
                             <th>Issued Date</th>
                             <th>Due Date</th>
                             <th>Status</th>
@@ -53,6 +55,8 @@
                                 </td>
                                 <td>{{ Str::limit($bill->service_description, 30) }}</td>
                                 <td class="fw-bold">{{ number_format($bill->amount, 2) }}</td>
+                                <td>{{ number_format($bill->amount * ($bill->discount/100), 2) }}</td>
+                                <td class="fw-bold text-success">{{ number_format($bill->due_amount, 2) }}</td>
                                 <td>{{ $bill->issued_date->format('M d, Y') }}</td>
                                 <td>{{ $bill->due_date->format('M d, Y') }}</td>
                                 <td>
@@ -84,21 +88,17 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">
+                                <td colspan="10" class="text-center py-4 text-muted">
                                     No bills found. <a href="{{ route('accountant.bills.create') }}">Create one now</a>
                                 </td>
                             </tr>
                         @endforelse
                         <!-- total -->
                         <tr class="fw-bold">
-                            <td class="text-end"></td>
-                            <td class="text-end"></td>
-                            <td class="text-end"></td>
-                            <td class="text-end"></td>
-                            <td>{{ number_format($bills->sum('amount'), 2) }}</td>
-                            <td colspan="4"></td>
-                            <td colspan="4"></td>
-                            <td colspan="4"></td>
+                            <td colspan="3" class="text-end">Totals:</td>
+                            <td class="text-end">{{ number_format($bills->sum('amount'), 2) }}</td>
+                            <td class="text-end">&nbsp;</td>
+                            <td class="text-end">{{ number_format($bills->sum('due_amount'), 2) }}</td>
                             <td colspan="4"></td>
                         </tr>
                     </tbody>

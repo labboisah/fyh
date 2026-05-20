@@ -106,6 +106,7 @@ class AccountantController extends Controller
             'walkin_name' => 'nullable|string|max:255',
             'walkin_phone' => 'nullable|string|max:20',
             'walkin_email' => 'nullable|email|max:255',
+            'discount' => 'required|numeric|min:0|max:100',
             'services' => 'nullable|array',
             'services.*.id' => 'nullable|exists:services,id',
             'investigations' => 'nullable|array',
@@ -135,7 +136,8 @@ class AccountantController extends Controller
         $status = 'pending';
         $walkinId = null;
         $patient = Patient::where('hospital_number', $validated['hospital_number'])->first();
-        
+        $discount = $validated['discount'] ?? 0;
+
         if ($patient) {
             $visit = $patient->currentVisit();
             if (!$visit) {
@@ -215,14 +217,17 @@ class AccountantController extends Controller
                     'admitted_by' => auth()->user()->id,
                 ]);
 
-                // generate another bill for bed space bill for the patient
-
+                // generate another bill for bed space bill for the patient apply discount here
+                $bedDiscountAmount = round($ward->price * ($discount / 100), 2);
+                $bedBillAmount = max(0, $ward->price - $bedDiscountAmount);
                 Bill::create([
                     'patient_visit_id' => $visit->id ?? null,
                     'walkin_id' => $walkinId ?? null,
                     'bill_number' => Bill::generateBillNumber(),
                     'service_description' => 'Bed space charge for ' . $svc->name,
                     'amount' => $ward->price,
+                    'due_amount' => $bedBillAmount,
+                    'discount' => $discount,
                     'issued_by' => auth()->user()->id,
                     'status' => 'pending',
                     'issued_date' => now(),
@@ -262,6 +267,10 @@ class AccountantController extends Controller
             $descriptionParts[] = 'Investigations';
         }
 
+        
+        $discountAmount = round($totalAmount * ($discount / 100), 2);
+        $billAmount = max(0, $totalAmount - $discountAmount);
+
         // Create bill
         $bill = Bill::create([
             'patient_visit_id' => $visit->id ?? null,
@@ -269,6 +278,8 @@ class AccountantController extends Controller
             'bill_number' => Bill::generateBillNumber(),
             'service_description' => implode(' & ', $descriptionParts) ?: 'Bill items',
             'amount' => $totalAmount,
+            'due_amount' => $billAmount,
+            'discount' => $discount,
             'issued_by' => $issued_by,
             'status' => $status,
             'issued_date' => $validated['issued_date'],
@@ -316,43 +327,9 @@ class AccountantController extends Controller
 
         // Update bill status
         $totalPaid = $bill->totalPaid();
+        $bill->refreshRequestPaymentStatuses();
 
-        $settlementAmount = $totalPaid;
-
-        
-        // fetch each service in the bill and update their payment status when payable by the pain amount
-        foreach ($bill->serviceRequests as $serviceRequest) {
-            if ($settlementAmount >= $serviceRequest->service->price) {
-                $serviceRequest->update(['payment_status' => 'paid']);
-                $settlementAmount -= $serviceRequest->service->price;
-            } else {
-                if($settlementAmount > 0){
-                    $serviceRequest->update(['payment_status' => 'partial']);
-                    $settlementAmount = 0;
-                }else{
-                    $serviceRequest->update(['payment_status' => 'pending']);
-                }
-            }
-        }
-
-        // fetch each investigation in the bill and update their payment status when payable by the pain amount
-        foreach ($bill->investigationRequests as $investigationRequest) {
-            if ($settlementAmount >= $investigationRequest->investigation->price) {
-                $investigationRequest->update(['payment_status' => 'paid']);
-                $settlementAmount -= $investigationRequest->investigation->price;
-            } else {
-                if($settlementAmount > 0){
-                    $investigationRequest->update(['payment_status' => 'partial']);
-                    $settlementAmount = 0;
-                }else{
-                    $investigationRequest->update(['payment_status' => 'pending']);
-                }
-            }
-        }
-
-        
-
-        if ($totalPaid >= $bill->amount) {
+        if ($totalPaid >= $bill->due_amount) {
             $bill->update(['status' => 'paid']);
         } else {
             $bill->update(['status' => 'partial']);
@@ -473,11 +450,13 @@ class AccountantController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'service_description' => 'required|string|max:500',
             'amount' => 'required|numeric|min:0.01',
+            'discount' => 'required|numeric|min:0|max:100',
             'issued_date' => 'required|date',
             'due_date' => 'required|date|after:issued_date',
             'status' => 'required|in:pending,paid,partial,cancelled',
         ]);
 
+        $validated['due_amount'] = round($validated['amount'] * (1 - ($validated['discount'] / 100)), 2);
         $bill->update($validated);
 
         return redirect()->route('accountant.bills.show', $bill)
@@ -550,8 +529,9 @@ class AccountantController extends Controller
                     // Update bill status if bill_id provided
                     
                     $totalPaid = $bill->totalPaid();
+                    $bill->refreshRequestPaymentStatuses();
 
-                    if ($totalPaid >= $bill->amount) {
+                    if ($totalPaid >= $bill->due_amount) {
                         $bill->update(['status' => 'paid']);
                     } else {
                         $bill->update(['status' => 'partial']);

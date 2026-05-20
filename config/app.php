@@ -15,6 +15,11 @@ return [
 
     'name' => env('APP_NAME', 'FAYHOS'),
 
+    'title' => env('APP_TITLE', 'FATIMA YAHAYA HOSPITAL, SIFAWA'),
+    'address' => env('APP_ADDRESS', 'NO 5. BIRNIN KEBBI ROAD, SIFAWA BODINGA LG, SOKOTO STATE'),
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

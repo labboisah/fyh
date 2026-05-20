@@ -158,12 +158,18 @@ class PatientVisit extends Model
         return $this->hasMany(FluidBalance::class);
     }
 
-    public function generateFileOpeningBill() {
+    public function generateFileOpeningBill($discount = 0) {
         $fileType = $this->patient->fileType;
+        $baseAmount = $fileType ? $fileType->price : 3000;
+        $discountAmount = $baseAmount * ($discount / 100);
+        $finalAmount = max(0, $baseAmount - $discountAmount);
+        
         $this->bills()->create([
             'department_id'=> auth()->user()->department->id,
             'service_description'=>'File Opening Charges',
-            'amount'=>$fileType ? $fileType->price : '3000',
+            'amount'=>$baseAmount,
+            'due_amount'=>$finalAmount,
+            'discount'=>$discount,
             'bill_number'=>Bill::generateBillNumber(),
             'status'=>'pending',
             'issued_by'=>auth()->user()->id,
@@ -172,10 +178,16 @@ class PatientVisit extends Model
         ]); 
     }
 
-    public function generateServiceBillOf(Service $service) {
+    public function generateServiceBillOf(Service $service, $discount = 0) {
+        $baseAmount = $service->price;
+        $discountAmount = $baseAmount * ($discount / 100);
+        $finalAmount = max(0, $baseAmount - $discountAmount);
+        
         $bill = $this->bills()->create([
             'service_description'=>'Charges for '.$service->name,
-            'amount'=>$service->price,
+            'amount'=>$baseAmount,
+            'due_amount'=>$finalAmount,
+            'discount'=>$discount,
             'status'=>'pending',
             'issued_by'=>auth()->user()->id,
             'issued_date'=>date('d M, Y'),
@@ -198,11 +210,17 @@ class PatientVisit extends Model
 
     }
 
-    public function generateBedSpaceBill(Admission $admission, Bed $bed, $days) {
+    public function generateBedSpaceBill(Admission $admission, Bed $bed, $days, $discount = 0) {
+        $baseAmount = $bed->ward->price * $days;
+        $discountAmount = $baseAmount * ($discount / 100);
+        $finalAmount = max(0, $baseAmount - $discountAmount);
+        
         $this->bills()->create([
             'admission_id'=>$admission->id,
             'service_description'=>'Bed Space Charges',
-            'amount'=>$bed->ward->price*$days,
+            'amount'=>$baseAmount,
+            'due_amount'=>$finalAmount,
+            'discount'=>$discount,
             'status'=>'pending',
             'issued_by'=>auth()->user()->id,
             'issued_date'=>date('d M, Y'),

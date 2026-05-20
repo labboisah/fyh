@@ -149,7 +149,7 @@
                                     @endforeach
                                 </div>
                                 <div class="text-end">
-                                4   <p class="mb-1 fw-bold">{{ number_format($bill->amount, 2) }}</p>
+                                <p class="mb-1 fw-bold">{{ number_format($bill->due_amount, 2) }}</p>
                                     <span class="badge bg-{{ $bill->status === 'paid' ? 'success' : ($bill->status === 'partial' ? 'warning' : 'danger') }}">
                                         {{ ucfirst($bill->status) }}
                                     </span>

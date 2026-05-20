@@ -18,7 +18,7 @@
             <tr>
                 <td>{{$bill->bill_number}}</td>
                 <td>{{$bill->service_description}}</td>
-                <td>{{$bill->amount}}</td>
+                <td>{{ number_format($bill->due_amount, 2) }}</td>
                 <td>{{$bill->status}}</td>
                 <td>{{$bill->notes}}</td>
                 <td>{{$bill->issued_date}}</td>

@@ -14,6 +14,8 @@ class Bill extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'due_amount' => 'decimal:2',
+        'discount' => 'decimal:2',
         'issued_date' => 'datetime',
         'due_date' => 'datetime',
     ];
@@ -23,7 +25,7 @@ class Bill extends Model
      */
     public function patientVisit()
     {
-        return $this->belongsTo(PatientVisit::class);
+        return $this->belongsTo(PatientVisit::class, 'walkin_id');
     }
 
     /**
@@ -99,6 +101,55 @@ class Bill extends Model
     {
         return $this->hasMany(BillService::class);
     }
+
+    public function getDiscountedAmount(float $amount): float
+    {
+        if ($this->discount <= 0) {
+            return round($amount, 2);
+        }
+
+        return round($amount * (1 - ($this->discount / 100)), 2);
+    }
+
+    public function refreshRequestPaymentStatuses()
+    {
+        $totalPaid = $this->totalPaid();
+
+        if ($this->due_amount == 0 || $totalPaid >= $this->due_amount) {
+            $this->serviceRequests()->update(['payment_status' => 'paid']);
+            $this->investigationRequests()->update(['payment_status' => 'paid']);
+            return;
+        }
+
+        $remaining = $totalPaid;
+
+        foreach ($this->serviceRequests as $serviceRequest) {
+            $discountedAmount = $this->getDiscountedAmount($serviceRequest->service->price);
+            if ($remaining >= $discountedAmount) {
+                $serviceRequest->update(['payment_status' => 'paid']);
+                $remaining -= $discountedAmount;
+            } elseif ($remaining > 0) {
+                $serviceRequest->update(['payment_status' => 'partial']);
+                $remaining = 0;
+            } else {
+                $serviceRequest->update(['payment_status' => 'pending']);
+            }
+        }
+
+        foreach ($this->investigationRequests as $investigationRequest) {
+            $discountedAmount = $this->getDiscountedAmount($investigationRequest->investigation->price);
+            if ($remaining >= $discountedAmount) {
+                $investigationRequest->update(['payment_status' => 'paid']);
+                $remaining -= $discountedAmount;
+            } elseif ($remaining > 0) {
+                $investigationRequest->update(['payment_status' => 'partial']);
+                $remaining = 0;
+            } else {
+                $investigationRequest->update(['payment_status' => 'pending']);
+            }
+        }
+    }
+
     /**
      * Get total amount paid
      */
@@ -112,7 +163,7 @@ class Bill extends Model
      */
     public function getBalanceAttribute()
     {
-        return $this->amount - $this->totalPaid();
+        return $this->due_amount - $this->totalPaid();
     }
 
     /**

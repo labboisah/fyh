@@ -92,6 +92,7 @@
                                         <i class="bi bi-plus-circle"></i> Investigation
                                     </button>
                                 </div>
+                                
                             </div>
                             <!-- calculator -->
                              <div class="col-md-5">
@@ -126,7 +127,20 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Apply Discount</label>
+                                    <select name="discount" id="discount" class="form-control @error('discount') is-invalid @enderror" onchange="calculateTotal()">
+                                        @for($percent = 0; $percent <= 100; $percent++)
+                                            <option value="{{$percent}}" @selected(old('discount', 0) == $percent)>{{$percent}} %</option>
+                                        @endfor
+                                    </select>
+                                    @error('discount')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="issued_date" class="form-label">Issued Date <span class="text-danger">*</span></label>
                                     <input type="date" id="issued_date" name="issued_date" class="form-control @error('issued_date') is-invalid @enderror" value="{{ old('issued_date', date('Y-m-d')) }}" required>
@@ -135,10 +149,10 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="due_date" class="form-label">Due Date <span class="text-danger">*</span></label>
-                                    <input type="date" id="due_date" name="due_date" class="form-control @error('due_date') is-invalid @enderror" value="{{ old('due_date') }}" required>
+                                    <input type="date" id="due_date" name="due_date" class="form-control @error('due_date') is-invalid @enderror" value="{{ old('due_date', date('Y-m-d', strtotime('+5 days'))) }}" required>
                                     @error('due_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -267,8 +281,22 @@
             }
         });
 
+        const discountSelect = document.querySelector('select[name="discount"]');
+        const discountPercent = discountSelect ? parseFloat(discountSelect.value) : 0;
+        const discountAmount = totalAmount * (discountPercent / 100);
+        const payableAmount = totalAmount - discountAmount;
+
+        if (discountPercent > 0) {
+            summaryHtml += `
+                <tr class="fw-bold border-top">
+                    <td>Discount (${discountPercent.toFixed(0)}%)</td>
+                    <td class="text-end text-danger">-<span class="fas fa-naira-sign"></span> ${discountAmount.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+
         document.getElementById('summary-tbody').innerHTML = summaryHtml;
-        document.getElementById('total-amount').textContent = totalAmount.toFixed(2);
+        document.getElementById('total-amount').textContent = payableAmount.toFixed(2);
         
         const summarySection = document.getElementById('summary-section');
         const submitBtn = document.getElementById('submit-btn');
@@ -302,6 +330,10 @@
         
         // Add event listeners to initial select
         document.querySelector('.service-select').addEventListener('change', calculateTotal);
+        const discountField = document.querySelector('select[name="discount"]');
+        if (discountField) {
+            discountField.addEventListener('change', calculateTotal);
+        }
     });
 </script>
 @endsection
