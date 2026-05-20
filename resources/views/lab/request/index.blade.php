@@ -40,7 +40,7 @@
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 @else
                                 <td>
-                                    {{ strtoupper($investigationRequest->walkinPatient->name) ?? 'Walkin Patient' }}
+                                    {{ $investigationRequest->walkinPatient->name ?? 'Walkin Patient' }}
                                 </td>
                                 @endif
                                 <td>{{ $investigationRequest->investigation->name }}</td>
