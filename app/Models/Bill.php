@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Bill extends Model
 {
@@ -171,23 +172,20 @@ class Bill extends Model
      */
     public static function generateBillNumber()
     {
-        $year = substr(date('Y'),2, 2);
-        $lastBill = self::where('bill_number', 'like', "BL{$year}%")
-            ->orderBy('bill_number', 'desc')
-            ->first();
-        
-        if ($lastBill) {
-            $lastNumber = (int) substr($lastBill->bill_number, -5);
-            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '00001';
-        }
-        $bill_no = "BL{$year}{$newNumber}";
-        // check if the bill no exists
+        $year = substr(date('Y'), 2, 2);
+        $prefix = "BL{$year}";
+
+        $lastNumber = self::where('bill_number', 'like', "{$prefix}%")
+            ->select(DB::raw('MAX(CAST(SUBSTRING(bill_number, 5) AS UNSIGNED)) as max_number'))
+            ->value('max_number');
+
+        $nextNumber = $lastNumber ? (int) $lastNumber + 1 : 1;
+        $newNumber = str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+        $bill_no = "{$prefix}{$newNumber}";
+
         while (self::where('bill_number', $bill_no)->exists()) {
-            $lastNumber = (int) substr($bill_no, -5);
-            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-            $bill_no = "BL{$year}{$newNumber}";
+            $nextNumber++;
+            $bill_no = "{$prefix}" . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
         }
 
         return $bill_no;
