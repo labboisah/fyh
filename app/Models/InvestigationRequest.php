@@ -55,6 +55,19 @@ class InvestigationRequest extends Model
             return 'pending';
     }
 
+    public function getLabNo() {
+        $lab_no = $this->lab_no;
+        if (!$lab_no) {
+            
+            $year = substr(date('Y'), 2, 2);
+            $type = $this->investigation->investigationType;
+            $count = count($type->department->investigationRequests()) + 1;
+            $lab_no = strtoupper(substr($type->name, 0, 3)) . $year . str_pad($count, 4, '0', STR_PAD_LEFT);
+            $this->update(['lab_no' => $lab_no]);
+        }   
+        return $this->lab_no;
+    }
+
     public static function updateLabNumber($requestId, $investigationId)
     {
         $year = substr(date('Y'), 2, 2);

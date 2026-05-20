@@ -34,15 +34,13 @@
                             @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
                             
                             <tr>
-                                <td>{{ $investigationRequest->lab_no ?? ''}}</td>
+                                <td>{{ $investigationRequest->getLabNo() ?? ''}}</td>
                                 <td>{{ $investigationRequest->requestedBy->name }}</td>
                                 @if($investigationRequest->patientVisit)
                                 <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
                                 @else
                                 <td>
-                                    @if($investigationRequest->bill && $investigationRequest->bill->walkinPatient)    
-                                    {{ strtoupper($investigationRequest->bill->walkinPatient->name) ?? 'Walkin Patient' }}
-                                    @endif
+                                    {{ strtoupper($investigationRequest->walkinPatient->name) ?? 'Walkin Patient' }}
                                 </td>
                                 @endif
                                 <td>{{ $investigationRequest->investigation->name }}</td>

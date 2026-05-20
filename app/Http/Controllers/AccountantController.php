@@ -120,7 +120,9 @@ class AccountantController extends Controller
         })->values()->all();
 
         $selectedInvestigations = collect($validated['investigations'] ?? [])->filter(function ($investigation) {
-            return !empty($investigation['id']);
+            return is_array($investigation) && !empty($investigation['id']);
+        })->map(function ($investigation) {
+            return ['id' => $investigation['id']];
         })->values()->all();
 
         if (empty($services) && empty($selectedInvestigations)) {
@@ -372,11 +374,21 @@ class AccountantController extends Controller
     {
         $investigationCategories = ['Laboratory', 'Imaging'];
 
+        $investigations = collect($investigations)
+            ->filter(fn($investigation) => is_array($investigation) && !empty($investigation['id']))
+            ->map(fn($investigation) => ['id' => $investigation['id']])
+            ->values()
+            ->all();
+
+        if (empty($investigations)) {
+            $investigations = $bill->investigations()->pluck('id')->map(fn($id) => ['id' => $id])->values()->all();
+        }
+
         foreach ($services as $serviceData) {
             $service = Service::findOrFail($serviceData['id']);
 
             if ($service) {
-                $serviceRequest = ServiceRequest::create([
+                ServiceRequest::create([
                     'service_id' => $service->id,
                     'patient_visit_id' => $bill->patient_visit_id,
                     'walkin_id' => $bill->walkin_id,
@@ -388,7 +400,6 @@ class AccountantController extends Controller
                     'clinical_diagnoses' => 'Requested via billing system',
                 ]);
             }
-           
         }
 
         foreach ($investigations as $investigationData) {
