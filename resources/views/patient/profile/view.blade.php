@@ -1,6 +1,15 @@
+    @php
+        $currentVisit = $patient->currentVisit();
+    @endphp
+
     <div class="col-lg-12">
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4 patient-profile-card">
+            @if($currentVisit)
+                <div class="patient-visit-watermark">
+                    {{ strtoupper(substr($currentVisit->visit_type, 0, strpos($currentVisit->visit_type, ' '))) }} Visit
+                </div>
+            @endif
 
             <!-- Tabs -->
             <div class="card-header bg-white border-bottom">
@@ -12,6 +21,16 @@
                                 data-bs-target="#bio"
                                 type="button">
                             <i class="bi bi-person-fill me-1"></i> Bio Data
+                        </button>
+                    </li>
+
+                
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#history"
+                                type="button">
+                            <i class="bi bi-clock-history me-1"></i> History
                         </button>
                     </li>
 
@@ -55,7 +74,7 @@
                     </li>
                     @endif
                     
-                    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor'))
+                    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
                     <li class="nav-item">
                         <button class="nav-link"
                                 data-bs-toggle="tab"
@@ -118,6 +137,7 @@
                             <i class="bi bi-pencil me-1"></i> Continuation Sheet
                         </button>
                     </li>
+
                      @endif
 
                     <li class="nav-item text-danger">
@@ -128,6 +148,7 @@
                             <i class="bi bi-lightning-charge me-1"></i> Quick Actions
                         </button>
                     </li>
+                
 
                 </ul>
             </div>
@@ -140,7 +161,7 @@
                     @include('patient.profile.infor')
                 </div>
 
-                @if($patient->currentVisit())
+                
                 <div class="tab-pane fade" id="bills">
 
                     @include('patient.profile.bill')
@@ -173,6 +194,8 @@
 
                 </div>
 
+                
+
                 <!--  DRUG CHART -->
                 <div class="tab-pane fade" id="drugchart">
                     @include('patient.profile.drugchart')
@@ -201,13 +224,14 @@
                 
                 <!-- QUICK ACTIONS -->
                 <div class="tab-pane fade" id="actions">
-                    
                     @include('patient.profile.actions')
                     
                 </div>
-                @else
-                <div class="alert alert-warning">No visit recorded, or patient was dischaged, if not pls referred the patient to record to record his visit</div>    
-                @endif
+
+                <div class="tab-pane fade" id="history">
+                    @include('patient.profile.history')
+                </div>
+                
             </div>
         </div>
     </div>
@@ -237,6 +261,30 @@
         .step-marker {
             font-size: 1.2rem;
             flex-shrink: 0;
+        }
+
+        .patient-profile-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .patient-visit-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 1;
+            font-size: 7rem;
+            font-weight: 800;
+            letter-spacing: 0.45rem;
+            color: rgba(0, 0, 0, 0.06);
+            text-transform: uppercase;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            transform: translate(-50%, -50%) rotate(-12deg);
+            text-align: center;
+            width: 100%;
+            max-width: 100%;
         }
         
         .step.completed .step-marker {

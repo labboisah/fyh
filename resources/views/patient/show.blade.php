@@ -21,6 +21,10 @@
            <strong class="text-success">{{ date('M d, Y',strtotime($patient->currentVisit()->visit_date))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
         </p>
         <p class="mb-0 text-muted">
+           Absconded Record:
+           <strong class="text-success">{{ $patient->patientVisits->where('status', 'Absconded')->count() }}</strong>
+        </p>
+        <p class="mb-0 text-muted">
            Visit Status:
            <strong class="text-success">{{ $patient->currentVisit()->status }}</strong>
         </p>

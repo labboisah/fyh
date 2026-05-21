@@ -476,9 +476,10 @@
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('midwife') && Auth::user()->hasRole('nurse'))
+                            @if(Auth::user()->hasRole('midwife'))
+                            
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.dashboard') }}"><i class="bi bi-people-fill me-2 text-success"></i>ANC Portal</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>ANC Patients</a>
                             </li>
                             @endif
 

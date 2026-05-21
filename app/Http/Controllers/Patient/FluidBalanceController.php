@@ -17,6 +17,7 @@ class FluidBalanceController extends Controller
         if($admission){
             $admission->fluidBalances()->create([
                 "date" => $request->date,
+                'patient_visit_id' => $patient->currentVisit()->id,
                 "time" => $request->time,
                 "type_in" => $request->type_in,
                 "tube_in" => $request->tube_in,

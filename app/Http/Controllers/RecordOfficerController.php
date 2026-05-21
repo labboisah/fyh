@@ -324,7 +324,7 @@ class RecordOfficerController extends Controller
             $visit = PatientVisit::create([
                 'patient_id' => $patient->id,
                 'visit_date' => $validated['visit_date'],
-                'visit_type' => $validated['visit_type'],
+                'visit_type' => Service::find($validated['visit_type'])->name,
                 'status' => 'Active',
                 'created_by' => auth()->id(),
             ]);

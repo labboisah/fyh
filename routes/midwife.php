@@ -11,6 +11,7 @@ use App\Http\Controllers\NewbornExaminationController;
 use App\Http\Controllers\PostnatalExaminationController;
 use App\Http\Controllers\ChildFollowUpController;
 use App\Http\Controllers\MaternalMedicationController;
+use App\Http\Controllers\Midwife\PatientController;
 
 Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
     ->prefix('midwife')
@@ -20,7 +21,17 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         // Dashboard route
         Route::get('/', [MidwifeController::class, 'dashboard'])->name('dashboard');
         
-        Route::get('/{patient}/progress', [MidwifeController::class, 'progress'])->name('progress');
+        Route::name('patient.')
+            ->prefix('patient')
+            ->group(function () {
+            
+            Route::get('/', [PatientController::class, 'index'])->name('index');
+            Route::get('/{patient}', [PatientController::class, 'show'])->name('show');
+            Route::get('/{serviceRequest}/complete', [PatientController::class, 'complete'])->name('complete');
+            Route::get('/{patientVisit}/close-visit', [PatientController::class, 'closeVisit'])->name('close-visit');
+            Route::get('/{patient}/progress', [MidwifeController::class, 'progress'])->name('progress');
+        });
+        
         
         // Antenatal Care routes
         Route::name('antenatal.')
