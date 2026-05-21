@@ -8,43 +8,46 @@ use App\Models\Patient;
 use App\Models\PatientReferral;
 use App\Models\Appointment;
 use App\Models\NextOfKin;
+use App\Models\PatientVisit;
+use App\Models\ServiceRequest;
+use Auth;
 
 class PatientController extends Controller
 {
     public function index() {
-        return view('nurse.patient.index');
+        $requests = auth()->user()->pendingServiceRequests();
+
+        return view('nurse.patient.index', compact('requests'));
     }
 
-    public function show(Patient $patient) {
-        
+    public function show($patient) {
         return view('nurse.patient.show', compact('patient'));
-    }   
-
-    public function history(Patient $patient) {
-
-        $visits = $patient->visits()->paginate(10);
-
-        return view('nurse.patient.history', compact('patient', 'visits'));
     }
 
-    public function search(Request $request)
-    {
-        $query = $request->input('q');
+    public function complete(ServiceRequest $serviceRequest) {
+        $serviceRequest->status = 'completed';
+        $serviceRequest->performed_by = auth()->user()->id;
+        $serviceRequest->completed_at = now();
+        $serviceRequest->save();
 
-        if (!$query || strlen($query) < 2) {
-            return view('nurse.patient.search', ['patients' => []]);
-        }
-
-        $patients = Patient::with('demographic')
-            ->where('hospital_number', 'like', "%{$query}%")
-            ->orWhereHas('demographic', function ($q) use ($query) {
-                $q->where('phone_number', 'like', "%{$query}%")
-                  ->orWhere('first_name', 'like', "%{$query}%")
-                  ->orWhere('last_name', 'like', "%{$query}%");
-            })
-            ->get();
-
-        return view('nurse.patient.search', compact('patients', 'query'));
+        // log activity
+        $serviceRequest->patientVisit->visitActivities()->create([
+            'recorded_by' => auth()->user()->id,
+            'activity' => 'Service "' . $serviceRequest->service->name . '" marked as completed by ' . auth()->user()->name,
+        ]);
+        return redirect()->back()->with('success', 'Service request marked as completed and bill generated.');
     }
 
+    public function closeVisit(PatientVisit $patientVisit) {
+        $patientVisit->status = 'Closed';
+        $patientVisit->updated_at = now();
+        $patientVisit->save();
+
+        // log activity
+        $patientVisit->visitActivities()->create([
+            'recorded_by' => auth()->user()->id,
+            'activity' => 'Patient visit marked as closed by ' . auth()->user()->name,
+        ]);
+        return redirect()->back()->with('success', 'Patient visit marked as closed.');
+    }
 }

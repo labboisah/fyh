@@ -7,7 +7,7 @@
         <div class="card border-0 shadow-sm mb-4 patient-profile-card">
             @if($currentVisit)
                 <div class="patient-visit-watermark">
-                    {{ strtoupper(substr($currentVisit->visit_type, 0, strpos($currentVisit->visit_type, ' '))) }} Visit
+                    {{ strtoupper(substr($currentVisit->visit_type, 0, strpos($currentVisit->visit_type, ' '))) }}
                 </div>
             @endif
 

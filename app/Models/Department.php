@@ -9,6 +9,10 @@ class Department extends Model
 {
     protected $guarded = [];
 
+    public function services() {
+        return $this->hasMany(Service::class);
+    }
+
     public function investigationTypes() {
         return $this->hasMany(InvestigationType::class);
     }

@@ -1,15 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Midwife;
+namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Patient;
-use App\Models\Service;
-use App\Models\PatientVisit;
-use App\Models\InvestigationRequest;
-use App\Models\Bill;
-use App\Models\ServiceRequest;
 
 class PatientController extends Controller
 {
@@ -17,12 +11,12 @@ class PatientController extends Controller
 
         $requests = auth()->user()->pendingServiceRequests();
         
-        return view('midwife.patient.index', compact('requests'));
+        return view('doctor.patient.index', compact('requests'));
     }
     
 
     public function show($patient) {
-        return view('midwife.patient.show', compact('patient'));
+        return view('doctor.patient.show', compact('patient'));
     }
 
     public function complete(ServiceRequest $serviceRequest) {

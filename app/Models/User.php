@@ -53,6 +53,19 @@ class User extends Authenticatable
         ];
     }
 
+    public function pendingServiceRequests() {
+        $requests = [];
+
+        foreach($this->department->services as $service) {
+            foreach($service->serviceRequests->where('status','pending') as $req) {
+                if($req->patientVisit && $req->patientVisit->status == 'Active'){
+                    $requests[] = $req;
+                }
+            }
+        }
+        return $requests;
+    }
+
     public function department() {
         return $this->belongsTo(Department::class);
     }

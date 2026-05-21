@@ -126,6 +126,13 @@
                         </a>
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{{ route('patient.admission.create', $patient) }}" class="btn btn-outline-success">
+                            <i class="bi bi-file-earmark-medical me-2"></i>Admit the Patient
+                        </a>
+                    </div>
+                </div>
             </div>    
         @endif
             <!-- nurse specific role -->

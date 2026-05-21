@@ -457,7 +457,7 @@
                             @if(Auth::user()->hasRole('nurse'))
 
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>{{ count(auth()->user()->pendingServiceRequests()) }} Patients</a>
                             </li>
                             @endif
 
@@ -465,13 +465,13 @@
 
                             @if(Auth::user()->hasRole('doctor'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ count(auth()->user()->pendingServiceRequests()) }} Patients</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Admission</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Admission</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Discharge</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Discharge</a>
                             </li>
                             
                             @endif
@@ -479,7 +479,7 @@
                             @if(Auth::user()->hasRole('midwife'))
                             
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>ANC Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ count(auth()->user()->pendingServiceRequests()) }} ANC Patients</a>
                             </li>
                             @endif
 
