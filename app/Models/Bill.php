@@ -190,4 +190,14 @@ class Bill extends Model
 
         return $bill_no;
     }
+
+    public function patientName() {
+        if($this->patientVisit) {
+            return $this->patientVisit->patient->name();
+        } elseif($this->walkinPatient) {
+            return $this->walkinPatient->name;
+        } else {
+            return 'N/A';
+        }
+    }
 }

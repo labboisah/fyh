@@ -26,59 +26,74 @@
                 <form action="{{ route('patient.investigation.store', $patient) }}" method="POST">
                     @csrf
 
-                    {{-- Investigation Type --}}
+                    {{-- Investigation Rows --}}
                     <div class="mb-3">
-                        <label for="investigation_type" class="form-label">
-                            Investigation Type
-                        </label>
+                        <label class="form-label">Investigations</label>
+                        <div id="investigation-rows">
+                            @php
+                                $rows = old('investigation_rows', [
+                                    ['investigation_type' => '', 'investigation' => '', 'specimen' => '']
+                                ]);
+                            @endphp
 
-                        <select name="investigation_type"
-                                id="investigation_type"
-                                class="form-select"
-                                required>
+                            @foreach($rows as $index => $row)
+                                <div class="investigation-row mb-3 p-3 border rounded" data-index="{{ $index }}">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Investigation Type</label>
+                                            <select name="investigation_rows[{{ $index }}][investigation_type]"
+                                                    class="form-select investigation-type-select"
+                                                    required>
+                                                <option value="" disabled {{ empty($row['investigation_type']) ? 'selected' : '' }}>
+                                                    Select investigation type
+                                                </option>
+                                                @foreach(App\Models\InvestigationType::all() as $type)
+                                                    <option value="{{ $type->id }}"
+                                                        {{ isset($row['investigation_type']) && $row['investigation_type'] == $type->id ? 'selected' : '' }}>
+                                                        {{ $type->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                            <option value="" disabled selected>
-                                Select investigation type
-                            </option>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Investigation</label>
+                                            <select name="investigation_rows[{{ $index }}][investigation]"
+                                                    class="form-select investigation-select"
+                                                    data-selected="{{ $row['investigation'] ?? '' }}"
+                                                    required>
+                                                <option value="" disabled {{ empty($row['investigation']) ? 'selected' : '' }}>
+                                                    Select investigation
+                                                </option>
+                                            </select>
+                                        </div>
 
-                            @foreach(App\Models\InvestigationType::all() as $type)
-                                <option value="{{ $type->id }}"
-                                    {{ old('investigation_type') == $type->id ? 'selected' : '' }}>
-                                    {{ $type->name }}
-                                </option>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Specimen</label>
+                                            <input type="text"
+                                                   name="investigation_rows[{{ $index }}][specimen]"
+                                                   value="{{ old('investigation_rows.' . $index . '.specimen', $row['specimen'] ?? '') }}"
+                                                   class="form-control"
+                                                   placeholder="e.g. Blood, Urine">
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-danger btn-sm remove-row-button"
+                                                    {{ $index === 0 ? 'style=visibility:hidden;' : '' }}>
+                                                &times;
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             @endforeach
-                        </select>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-investigation-row">
+                            <i class="bi bi-plus-circle me-1"></i> Add Investigation
+                        </button>
                     </div>
 
-                    {{-- Investigation --}}
-                    <div class="mb-3">
-                        <label for="investigation" class="form-label">
-                            Investigation
-                        </label>
-
-                        <select name="investigation"
-                                id="investigation"
-                                class="form-select"
-                                required>
-                            <option value="" disabled selected>
-                                Select investigation
-                            </option>
-                        </select>
-                    </div>
-                    {{-- Specimen --}}
-                    <div class="mb-3">
-                        <label for="specimen" class="form-label">
-                            Specimen Details (if applicable)
-                        </label>
-                        <input type="text"
-                               name="specimen"
-                               id="specimen"
-                               value="{{ old('specimen') }}"
-                               class="form-control"
-                               placeholder="e.g. Blood, Urine, etc.">
-                    </div>
                     {{-- Clinical Diagnoses --}}
-                    
                     <div class="mb-3">
                         <label for="clinical_diagnoses" class="form-label">
                             Clinical Diagnoses / Additional Information
@@ -110,59 +125,143 @@
 
 {{-- AJAX SCRIPT --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+function getInvestigationRowTemplate(index) {
+    return `
+        <div class="investigation-row mb-3 p-3 border rounded" data-index="${index}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Investigation Type</label>
+                    <select name="investigation_rows[${index}][investigation_type]"
+                            class="form-select investigation-type-select"
+                            required>
+                        <option value="" disabled selected>Select investigation type</option>
+                        @foreach(App\Models\InvestigationType::all() as $type)
+                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Investigation</label>
+                    <select name="investigation_rows[${index}][investigation]"
+                            class="form-select investigation-select"
+                            required>
+                        <option value="" disabled selected>Select investigation</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Specimen</label>
+                    <input type="text"
+                           name="investigation_rows[${index}][specimen]"
+                           class="form-control"
+                           placeholder="e.g. Blood, Urine">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger btn-sm remove-row-button">
+                        &times;
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
-    const typeSelect = document.getElementById('investigation_type');
-    const investigationSelect = document.getElementById('investigation');
+function loadInvestigations(typeId, selectElement, selectedInvestigationId = null) {
+    if (!typeId) {
+        selectElement.innerHTML = '<option value="" disabled selected>Select investigation</option>';
+        return;
+    }
 
-    const ajaxBaseUrl = "{{ url('/ajax/investigations') }}";
+    selectElement.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+    fetch(`{{ url('/ajax/investigations') }}/${typeId}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        selectElement.innerHTML = '<option value="" disabled selected>Select investigation</option>';
+
+        if (!Array.isArray(data) || data.length === 0) {
+            selectElement.innerHTML = '<option disabled>No investigations found</option>';
+            return;
+        }
+
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            if (selectedInvestigationId && selectedInvestigationId == item.id) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        selectElement.innerHTML = '<option disabled>Error loading investigations</option>';
+    });
+}
+
+function attachRowEvents(row) {
+    const typeSelect = row.querySelector('.investigation-type-select');
+    const investigationSelect = row.querySelector('.investigation-select');
+    const removeButton = row.querySelector('.remove-row-button');
 
     typeSelect.addEventListener('change', function () {
+        loadInvestigations(this.value, investigationSelect);
+    });
 
-        const typeId = this.value;
-
-        investigationSelect.innerHTML =
-            '<option value="" disabled selected>Loading...</option>';
-
-        if (!typeId) return;
-
-        fetch(`${ajaxBaseUrl}/${typeId}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network error');
-            }
-            return response.json();
-        })
-        .then(data => {
-
-            investigationSelect.innerHTML =
-                '<option value="" disabled selected>Select investigation</option>';
-
-            if (data.length === 0) {
-                investigationSelect.innerHTML =
-                    '<option disabled>No investigations found</option>';
-                return;
-            }
-
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.name;
-                investigationSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-
-            console.error('Error:', error);
-
-            investigationSelect.innerHTML =
-                '<option disabled>Error loading investigations</option>';
+    if (removeButton) {
+        removeButton.addEventListener('click', function () {
+            row.remove();
+            updateRowIndices();
         });
+    }
+}
+
+function updateRowIndices() {
+    const rows = document.querySelectorAll('.investigation-row');
+    rows.forEach((row, index) => {
+        row.dataset.index = index;
+        row.querySelectorAll('select, input').forEach(field => {
+            const name = field.getAttribute('name');
+            if (!name) return;
+            const updatedName = name.replace(/investigation_rows\[\d+\]/, `investigation_rows[${index}]`);
+            field.setAttribute('name', updatedName);
+        });
+    });
+}
+
+function initializeRows() {
+    document.querySelectorAll('.investigation-row').forEach(row => {
+        attachRowEvents(row);
+        const typeSelect = row.querySelector('.investigation-type-select');
+        const investigationSelect = row.querySelector('.investigation-select');
+        const selectedInvestigation = investigationSelect.dataset.selected || null;
+
+        if (typeSelect.value) {
+            loadInvestigations(typeSelect.value, investigationSelect, selectedInvestigation);
+        }
+    });
+}
+
+function addInvestigationRow() {
+    const container = document.getElementById('investigation-rows');
+    const nextIndex = container.querySelectorAll('.investigation-row').length;
+    const template = document.createElement('div');
+    template.innerHTML = getInvestigationRowTemplate(nextIndex);
+    const newRow = template.firstElementChild;
+    container.appendChild(newRow);
+    attachRowEvents(newRow);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initializeRows();
+
+    document.getElementById('add-investigation-row').addEventListener('click', function () {
+        addInvestigationRow();
     });
 });
 </script>

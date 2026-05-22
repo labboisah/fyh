@@ -31,45 +31,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
-                            
+                            @foreach ($requestGroups as $group)
                             <tr>
-                                <td>{{ $investigationRequest->getLabNo() ?? ''}}</td>
-                                <td>{{ $investigationRequest->requestedBy->name }}</td>
-                                @if($investigationRequest->patientVisit)
-                                <td>{{ $investigationRequest->patientVisit->patient->demographic->full_name }}</td>
-                                @else
+                                <td>{{ $group->lab_no ?? '' }}</td>
+                                <td>{{ $group->requested_by }}</td>
+                                <td>{{ $group->patient_name }}</td>
+                                <td>{{ $group->investigations }}</td>
+                                <td>{{ $group->completed_at }}</td>
+                                <td>{{ $group->performed_by ?: 'N/A' }}</td>
+                                <td>{{ $group->status }}</td>
+                                <td>{{ $group->clinical_notes }}</td>
+                                <td>{{ $group->requested_at }}</td>
                                 <td>
-                                    {{ $investigationRequest->walkinPatient->name ?? 'Walkin Patient' }}
-                                </td>
-                                @endif
-                                <td>{{ $investigationRequest->investigation->name }}</td>
-                                <td>{{ $investigationRequest->completed_at }}</td>
-                                <td>{{ $investigationRequest->performedBy ? $investigationRequest->performedBy->name : 'N/A' }}</td>
-                                <td>{{ $investigationRequest->status }}</span></td>
-                                <td>{{ $investigationRequest->clinical_diagnoses }}</td>
-                                <td>{{ $investigationRequest->created_at }}</td>
-                                <td>
-                                    @if($investigationRequest->payment_status == 'paid')
-                                        @if($investigationRequest->status !== 'Completed')
-                                        <a href="{{ route('lab.requests.results.create', $investigationRequest) }}" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-send me-1"></i> Send Result
+                                    @if($group->has_pending_results)
+                                        <a href="{{ route('lab.requests.results.create', ['groupType' => $group->group_type, 'groupId' => $group->group_id]) }}" class="btn btn-sm btn-outline-success mb-1">
+                                            <i class="bi bi-send me-1"></i> Send Combined Result
                                         </a>
-                                        @else
-                                        <a href="#" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-pencil me-1"></i> Edit Result
+                                    @elseif($group->has_completed_results)
+                                        <a href="{{ route('lab.requests.results.show', ['groupType' => $group->group_type, 'groupId' => $group->group_id]) }}" class="btn btn-sm btn-outline-info mb-1">
+                                            <i class="bi bi-eye me-1"></i> View Combined Results
                                         </a>
-                                        <a href="{{ route('lab.requests.results.show', $investigationRequest) }}" class="btn btn-sm btn-outline-info">
-                                            <i class="bi bi-pencil me-1"></i> View Result
-                                        </a>
-                                        @endif
                                     @else
-                                        Payment not recorded
+                                        {{ $group->payment_status }}
                                     @endif
                                 </td>
                             </tr>
                             @endforeach
-                            <!-- More rows can be added here -->
                         </tbody>
                     </table>
                 </div>

@@ -39,14 +39,11 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
     ->prefix('requests')
     ->group(function () {
         Route::get('/', [RequestController::class, 'index'])->name('index');
-        
-        Route::name('results.')
-            ->prefix('{investigationRequest}/results')
-            ->group(function () {
-            Route::get('/create', [RequestController::class, 'createResult'])->name('create');
-            Route::get('/show/print', [RequestController::class, 'showResult'])->name('show');
-            Route::post('/store', [RequestController::class, 'storeResult'])->name('store');
-        });
+
+        Route::get('/group/{groupType}/{groupId}/results/create', [RequestController::class, 'createResult'])->name('results.create');
+        Route::post('/group/{groupType}/{groupId}/results/store', [RequestController::class, 'storeResult'])->name('results.store');
+        Route::get('/group/{groupType}/{groupId}/results/show', [RequestController::class, 'showResult'])->name('results.show');
+
     });
 
     

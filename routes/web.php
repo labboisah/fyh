@@ -158,10 +158,6 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Insurance Billing
     Route::get('insurance-billing', [AccountantController::class, 'insuranceBilling'])->name('insurance-billing');
-    
-    // Financial Reports
-    Route::get('reports/financial', [AccountantController::class, 'financialReport'])->name('reports.financial');
-    Route::get('reports/financial/export', [AccountantController::class, 'exportFinancialReport'])->name('reports.financial.export');
 });
 
 // nurse routes - Vital Signs Recording and Patient Monitoring
@@ -186,6 +182,7 @@ require __DIR__.'/doctor.php';
 require __DIR__.'/patient.php';
 require __DIR__.'/pharmacy.php';
 require __DIR__.'/department.php';
+require __DIR__.'/reports.php';
 
 // Reports Routes (for all authenticated users)
 Route::middleware(['auth', 'verified'])->prefix('reports')->name('reports.')->group(function () {

@@ -18,47 +18,56 @@ class InvestigationController extends Controller
 
     public function store(Request $request, $patientId)
     {
-        $request->validate([
-            'investigation_type' => 'required|exists:investigation_types,id',
-            'investigation' => 'required|exists:investigations,id',
+        $validated = $request->validate([
+            'investigation_rows' => 'required|array|min:1',
+            'investigation_rows.*.investigation_type' => 'required|exists:investigation_types,id',
+            'investigation_rows.*.investigation' => 'required|exists:investigations,id',
+            'investigation_rows.*.specimen' => 'nullable|string|max:255',
             'clinical_diagnoses' => 'required|string',
-
         ]);
 
         $patient = Patient::findOrFail($patientId);
 
-        // Create the investigation request $table->unsignedBigInteger('patient_visit_id');
+        $visit = $patient->currentVisit();
+        if (!$visit) {
+            $visit = $patient->patientVisits()->create([
+                'visit_date' => now(),
+                'visit_type' => 'Investigation',
+                'created_by' => auth()->id(),
+                'reason_for_visit' => 'Investigation request creation',
+            ]);
+        }
 
-        $investigationRequest = $patient->currentVisit()->investigationRequests()->firstOrCreate([
-            'investigation_id' => $request->input('investigation'),
-            'requested_by' => auth()->id(),
-            'clinical_diagnoses' => $request->input('clinical_diagnoses'),
-            'requested_at' => now(),
-            'specimen' => $request->input('specimen'),
-            
-        ]);
-        $investigationRequest->updateLabNumber($investigationRequest->id,$request->investigation);
+        foreach ($validated['investigation_rows'] as $row) {
+            $investigationRequest = $visit->investigationRequests()->create([
+                'investigation_id' => $row['investigation'],
+                'requested_by' => auth()->id(),
+                'clinical_diagnoses' => $validated['clinical_diagnoses'],
+                'requested_at' => now(),
+                'specimen' => $row['specimen'] ?? null,
+            ]);
 
-        // create bill for this investigation
-        $bill = $investigationRequest->bill()->create([
-            'patient_visit_id'=>$patient->currentVisit()->id,
-            'amount' => $investigationRequest->investigation->price ?? 0,
-            'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
-            'status' => 'pending',
-            'issued_by' => auth()->id(),
-            'issued_date' => now(),
-            'bill_number' =>  Bill::generateBillNumber(),
-            'due_date'=>now()->addDays(2)->toDateString(),
-            'department_id'=> $investigationRequest->investigation->investigationType->department->id,
-        ]);
+            $investigationRequest->updateLabNumber($investigationRequest->id, $row['investigation']);
 
-        // Log activity
-        $patient->currentVisit()->visitActivities()->create([
-            'activity' => "Investigation request created for {$investigationRequest->investigation->name}",
-            'recorded_by' => auth()->id(),
-        ]);
+            $investigationRequest->bill()->create([
+                'patient_visit_id' => $visit->id,
+                'amount' => $investigationRequest->investigation->price ?? 0,
+                'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
+                'status' => 'pending',
+                'issued_by' => auth()->id(),
+                'issued_date' => now(),
+                'bill_number' => Bill::generateBillNumber(),
+                'due_date' => now()->addDays(2)->toDateString(),
+                'department_id' => $investigationRequest->investigation->investigationType->department->id,
+            ]);
 
-        return redirect()->route('patient.show', $patient)->with('success', 'Investigation request created successfully.');
+            $visit->visitActivities()->create([
+                'activity' => "Investigation request created for {$investigationRequest->investigation->name}",
+                'recorded_by' => auth()->id(),
+            ]);
+        }
+
+        return redirect()->route('patient.show', $patient)->with('success', 'Investigation requests created successfully.');
     }
 
     public function show($investigationRequestId)

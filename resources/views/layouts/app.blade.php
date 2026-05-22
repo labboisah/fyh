@@ -679,8 +679,17 @@
                                 
                             @endif
 
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('reports.index') }}"><i class="bi bi-bar-chart me-2 text-success"></i>Report</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-bar-chart me-2 text-success"></i>
+                                    Reports
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('reports.index') }}">Activity Reports</a></li>
+                                    @if(Auth::user()->hasRole('accountant') || Auth::user()->hasRole('administrator'))
+                                        <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}">Financial / Billing Report</a></li>
+                                    @endif
+                                </ul>
                             </li>
 
                             @auth
