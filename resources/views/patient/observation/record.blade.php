@@ -167,7 +167,7 @@
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-check-circle me-2"></i> Record Observation
                         </button>
-                        <a href="{{ route('nurse.patients.show', $patient) }}" class="btn btn-secondary">
+                        <a href="{{ route('nurse.patient.show', $patient) }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i> Cancel
                         </a>
                     </div>

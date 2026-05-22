@@ -93,7 +93,7 @@
                     
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('nurse.patients.show', $patient) }}"
+                        <a href="{{ route('nurse.patient.show', $patient) }}"
                            class="btn btn-secondary">
                             <i class="bi bi-x-lg me-1"></i> Cancel
                         </a>

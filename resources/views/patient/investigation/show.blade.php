@@ -8,7 +8,7 @@
         <i class="bi bi-clipboard2 me-2 text-primary"></i>
         <span class="text-muted">Investigation Result for  {{$investigationRequest->patientVisit->patient->hospital_number ?? 'N/A' }}</span>
     </h1>
-    <a href="{{ route('nurse.patients.show', $investigationRequest->patientVisit->patient) }}" class="btn btn-outline-secondary">
+    <a href="{{ route('nurse.patient.show', $investigationRequest->patientVisit->patient) }}" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-1"></i> Back to Patient
     </a>
 </div>

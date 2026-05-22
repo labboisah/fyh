@@ -168,7 +168,7 @@
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-check-circle me-2"></i> Update Vital Signs
                         </button>
-                        <a href="{{ route('nurse.patients.show', $patientVisitVitalSign->vitalSignsRequest->patientVisit->patient) }}" class="btn btn-secondary">
+                        <a href="{{ route('nurse.patient.show', $patientVisitVitalSign->vitalSignsRequest->patientVisit->patient) }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i> Cancel
                         </a>
                     </div>
