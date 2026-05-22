@@ -324,6 +324,75 @@
         }
     }
 
+    const patientLookupUrl = '{{ route('accountant.bills.patient-details') }}';
+    let patientLookupTimer = null;
+
+    function updatePatientFeedback(message, isError = false) {
+        const feedback = document.getElementById('patient-lookup-feedback');
+        if (!feedback) {
+            return;
+        }
+        feedback.textContent = message;
+        feedback.classList.toggle('text-danger', isError);
+        feedback.classList.toggle('text-muted', !isError);
+    }
+
+    function populateWalkinFields(data) {
+        document.getElementById('walkin_name').value = data.name || '';
+        document.getElementById('walkin_phone').value = data.phone || '';
+        document.getElementById('walkin_email').value = data.email || '';
+    }
+
+    function resetWalkinFields() {
+        document.getElementById('walkin_name').value = '';
+        document.getElementById('walkin_phone').value = '';
+        document.getElementById('walkin_email').value = '';
+    }
+
+    async function fetchPatientDetails(hospitalNumber) {
+        if (!hospitalNumber) {
+            updatePatientFeedback('Enter hospital number to load registered patient details.');
+            resetWalkinFields();
+            return;
+        }
+
+        try {
+            const response = await fetch(`${patientLookupUrl}?hospital_number=${encodeURIComponent(hospitalNumber)}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                updatePatientFeedback('Unable to look up patient details right now.', true);
+                return;
+            }
+
+            const result = await response.json();
+            if (result.found) {
+                populateWalkinFields(result);
+                updatePatientFeedback('Registered patient found. Details populated for billing.');
+            } else {
+                updatePatientFeedback('No registered patient found. Use walk-in details.');
+                resetWalkinFields();
+            }
+        } catch (error) {
+            updatePatientFeedback('Patient lookup failed. Check your connection.', true);
+            console.error(error);
+        }
+    }
+
+    document.getElementById('hospital_number').addEventListener('input', function() {
+        clearTimeout(patientLookupTimer);
+        const hospitalNumber = this.value.trim();
+        if (hospitalNumber.length === 0) {
+            updatePatientFeedback('Enter hospital number to load registered patient details.');
+            resetWalkinFields();
+            return;
+        }
+        patientLookupTimer = setTimeout(() => fetchPatientDetails(hospitalNumber), 600);
+    });
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();

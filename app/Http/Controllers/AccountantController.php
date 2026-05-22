@@ -97,6 +97,36 @@ class AccountantController extends Controller
     }
 
     /**
+     * Return patient details for a hospital number.
+     */
+    public function patientDetailsByHospitalNumber(Request $request)
+    {
+        $hospitalNumber = $request->query('hospital_number');
+
+        if (!$hospitalNumber) {
+            return response()->json(['found' => false]);
+        }
+
+        $patient = Patient::with('demographic')
+            ->where('hospital_number', 'like', "%{$hospitalNumber}%")
+            ->orderByRaw('LENGTH(hospital_number) ASC')
+            ->first();
+
+        if (!$patient) {
+            return response()->json(['found' => false]);
+        }
+
+        return response()->json([
+            'found' => true,
+            'hospital_number' => $patient->hospital_number,
+            'name' => $patient->demographic?->full_name,
+            'phone' => $patient->demographic?->phone_number,
+            'email' => $patient->demographic?->email,
+            'address' => $patient->demographic?->address,
+        ]);
+    }
+
+    /**
      * Store a newly created bill.
      */
     public function storeBill(Request $request)
