@@ -43,7 +43,7 @@
                                 <td>{{ $group->clinical_notes }}</td>
                                 <td>{{ $group->requested_at }}</td>
                                 <td>
-                                    @if($group->has_pending_results)
+                                    @if($group->group_id && $group->has_pending_results)
                                         <a href="{{ route('lab.requests.results.create', ['groupType' => $group->group_type, 'groupId' => $group->group_id]) }}" class="btn btn-sm btn-outline-success mb-1">
                                             <i class="bi bi-send me-1"></i> Send Combined Result
                                         </a>
