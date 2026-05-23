@@ -85,14 +85,7 @@
     </div>
 
     {{-- Action Buttons --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <!--  -->
-            <a href="{{ route('accountant.reports.financial') }}" class="btn btn-warning">
-                <i class="bi bi-bar-chart"></i> Financial Report
-            </a>
-        </div>
-    </div>
+    
 
     <div class="row">
         {{-- Recent Payments --}}

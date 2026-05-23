@@ -11,21 +11,24 @@
                         <tr>
                             <th>#</th>
                             <th>Department</th>
-                            <th class="text-end">Total Billed</th>
+                            <th class="text-end">Total Amount</th>
                             <th class="text-end">Service Count</th>
+                            <th class="text-end">Investigation Count</th>
                             <th class="text-end">Details</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($data['summary'] as $index => $department)
+                            
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $department->department_name }}</td>
                                 <td class="text-end">{{ number_format($department->total_amount, 2) }}</td>
                                 <td class="text-end">{{ $department->service_count }}</td>
+                                <td class="text-end">{{ $department->investigation_count }}</td>
                                 <td class="text-end">
                                     <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#department-details-{{ $index }}" aria-expanded="false" aria-controls="department-details-{{ $index }}">
-                                        Show services
+                                        Show Details
                                     </button>
                                 </td>
                             </tr>
@@ -35,17 +38,47 @@
                                         <table class="table table-sm mb-0">
                                             <thead>
                                                 <tr>
+                                                    <th>Bill Number</th>
+                                                    <th>Patient</th>
                                                     <th>Service</th>
-                                                    <th class="text-end">Quantity</th>
+                                                    <th class="text-end">Date</th>
+                                                    <th class="text-end">Recorded By</th>
                                                     <th class="text-end">Total</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($department->services as $service)
                                                     <tr>
-                                                        <td>{{ $service->service_name }}</td>
-                                                        <td class="text-end">{{ $service->total_quantity }}</td>
-                                                        <td class="text-end">{{ number_format($service->service_total, 2) }}</td>
+                                                        <td>{{ $service->bill->bill_number }}</td>
+                                                        <td>{{ $service->bill->patientName() }}</td>
+                                                        <td>{{ $service->service->name }}</td>
+                                                        <td class="text-end">{{ $service->created_at }}</td>
+                                                        <td class="text-end">{{ $service->bill->issuedBy->name }}</td>
+                                                        <td class="text-end">{{ number_format($service->subtotal, 2) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bill Number</th>
+                                                    <th>Patient</th>
+                                                    <th>Investigation</th>
+                                                    <th class="text-end">Date</th>
+                                                    <th class="text-end">Recorded By</th>
+                                                    <th class="text-end">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($department->investigations as $investigation)
+                                                    <tr>
+                                                        <td>{{ $investigation->bill->bill_number }}</td>
+                                                        <td>{{ $investigation->bill->patientName() }}</td>
+                                                        <td>{{ $investigation->investigation->name }}</td>
+                                                        <td class="text-end">{{ $investigation->created_at }}</td>
+                                                        <td class="text-end">{{ $investigation->bill->issuedBy->name }}</td>
+                                                        <td class="text-end">{{ number_format($investigation->subtotal, 2) }}</td>
                                                     </tr>
                                                 @endforeach
                                             </tbody>

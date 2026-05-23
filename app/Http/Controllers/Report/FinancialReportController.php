@@ -8,6 +8,8 @@ use App\Models\Payment;
 use App\Models\BillService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\BillInvestigation;
+use App\Models\Department;
 
 class FinancialReportController extends Controller
 {
@@ -158,25 +160,87 @@ class FinancialReportController extends Controller
 
     public function getDepartmentsFinancialData($startDate, $endDate)
     {
-        $rows = BillService::join('services', 'bill_services.service_id', '=', 'services.id')
-            ->join('departments', 'services.department_id', '=', 'departments.id')
-            ->join('bills', 'bill_services.bill_id', '=', 'bills.id')
-            ->whereBetween('bills.issued_date', [$startDate, $endDate])
-            ->selectRaw('departments.id as department_id, departments.name as department_name, services.id as service_id, services.name as service_name, SUM(bill_services.subtotal) as service_total, SUM(bill_services.quantity) as total_quantity, COUNT(bill_services.id) as service_count')
-            ->groupBy('departments.id', 'departments.name', 'services.id', 'services.name')
-            ->orderBy('departments.name')
-            ->orderByDesc('service_total')
-            ->get();
+        $data = [];
 
-        $summary = $rows->groupBy('department_id')->map(function ($services, $departmentId) {
+        foreach(Department::all() as $department) {
+            // Process each department
+            
+                
+                $serviceTotal = 0;
+                $serviceCount = 0;
+                $investigationTotal = 0;
+                $investigationCount = 0;
+                $billServices = null;
+                $billInvestigations = null;
+
+            foreach($department->services as $service) {
+                
+                // Process each service in the department
+                $serviceTotal = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
+                    ->where('bill_services.service_id', $service->id)
+                    ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->sum('bill_services.subtotal');
+                
+                $serviceCount = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
+                    ->where('bill_services.service_id', $service->id)
+                    ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->count();
+                
+                $billServices = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
+                    ->where('bill_services.service_id', $service->id)
+                    ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->get();                
+                
+            }
+
+            foreach($department->investigationTypes as $investigationType) {
+                foreach($investigationType->investigations as $investigation) {
+                    // Process each investigation in the department
+                    $investigationTotal = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
+                        ->where('bill_investigations.investigation_id', $investigation->id)
+                        ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->sum('bill_investigations.subtotal');
+                    
+                    $investigationCount = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
+                        ->where('bill_investigations.investigation_id', $investigation->id)
+                        ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->count();
+                    
+                    $billInvestigations = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
+                        ->where('bill_investigations.investigation_id', $investigation->id)
+                        ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->get();  
+                }            
+            }
+            
+            $data[] = [
+                'department_id' => $department->id,
+                'department_name' => $department->name,
+                'service_total' => $serviceTotal ?? 0,
+                'service_count' => $serviceCount ?? 0,
+                'services' => $billServices ?? collect(),
+                'investigation_total' => $investigationTotal ?? 0,
+                'investigation_discount' => $investigationDiscount ?? 0,
+                'investigation_due' => $investigationDueAmount ?? 0,
+                'investigation_count' => $investigationCount ?? 0,
+                'investigations' => $billInvestigations ?? collect(),
+
+            ]; 
+            
+        }
+    
+        $summary = collect($data)->map(function($item) {
+            
             return (object) [
-                'department_id' => $departmentId,
-                'department_name' => $services->first()->department_name,
-                'total_amount' => $services->sum('service_total'),
-                'service_count' => $services->sum('service_count'),
-                'services' => $services,
+                'department_id' => $item['department_id'],
+                'department_name' => $item['department_name'],
+                'total_amount' => $item['service_total'] + $item['investigation_total'],
+                'service_count'=>$item['service_count'],
+                'investigation_count'=>$item['investigation_count'],
+                'services' => $item['services'],
+                'investigations' => $item['investigations'],
             ];
-        })->values();
+        });
 
         return compact('summary');
     }
