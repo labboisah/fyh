@@ -55,7 +55,7 @@ class Patient extends Model
     {
         $bill = new Bill();
         $bill->patient_visit_id = $visit->id;
-        $baseAmount = $this->fileType->price ?? 2000; // Example amount for file opening
+        $baseAmount = $this->fileType->price - 1000 ?? 2000; // Example amount for file opening
         $discountAmount = $baseAmount * ($discount / 100);
         $bill->amount = $baseAmount;
         $bill->due_amount = max(0, $baseAmount - $discountAmount);
@@ -68,6 +68,21 @@ class Patient extends Model
         $bill->status = 'pending';
         $bill->notes = 'File Opening';
         $bill->save();
+
+        // generate another bill for consultation using subtracted amount
+        $consultationBill = new Bill();
+        $consultationBill->patient_visit_id = $visit->id;
+        $consultationBill->amount = 1000; // Example amount for consultation
+        $consultationBill->due_amount = 1000;
+        $consultationBill->service_description = 'Initial Consultation Fee';
+        $consultationBill->bill_number = Bill::generateBillNumber();
+        $consultationBill->issued_by = auth()->user()->id;
+        $consultationBill->issued_date= now();
+        $consultationBill->due_date = now()->addDays(7); // Due in 7 days
+        $consultationBill->status = 'pending';
+        $consultationBill->notes = 'Initial Consultation';
+        $consultationBill->save();
+
         
     }
 
