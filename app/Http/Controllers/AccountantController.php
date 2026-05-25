@@ -303,28 +303,33 @@ class AccountantController extends Controller
         $discountAmount = round($totalAmount * ($discount / 100), 2);
         $billAmount = max(0, $totalAmount - $discountAmount);
 
-        // Create bill
-        $bill = Bill::create([
-            'patient_visit_id' => $visit->id ?? null,
-            'walkin_id' => $walkinId ?? null,
-            'bill_number' => Bill::generateBillNumber(),
-            'service_description' => implode(' & ', $descriptionParts) ?: 'Bill items',
-            'amount' => $totalAmount,
-            'due_amount' => $billAmount,
-            'discount' => $discount,
-            'issued_by' => $issued_by,
-            'status' => $status,
-            'issued_date' => $validated['issued_date'],
-            'due_date' => $validated['due_date'],
-        ]);
+        $bill = null;
 
-        // Attach services to bill
-        $bill->services()->attach($billServices);
+        DB::transaction(function () use (&$bill, $visit, $walkinId, $descriptionParts, $totalAmount, $billAmount, $discount, $issued_by, $status, $validated, $billServices, $billInvestigations, $services, $selectedInvestigations) {
+            $bill = Bill::create([
+                'patient_visit_id' => $visit->id ?? null,
+                'walkin_id' => $walkinId ?? null,
+                'bill_number' => Bill::generateBillNumber(),
+                'service_description' => implode(' & ', $descriptionParts) ?: 'Bill items',
+                'amount' => $totalAmount,
+                'due_amount' => $billAmount,
+                'discount' => $discount,
+                'issued_by' => $issued_by,
+                'status' => $status,
+                'issued_date' => $validated['issued_date'],
+                'due_date' => $validated['due_date'],
+            ]);
 
-        $bill->investigations()->attach($billInvestigations);
+            foreach ($billServices as $serviceId => $servicePayload) {
+                $bill->services()->attach($serviceId, $servicePayload);
+            }
 
-        // Create investigation requests for lab/radiology services and selected investigations
-        $this->createInvestigationRequests($bill, $services, $selectedInvestigations);
+            foreach ($billInvestigations as $investigationId => $investigationPayload) {
+                $bill->investigations()->attach($investigationId, $investigationPayload);
+            }
+
+            $this->createInvestigationRequests($bill, $services, $selectedInvestigations);
+        });
 
 
 
@@ -469,7 +474,7 @@ class AccountantController extends Controller
      */
     public function showBill(Bill $bill)
     {
-        $bill->load(['patientVisit.patient', 'walkinPatient', 'issuedBy', 'payments', 'services']);
+        $bill->load(['patientVisit.patient', 'walkinPatient', 'issuedBy', 'payments', 'services', 'investigations']);
         return view('accountant.bills.show', compact('bill'));
     }
 

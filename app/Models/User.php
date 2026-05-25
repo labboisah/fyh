@@ -57,7 +57,7 @@ class User extends Authenticatable
         $requests = [];
 
         foreach($this->department->services as $service) {
-            foreach($service->serviceRequests->where('status','pending') as $req) {
+            foreach($service->serviceRequests as $req) {
                 if($req->patientVisit && $req->patientVisit->status == 'Active'){
                     $requests[] = $req;
                 }
