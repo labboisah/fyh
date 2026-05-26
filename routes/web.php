@@ -13,11 +13,24 @@ use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\VitalSignsController;
 use App\Http\Controllers\Admin\BedController;
 use App\Http\Controllers\Admin\WardController;
+use App\Http\Controllers\Admin\BillController;
+use App\Http\Controllers\Admin\BillServiceController;
+use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\SyncronizationController;
+use App\Http\Controllers\Nurse\VitalSignController;
+use App\Http\Controllers\Patient\ContinuationController;
+use App\Http\Controllers\Patient\VisitController;
+use App\Http\Controllers\Patient\PatientController;
+use App\Http\Controllers\Patient\InvestigationController as PatientInvestigationController;
+use App\Http\Controllers\Patient\AdmissionController;
+use App\Http\Controllers\Patient\PrescriptionController;
+use App\Http\Controllers\Patient\ObservationController;
+use App\Http\Controllers\Patient\DrugChartController;
+use App\Http\Controllers\Patient\FluidBalanceController;
 
 // ajax routes
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
@@ -71,6 +84,30 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             Route::get('/{bed}/edit', [BedController::class, 'edit'])->name('edit');
             Route::put('/{bed}/update', [BedController::class, 'update'])->name('update');
             Route::delete('/{bed}/destroy', [BedController::class, 'destroy'])->name('destroy');
+        });
+
+        // bills management
+        Route::prefix('bills')->name('bills.')->group(function () {
+            Route::get('/', [BillController::class, 'index'])->name('index');
+            Route::get('/{bill}', [BillController::class, 'show'])->name('show');
+            Route::get('/{bill}/edit', [BillController::class, 'edit'])->name('edit');  
+            Route::put('/{bill}', [BillController::class, 'update'])->name('update');
+            Route::delete('/{bill}', [BillController::class, 'destroy'])->name('delete');
+
+            // investigation management within bills
+            Route::get('/{bill}/investigations/create', [BillInvestigationController::class, 'create'])->name('investigations.create');
+            Route::put('/investigation/{billInvestigation}', [BillInvestigationController::class, 'update'])->name('investigations.update');
+            Route::delete('/investigation/{billInvestigation}', [BillInvestigationController::class, 'destroy'])->name('investigations.destroy');
+            Route::get('/investigation/{billInvestigation}/edit', [BillInvestigationController::class, 'edit'])->name('investigations.edit');
+            Route::post('/{bill}/investigations/', [BillInvestigationController::class, 'store'])->name('investigations.store');
+
+            // service management within bills
+            Route::get('/{bill}/service/create', [BillServiceController::class, 'create'])->name('services.create');
+            Route::get('/service/{billService}/edit', [BillServiceController::class, 'edit'])->name('services.edit');
+            Route::put('/service/{billService}/update', [BillServiceController::class, 'update'])->name('services.update');
+            Route::post('/{bill}/services/store', [BillServiceController::class, 'store'])->name('services.store');
+            Route::delete('/service/{billService}/destroy', [BillServiceController::class, 'destroy'])->name('services.destroy');
+
         });
 
         Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');

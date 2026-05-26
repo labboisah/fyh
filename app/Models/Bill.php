@@ -103,6 +103,11 @@ class Bill extends Model
         return $this->hasMany(BillService::class);
     }
 
+    public function billInvestigations()
+    {
+        return $this->hasMany(BillInvestigation::class);
+    }
+
     public function getDiscountedAmount(float $amount): float
     {
         if ($this->discount <= 0) {
@@ -200,4 +205,23 @@ class Bill extends Model
             return 'N/A';
         }
     }
+
+    public function totalBillServices() {
+        return $this->billServices()->sum('subtotal');
+    }
+
+    public function totalBillInvestigations() {
+        return $this->billInvestigations()->sum('subtotal');
+    }
+
+    // lets check if total bill services + investigations equals bill amount (after discount)
+    public function isAmountConsistent() {
+        $totalServices = $this->totalBillServices();
+        $totalInvestigations = $this->totalBillInvestigations();
+        $total = $totalServices + $totalInvestigations;
+        $discountedTotal = $this->getDiscountedAmount($total);
+        return round($discountedTotal, 2) == round($this->amount, 2);
+    }
+
+    
 }

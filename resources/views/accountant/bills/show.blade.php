@@ -142,6 +142,7 @@ $billDate = now()->format('M d, Y h:i A');
                                                 <td class="text-end">{{ $service->pivot->quantity }}</td>
                                                 <td class="text-end">{{ number_format($service->pivot->subtotal, 2) }}</td>
                                                 <td class="text-end">{{ ucfirst($bill->status) }}</td>
+                                                
                                             </tr>
                                         @endforeach
 
@@ -172,15 +173,19 @@ $billDate = now()->format('M d, Y h:i A');
                     @endif
 
                     <div class="row mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <p class="text-muted small mb-1">Amount</p>
+                            <h4 class="text-primary mb-0">{{ number_format($bill->amount, 2) }}</h4>
+                        </div>
+                        <div class="col-md-3">
                             <p class="text-muted small mb-1">Amount Due</p>
                             <h4 class="text-primary mb-0">{{ number_format($bill->due_amount, 2) }}</h4>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-333">
                             <p class="text-muted small mb-1">Total Paid</p>
                             <h4 class="text-success mb-0">{{ number_format($bill->totalPaid(), 2) }}</h4>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <p class="text-muted small mb-1">Balance Due</p>
                             <h4 class="text-danger mb-0">{{ number_format($bill->balance, 2) }}</h4>
                         </div>
