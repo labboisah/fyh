@@ -149,7 +149,7 @@ class RecordOfficerController extends Controller
                     $bedDiscount = $bedAmount * ($discount / 100);
                     $bedAmountAfterDiscount = max(0, $bedAmount - $bedDiscount);
 
-                    Bill::create([
+                    $bill = Bill::create([
                         'patient_visit_id' => $visit->id ?? null,
                         'walkin_id' => $walkinId ?? null,
                         'bill_number' => Bill::generateBillNumber(),
@@ -161,6 +161,13 @@ class RecordOfficerController extends Controller
                         'issued_date' => now(),
                         'due_date' => now()->addDays(7),
                     ]);
+
+                    $bill->billServices()->create([
+                        'service_id'=>$service->id,
+                        'unit_price'=>$service->price,
+                        'quantity'=> 1,
+                        'subtotal' => $service->price
+                        ]);
 
                 }
             }

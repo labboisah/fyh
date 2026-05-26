@@ -69,6 +69,15 @@ class Patient extends Model
         $bill->notes = 'File Opening';
         $bill->save();
 
+        $service = Service::find(1);
+
+        $bill->billServices()->create([
+            'service_id'=>$service->id,
+            'unit_price'=>$bill->due_amount,
+            'quantity'=> 1,
+            'subtotal' => $bill->due_amount
+            ]);
+
         // generate another bill for consultation using subtracted amount
         $consultationBill = new Bill();
         $consultationBill->patient_visit_id = $visit->id;
@@ -83,6 +92,14 @@ class Patient extends Model
         $consultationBill->notes = 'Initial Consultation';
         $consultationBill->save();
 
+        $consultationService = Service::find(6);
+
+        $consultationBill->billServices()->create([
+            'service_id'=>$consultationService->id,
+            'unit_price'=>$bill->due_amount,
+            'quantity'=> 1,
+            'subtotal' => $bill->due_amount
+        ]);
         
     }
 
@@ -106,6 +123,8 @@ class Patient extends Model
             'service_id'=>$service->id,
             'status'=>'pending'
         ]);
+
+        
 
         return $visit;
     }

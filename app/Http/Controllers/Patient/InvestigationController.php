@@ -49,7 +49,7 @@ class InvestigationController extends Controller
 
             $investigationRequest->updateLabNumber($investigationRequest->id, $row['investigation']);
 
-            $investigationRequest->bill()->create([
+            $bill = $investigationRequest->bill()->create([
                 'patient_visit_id' => $visit->id,
                 'amount' => $investigationRequest->investigation->price ?? 0,
                 'service_description' => 'Investigation: ' . $investigationRequest->investigation->name,
@@ -60,6 +60,15 @@ class InvestigationController extends Controller
                 'due_date' => now()->addDays(2)->toDateString(),
                 'department_id' => $investigationRequest->investigation->investigationType->department->id,
             ]);
+            $invstigation = Investigation::find($row['investigation']);
+
+            $bill->billInvestigations()->create([
+                        'investigation_id'=>$investigation->id,
+                        'unit_price'=>$investigation->price,
+                        'quantity'=> 1
+                        'subtotal' => $investigation->price
+                        ]);
+
 
             $visit->visitActivities()->create([
                 'activity' => "Investigation request created for {$investigationRequest->investigation->name}",

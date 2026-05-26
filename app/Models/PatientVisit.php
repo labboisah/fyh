@@ -160,11 +160,12 @@ class PatientVisit extends Model
 
     public function generateFileOpeningBill($discount = 0) {
         $fileType = $this->patient->fileType;
+        $service = Service::where('name',$fileType->name)->first();
         $baseAmount = $fileType ? $fileType->price : 3000;
         $discountAmount = $baseAmount * ($discount / 100);
         $finalAmount = max(0, $baseAmount - $discountAmount);
         
-        $this->bills()->create([
+        $bill =$this->bills()->create([
             'department_id'=> auth()->user()->department->id,
             'service_description'=>'File Opening Charges',
             'amount'=>$baseAmount,
@@ -176,6 +177,14 @@ class PatientVisit extends Model
             'issued_date'=>date('d M, Y'),
             'due_date'=>now()->addDays(2)->toDateString()
         ]); 
+
+        $bill->billServices()->create([
+            'service_id'=>$service->id,
+            'unit_price'=>$service->price,
+            'quantity'=> 1,
+            'subtotal' => $service->price
+            ]);
+
     }
 
     public function generateServiceBillOf(Service $service, $discount = 0) {
@@ -206,6 +215,14 @@ class PatientVisit extends Model
             'requested_at'=> now(),
             'clinical_diagnoses'=> 'Request of '.$service->name
         ]);
+
+        $bill->billServices()->create([
+            'service_id'=>$service->id,
+            'unit_price'=>$service->price,
+            'quantity'=> 1,
+            'subtotal' => $service->price
+            ]);
+
         
 
     }
@@ -215,7 +232,7 @@ class PatientVisit extends Model
         $discountAmount = $baseAmount * ($discount / 100);
         $finalAmount = max(0, $baseAmount - $discountAmount);
         
-        $this->bills()->create([
+        $bill = $this->bills()->create([
             'admission_id'=>$admission->id,
             'service_description'=>'Bed Space Charges',
             'amount'=>$baseAmount,
@@ -228,6 +245,14 @@ class PatientVisit extends Model
             'bill_number'=>Bill::generateBillNumber(),
             'department_id'=> auth()->user()->department->id,
         ]);
+
+        $bill->billServices()->create([
+            'service_id'=>$service->id,
+            'unit_price'=>$service->price,
+            'quantity'=> 1,
+            'subtotal' => $service->price
+            ]);
+
         
     }
 }
