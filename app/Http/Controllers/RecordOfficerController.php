@@ -100,7 +100,7 @@ class RecordOfficerController extends Controller
                 'gender' => $validated['gender'],
                 'date_of_birth' => $validated['date_of_birth'],
                 'age' => $age,
-                'lga' => $validated['lga'],
+                'lga_id' => $validated['lga'],
                 'occupation' => $validated['occupation'],
                 'marital_status' => $validated['marital_status'],
                 'address' => $validated['address'],
@@ -118,59 +118,12 @@ class RecordOfficerController extends Controller
             ]);
 
             // generate file opening bill with discount
-            $service = Service::find($request->service);
-            $visit = $patient->registerNewVisit($service);
+        
+            $visit = $patient->registerNewVisit();
+
             $discount = $validated['discount'] ?? 0;
-            $patient->generateFileOpeningBill($visit, $discount);
+            $patient->generateFileOpeningBill($visit, $discount, $request->anc ?? false);
 
-            
-
-            if($service){
-                
-                $visit->generateServiceBillOf($service, $discount);
-                // if service is labour admit a patient
-
-                if($service->id == 13 || $service->id == 14){
-                    // admit the patient
-                    $visit = $patient->currentVisit();
-                    $ward = Ward::find(2);
-
-                    $visit->admissions()->create([
-                        'date' => now(),
-                        'time' => now()->toTimeString(),
-                        'note' => $service->name,
-                        'bed_id' => $ward->getAvailableBed()->id ?? null,
-                        'status' => 'Registered',
-                        'admitted_by' => auth()->user()->id,
-                    ]);
-
-                    // generate another bill for bed space bill for the patient with discount
-                    $bedAmount = $ward->price;
-                    $bedDiscount = $bedAmount * ($discount / 100);
-                    $bedAmountAfterDiscount = max(0, $bedAmount - $bedDiscount);
-
-                    $bill = Bill::create([
-                        'patient_visit_id' => $visit->id ?? null,
-                        'walkin_id' => $walkinId ?? null,
-                        'bill_number' => Bill::generateBillNumber(),
-                        'service_description' => 'Bed space charge for ' . $service->name,
-                        'amount' => $bedAmountAfterDiscount,
-                        'discount' => $discount,
-                        'issued_by' => auth()->user()->id,
-                        'status' => 'pending',
-                        'issued_date' => now(),
-                        'due_date' => now()->addDays(7),
-                    ]);
-
-                    $bill->billServices()->create([
-                        'service_id'=>$service->id,
-                        'unit_price'=>$service->price,
-                        'quantity'=> 1,
-                        'subtotal' => $service->price
-                        ]);
-
-                }
-            }
 
             $visit->visitActivities()->create([
                 'recorded_by' => auth()->user()->id,
@@ -242,8 +195,7 @@ class RecordOfficerController extends Controller
             'nok_telephone' => 'required|string|max:20',
         ]);
 
-        try {
-            DB::beginTransaction();
+        
 
             // Calculate age
             $age = Carbon::parse($validated['date_of_birth'])->age;
@@ -255,7 +207,7 @@ class RecordOfficerController extends Controller
                 'gender' => $validated['gender'],
                 'date_of_birth' => $validated['date_of_birth'],
                 'age' => $age,
-                'lga' => $validated['lga'],
+                'lga_id' => $validated['lga'],
                 'occupation' => $validated['occupation'],
                 'marital_status' => $validated['marital_status'],
                 'address' => $validated['address'],
@@ -271,15 +223,12 @@ class RecordOfficerController extends Controller
                 'telephone' => $validated['nok_telephone'],
             ]);
 
-            DB::commit();
+            
 
             return redirect()->route('record.patients.show', $patient)
                 ->with('success', 'Patient information updated successfully');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to update patient. ' . $e->getMessage()])->withInput();
-        }
+        
     }
 
     /**

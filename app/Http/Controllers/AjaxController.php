@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Investigation;
 use App\Models\Bed;
 use App\Models\Medicine;
+use App\Models\Lga;
 
 class AjaxController extends Controller
 {
@@ -26,6 +27,12 @@ class AjaxController extends Controller
                 ->orderBy('bed_no')
                 ->get(['id', 'bed_no', 'status'])
         );
+       
+    }
+
+    function getLgas($stateId) {
+       
+        return response()->json(Lga::where('state_id', $stateId)->pluck('name','id'));
        
     }
 

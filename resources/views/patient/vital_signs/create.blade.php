@@ -26,10 +26,10 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="body_temperature" class="form-label">Body Temperature (°C) <span class="text-danger">*</span></label>
+                                <label for="body_temperature" class="form-label">Body Temperature (°C)</label>
                                 <input type="number" id="body_temperature" name="body_temperature" step="0.1" min="35" max="42"
                                     class="form-control @error('body_temperature') is-invalid @enderror"
-                                    placeholder="37.5" value="{{ old('body_temperature') }}" required>
+                                    placeholder="36.5 - 37.5" value="{{ old('body_temperature') }}">
                                 <small class="text-muted">Normal: 36.5-37.5°C</small>
                                 @error('body_temperature')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -38,10 +38,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="heart_rate" class="form-label">Heart Rate (bpm) <span class="text-danger">*</span></label>
+                                <label for="heart_rate" class="form-label">Heart Rate (bpm)</label>
                                 <input type="number" id="heart_rate" name="heart_rate" min="30" max="200"
                                     class="form-control @error('heart_rate') is-invalid @enderror"
-                                    placeholder="72" value="{{ old('heart_rate') }}" required>
+                                    placeholder="60 - 100" value="{{ old('heart_rate') }}">
                                 <small class="text-muted">Normal: 60-100 bpm</small>
                                 @error('heart_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -53,18 +53,18 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Blood Pressure (mmHg) <span class="text-danger">*</span></label>
+                                <label class="form-label">Blood Pressure (mmHg)</label>
                                 <div class="row">
                                     <div class="col-6">
                                         <input type="number" id="blood_pressure_systolic" name="blood_pressure_systolic" min="50" max="250"
                                             class="form-control @error('blood_pressure_systolic') is-invalid @enderror"
-                                            placeholder="Systolic" value="{{ old('blood_pressure_systolic') }}" required>
+                                            placeholder="120" value="{{ old('blood_pressure_systolic') }}">
                                         <small class="text-muted">Systolic</small>
                                     </div>
                                     <div class="col-6">
                                         <input type="number" id="blood_pressure_diastolic" name="blood_pressure_diastolic" min="30" max="150"
                                             class="form-control @error('blood_pressure_diastolic') is-invalid @enderror"
-                                            placeholder="Diastolic" value="{{ old('blood_pressure_diastolic') }}" required>
+                                            placeholder="80" value="{{ old('blood_pressure_diastolic') }}">
                                         <small class="text-muted">Diastolic</small>
                                     </div>
                                 </div>
@@ -79,10 +79,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="respiratory_rate" class="form-label">Respiratory Rate (per min) <span class="text-danger">*</span></label>
+                                <label for="respiratory_rate" class="form-label">Respiratory Rate (per min)</label>
                                 <input type="number" id="respiratory_rate" name="respiratory_rate" min="10" max="50"
                                     class="form-control @error('respiratory_rate') is-invalid @enderror"
-                                    placeholder="16" value="{{ old('respiratory_rate') }}" required>
+                                    placeholder="12 - 20" value="{{ old('respiratory_rate') }}">
                                 <small class="text-muted">Normal: 12-20 per minute</small>
                                 @error('respiratory_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -94,10 +94,10 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="oxygen_saturation" class="form-label">Oxygen Saturation (%) <span class="text-danger">*</span></label>
+                                <label for="oxygen_saturation" class="form-label">Oxygen Saturation (%)</label>
                                 <input type="number" id="oxygen_saturation" name="oxygen_saturation" step="0.1" min="50" max="100"
                                     class="form-control @error('oxygen_saturation') is-invalid @enderror"
-                                    placeholder="98.0" value="{{ old('oxygen_saturation') }}" required>
+                                    placeholder="95 - 100" value="{{ old('oxygen_saturation') }}">
                                 <small class="text-muted">Normal: 95-100%</small>
                                 @error('oxygen_saturation')
                                     <div class="invalid-feedback">{{ $message }}</div>

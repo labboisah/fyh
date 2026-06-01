@@ -41,7 +41,7 @@
         </div>
         <div class="col-md-6">
             <label class="form-label text-muted">LGA</label>
-            <p class="h6">{{ $patient->demographic->lga ?? 'N/A' }}</p>
+            <p class="h6">{{ $patient->demographic->lga->id ?? 'N/A' }}</p>
         </div>
     </div>
 

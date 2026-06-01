@@ -58,13 +58,25 @@
                     </div>
 
                     <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="lga" class="form-label">LGA</label>
-                            <input type="text" class="form-control @error('lga') is-invalid @enderror" 
-                                   id="lga" name="lga" value="{{ $patient->demographic->lga }}">
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State of Origin</label>
+                            <select class="form-select @error('state') is-invalid @enderror" id="state" name="state">
+                                <option value="{{$patient->demographic->lga->state->id ?? ''}}">{{$patient->demographic->lga->state->name ?? 'Select State'}}</option>
+                                @foreach(App\Models\State::all() as $state)
+                                <option value="{{$state->id}}" {{ old('state') == $state->name ? 'selected' : '' }}>{{$state->name}}</option>
+                                @endforeach
+                            </select>
+                            @error('state')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="lga" class="form-label">Local Government of Origin</label>
+                            <select class="form-select @error('lga') is-invalid @enderror" id="lga" name="lga">
+                                <option value="{{$patient->demographic->lga->id ?? ''}}">{{$patient->demographic->lga->id ?? 'Select LGA'}}</option>
+                                
+                            </select>
                             @error('lga')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="occupation" class="form-label">Occupation</label>
                             <input type="text" class="form-control @error('occupation') is-invalid @enderror" 
                                    id="occupation" name="occupation" value="{{ $patient->demographic->occupation }}">

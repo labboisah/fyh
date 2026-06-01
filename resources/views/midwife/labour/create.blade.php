@@ -121,13 +121,13 @@
 
                                 <label class="form-label">
                                     Labour Onset Time
-                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <input type="datetime-local"
                                        name="labour_onset_time"
                                        class="form-control @error('labour_onset_time') is-invalid @enderror"
-                                       value="{{ old('labour_onset_time', now()->format('Y-m-d\TH:i')) }}">
+                                       value="{{ old('labour_onset_time', now()->format('Y-m-d\TH:i')) }}"
+                                       placeholder="Select onset date and time">
 
                                 @error('labour_onset_time')
                                     <div class="invalid-feedback">
@@ -218,7 +218,8 @@
 
                                 <textarea name="reason_for_induction"
                                           rows="2"
-                                          class="form-control @error('reason_for_induction') is-invalid @enderror">{{ old('reason_for_induction') }}</textarea>
+                                          class="form-control @error('reason_for_induction') is-invalid @enderror"
+                                          placeholder="If induction planned, provide the reason">{{ old('reason_for_induction') }}</textarea>
 
                                 @error('reason_for_induction')
                                     <div class="invalid-feedback">
@@ -236,7 +237,8 @@
 
                                 <textarea name="previous_obstetric_history"
                                           rows="3"
-                                          class="form-control @error('previous_obstetric_history') is-invalid @enderror">{{ old('previous_obstetric_history') }}</textarea>
+                                          class="form-control @error('previous_obstetric_history') is-invalid @enderror"
+                                          placeholder="E.g. prior deliveries, complications, C-sections">{{ old('previous_obstetric_history') }}</textarea>
 
                                 @error('previous_obstetric_history')
                                     <div class="invalid-feedback">
@@ -275,7 +277,8 @@
                                 <input type="text"
                                        name="cervical_state"
                                        class="form-control"
-                                       value="{{ old('cervical_state') }}">
+                                       value="{{ old('cervical_state') }}"
+                                       placeholder="E.g. 3cm / 70% / 0 station">
 
                             </div>
 
@@ -343,7 +346,8 @@
 
                                 <textarea name="liquor"
                                           rows="2"
-                                          class="form-control">{{ old('liquor') }}</textarea>
+                                          class="form-control"
+                                          placeholder="E.g. clear, meconium-stained, blood-stained">{{ old('liquor') }}</textarea>
 
                             </div>
 
@@ -390,7 +394,8 @@
                                 <input type="number"
                                        name="pulse_rate"
                                        class="form-control"
-                                       value="{{ old('pulse_rate') }}">
+                                       value="{{ old('pulse_rate') }}"
+                                       placeholder="e.g. 70">
 
                             </div>
 
@@ -404,7 +409,8 @@
                                        step="0.1"
                                        name="temperature"
                                        class="form-control"
-                                       value="{{ old('temperature') }}">
+                                       value="{{ old('temperature') }}"
+                                       placeholder="36.5 - 37.5">
 
                             </div>
 
@@ -417,7 +423,8 @@
                                 <input type="number"
                                        name="respiration_rate"
                                        class="form-control"
-                                       value="{{ old('respiration_rate') }}">
+                                       value="{{ old('respiration_rate') }}"
+                                       placeholder="12 - 20">
 
                             </div>
 

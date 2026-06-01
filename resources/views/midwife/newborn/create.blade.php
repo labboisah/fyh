@@ -138,7 +138,6 @@
 
                                 <label class="form-label">
                                     Sex
-                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <select name="sex"
@@ -178,7 +177,8 @@
                                        min="1"
                                        name="birth_order"
                                        class="form-control"
-                                       value="{{ old('birth_order', 1) }}">
+                                       value="{{ old('birth_order', 1) }}"
+                                       placeholder="e.g. 1">
 
                             </div>
 
@@ -193,7 +193,8 @@
                                 <input type="datetime-local"
                                        name="birth_date_time"
                                        class="form-control"
-                                       value="{{ old('birth_date_time', optional($delivery->delivery_date_time)->format('Y-m-d\TH:i')) }}">
+                                       value="{{ old('birth_date_time', optional($delivery->delivery_date_time)->format('Y-m-d\TH:i')) }}"
+                                       placeholder="Select birth date and time">
 
                             </div>
 

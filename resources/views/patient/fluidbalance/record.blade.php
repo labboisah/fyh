@@ -27,31 +27,31 @@
 
                                 <div class="form-group mb-2">
                                     <label for="date">Date</label>
-                                    <input type="date" class="form-control" name="date" value={{date(now())}} required>
+                                    <input type="date" class="form-control" name="date" value="{{ date('Y-m-d') }}" placeholder="Select date">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="time">Time</label>
-                                    <input type="time" class="form-control" name="time" value={{date("h:i:s A")}}>
+                                    <input type="time" class="form-control" name="time" value="{{ date('H:i') }}" placeholder="Select time">
                                 </div>
 
                                 <div class="form-group mb-2">
                                     <label for="date">Type In</label>
-                                    <input type="text" class="form-control" name="type_in" required >
+                                    <input type="text" class="form-control" name="type_in" placeholder="e.g. IV fluid, oral fluids">
                                 </div>
                                 
                                 <div class="form-group mb-2">
                                     <label for="time">Tube In</label>
-                                    <input type="text" class="form-control" name="tube_in">
+                                    <input type="text" class="form-control" name="tube_in" placeholder="e.g. nasogastric tube">
                                 </div>
 
                                 <div class="form-group mb-2">
                                     <label for="oral">Oral</label>
-                                    <input type="text" id="oral" class="form-control" name="oral" >
+                                    <input type="text" id="oral" class="form-control" name="oral" placeholder="e.g. 250 ml">
                                 </div>
 
                                 <div class="form-group mb-2">
                                     <label for="time">IV</label>
-                                    <input type="text" class="form-control" name="IV">
+                                    <input type="text" class="form-control" name="IV" placeholder="e.g. 500 ml">
                                 </div>
                             </div>
 
@@ -60,12 +60,12 @@
 
                                 <div class="form-group mb-2">
                                     <label for="date">Type Out</label>
-                                    <input type="text" class="form-control" name="type_out" required placeholder="">
+                                    <input type="text" class="form-control" name="type_out" placeholder="e.g. urine, vomit, wound drainage">
                                 </div>
                                 
                                 <div class="form-group mb-2">
                                     <label for="time">Tube/Vomit</label>
-                                    <input type="text" class="form-control" name="tube_out" placeholder="">
+                                    <input type="text" class="form-control" name="tube_out" placeholder="e.g. drainage tubing, vomit">
                                 </div>
 
                                 <div class="form-group mb-2">

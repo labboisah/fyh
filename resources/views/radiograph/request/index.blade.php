@@ -8,61 +8,56 @@
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
         Manage Investigations
     </h1>
-    <a href="{{ route('radiograph.investigations.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-1"></i>
-        New Investigation
+    <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Dashboard
     </a>
 </div>
 @endsection
 
 @section('content')
     <div class="container">
-        @foreach (auth()->user()->department->investigationTypes as $investigationType)
-        <h5 class="text-muted">{{$investigationType->name}}</h5>
         <table class="table table-striped datatable">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Request</th>
-                    <th>Result Parameters</th>
+                    <th>Patient Name</th>
+                    <th>Hospital Number</th>
+                    <th>Investigation</th>
+                    <th>Requested At</th>
+                    <th>Requested By</th>
+                    <th>Status</th>
+                    <th>Completed By</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 
-                @foreach ($investigationType->investigations as $investigation)
+                @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
+                    @if($investigationRequest->bill)
                     <tr>
                         <td>{{$loop->iteration}}</td>
-                        <td>{{ $investigation->code }}</td>
-                        <td>{{ $investigation->name }}</td>
-                        <td>{{ $investigation->price }}</td>
-                        <td>{{$investigation->investigationRequests->count()}}</td>
-                        <td>{{$investigation->parameters->count()}}</td>
+                        <td>{{ $investigationRequest->bill->patientName() ?? 'N/A' }}</td>
+                        <td>{{ $investigationRequest->patientVisit->patient->hospital_number ?? 'Walk in Patient'}}</td>
+                        <td>{{ $investigationRequest->investigation->name }}</td>
+                        <td>{{$investigationRequest->requested_at}}</td>
+                        <td>{{$investigationRequest->requestedBy->name}}</td>
+                        <td>{{$investigationRequest->bill->status}}</td>
+                        <td>{{$investigationRequest->completedBy->name ?? 'N/A'}}</td>
                         <td class="text-end">
-                            <a href="{{route('radiograph.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
-                                <i class="bi bi-eye"></i> View Parameters
-                            </a>
-                            <a href="{{ route('radiograph.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil"></i> Edit   
-                            </a>
-                            <form action="{{ route('radiograph.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </form>
-                        
+                            @if($investigationRequest->bill->status == 'paid')
+                            <button class="btn btn-outline-primary"><i class="bi bi-save"></i> Save</button>
+                            <!-- print button -->
+                            <button class="btn btn-outline-success"><i class="bi bi-printer"></i>Print</button>
+                            @else
+                            No Payment Recorded
+                            @endif
                         </td>
                     </tr>
-               
+                    @endif
                 @endforeach
                 
             </tbody>
         </table>
-        @endforeach
     </div>
 @endsection

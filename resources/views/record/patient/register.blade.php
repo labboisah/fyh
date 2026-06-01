@@ -38,17 +38,9 @@
                             @error('file_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <!-- service applyingfor -->
-                        <div class="col-md-4">
-                            <label for="service" class="form-label">Service Applying for<span class="text-danger"></span></label>
-                            <select class="form-select @error('service') is-invalid @enderror" id="service" name="service">
-                                <option value="">Select Service</option>
-                                @foreach(App\Models\Service::all() as $service)
-                                    <option value="{{ $service->id }}" {{ old('service') == $service->id ? 'selected' : '' }}>
-                                        {{ $service->name }} (₦{{ number_format($service->price, 2) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('service')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="col-md-3">
+                            <label for="service" class="form-label">Mark as ANC Patient<span class="text-danger"></span></label>
+                            <input type="checkbox" name="anc" id="anc" value="1" {{ old('anc') ? 'checked' : '' }} class="form-check-input ms-2">
                         </div>
                         <!-- discount on registration -->
                         <div class="col-md-3">
@@ -60,24 +52,21 @@
                             </select>
                             @error('discount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
                                    id="first_name" name="first_name" value="{{ old('first_name') }}" 
-                                   placeholder="Isah" required>
+                                   placeholder="Patient First Name Eg: Isah" required>
                             @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
                                    id="last_name" name="last_name" value="{{ old('last_name') }}" 
-                                   placeholder="Labbo" required>
+                                   placeholder="Patient Last Name Eg: Labbo" required>
                             @error('last_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
                             <select class="form-select @error('gender') is-invalid @enderror" id="gender" name="gender" required>
                                 <option value="">Select Gender</option>
@@ -87,6 +76,10 @@
                             </select>
                             @error('gender')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        
                         <div class="col-md-6">
                             <label for="date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
                             <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" 
@@ -96,13 +89,25 @@
                     </div>
 
                     <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="lga" class="form-label">LGA (Local Government Area)</label>
-                            <input type="text" class="form-control @error('lga') is-invalid @enderror" 
-                                   id="lga" name="lga" value="{{ old('lga') }}" placeholder="Your LGA">
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State of Origin</label>
+                            <select class="form-select @error('state') is-invalid @enderror" id="state" name="state">
+                                <option value="">Select State</option>
+                                @foreach(App\Models\State::all() as $state)
+                                <option value="{{$state->id}}" {{ old('state') == $state->name ? 'selected' : '' }}>{{$state->name}}</option>
+                                @endforeach
+                            </select>
+                            @error('state')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="lga" class="form-label">Local Government of Origin</label>
+                            <select class="form-select @error('lga') is-invalid @enderror" id="lga" name="lga">
+                                <option value="">Select LGA</option>
+                                
+                            </select>
                             @error('lga')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="occupation" class="form-label">Occupation</label>
                             <input type="text" class="form-control @error('occupation') is-invalid @enderror" 
                                    id="occupation" name="occupation" value="{{ old('occupation') }}" placeholder="Patient's occupation">
@@ -149,16 +154,25 @@
                     <h5 class="mb-4 text-success"><i class="bi bi-people-fill me-2"></i>Next of Kin Information</h5>
 
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="nok_name" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('nok_name') is-invalid @enderror" 
                                    id="nok_name" name="nok_name" value="{{ old('nok_name') }}" required>
                             @error('nok_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="nok_relationship" class="form-label">Relationship <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('nok_relationship') is-invalid @enderror" 
-                                   id="nok_relationship" name="nok_relationship" value="{{ old('nok_relationship') }}" required>
+                            <select class="form-select @error('nok_relationship') is-invalid @enderror" id="nok_relationship" name="nok_relationship">
+                                <option value="">Select Relationship</option>
+                                <option value="Father" {{ old('nok_relationship') == 'Father' ? 'selected' : '' }}>Father</option>
+                                <option value="Mother" {{ old('nok_relationship') == 'Mother' ? 'selected' : '' }}>Mother</option>
+                                <option value="Husband" {{ old('nok_relationship') == 'Husband' ? 'selected' : '' }}>Husband</option>
+                                <option value="Wife" {{ old('nok_relationship') == 'Wife' ? 'selected' : '' }}>Wife</option>
+                                <option value="Brother" {{ old('nok_relationship') == 'Brother' ? 'selected' : '' }}>Brother</option>
+                                <option value="Sister" {{ old('nok_relationship') == 'Sister' ? 'selected' : '' }}>Sister</option>
+                                <option value="Son" {{ old('nok_relationship') == 'Son' ? 'selected' : '' }}>Son</option>
+                                <option value="Daughter" {{ old('nok_relationship') == 'Daughter' ? 'selected' : '' }}>Daughter</option>
+                            </select>
                             @error('nok_relationship')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>

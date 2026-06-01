@@ -83,7 +83,8 @@
                                 <input type="datetime-local"
                                        name="examination_date_time"
                                        class="form-control @error('examination_date_time') is-invalid @enderror"
-                                       value="{{ old('examination_date_time') }}">
+                                       value="{{ old('examination_date_time') }}"
+                                       placeholder="Select postnatal exam date and time">
 
                                 @error('examination_date_time')
                                     <div class="invalid-feedback">
@@ -102,7 +103,8 @@
                                 <input type="number"
                                        name="hours_post_delivery"
                                        class="form-control"
-                                       value="{{ old('hours_post_delivery') }}">
+                                       value="{{ old('hours_post_delivery') }}"
+                                       placeholder="e.g. 2">
 
                             </div>
 

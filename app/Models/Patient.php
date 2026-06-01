@@ -25,6 +25,13 @@ class Patient extends Model
         return $this->hasOne(PatientDemographic::class);
     }
 
+    public function patientDemographic()
+    {
+        return $this->hasOne(PatientDemographic::class);
+    }
+
+    
+
     public function patientAdmissions() {
         return $this->hasMany(PatientAdmission::class);
     }
@@ -51,11 +58,22 @@ class Patient extends Model
         return $this->hasMany(PatientVisit::class);
     }
 
-    public function generateFileOpeningBill($visit, $discount = 0)
+    public function generateFileOpeningBill($visit, $discount = 0, $isAnc = false)
     {
+        if ($isAnc) {
+            $consultationCharges = 500; // Example: additional 20% discount for ANC patients
+            $consultationService = Service::find(17);
+        }else{
+            $consultationCharges = 1000; // Standard consultation fee
+            $consultationService = Service::find(6);
+        }
+
+        // create bill for file opening with discount
+        $service = Service::find(1);
+
         $bill = new Bill();
         $bill->patient_visit_id = $visit->id;
-        $baseAmount = $this->fileType->price - 1000 ?? 2000; // Example amount for file opening
+        $baseAmount = $this->fileType->price - $consultationCharges ?? 2000; // Example amount for file opening
         $discountAmount = $baseAmount * ($discount / 100);
         $bill->amount = $baseAmount;
         $bill->due_amount = max(0, $baseAmount - $discountAmount);
@@ -69,8 +87,6 @@ class Patient extends Model
         $bill->notes = 'File Opening';
         $bill->save();
 
-        $service = Service::find(1);
-
         $bill->billServices()->create([
             'service_id'=>$service->id,
             'unit_price'=>$bill->due_amount,
@@ -81,8 +97,8 @@ class Patient extends Model
         // generate another bill for consultation using subtracted amount
         $consultationBill = new Bill();
         $consultationBill->patient_visit_id = $visit->id;
-        $consultationBill->amount = 1000; // Example amount for consultation
-        $consultationBill->due_amount = 1000;
+        $consultationBill->amount = $consultationCharges; // Example amount for consultation
+        $consultationBill->due_amount = $consultationCharges; // No discount on consultation fee
         $consultationBill->service_description = 'Initial Consultation Fee';
         $consultationBill->bill_number = Bill::generateBillNumber();
         $consultationBill->issued_by = auth()->user()->id;
@@ -92,18 +108,17 @@ class Patient extends Model
         $consultationBill->notes = 'Initial Consultation';
         $consultationBill->save();
 
-        $consultationService = Service::find(6);
 
         $consultationBill->billServices()->create([
             'service_id'=>$consultationService->id,
-            'unit_price'=>$bill->due_amount,
+            'unit_price'=>$consultationBill->due_amount,
             'quantity'=> 1,
-            'subtotal' => $bill->due_amount
+            'subtotal' => $consultationBill->due_amount
         ]);
         
     }
 
-    public function registerNewVisit(Service $service = null) {
+    public function registerNewVisit() {
 
         
         $visit = $this->patientVisits()->create([
@@ -111,17 +126,6 @@ class Patient extends Model
             'visit_type'=>$service->name ?? 'Consultation',
             'flag'=>$service->category ?? 'Normal',
             'created_by'=>auth()->user()->id
-        ]);
-
-        if(!$service){
-            $service = Service::where('category', 'Consultation')->first();
-        }
-
-        $visit->departmentServiceRequests()->create([
-            'requested_by'=>auth()->user()->id,
-            'department_id'=>$service->department_id ?? null,
-            'service_id'=>$service->id,
-            'status'=>'pending'
         ]);
 
         

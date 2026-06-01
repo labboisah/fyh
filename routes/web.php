@@ -36,6 +36,7 @@ use App\Http\Controllers\Patient\FluidBalanceController;
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
 Route::get('/ajax/beds/{wardId}', [App\Http\Controllers\AjaxController::class, 'getWardBeds'])->name('ajax.get-ward-beds');
 Route::get('/ajax/medicines/{medicineTypeId}', [App\Http\Controllers\AjaxController::class, 'getMedicines'])->name('ajax.get-type-medicines');
+Route::get('/ajax/state/{stateId}/get-lgas', [App\Http\Controllers\AjaxController::class, 'getLgas'])->name('ajax.get-lgas');
 
 Route::get('/', function () {
     return view('welcome');

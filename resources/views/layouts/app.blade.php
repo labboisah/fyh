@@ -420,6 +420,140 @@
     .modal-dialog {
         transition: none !important;
     }
+
+    /* ========== CHECKBOXES ========== */
+    input[type="checkbox"] {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+        accent-color: var(--primary-green);
+        transition: all 0.3s ease;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+    }
+
+    input[type="checkbox"]:hover:not(:disabled) {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
+        transform: scale(1.05);
+    }
+
+    input[type="checkbox"]:checked {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    input[type="checkbox"]:checked:hover:not(:disabled) {
+        background-color: var(--secondary-green);
+        border-color: var(--secondary-green);
+        box-shadow: 0 0 10px rgba(39, 174, 96, 0.4);
+    }
+
+    input[type="checkbox"]:focus {
+        outline: none;
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+    }
+
+    input[type="checkbox"]:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #f5f5f5;
+        border-color: #ccc;
+    }
+
+    input[type="checkbox"]:disabled:checked {
+        background-color: #bbb;
+        border-color: #999;
+    }
+
+    /* Checkbox with label styling */
+    .form-check {
+        padding-left: 0;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-top: 0.3rem;
+        margin-right: 0.75rem;
+        cursor: pointer;
+        accent-color: var(--primary-green);
+        transition: all 0.3s ease;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-check-input:hover:not(:disabled) {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
+        transform: scale(1.05);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .form-check-input:checked:hover:not(:disabled) {
+        background-color: var(--secondary-green);
+        border-color: var(--secondary-green);
+        box-shadow: 0 0 10px rgba(39, 174, 96, 0.4);
+    }
+
+    .form-check-input:focus {
+        outline: none;
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+    }
+
+    .form-check-input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #f5f5f5;
+        border-color: #ccc;
+    }
+
+    .form-check-input:disabled:checked {
+        background-color: #bbb;
+        border-color: #999;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        margin-bottom: 0;
+        padding-top: 0.2rem;
+    }
+
+    .form-check-label:hover {
+        color: var(--primary-green);
+    }
+
+    .form-check-input:disabled ~ .form-check-label {
+        opacity: 0.6;
+        cursor: not-allowed;
+        color: #999;
+    }
+
+    /* Switch checkbox styling (if Bootstrap switches are used) */
+    .form-switch .form-check-input {
+        width: 2.5rem;
+        height: 1.2rem;
+        margin-left: 0;
+        border-radius: 6px;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+    }
 </style>
         @yield('styles')
     </head>
@@ -807,6 +941,8 @@
         <script src="{{ asset('vendor/datatables/js/buttons.html5.min.js') }}"></script>
         <script src="{{ asset('vendor/datatables/js/buttons.print.min.js') }}"></script>
 
+        <script src="{{ asset('js/ajax/address.js') }}"></script>
+        
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 if (window.jQuery && $.fn.DataTable) {

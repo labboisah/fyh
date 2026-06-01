@@ -22,6 +22,7 @@ class PatientDemographic extends Model
         'address',
         'phone_number',
         'email',
+        'lga_id'
     ];
 
     protected $casts = [
@@ -34,6 +35,10 @@ class PatientDemographic extends Model
     public function patient()
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function lga() {
+        return $this->belongsTo(Lga::class);
     }
 
     /**

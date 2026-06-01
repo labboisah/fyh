@@ -100,7 +100,8 @@
                                     <input type="number" class="form-control @error('gestational_weeks') is-invalid @enderror" 
                                            id="gestational_weeks" name="gestational_weeks" 
                                            min="1" max="42"
-                                           value="{{ old('gestational_weeks') }}">
+                                           value="{{ old('gestational_weeks') }}"
+                                           placeholder="e.g. 28">
                                     @error('gestational_weeks')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -110,7 +111,8 @@
                                     <input type="number" class="form-control @error('number_of_fetuses') is-invalid @enderror" 
                                            id="number_of_fetuses" name="number_of_fetuses" 
                                            min="1" max="8"
-                                           value="{{ old('number_of_fetuses', 1) }}">
+                                           value="{{ old('number_of_fetuses', 1) }}"
+                                           placeholder="e.g. 1">
                                     @error('number_of_fetuses')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -150,7 +152,8 @@
                                     <input type="number" class="form-control @error('weight') is-invalid @enderror" 
                                            id="weight" name="weight"
                                            min="30" max="250" step="0.1"
-                                           value="{{ old('weight') }}">
+                                           value="{{ old('weight') }}"
+                                           placeholder="e.g. 70.0">
                                     @error('weight')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -160,7 +163,8 @@
                                     <input type="number" class="form-control @error('height') is-invalid @enderror" 
                                            id="height" name="height"
                                            min="100" max="250" step="0.1"
-                                           value="{{ old('height') }}">
+                                           value="{{ old('height') }}"
+                                           placeholder="e.g. 160">
                                     @error('height')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -189,7 +193,8 @@
                                     <label for="fundal_height" class="form-label">Fundal Height (cm)</label>
                                     <input type="text" class="form-control @error('fundal_height') is-invalid @enderror" 
                                            id="fundal_height" name="fundal_height"
-                                           value="{{ old('fundal_height') }}">
+                                           value="{{ old('fundal_height') }}"
+                                           placeholder="e.g. 30 cm">
                                     @error('fundal_height')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -198,7 +203,8 @@
                                     <label for="fetal_heart_rate" class="form-label">Fetal Heart Rate (bpm)</label>
                                     <input type="text" class="form-control @error('fetal_heart_rate') is-invalid @enderror" 
                                            id="fetal_heart_rate" name="fetal_heart_rate"
-                                           value="{{ old('fetal_heart_rate') }}">
+                                           value="{{ old('fetal_heart_rate') }}"
+                                           placeholder="e.g. 140 bpm">
                                     @error('fetal_heart_rate')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -236,7 +242,8 @@
                                 <label for="urine_analysis" class="form-label">Urine Analysis Results</label>
                                 <textarea class="form-control @error('urine_analysis') is-invalid @enderror" 
                                           id="urine_analysis" name="urine_analysis"
-                                          rows="2">{{ old('urine_analysis') }}</textarea>
+                                          rows="2"
+                                          placeholder="Notes from urine dipstick or microscopy">{{ old('urine_analysis') }}</textarea>
                                 @error('urine_analysis')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -246,7 +253,8 @@
                                 <label for="blood_tests" class="form-label">Blood Test Results</label>
                                 <textarea class="form-control @error('blood_tests') is-invalid @enderror" 
                                           id="blood_tests" name="blood_tests"
-                                          rows="2">{{ old('blood_tests') }}</textarea>
+                                          rows="2"
+                                          placeholder="E.g. Hb: 11.5 g/dL, RBS: 5.6 mmol/L">{{ old('blood_tests') }}</textarea>
                                 @error('blood_tests')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror

@@ -27,10 +27,10 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="temperature" class="form-label">Temperature (°C) <span class="text-danger">*</span></label>
+                                <label for="temperature" class="form-label">Temperature (°C)</label>
                                 <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42"
                                     class="form-control @error('body_temperature') is-invalid @enderror"
-                                    placeholder="37.5" value="{{ old('temperature') }}" required>
+                                    placeholder="36.5 - 37.5" value="{{ old('temperature') }}">
                                 <small class="text-muted">Normal: 36.5-37.5°C</small>
                                 @error('temperature')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -39,10 +39,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="mate_pulse" class="form-label">Mate Pulse (bpm) <span class="text-danger">*</span></label>
+                                <label for="mate_pulse" class="form-label">Mate Pulse (bpm)</label>
                                 <input type="number" id="mate_pulse" name="mate_pulse" min="30" max="200"
                                     class="form-control @error('mate_pulse') is-invalid @enderror"
-                                    placeholder="72" value="{{ old('mate_pulse') }}" required>
+                                    placeholder="60 - 100" value="{{ old('mate_pulse') }}">
                                 <small class="text-muted">Normal: 60-100 bpm</small>
                                 @error('mate_pulse')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -54,19 +54,19 @@
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Blood Pressure (mmHg) <span class="text-danger">*</span></label>
+                                <label class="form-label">Blood Pressure (mmHg)</label>
                                 <div class="row">
                                     <div class="col-6">
                                         <input type="number" id="blood_pressure_systolic" name="blood_pressure_systolic" min="50" max="250"
                                             class="form-control @error('blood_pressure_systolic') is-invalid @enderror"
-                                            placeholder="Systolic" value="{{ old('blood_pressure_systolic') }}" required>
-                                        <small class="text-muted">Systolic</small>
+                                            placeholder="120" value="{{ old('blood_pressure_systolic') }}">
+                                        <small class="text-muted">Systolic (e.g., 120)</small>
                                     </div>
                                     <div class="col-6">
                                         <input type="number" id="blood_pressure_diastolic" name="blood_pressure_diastolic" min="30" max="150"
                                             class="form-control @error('blood_pressure_diastolic') is-invalid @enderror"
-                                            placeholder="Diastolic" value="{{ old('blood_pressure_diastolic') }}" required>
-                                        <small class="text-muted">Diastolic</small>
+                                            placeholder="80" value="{{ old('blood_pressure_diastolic') }}">
+                                        <small class="text-muted">Diastolic (e.g., 80)</small>
                                     </div>
                                 </div>
                                 <small class="text-muted d-block mt-1">Normal: 120/80 mmHg</small>
@@ -80,10 +80,10 @@
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="respiratory_rate" class="form-label">Respiratory Rate (per min) <span class="text-danger">*</span></label>
+                                <label for="respiratory_rate" class="form-label">Respiratory Rate (per min)</label>
                                 <input type="number" id="respiratory_rate" name="respiratory_rate" min="10" max="50"
                                     class="form-control @error('respiratory_rate') is-invalid @enderror"
-                                    placeholder="16" value="{{ old('respiratory_rate') }}" required>
+                                    placeholder="12 - 20" value="{{ old('respiratory_rate') }}">
                                 <small class="text-muted">Normal: 12-20 per minute</small>
                                 @error('respiratory_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -92,10 +92,10 @@
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="drop_rate" class="form-label">Drops Rate (per min) <span class="text-danger">*</span></label>
+                                <label for="drop_rate" class="form-label">Drops Rate (per min)</label>
                                 <input type="number" id="drop_rate" name="drop_rate" min="10" max="50"
                                     class="form-control @error('drop_rate') is-invalid @enderror"
-                                    placeholder="16" value="{{ old('drop_rate') }}" required>
+                                    placeholder="12 - 20" value="{{ old('drop_rate') }}">
                                 <small class="text-muted">Normal: 12-20 per minute</small>
                                 @error('drop_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -107,10 +107,10 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="constraction" class="form-label">Constraction (%) <span class="text-danger">*</span></label>
+                                <label for="constraction" class="form-label">Constraction (%)</label>
                                 <input type="text" id="constraction" name="constraction" step="0.1" min="50" max="100"
                                     class="form-control @error('constraction') is-invalid @enderror"
-                                    placeholder="98.0" value="{{ old('constraction') }}" required>
+                                    placeholder="95 - 100" value="{{ old('constraction') }}">
                                 <small class="text-muted">Normal: 95-100%</small>
                                 @error('constraction')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -134,20 +134,20 @@
                     
 
                     <div class="mb-3">
-                        <label for="date" class="form-label">Recording Date <span class="text-danger">*</span></label>
+                        <label for="date" class="form-label">Recording Date</label>
                         <input type="date" id="date" name="date"
                             class="form-control @error('date') is-invalid @enderror"
-                            value="{{ old('date', date('Y-m-d')) }}" required>
+                            value="{{ old('date', date('Y-m-d')) }}">
                         @error('date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     
                     <div class="mb-3">
-                        <label for="time" class="form-label">Time <span class="text-danger">*</span></label>
+                        <label for="time" class="form-label">Time</label>
                         <input type="time" id="time" name="time"
                             class="form-control @error('time') is-invalid @enderror"
-                            value="{{ old('time', date('Y-m-d')) }}" required>
+                            value="{{ old('time', date('Y-m-d')) }}">
                         @error('time')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

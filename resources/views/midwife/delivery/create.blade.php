@@ -138,13 +138,13 @@
 
                                 <label class="form-label">
                                     Delivery Date & Time
-                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <input type="datetime-local"
                                        name="delivery_date_time"
                                        class="form-control @error('delivery_date_time') is-invalid @enderror"
-                                       value="{{ old('delivery_date_time', now()->format('Y-m-d\TH:i')) }}">
+                                       value="{{ old('delivery_date_time', now()->format('Y-m-d\TH:i')) }}"
+                                       placeholder="Select delivery date and time">
 
                                 @error('delivery_date_time')
                                     <div class="invalid-feedback">
@@ -158,7 +158,6 @@
 
                                 <label class="form-label">
                                     Delivery Type
-                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <select name="delivery_type"
@@ -202,7 +201,8 @@
 
                                 <textarea name="reason_for_delivery_type"
                                           rows="2"
-                                          class="form-control">{{ old('reason_for_delivery_type') }}</textarea>
+                                          class="form-control"
+                                          placeholder="Optional: why this delivery type was chosen">{{ old('reason_for_delivery_type') }}</textarea>
 
                             </div>
 
@@ -261,7 +261,8 @@
 
                                 <textarea name="indication_for_assistance"
                                           rows="2"
-                                          class="form-control">{{ old('indication_for_assistance') }}</textarea>
+                                          class="form-control"
+                                          placeholder="Optional: reason for vacuum or forceps use">{{ old('indication_for_assistance') }}</textarea>
 
                             </div>
 
@@ -320,7 +321,8 @@
 
                                 <textarea name="indication_for_caesarean"
                                           rows="2"
-                                          class="form-control">{{ old('indication_for_caesarean') }}</textarea>
+                                          class="form-control"
+                                          placeholder="Optional: reason for caesarean delivery">{{ old('indication_for_caesarean') }}</textarea>
 
                             </div>
 
@@ -391,7 +393,8 @@
 
                                 <textarea name="episiotomy"
                                           rows="2"
-                                          class="form-control">{{ old('episiotomy') }}</textarea>
+                                          class="form-control"
+                                          placeholder="Optional: details of episiotomy procedure">{{ old('episiotomy') }}</textarea>
 
                             </div>
 
@@ -403,7 +406,8 @@
 
                                 <textarea name="perineal_repair"
                                           rows="2"
-                                          class="form-control">{{ old('perineal_repair') }}</textarea>
+                                          class="form-control"
+                                          placeholder="Optional: describe repair details">{{ old('perineal_repair') }}</textarea>
 
                             </div>
 
