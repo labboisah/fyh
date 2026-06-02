@@ -516,6 +516,13 @@ class AccountantController extends Controller
 
             $recordsFiltered = $query->count();
 
+            $dailySummary = [
+                'bill_count' => $baseQuery->count(),
+                'total_amount' => (float) $baseQuery->sum('amount'),
+                'due_amount' => (float) $baseQuery->sum('due_amount'),
+                'total_discount' => (float) round($baseQuery->sum(DB::raw('(amount * discount / 100)')), 2),
+            ];
+
             $sortColumn = $columns[$orderCol] ?? 'issued_date';
             if ($sortColumn) {
                 $query->orderBy($sortColumn, $orderDir);
@@ -546,6 +553,7 @@ class AccountantController extends Controller
                 'recordsTotal' => $recordsTotal,
                 'recordsFiltered' => $recordsFiltered,
                 'data' => $data,
+                'summary' => $dailySummary,
             ]);
         }
 

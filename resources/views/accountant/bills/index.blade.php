@@ -18,6 +18,41 @@
         </div>
     @endif
 
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-success shadow-sm h-100">
+                <div class="card-body py-3">
+                    <div class="text-uppercase text-muted small">Today's Bills</div>
+                    <div class="h4 mb-0" id="daily-bill-count">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body py-3">
+                    <div class="text-uppercase text-muted small">Total Amount</div>
+                    <div class="h4 mb-0"><span class="fas fa-naira-sign"></span> <span id="daily-total-amount">0.00</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning shadow-sm h-100">
+                <div class="card-body py-3">
+                    <div class="text-uppercase text-muted small">Total Discount</div>
+                    <div class="h4 mb-0 text-danger"><span class="fas fa-naira-sign"></span> <span id="daily-total-discount">0.00</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-secondary shadow-sm h-100">
+                <div class="card-body py-3">
+                    <div class="text-uppercase text-muted small">Total Due</div>
+                    <div class="h4 mb-0 text-success"><span class="fas fa-naira-sign"></span> <span id="daily-due-amount">0.00</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-header bg-light">
             <h5 class="mb-0">All Bills</h5>
@@ -48,4 +83,30 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const table = document.querySelector('table.datatable');
+        if (!table) {
+            return;
+        }
+
+        const updateSummary = function (summary) {
+            if (!summary) {
+                return;
+            }
+
+            document.getElementById('daily-bill-count').textContent = summary.bill_count ?? 0;
+            document.getElementById('daily-total-amount').textContent = Number(summary.total_amount ?? 0).toFixed(2);
+            document.getElementById('daily-total-discount').textContent = Number(summary.total_discount ?? 0).toFixed(2);
+            document.getElementById('daily-due-amount').textContent = Number(summary.due_amount ?? 0).toFixed(2);
+        };
+
+        $(table).on('xhr.dt', function (event, settings, json) {
+            if (json && json.summary) {
+                updateSummary(json.summary);
+            }
+        });
+    });
+</script>
 @endsection
