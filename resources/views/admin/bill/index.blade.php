@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 datatable" data-ajax="{{ route('admin.bills.index') }}" data-order='[[10,"desc"]]'>
+                    <table class="table table-hover mb-0 datatable" data-ajax="{{ route('admin.bills.index') }}" data-order='[[10,"desc"]]' data-refresh="15000">
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>

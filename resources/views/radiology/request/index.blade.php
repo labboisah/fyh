@@ -17,7 +17,7 @@
 
 @section('content')
     <div class="container">
-        <table class="table table-striped datatable">
+        <table class="table table-striped datatable" data-ajax="{{ route('radiology.requests.index') }}" data-order='[[4,"desc"]]' data-refresh="15000">
             <thead>
                 <tr>
                     <th>#</th>
@@ -33,36 +33,7 @@
                 </tr>
             </thead>
             <tbody>
-                
-                @foreach (auth()->user()->department->investigationRequests() as $investigationRequest)
-                    @if($investigationRequest->bill)
-                    <tr>
-                        <td>{{$loop->iteration}}</td>
-                        <td>{{ $investigationRequest->bill->patientName() ?? 'N/A' }}</td>
-                        <td>{{ $investigationRequest->patientVisit->patient->hospital_number ?? 'Walk in Patient'}}</td>
-                        <td>{{ $investigationRequest->investigation->name }}</td>
-                        <td>{{$investigationRequest->requested_at}}</td>
-                        <td>{{$investigationRequest->requestedBy->name}}</td>
-                        <td>{{$investigationRequest->bill->status}}</td>
-                        <td>{{$investigationRequest->completed_at}}</td>
-                        <td>{{$investigationRequest->performedBy->name ?? 'N/A'}}</td>
-                        <td class="text-end">
-                            @if($investigationRequest->bill->status == 'paid')
-                            <a href="{{route('radiology.requests.createResult', $investigationRequest)}}" class="btn btn-outline-primary"><i class="bi bi-save"></i> Save</a>
-                            <!-- print button -->
-                            @if($investigationRequest->completed_at)
-                            <a href="{{route('radiology.requests.show', $investigationRequest)}}" class="btn btn-outline-success"><i class="bi bi-printer"></i>Print</a>
-                            <!-- edit button -->
-                            <a href="{{route('radiology.requests.editResult', $investigationRequest)}}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i> Edit</a>
-                            @endif
-                            @else
-                           <p class="text-muted"> No Payment Recorded</p>
-                            @endif
-                        </td>
-                    </tr>
-                    @endif
-                @endforeach
-                
+                <!-- DataTables will populate rows via AJAX -->
             </tbody>
         </table>
     </div>

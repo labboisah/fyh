@@ -50,13 +50,13 @@
 
                                     <div id="services-container">
                                         <div class="service-row mb-3 row g-2" data-service-index="0">
-                                            <div class="col-md-8">
-                                                <select class="form-control service-select @error('services.0.id') is-invalid @enderror" name="services[0][id]">
+                                            <div class="col-md-6">
+                                                <select class="form-control service-select @error('services.0.id') is-invalid @enderror" name="services[0][id]" onchange="calculateTotal()">
                                                     <option value="">-- Select Service --</option>
                                                     @foreach($services as $category => $categoryServices)
                                                         <optgroup label="{{ $category }}">
                                                             @foreach($categoryServices as $service)
-                                                                <option value="{{ $service->id }}" data-price="{{ $service->price }}">
+                                                                <option value="{{ $service->id }}" data-price="{{ $service->price }}" data-name="{{ $service->name }}">
                                                                     {{ $service->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($service->price, 2) }}
                                                                 </option>
                                                             @endforeach
@@ -67,8 +67,10 @@
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                            
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
+                                                <input type="number" min="1" step="1" class="form-control quantity-input" name="services[0][quantity]" value="1" onchange="calculateTotal()" />
+                                            </div>
+                                            <div class="col-md-3">
                                                 <button type="button" class="btn btn-danger btn-sm remove-service" onclick="this.closest('.service-row').remove(); calculateTotal();" style="display: none;">
                                                     <i class="bi bi-trash"></i> Remove
                                                 </button>
@@ -193,7 +195,7 @@
                         @foreach($services as $category => $categoryServices)
                             <optgroup label="{{ $category }}">
                                 @foreach($categoryServices as $service)
-                                    <option value="{{ $service->id }}" data-price="{{ $service->price }}">
+                                    <option value="{{ $service->id }}" data-price="{{ $service->price }}" data-name="{{ $service->name }}">
                                         {{ $service->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($service->price, 2) }}
                                     </option>
                                 @endforeach
@@ -201,7 +203,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <input type="number" min="1" step="1" class="form-control quantity-input" name="services[${serviceIndex}][quantity]" value="1" onchange="calculateTotal()" />
+                </div>
+                <div class="col-md-3">
                     <button type="button" class="btn btn-danger btn-sm remove-service" onclick="this.closest('.service-row').remove(); calculateTotal();">
                         <i class="bi bi-trash"></i> Remove
                     </button>
@@ -223,7 +228,7 @@
                         @foreach($investigations as $category => $categoryInvestigations)
                             <optgroup label="{{ $category }}">
                                 @foreach($categoryInvestigations as $investigation)
-                                    <option value="{{ $investigation->id }}" data-price="{{ $investigation->price }}">
+                                    <option value="{{ $investigation->id }}" data-price="{{ $investigation->price }}" data-name="{{ $investigation->name }}">
                                         {{ $investigation->name }} - <span class="fas fa-naira-sign"></span> {{ number_format($investigation->price, 2) }}
                                     </option>
                                 @endforeach
@@ -231,7 +236,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <input type="number" min="1" step="1" class="form-control quantity-input" name="investigations[${investigationIndex}][quantity]" value="1" onchange="calculateTotal()" />
+                </div>
+                <div class="col-md-3">
                     <button type="button" class="btn btn-danger btn-sm remove-investigation" onclick="this.closest('.investigation-row').remove(); calculateTotal();">
                         <i class="bi bi-trash"></i> Remove
                     </button>
@@ -251,15 +259,21 @@
 
         serviceRows.forEach(row => {
             const select = row.querySelector('.service-select');
+            const quantityInput = row.querySelector('.quantity-input');
+            const quantity = Math.max(1, parseInt(quantityInput?.value || '1', 10));
+
             if (select && select.value) {
                 hasItems = true;
                 const option = select.options[select.selectedIndex];
                 const price = parseFloat(option.dataset.price);
-                totalAmount += price;
+                const lineTotal = price * quantity;
+                totalAmount += lineTotal;
+                const itemName = option.dataset.name || option.text.split(' - ')[0];
+
                 summaryHtml += `
                     <tr>
-                        <td>${option.text.split(' - ')[0]}</td>
-                        <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${price.toFixed(2)}</td>
+                        <td>${itemName}${quantity > 1 ? ` × ${quantity}` : ''}</td>
+                        <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${lineTotal.toFixed(2)}</td>
                     </tr>
                 `;
             }
@@ -267,15 +281,21 @@
 
         investigationRows.forEach(row => {
             const select = row.querySelector('.investigation-select');
+            const quantityInput = row.querySelector('.quantity-input');
+            const quantity = Math.max(1, parseInt(quantityInput?.value || '1', 10));
+
             if (select && select.value) {
                 hasItems = true;
                 const option = select.options[select.selectedIndex];
                 const price = parseFloat(option.dataset.price);
-                totalAmount += price;
+                const lineTotal = price * quantity;
+                totalAmount += lineTotal;
+                const itemName = option.dataset.name || option.text.split(' - ')[0];
+
                 summaryHtml += `
                     <tr>
-                        <td>${option.text.split(' - ')[0]} (Investigation)</td>
-                        <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${price.toFixed(2)}</td>
+                        <td>${itemName}${quantity > 1 ? ` × ${quantity}` : ''} (Investigation)</td>
+                        <td class="text-end fw-bold"><span class="fas fa-naira-sign"></span> ${lineTotal.toFixed(2)}</td>
                     </tr>
                 `;
             }

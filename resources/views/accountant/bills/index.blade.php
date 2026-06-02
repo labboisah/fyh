@@ -24,7 +24,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped datatable" data-ajax="{{ route('accountant.bills.index') }}" data-order='[[6,"desc"]]'>
+                <table class="table table-striped datatable" data-ajax="{{ route('accountant.bills.index') }}" data-order='[[6,"desc"]]' data-refresh="15000">
                     <thead>
                         <tr>
                             <th>Bill Number</th>

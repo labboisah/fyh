@@ -1044,6 +1044,17 @@
 
                             var dt = $(this).DataTable(dtOptions);
 
+                            var refreshInterval = parseInt($(this).data('refresh'), 10);
+                            if (ajaxUrl && !isNaN(refreshInterval) && refreshInterval > 0) {
+                                setInterval(function () {
+                                    if (dt.ajax && typeof dt.ajax.reload === 'function') {
+                                        dt.ajax.reload(null, false);
+                                    } else if (typeof dt.draw === 'function') {
+                                        dt.draw(false);
+                                    }
+                                }, refreshInterval);
+                            }
+
                             // Style the button container
                             var buttonContainer = dt.buttons().container();
                             $(buttonContainer).addClass('d-flex gap-2 mb-3 flex-wrap');

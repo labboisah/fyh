@@ -139,8 +139,10 @@ class AccountantController extends Controller
             'discount' => 'required|numeric|min:0|max:100',
             'services' => 'nullable|array',
             'services.*.id' => 'nullable|exists:services,id',
+            'services.*.quantity' => 'nullable|integer|min:1',
             'investigations' => 'nullable|array',
             'investigations.*.id' => 'nullable|exists:investigations,id',
+            'investigations.*.quantity' => 'nullable|integer|min:1',
             'issued_date' => 'required|date',
             'due_date' => 'required|date',
         ]);
@@ -152,7 +154,10 @@ class AccountantController extends Controller
         $selectedInvestigations = collect($validated['investigations'] ?? [])->filter(function ($investigation) {
             return is_array($investigation) && !empty($investigation['id']);
         })->map(function ($investigation) {
-            return ['id' => $investigation['id']];
+            return [
+                'id' => $investigation['id'],
+                'quantity' => isset($investigation['quantity']) ? max(1, intval($investigation['quantity'])) : 1,
+            ];
         })->values()->all();
 
         if (empty($services) && empty($selectedInvestigations)) {
@@ -197,19 +202,21 @@ class AccountantController extends Controller
 
         foreach ($services as $service) {
             $svc = Service::findOrFail($service['id']);
-            $totalAmount += $svc->price;
+            $quantity = isset($service['quantity']) ? max(1, intval($service['quantity'])) : 1;
+            $lineTotal = $svc->price * $quantity;
+            $totalAmount += $lineTotal;
 
-            // Allow same service to be added multiple times - each adds to billServices
             if (isset($billServices[$svc->id])) {
-                $billServices[$svc->id]['quantity'] += 1;
-                $billServices[$svc->id]['subtotal'] += $svc->price;
+                $billServices[$svc->id]['quantity'] += $quantity;
+                $billServices[$svc->id]['subtotal'] += $lineTotal;
             } else {
                 $billServices[$svc->id] = [
-                    'quantity' => 1,
+                    'quantity' => $quantity,
                     'unit_price' => $svc->price,
-                    'subtotal' => $svc->price,
+                    'subtotal' => $lineTotal,
                 ];
             }
+
             // send department service request
             if(!$visit){
                 $visit= $walkinPatient;
@@ -276,17 +283,19 @@ class AccountantController extends Controller
 
         foreach ($selectedInvestigations as $investigationData) {
             $investigation = Investigation::findOrFail($investigationData['id']);
-            $totalAmount += $investigation->price;
+            $quantity = isset($investigationData['quantity']) ? max(1, intval($investigationData['quantity'])) : 1;
+            $lineTotal = $investigation->price * $quantity;
+            $totalAmount += $lineTotal;
             $investigationNames[] = $investigation->name;
 
             if (isset($billInvestigations[$investigation->id])) {
-                $billInvestigations[$investigation->id]['quantity'] += 1;
-                $billInvestigations[$investigation->id]['subtotal'] += $investigation->price;
+                $billInvestigations[$investigation->id]['quantity'] += $quantity;
+                $billInvestigations[$investigation->id]['subtotal'] += $lineTotal;
             } else {
                 $billInvestigations[$investigation->id] = [
-                    'quantity' => 1,
+                    'quantity' => $quantity,
                     'unit_price' => $investigation->price,
-                    'subtotal' => $investigation->price,
+                    'subtotal' => $lineTotal,
                 ];
             }
         }
