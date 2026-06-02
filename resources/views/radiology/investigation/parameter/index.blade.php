@@ -8,7 +8,7 @@
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
         Manage Investigation Parameters
     </h1>
-    <a href="{{ route('radiograph.investigations.parameters.create',$investigation) }}" class="btn btn-primary">
+    <a href="{{ route('radiology.investigations.parameters.create',$investigation) }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>
         New Parameter
     </a>
@@ -39,10 +39,10 @@
                         <td>{{ $parameter->reference_range }}</td>
                         <td class="text-end">
                            
-                            <a href="{{ route('radiograph.investigations.parameters.edit', [$investigation, $parameter]) }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('radiology.investigations.parameters.edit', [$investigation, $parameter]) }}" class="btn btn-sm btn-warning">
                                 <i class="bi bi-pencil"></i> Edit   
                             </a>
-                            <form action="{{ route('radiograph.investigations.parameters.destroy', [$investigation, $parameter]) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
+                            <form action="{{ route('radiology.investigations.parameters.destroy', [$investigation, $parameter]) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger">

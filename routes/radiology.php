@@ -2,14 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Radiograph\InvestigationController;
-use App\Http\Controllers\Radiograph\RequestController;
-use App\Http\Controllers\Radiograph\ParameterController;
+use App\Http\Controllers\Radiology\InvestigationController;
+use App\Http\Controllers\Radiology\RequestController;
+use App\Http\Controllers\Radiology\ParameterController;
 
 Route::middleware(['auth', 'verified', 'role:radiologist'])
-->prefix('radiograph')
-->name('radiograph.')
-->namespace('radiograph')
+->prefix('radiology')
+->name('radiology.')
+->namespace('radiology')
 ->group(function () {
     
     Route::name('requests.')
@@ -17,6 +17,10 @@ Route::middleware(['auth', 'verified', 'role:radiologist'])
     ->group(function () {
         Route::get('/', [RequestController::class, 'index'])->name('index');
         Route::get('/{investigationRequest}/show', [RequestController::class, 'show'])->name('show');
+        Route::get('/{investigationRequest}/create-result', [RequestController::class, 'createResult'])->name('createResult');
+        Route::post('/{investigationRequest}/store-result', [RequestController::class, 'storeResult'])->name('storeResult');
+        Route::get('/{investigationRequest}/edit-result', [RequestController::class, 'editResult'])->name('editResult');
+        Route::put('/{investigationRequest}/update-result', [RequestController::class, 'updateResult'])->name('updateResult');
     });
     
     Route::name('investigations.')
@@ -39,13 +43,5 @@ Route::middleware(['auth', 'verified', 'role:radiologist'])
             Route::put('{parameter}/update', [ParameterController::class, 'update'])->name('update');
             Route::delete('{parameter}/destroy', [ParameterController::class, 'destroy'])->name('destroy');
         });
-    });
-
-    Route::name('requests.')
-    ->prefix('requests')
-    ->group(function () {
-        Route::get('/', [RequestController::class, 'index'])->name('index');
-        Route::get('/{investigationRequest}/create-result', [RequestController::class, 'createResult'])->name('createResult');
-        Route::post('/{investigationRequest}/store-result', [RequestController::class, 'storeResult'])->name('storeResult');
     });
 });

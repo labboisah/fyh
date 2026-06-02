@@ -13,29 +13,32 @@ class ObservationController extends Controller
     }
 
     public function register(Request $request, Patient $patient) {
-        $request->validate([
-            "temperature" => "required",
-            "mate_pulse" => "required",
-            "blood_pressure_systolic" => "required",
-            "blood_pressure_diastolic" => "required",
-            "respiratory_rate" => "required",
-            "drop_rate" => "required",
-            "constraction" => "required",
-            "fits" => "required",
-            "date" => "required",
-            "time" => "required",
-            "remark" => "required"
+        $validated = $request->validate([
+            "temperature" => "nullable|numeric",
+            "mate_pulse" => "nullable|numeric",
+            "blood_pressure_systolic" => "nullable|integer",
+            "blood_pressure_diastolic" => "nullable|integer",
+            "respiratory_rate" => "nullable|integer",
+            "drop_rate" => "nullable|integer",
+            "constraction" => "nullable|string|max:255",
+            "fits" => "nullable|string|max:255",
+            "date" => "nullable|date",
+            "time" => "nullable",
+            "remark" => "nullable|string|max:10000",
         ]);
         
+        $date = $validated['date'] ?? now();
+        $time = $validated['time'] ?? now()->format('H:i');
+
         $visit = $patient->currentVisit();
 
         if($visit){
             $visit->observations()->create([
                 "temperature" => $request->temperature,
                 "mate_pulse" => $request->mate_pulse,
-                "blood_pressure" => $request->blood_pressure_systolic.'/'.$request->blood_pressure_diastolic,
-                "respiration" => $request->respiratory_rate,
-                "drop_rate" => $request->drop_rate,
+                "blood_pressure" => ($validated['blood_pressure_systolic'] && $validated['blood_pressure_diastolic']) ? $validated['blood_pressure_systolic'].'/'.$validated['blood_pressure_diastolic'] : null,
+                "respiration" => $validated['respiratory_rate'] ?? null,
+                "drop_rate" => $validated['drop_rate'] ?? null,
                 "constraction" => $request->constraction,
                 "fits" => $request->fits,
                 "date" => $request->date,

@@ -86,7 +86,7 @@ class LabourController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'labour_onset_time' => 'required|date',
+            'labour_onset_time' => 'nullable|date',
 
             'mode_of_onset' => [
                 'nullable',
@@ -186,7 +186,7 @@ class LabourController extends Controller
             */
 
             'stage' => [
-                'required',
+                'nullable',
                 'in:not_started,first_stage,second_stage,third_stage,completed',
             ],
 
@@ -249,11 +249,15 @@ class LabourController extends Controller
             */
 
             'status' => [
-                'required',
+                'nullable',
                 'in:ongoing,completed,complicated',
             ],
 
-        ]);  
+        ]);
+
+        $validated['labour_onset_time'] = $validated['labour_onset_time'] ?? now();
+        $validated['stage'] = $validated['stage'] ?? 'not_started';
+        $validated['status'] = $validated['status'] ?? 'ongoing';
         // get last admission for this patient
         $visit = $patient->currentVisit();
 
@@ -319,7 +323,7 @@ class LabourController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'labour_onset_time' => 'required|date',
+            'labour_onset_time' => 'nullable|date',
 
             'mode_of_onset' => [
                 'nullable',
@@ -419,7 +423,7 @@ class LabourController extends Controller
             */
 
             'stage' => [
-                'required',
+                'nullable',
                 'in:not_started,first_stage,second_stage,third_stage,completed',
             ],
 
@@ -482,7 +486,7 @@ class LabourController extends Controller
             */
 
             'status' => [
-                'required',
+                'nullable',
                 'in:ongoing,completed,complicated',
             ],
 

@@ -735,11 +735,11 @@
 
                             @if(Auth::user()->hasRole('radiologist'))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiograph.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
                             </li>
                             
                             @endif

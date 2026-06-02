@@ -8,7 +8,7 @@
         <i class="bi bi-clipboard2-data me-2 text-primary"></i>
         Manage Investigations
     </h1>
-    <a href="{{ route('radiograph.investigations.create') }}" class="btn btn-primary">
+    <a href="{{ route('radiology.investigations.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>
         New Investigation
     </a>
@@ -42,13 +42,13 @@
                         <td>{{$investigation->investigationRequests->count()}}</td>
                         <td>{{$investigation->parameters->count()}}</td>
                         <td class="text-end">
-                            <a href="{{route('radiograph.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
+                            <a href="{{route('radiology.investigations.parameters.index', $investigation)}}" class="btn btn-sm btn-success">
                                 <i class="bi bi-eye"></i> View Parameters
                             </a>
-                            <a href="{{ route('radiograph.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('radiology.investigations.edit', $investigation) }}" class="btn btn-sm btn-warning">
                                 <i class="bi bi-pencil"></i> Edit   
                             </a>
-                            <form action="{{ route('radiograph.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
+                            <form action="{{ route('radiology.investigations.destroy', $investigation) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this investigation?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger">

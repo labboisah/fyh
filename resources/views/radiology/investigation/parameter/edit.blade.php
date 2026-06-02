@@ -7,7 +7,7 @@
         <i class="bi bi-clipboard2-plus me-2 text-primary"></i>
         Edit Investigation Parameter
     </h1>
-    <a href="{{ route('radiograph.investigations.parameters.index',$investigation) }}" class="btn btn-secondary">
+    <a href="{{ route('radiology.investigations.parameters.index',$investigation) }}" class="btn btn-secondary">
         <i class="bi bi-arrow-left me-1"></i>
         Back to Parameters
     </a>    
@@ -18,7 +18,7 @@
     <div class="col-md-8 offset-md-2">
         <div class="card shadow-sm">
             <div class="card-body">
-                <form action="{{ route('radiograph.investigations.parameters.update',[$investigation, $parameter]) }}" method="POST">
+                <form action="{{ route('radiology.investigations.parameters.update',[$investigation, $parameter]) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">

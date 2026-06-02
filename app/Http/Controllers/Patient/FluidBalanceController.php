@@ -15,10 +15,13 @@ class FluidBalanceController extends Controller
     public function register(Request $request, Patient $patient) {
         $admission = $patient->currentVisit()->confirmAdmission();
         if($admission){
+            $date = $request->date ? $request->date : now();
+            $time = $request->time ? $request->time : now()->format('H:i');
+
             $admission->fluidBalances()->create([
-                "date" => $request->date,
+                "date" => $date,
                 'patient_visit_id' => $patient->currentVisit()->id,
-                "time" => $request->time,
+                "time" => $time,
                 "type_in" => $request->type_in,
                 "tube_in" => $request->tube_in,
                 "oral" => $request->oral,

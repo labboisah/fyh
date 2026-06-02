@@ -26,8 +26,9 @@
                     <th>Investigation</th>
                     <th>Requested At</th>
                     <th>Requested By</th>
-                    <th>Status</th>
-                    <th>Completed By</th>
+                    <th>Payment Status</th>
+                    <th>Completed At</th>
+                    <th>Performed By</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -43,14 +44,19 @@
                         <td>{{$investigationRequest->requested_at}}</td>
                         <td>{{$investigationRequest->requestedBy->name}}</td>
                         <td>{{$investigationRequest->bill->status}}</td>
-                        <td>{{$investigationRequest->completedBy->name ?? 'N/A'}}</td>
+                        <td>{{$investigationRequest->completed_at}}</td>
+                        <td>{{$investigationRequest->performedBy->name ?? 'N/A'}}</td>
                         <td class="text-end">
                             @if($investigationRequest->bill->status == 'paid')
-                            <button class="btn btn-outline-primary"><i class="bi bi-save"></i> Save</button>
+                            <a href="{{route('radiology.requests.createResult', $investigationRequest)}}" class="btn btn-outline-primary"><i class="bi bi-save"></i> Save</a>
                             <!-- print button -->
-                            <button class="btn btn-outline-success"><i class="bi bi-printer"></i>Print</button>
+                            @if($investigationRequest->completed_at)
+                            <a href="{{route('radiology.requests.show', $investigationRequest)}}" class="btn btn-outline-success"><i class="bi bi-printer"></i>Print</a>
+                            <!-- edit button -->
+                            <a href="{{route('radiology.requests.editResult', $investigationRequest)}}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i> Edit</a>
+                            @endif
                             @else
-                            No Payment Recorded
+                           <p class="text-muted"> No Payment Recorded</p>
                             @endif
                         </td>
                     </tr>

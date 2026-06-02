@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Radiograph;
+namespace App\Http\Controllers\Radiology;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,18 +12,18 @@ class InvestigationController extends Controller
     public function index()
     {
      
-        return view('radiograph.investigation.index');
+        return view('radiology.investigation.index');
     }
 
     public function create()
     {
-        return view('radiograph.investigation.create');
+        return view('radiology.investigation.create');
     }   
     
     public function edit($id)
     {
         $investigation = Investigation::findOrFail($id);
-        return view('radiograph.investigation.edit', compact('investigation'));
+        return view('radiology.investigation.edit', compact('investigation'));
     }
 
     public function store(Request $request)
@@ -43,7 +43,7 @@ class InvestigationController extends Controller
                 'code' => $request->code,
             ]);
 
-            return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation created successfully.');
+            return redirect()->route('radiology.investigations.index')->with('success', 'Investigation created successfully.');
         }
         
     }
@@ -60,7 +60,7 @@ class InvestigationController extends Controller
 
         $investigation->update($validatedData);
 
-        return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation updated successfully.');
+        return redirect()->route('radiology.investigations.index')->with('success', 'Investigation updated successfully.');
     }
 
     public function destroy($id)
@@ -68,6 +68,6 @@ class InvestigationController extends Controller
         $investigation = Investigation::findOrFail($id);
         $investigation->delete();
 
-        return redirect()->route('radiograph.investigations.index')->with('success', 'Investigation deleted successfully.');
+        return redirect()->route('radiology.investigations.index')->with('success', 'Investigation deleted successfully.');
     }
 }

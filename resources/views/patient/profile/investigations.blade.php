@@ -21,6 +21,15 @@
                 <p class="text-muted">No results available for this investigation request.</p>
                 @endif
 
+                @if(isset($investigationRequest->result_image) && $investigationRequest->result_image)
+                    <div class="mb-3">
+                        <h6>Attached Image</h6>
+                        <a href="{{ asset('storage/' . $investigationRequest->result_image) }}" target="_blank">
+                            <img src="{{ asset('storage/' . $investigationRequest->result_image) }}" alt="Result Image" class="img-fluid border" style="max-width:400px;">
+                        </a>
+                    </div>
+                @endif
+
                 <hr style="height: 3px; background-color: orange;">
                 <table>
                     <tr>

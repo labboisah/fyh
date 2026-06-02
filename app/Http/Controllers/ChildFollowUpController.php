@@ -41,7 +41,7 @@ class ChildFollowUpController extends Controller
             */
 
             'follow_up_date_time' => [
-                'required',
+                'nullable',
                 'date',
             ],
 
@@ -52,7 +52,7 @@ class ChildFollowUpController extends Controller
             ],
 
             'follow_up_period' => [
-                'required',
+                'nullable',
                 'in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
             ],
 
@@ -243,7 +243,7 @@ class ChildFollowUpController extends Controller
             ],
 
             'health_status' => [
-                'required',
+                'nullable',
                 'in:normal,at_risk,needs_referral,referred',
             ],
 
@@ -472,7 +472,7 @@ class ChildFollowUpController extends Controller
         */
 
         'follow_up_date_time' => [
-            'required',
+            'nullable',
             'date',
         ],
 
@@ -483,7 +483,7 @@ class ChildFollowUpController extends Controller
         ],
 
         'follow_up_period' => [
-            'required',
+            'nullable',
             'in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1',
         ],
 
@@ -674,7 +674,7 @@ class ChildFollowUpController extends Controller
         ],
 
         'health_status' => [
-            'required',
+            'nullable',
             'in:normal,at_risk,needs_referral,referred',
         ],
 

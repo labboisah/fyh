@@ -40,7 +40,7 @@
     @endif 
     
     @if(auth()->user()->hasRole('radiologist'))
-        @include('radiograph.dashboard')
+        @include('radiology.dashboard')
     @endif 
 
 @endsection

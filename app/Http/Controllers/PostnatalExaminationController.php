@@ -40,7 +40,7 @@ class PostnatalExaminationController extends Controller
             */
 
             'examination_date_time' => [
-                'required',
+                'nullable',
                 'date',
             ],
 
@@ -51,7 +51,7 @@ class PostnatalExaminationController extends Controller
             ],
 
             'examination_time' => [
-                'required',
+                'nullable',
                 'in:immediate_0-2h,6-12h,24h,48h,day4_6,week1,week2,week6',
             ],
 
@@ -324,7 +324,7 @@ class PostnatalExaminationController extends Controller
             ],
 
             'recovery_status' => [
-                'required',
+                'nullable',
                 'in:normal,complicated,needs_referral',
             ],
 
@@ -363,6 +363,9 @@ class PostnatalExaminationController extends Controller
             ],
 
         ]);
+
+        $validated['examination_date_time'] = $validated['examination_date_time'] ?? now();
+        $validated['recovery_status'] = $validated['recovery_status'] ?? 'normal';
 
         /*
         |--------------------------------------------------------------------------
@@ -620,7 +623,7 @@ class PostnatalExaminationController extends Controller
             */
 
             'examination_date_time' => [
-                'required',
+                'nullable',
                 'date',
             ],
 
@@ -631,7 +634,7 @@ class PostnatalExaminationController extends Controller
             ],
 
             'examination_time' => [
-                'required',
+                'nullable',
                 'in:immediate_0-2h,6-12h,24h,48h,day4_6,week1,week2,week6',
             ],
 
@@ -904,7 +907,7 @@ class PostnatalExaminationController extends Controller
             ],
 
             'recovery_status' => [
-                'required',
+                'nullable',
                 'in:normal,complicated,needs_referral',
             ],
 

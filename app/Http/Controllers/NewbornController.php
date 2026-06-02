@@ -52,7 +52,7 @@ class NewbornController extends Controller
         ],
 
         'birth_date_time' => [
-            'required',
+            'nullable',
             'date',
         ],
 
@@ -280,7 +280,7 @@ class NewbornController extends Controller
         */
 
         'status' => [
-            'required',
+            'nullable',
             'in:alive,stillborn,early_neonatal_death',
         ],
 
@@ -500,7 +500,7 @@ class NewbornController extends Controller
             */
 
             'sex' => [
-                'required',
+                'nullable',
                 'in:male,female',
             ],
 
@@ -520,7 +520,7 @@ class NewbornController extends Controller
             ],
 
             'birth_date_time' => [
-                'required',
+                'nullable',
                 'date',
             ],
 
@@ -748,7 +748,7 @@ class NewbornController extends Controller
             */
 
             'status' => [
-                'required',
+                'nullable',
                 'in:alive,stillborn,early_neonatal_death',
             ],
 

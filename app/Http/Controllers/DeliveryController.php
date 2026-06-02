@@ -46,12 +46,12 @@ class DeliveryController extends Controller
         */
 
         'delivery_date_time' => [
-            'required',
+            'nullable',
             'date',
         ],
 
         'delivery_type' => [
-            'required',
+            'nullable',
             'in:vaginal,assisted_vaginal,caesarean',
         ],
 
@@ -213,7 +213,7 @@ class DeliveryController extends Controller
         */
 
         'number_of_babies' => [
-            'required',
+            'nullable',
             'integer',
             'min:1',
             'max:10',
@@ -226,11 +226,16 @@ class DeliveryController extends Controller
         ],
 
         'delivery_status' => [
-            'required',
+            'nullable',
             'in:successful,complicated,maternal_death,fetal_death',
         ],
 
     ]);
+
+    $validated['delivery_date_time'] = $validated['delivery_date_time'] ?? now();
+    $validated['delivery_type'] = $validated['delivery_type'] ?? 'vaginal';
+    $validated['number_of_babies'] = $validated['number_of_babies'] ?? 1;
+    $validated['delivery_status'] = $validated['delivery_status'] ?? 'successful';
 
     /*
     |--------------------------------------------------------------------------
@@ -340,11 +345,11 @@ class DeliveryController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        'number_of_babies' => $validated['number_of_babies'],
+        'number_of_babies' => $validated['number_of_babies'] ?? 1,
 
         'delivery_summary' => $validated['delivery_summary'] ?? null,
 
-        'delivery_status' => $validated['delivery_status'],
+        'delivery_status' => $validated['delivery_status'] ?? 'successful',
 
     ]);
 
@@ -404,23 +409,12 @@ class DeliveryController extends Controller
         */
 
         'delivery_date_time' => [
-            'required',
-            'date',
-        ],
+                'nullable',
+                'date',
+            ],
 
-        'delivery_type' => [
-            'required',
-            'in:vaginal,assisted_vaginal,caesarean',
-        ],
-
-        'reason_for_delivery_type' => [
-            'nullable',
-            'string',
-            'max:3000',
-        ],
-
-        /*
-        |--------------------------------------------------------------------------
+            'delivery_type' => [
+                'nullable',
         | Assisted Vaginal Delivery
         |--------------------------------------------------------------------------
         */
@@ -571,7 +565,7 @@ class DeliveryController extends Controller
         */
 
         'number_of_babies' => [
-            'required',
+            'nullable',
             'integer',
             'min:1',
             'max:10',
@@ -584,7 +578,7 @@ class DeliveryController extends Controller
         ],
 
         'delivery_status' => [
-            'required',
+            'nullable',
             'in:successful,complicated,maternal_death,fetal_death',
         ],
 
