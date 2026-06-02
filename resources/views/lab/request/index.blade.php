@@ -15,7 +15,7 @@
         <div class="col-md-12">
            
                 <div class="card-body shadow p-4">
-                    <table class="table table-bordered table-striped datatable">
+                    <table class="table table-bordered table-striped datatable" data-order='[[8,"desc"]]'>
                         <thead>
                             <tr>
                                 <th>Lab No</th>

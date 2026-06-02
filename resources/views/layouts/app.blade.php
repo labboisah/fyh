@@ -954,11 +954,27 @@
                                 ? $card.find('.card-header h5').text().replace(/<[^>]*>/g, '').trim() 
                                 : 'Table_Export_' + new Date().getTime();
 
-                            var dt = $(this).DataTable({
+                            var dataOrder = $(this).data('order');
+                            var ajaxUrl = $(this).data('ajax');
+                            if (typeof dataOrder === 'string') {
+                                try {
+                                    dataOrder = JSON.parse(dataOrder.replace(/'([^']+)'/g, '"$1"'));
+                                } catch (e) {
+                                    dataOrder = null;
+                                }
+                            }
+                            if (!dataOrder) {
+                                var thCount = $(this).find('thead th').length;
+                                dataOrder = [[Math.max(thCount - 1, 0), 'desc']];
+                            }
+                            var dtOptions = {
                                 responsive: true,
-                                pageLength: 25,
+                                processing: !!ajaxUrl,
+                                serverSide: !!ajaxUrl,
+                                pageLength: 10,
                                 lengthMenu: [10, 25, 50, 100],
                                 autoWidth: false,
+                                deferRender: !ajaxUrl,
                                 language: {
                                     search: "_INPUT_",
                                     searchPlaceholder: "Search table..."
@@ -966,6 +982,7 @@
                                 columnDefs: [
                                     { orderable: false, targets: 'no-sort' }
                                 ],
+                                order: dataOrder,
                                 dom: 'Bfrtip',
                                 buttons: [
                                     {
@@ -1019,7 +1036,13 @@
                                         }
                                     }
                                 ]
-                            });
+                            };
+
+                            if (ajaxUrl) {
+                                dtOptions.ajax = ajaxUrl;
+                            }
+
+                            var dt = $(this).DataTable(dtOptions);
 
                             // Style the button container
                             var buttonContainer = dt.buttons().container();

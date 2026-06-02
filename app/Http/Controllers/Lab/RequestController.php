@@ -10,7 +10,8 @@ class RequestController extends Controller
 {
     public function index()
     {
-        $requests = auth()->user()->department->investigationRequests();
+        $requests = auth()->user()->department->investigationRequests()
+            ->orderByDesc('created_at');
 
         $requestGroups = $requests->groupBy(function ($request) {
             if ($request->patient_visit_id) {
@@ -55,6 +56,8 @@ class RequestController extends Controller
                 'has_completed_results' => $hasCompletedResults,
             ];
         });
+
+        $requestGroups = $requestGroups->sortByDesc('requested_at');
 
         return view('lab.request.index', compact('requestGroups'));
     }

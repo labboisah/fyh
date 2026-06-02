@@ -24,7 +24,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped datatable">
+                <table class="table table-striped datatable" data-ajax="{{ route('accountant.bills.index') }}" data-order='[[6,"desc"]]'>
                     <thead>
                         <tr>
                             <th>Bill Number</th>
@@ -40,78 +40,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($bills as $bill)
-                            <tr>
-                                <td>
-                                    <strong>{{ $bill->bill_number }}</strong>
-                                </td>
-                                <td>
-                                    @if($bill->walkinPatient)
-                                        {{ $bill->walkinPatient->name }}
-                                        <br><small class="text-muted"><span class="badge bg-warning text-dark">Walk-In</span></small>
-                                    @elseif($bill->patientVisit)
-                                        {{ $bill->patientVisit->patient->name() ?? 'N/A' }}
-                                    @endif
-                                </td>
-                                <td>{{ Str::limit($bill->service_description, 30) }}</td>
-                                <td class="fw-bold">{{ number_format($bill->amount, 2) }}</td>
-                                <td>{{ number_format($bill->amount * ($bill->discount/100), 2) }}</td>
-                                <td class="fw-bold text-success">{{ number_format($bill->due_amount, 2) }}</td>
-                                <td>{{ $bill->issued_date->format('M d, Y') }}</td>
-                                <td>{{ $bill->due_date->format('M d, Y') }}</td>
-                                <td>
-                                    @if($bill->status === 'paid')
-                                        <span class="badge bg-success">Paid</span>
-                                    @elseif($bill->status === 'partial')
-                                        <span class="badge bg-warning">Partial</span>
-                                    @elseif($bill->status === 'pending')
-                                        <span class="badge bg-danger">Pending</span>
-                                    @else
-                                        <span class="badge bg-secondary">Cancelled</span>
-                                    @endif
-                                </td>
-                                <td class="no-export">
-                                    <a href="{{ route('accountant.bills.show', $bill) }}" class="btn btn-sm btn-info" title="View">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{{ route('accountant.bills.edit', $bill) }}" class="btn btn-sm btn-warning" title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('accountant.bills.delete', $bill) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="10" class="text-center py-4 text-muted">
-                                    No bills found. <a href="{{ route('accountant.bills.create') }}">Create one now</a>
-                                </td>
-                            </tr>
-                        @endforelse
-                        <!-- total -->
-                        <tr class="fw-bold">
-                            <td colspan="3" class="text-end">Totals:</td>
-                            <td class="text-end">{{ number_format($bills->sum('amount'), 2) }}</td>
-                            <td class="text-end">&nbsp;</td>
-                            <td class="text-end">{{ number_format($bills->sum('due_amount'), 2) }}</td>
-                            <td colspan="4"></td>
-                        </tr>
+                        <!-- DataTables will populate rows via AJAX -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    {{-- Pagination --}}
-    @if($bills->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            {{ $bills->links() }}
-        </div>
-    @endif
 </div>
 @endsection

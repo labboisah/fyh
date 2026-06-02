@@ -463,10 +463,85 @@ class AccountantController extends Controller
     public function listBills()
 
     {
-        // bills created by the accountant today
-        $bills = auth()->user()->bills()->whereDate('issued_date', Carbon::today())->with(['patientVisit.patient', 'walkinPatient'])->latest()->paginate(25);
+        // If AJAX (DataTables server-side), return JSON
+        if (request()->ajax()) {
+            $start = (int) request('start', 0);
+            $length = (int) request('length', 10);
+            $search = request('search.value');
 
-        return view('accountant.bills.index', compact('bills'));
+            $orderCol = (int) request('order.0.column', 6);
+            $orderDir = request('order.0.dir', 'desc');
+
+            $columns = [
+                0 => 'bill_number',
+                1 => null, // patient (complex)
+                2 => 'service_description',
+                3 => 'amount',
+                4 => 'discount',
+                5 => 'due_amount',
+                6 => 'issued_date',
+                7 => 'due_date',
+                8 => 'status',
+                9 => null,
+            ];
+
+            $baseQuery = auth()->user()->bills()->whereDate('issued_date', Carbon::today())->with(['patientVisit.patient.demographic', 'walkinPatient']);
+
+            $recordsTotal = $baseQuery->count();
+
+            $query = auth()->user()->bills()->whereDate('issued_date', Carbon::today())->with(['patientVisit.patient.demographic', 'walkinPatient']);
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('bill_number', 'like', "%{$search}%")
+                        ->orWhere('service_description', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhereHas('walkinPatient', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('patientVisit.patient.demographic', function ($q) use ($search) {
+                            $q->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
+                        });
+                });
+            }
+
+            $recordsFiltered = $query->count();
+
+            $sortColumn = $columns[$orderCol] ?? 'issued_date';
+            if ($sortColumn) {
+                $query->orderBy($sortColumn, $orderDir);
+            }
+
+            $bills = $query->skip($start)->take($length)->get();
+
+            $data = $bills->map(function ($bill) {
+                $patient = $bill->walkinPatient ? $bill->walkinPatient->name : ($bill->patientVisit->patient->name() ?? 'N/A');
+                $actions = view('accountant.bills.partials.actions', compact('bill'))->render();
+
+                return [
+                    $bill->bill_number,
+                    $patient,
+                    Str::limit($bill->service_description, 30),
+                    number_format($bill->amount, 2),
+                    number_format($bill->amount * ($bill->discount/100), 2),
+                    number_format($bill->due_amount, 2),
+                    $bill->issued_date ? $bill->issued_date->format('M d, Y') : '',
+                    $bill->due_date ? $bill->due_date->format('M d, Y') : '',
+                    ucfirst($bill->status),
+                    $actions,
+                ];
+            })->toArray();
+
+            return response()->json([
+                'draw' => (int) request('draw', 0),
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $data,
+            ]);
+        }
+
+        // Normal page load: show initial view (DataTables will fetch data via AJAX)
+        return view('accountant.bills.index');
     }
 
     /**
