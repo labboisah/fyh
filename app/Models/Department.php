@@ -32,10 +32,10 @@ class Department extends Model
 
     public function investigationRequests()
     {
-        return collect($this->investigationTypes)
-        ->flatMap(fn($type) => $type->investigations)
-        ->flatMap(fn($investigation) => $investigation->investigationRequests)
-        ->values();
+        return InvestigationRequest::whereHas(
+            'investigation.investigationType',
+            fn ($q) => $q->where('department_id', $this->id)
+        );
     }
 
     public function requestsQuery()
