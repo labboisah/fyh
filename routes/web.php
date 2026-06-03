@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\InvestigationController;
 use App\Http\Controllers\Admin\TemporaryPermissionController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\RecordOfficerController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\VitalSignsController;
@@ -17,20 +18,12 @@ use App\Http\Controllers\Admin\BillController;
 use App\Http\Controllers\Admin\BillServiceController;
 use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\SyncronizationController;
-use App\Http\Controllers\Nurse\VitalSignController;
-use App\Http\Controllers\Patient\ContinuationController;
-use App\Http\Controllers\Patient\VisitController;
-use App\Http\Controllers\Patient\PatientController;
-use App\Http\Controllers\Patient\InvestigationController as PatientInvestigationController;
-use App\Http\Controllers\Patient\AdmissionController;
-use App\Http\Controllers\Patient\PrescriptionController;
-use App\Http\Controllers\Patient\ObservationController;
-use App\Http\Controllers\Patient\DrugChartController;
-use App\Http\Controllers\Patient\FluidBalanceController;
+
 
 // ajax routes
 Route::get('/ajax/investigations/{typeId}', [App\Http\Controllers\AjaxController::class, 'getInvestigations'])->name('ajax.get-investigations');
@@ -77,6 +70,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('wards', WardController::class);
 
         Route::resource('investigations', InvestigationController::class);
+        Route::resource('expenses', ExpenseController::class)->except(['show']);
+        Route::resource('revenues', RevenueController::class)->except(['show']);
+
 
         Route::prefix('wards/beds')->name('beds.')->group(function () {
             Route::get('/{ward}', [BedController::class, 'index'])->name('index');

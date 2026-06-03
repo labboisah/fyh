@@ -44,6 +44,7 @@
                                                         <th class="text-end">Amount</th>
                                                         <th class="text-end">Discount</th>
                                                         <th class="text-end">Due Amount</th>
+                                                        <th class="text-end">Services</th>
                                                         <th class="text-end">Issued</th>
                                                     </tr>
                                                 </thead>
@@ -53,8 +54,18 @@
                                                             <td>{{ $bill->bill_number ?? 'N/A' }}</td>
                                                             <td>{{ $bill->patientName() }}</td>
                                                             <td class="text-end">{{ number_format($bill->amount, 2) }}</td>
-                                                            <td class="text-end">{{ number_format($bill->discount, 2) }}</td>
+                                                            <td class="text-end">{{ $bill->discount }}%</td>
                                                             <td class="text-end">{{ number_format($bill->due_amount, 2) }}</td>
+                                                            <td class="text">
+                                                                <ul class="mb-0">
+                                                                @foreach($bill->billInvestigations as $billInvestigation)
+                                                                    <li>{{ $billInvestigation->investigation->name}}<li>
+                                                                @endforeach
+                                                                @foreach($bill->billServices as $billService)
+                                                                    <li>{{ $billService->service->name }}</li>
+                                                                @endforeach  
+                                                                </ul>  
+                                                            </td>
                                                             <td class="text-end">{{ optional($bill->issued_date)->format('Y-m-d') }}</td>
                                                         </tr>
                                                     @endforeach

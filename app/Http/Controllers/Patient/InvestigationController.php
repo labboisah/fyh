@@ -63,11 +63,11 @@ class InvestigationController extends Controller
             $invstigation = Investigation::find($row['investigation']);
 
             $bill->billInvestigations()->create([
-                        'investigation_id'=>$investigation->id,
-                        'unit_price'=>$investigation->price,
-                        'quantity'=> 1
-                        'subtotal' => $investigation->price
-                        ]);
+                        'investigation_id' => $investigation->id,
+                        'unit_price' => $investigation->price,
+                        'quantity' => 1,
+                        'subtotal' => $investigation->price,
+                    ]);
 
 
             $visit->visitActivities()->create([

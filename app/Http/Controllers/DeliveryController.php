@@ -414,8 +414,13 @@ class DeliveryController extends Controller
             ],
 
             'delivery_type' => [
-                'nullable',
-        | Assisted Vaginal Delivery
+                'nullable',                
+                'string',
+                'max:255',
+            ],
+
+        /*
+        --------------------------------------------------------------------------        | Assisted Vaginal Delivery
         |--------------------------------------------------------------------------
         */
 

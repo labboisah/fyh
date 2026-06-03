@@ -778,6 +778,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center" href="{{ route('admin.wards.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Wards</a>
                                 </li>
+
+                                
                             @endif
 
                             @if(Auth::user()->hasRole('pharmacist'))
@@ -827,8 +829,10 @@
                                 <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                                     
                                     @if(Auth::user()->hasRole('administrator'))
-                                        <li><a class="dropdown-item" href="{{ route('admin.bills.index') }}">Bills Management</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}">Billing Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.bills.index') }}"><i class="bi bi-receipt me-2"></i> Bills Management</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
                                     @endif
                                 </ul>
                             </li>
