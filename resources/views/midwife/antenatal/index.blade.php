@@ -59,9 +59,13 @@
                         </thead>
                         <tbody>
                             @foreach($requests as $ANCRequest)
-                            @php 
-                                $patient= $ANCRequest->patientVisit->patient
+                            @php
+                                if($ANCRequest->patientVisit){
+                                    $patient = $ANCRequest->patientVisit->patient;
+                                } 
+                                $patient= null;
                             @endphp
+                                @if($patient)
                                 <tr>
                                     <td>
                                         <span class="badge bg-secondary">{{ $patient->hospital_number }}</span>
@@ -126,6 +130,13 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @else
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">
+                                        <i class="bi bi-exclamation-triangle"></i> No visit information available for this ANC request. reffer patient to record to register visit and ANC details.
+                                    </td>
+                                </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
