@@ -9,7 +9,7 @@
             <p class="text-muted">Manage patients under midwife care</p>
         </div>
     </div>  
-    @if($requests->isEmpty())
+    @if(count($requests) == 0)
         <div class="alert alert-info">No ANC records found.</div>
     @else
         <div class="card">
