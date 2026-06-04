@@ -117,10 +117,7 @@
                                                 <a href="{{ route('midwife.antenatal.patient-records', $patient) }}" class="btn btn-outline-info" title="View Records">
                                                     <i class="bi bi-file-text"></i> Records
                                                 </a>
-                                                <a href="#" class="btn btn-outline-danger" title="View Medications">
-                                                    <i class="bi bi-capsule"></i> Medications
-                                                </a>
-                                                <a href="{{ route('midwife.progress', $patient) }}" class="btn btn-outline-success" title="View Progress">
+                                                <a href="{{ route('midwife.patient.progress', $patient) }}" class="btn btn-outline-success" title="View Progress">
                                                    <i class="bi bi-graph-up"></i> Track Progress
                                                 </a>
                                             @else
