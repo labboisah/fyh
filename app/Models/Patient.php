@@ -115,6 +115,15 @@ class Patient extends Model
             'quantity'=> 1,
             'subtotal' => $consultationBill->due_amount
         ]);
+
+        // send  consultation service request
+        $serviceRequest = new ServiceRequest();
+        $serviceRequest->patient_visit_id = $visit->id;
+        $serviceRequest->service_id = $consultationService->id;
+        $serviceRequest->requested_by = auth()->user()->id;
+        $serviceRequest->requested_at = now();
+        $serviceRequest->status = 'pending';
+        $serviceRequest->save();
         
     }
 

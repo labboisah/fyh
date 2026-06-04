@@ -59,11 +59,13 @@
                         </thead>
                         <tbody>
                             @foreach($requests as $ANCRequest)
+                            
                             @php
                                 if($ANCRequest->patientVisit){
                                     $patient = $ANCRequest->patientVisit->patient;
+                                }else{
+                                    $patient = null;
                                 } 
-                                $patient= null;
                             @endphp
                                 @if($patient)
                                 <tr>

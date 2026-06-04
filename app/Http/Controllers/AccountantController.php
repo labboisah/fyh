@@ -222,12 +222,6 @@ class AccountantController extends Controller
                 $visit= $walkinPatient;
             }
 
-            $visit->departmentServiceRequests()->create([
-                'requested_by'=>auth()->user()->id,
-                'department_id'=>$svc->department_id ?? null,
-                'service_id'=>$svc->id,
-                'status'=>'pending'
-            ]);
             // log activities
 
             
@@ -259,7 +253,7 @@ class AccountantController extends Controller
                 // generate another bill for bed space bill for the patient apply discount here
                 $bedDiscountAmount = round($ward->price * ($discount / 100), 2);
                 $bedBillAmount = max(0, $ward->price - $bedDiscountAmount);
-                Bill::create([
+                $bedBill = Bill::create([
                     'patient_visit_id' => $visit->id ?? null,
                     'walkin_id' => $walkinId ?? null,
                     'bill_number' => Bill::generateBillNumber(),
@@ -271,6 +265,16 @@ class AccountantController extends Controller
                     'status' => 'pending',
                     'issued_date' => now(),
                     'due_date' => now()->addDays(7),
+                ]);
+
+                $visit->serviceRequests()->create([
+                    'requested_by'=>auth()->user()->id,
+                    'walkin_id'=>$walkin->id ?? null,
+                    'service_id'=>$svc->id,
+                    'status'=>'pending',
+                    'requested_at'=>now(),
+                    'clinical_diagnoses'=>'Requested via billing system',
+                    'bill_id'=> $bedBill->id,
                 ]);
 
             }

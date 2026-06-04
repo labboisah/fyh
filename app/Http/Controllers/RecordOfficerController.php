@@ -124,6 +124,8 @@ class RecordOfficerController extends Controller
             $discount = $validated['discount'] ?? 0;
             $patient->generateFileOpeningBill($visit, $discount, $request->anc ?? false);
 
+            
+
 
             $visit->visitActivities()->create([
                 'recorded_by' => auth()->user()->id,
