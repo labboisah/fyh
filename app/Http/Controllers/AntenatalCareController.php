@@ -24,7 +24,7 @@ class AntenatalCareController extends Controller
         $service = Service::find(17);
         
 
-        $requests = $service->serviceRequests->where('status','pending');
+        $requests = $service->serviceRequests->where('status','pending')->where('patient_visit_id', '!=', null)->load('patientVisit.patient.demographic');
 
         return view('midwife.antenatal.index', compact('requests'));
     }
