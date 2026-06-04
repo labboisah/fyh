@@ -61,7 +61,7 @@ class InvestigationRequest extends Model
             
             $year = substr(date('Y'), 2, 2);
             $type = $this->investigation->investigationType;
-            $count = count($type->department->investigationRequests()) + 1;
+            $count = $this->id;
             $lab_no = strtoupper(substr($type->name, 0, 3)) . $year . str_pad($count, 4, '0', STR_PAD_LEFT);
             $this->update(['lab_no' => $lab_no]);
         }   
