@@ -399,20 +399,26 @@
             
         </div>
 
-        <!-- jQuery (required by DataTables) ante-->
-        <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-        <!-- DataTables JS -->
-        <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('vendor/datatables/js/dataTables.bootstrap5.min.js') }}"></script>
+        
+         <!-- jQuery (Required by DataTables) -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+        <!-- DataTables Core -->
+        <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
         <!-- DataTables Buttons -->
-        <script src="{{ asset('vendor/datatables/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('vendor/datatables/js/buttons.bootstrap5.min.js') }}"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+
         <!-- Export Libraries -->
-        <script src="{{ asset('vendor/jszip/jszip.min.js') }}"></script>
-        <script src="{{ asset('vendor/pdfmake/pdfmake.min.js') }}"></script>
-        <script src="{{ asset('vendor/pdfmake/vfs_fonts.min.js') }}"></script>
-        <script src="{{ asset('vendor/datatables/js/buttons.html5.min.js') }}"></script>
-        <script src="{{ asset('vendor/datatables/js/buttons.print.min.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+        <!-- Export Buttons -->
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
         <script src="{{ asset('js/ajax/address.js') }}"></script>
         
