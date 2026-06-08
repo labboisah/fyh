@@ -97,31 +97,25 @@
             <hr>
 
             <div class="p-3 mb-4">
-                <p class="mb-1 text-muted">Patient Name: <strong>{{ $patientName }}</strong></p>
+                <p class="mb-1 text-muted">Patient Name: <strong>{{ $bill->patientName() }}</strong></p>
                 <p class="mb-1 text-muted">
                     Hospital Number:
-                    @if($hospitalNumber)
-                        <strong>{{ $hospitalNumber }}</strong>
+                    @if($bill->patientVisit)
+                        <strong>{{ $bill->patientVisit->patient->hash_algos }}</strong>
                     @else
                         <strong>Walk-in Patient</strong>
                     @endif
                 </p>
-                <p class="mb-1 text-muted">
-                    Requested At: <strong>{{ $investigationRequests->first()->created_at->format('d M, Y @ h:i A') }}</strong>
-                </p>
-                <p class="mb-1 text-muted">
-                    Requested By: <strong>{{ $investigationRequests->first()->requestedBy->name ?? 'N/A' }}</strong>
-                </p>
-                <p class="mb-1 text-muted">
-                    Performed By: <strong>{{ $investigationRequests->first()->performedBy->name ?? 'N/A' }}</strong>
-                </p>
+                
+                
             </div>
 
             <hr>
-
-            @foreach($investigationRequests as $investigationRequest)
-                <div class="mb-4">
-                    <h5 class="fw-bold mb-3">{{ $investigationRequest->investigation->name }}</h5>
+            @foreach($bill->investigationRequests as $investigationRequest)
+                <div class="">
+                    <!-- request informations -->
+                    <h5 class="fw-bold">{{ $investigationRequest->investigation->name }}</h5>
+                    <p class="text-muted mb-3">Lab No: {{ $investigationRequest->lab_no }}</p>
                     @if($investigationRequest->investigationResults->isEmpty())
                         <div class="alert alert-warning">No results recorded yet.</div>
                     @else
@@ -151,7 +145,7 @@
 
     <div class="mt-3">
         <button onclick="window.print()" class="btn btn-primary">
-            <i class="bi bi-printer me-1"></i> Print Combined Results
+            <i class="bi bi-printer me-1"></i> Print Results
         </button>
         <a href="{{ route('lab.requests.index') }}" class="btn btn-secondary ms-2">Back to Requests</a>
     </div>

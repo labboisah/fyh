@@ -41,7 +41,7 @@ class InvestigationRequest extends Model
     }
 
     public function bill() {
-        return $this->hasOne(Bill::class);
+        return $this->belongsTo(Bill::class);
     }
 
     public function walkinPatient() {

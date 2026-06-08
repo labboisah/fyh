@@ -42,7 +42,7 @@
                                 <td>
                                     <strong>{{ $payment->payment_id }}</strong>
                                 </td>
-                                @if($payment->bill->walkinPatient)
+                                @if($payment->bill &&$payment->bill->walkinPatient)
                                     <td>{{ $payment->bill->walkinPatient->name}} </td>
                                 @else
                                     <td>{{ $payment->bill->patientVisit->demographic->first_name ?? ''}} {{ $payment->bill->patientVisit->demographic->last_name ?? ''}}</td>

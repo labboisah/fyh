@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\InvestigationRequest;
+use App\Models\Bill;
 
 class RequestController extends Controller
 {
@@ -289,44 +290,10 @@ class RequestController extends Controller
         return redirect()->route('lab.requests.index')->with('success', 'Investigation results recorded successfully.');
     }
 
-    public function showResult(string $groupType, $groupId)
+    public function showResult(Bill $bill)
     {
-        $query = InvestigationRequest::with([
-            'investigation.parameters',
-            'investigationResults.parameter',
-            'patientVisit.patient.demographic',
-            'walkinPatient',
-        ]);
 
-        if ($groupType === 'visit') {
-            $query->where('patient_visit_id', $groupId);
-        } elseif ($groupType === 'walkin') {
-            $query->where('walkin_id', $groupId);
-        } else {
-            abort(404);
-        }
-
-        $investigationRequests = $query->where('status', 'Completed')->get();
-
-        if ($investigationRequests->isEmpty()) {
-            return redirect()->route('lab.requests.index')->with('error', 'No completed investigation results found for this patient.');
-        }
-
-        $patientName = $investigationRequests->first()->patientVisit
-            ? $investigationRequests->first()->patientVisit->patient->demographic->full_name
-            : ($investigationRequests->first()->walkinPatient->name ?? 'Walkin Patient');
-
-        $hospitalNumber = $investigationRequests->first()->patientVisit
-            ? $investigationRequests->first()->patientVisit->patient->hospital_number
-            : null;
-
-        return view('lab.request.result', compact(
-            'investigationRequests',
-            'groupType',
-            'groupId',
-            'patientName',
-            'hospitalNumber'
-        ));
+    return view('lab.request.result', compact('bill'));
     }
 }
 

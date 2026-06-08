@@ -6,6 +6,13 @@ use App\Http\Controllers\Lab\InvestigationController;
 use App\Http\Controllers\Lab\PatientController;
 use App\Http\Controllers\Lab\RequestController;
 use App\Http\Controllers\Lab\ParameterController;
+use App\Http\Controllers\Lab\ResultController;
+use App\Livewire\Lab\Result;
+use App\Models\InvestigationRequest;
+use App\Models\Department;
+use App\Models\InvestigationResult;
+
+Route::get('/result', \App\Livewire\Lab\Result::class)->name('lab.result');
 
 
 Route::middleware(['auth', 'verified', 'role:lab_technician'])
@@ -13,7 +20,7 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
 ->name('lab.')
 ->namespace('Lab')
 ->group(function () {
-    
+
     Route::name('investigations.')
     ->prefix('investigations')
     ->group(function () {
@@ -35,6 +42,7 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
             Route::delete('{parameter}/destroy', [ParameterController::class, 'destroy'])->name('destroy');
         });
     });
+
     Route::name('requests.')
     ->prefix('requests')
     ->group(function () {
@@ -42,7 +50,7 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
 
         Route::get('/group/{groupType}/{groupId}/results/create', [RequestController::class, 'createResult'])->name('results.create');
         Route::post('/group/{groupType}/{groupId}/results/store', [RequestController::class, 'storeResult'])->name('results.store');
-        Route::get('/group/{groupType}/{groupId}/results/show', [RequestController::class, 'showResult'])->name('results.show');
+        Route::get('/results/{bill}/show', [RequestController::class, 'showResult'])->name('results.show');
 
     });
 
