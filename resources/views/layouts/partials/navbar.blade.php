@@ -148,6 +148,10 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
                             </li>
+                            <!-- results entry -->
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.result') }}"><i class="bi bi-clipboard2-data me-2 text-success"></i>Results Entry</a>
+                            </li>
                             @endif
                             @if(Auth::user()->hasRole('head_of_department'))
                             <li class="nav-item">

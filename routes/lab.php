@@ -12,7 +12,23 @@ use App\Models\InvestigationRequest;
 use App\Models\Department;
 use App\Models\InvestigationResult;
 
-Route::get('/result', \App\Livewire\Lab\Result::class)->name('lab.result');
+
+
+Route::middleware([
+        'auth',
+        'verified',
+        'role:lab_technician'
+    ])
+    ->prefix('lab')
+    ->name('lab.')
+    ->group(function () {
+
+        Route::get(
+            '/results-entry',
+            Result::class
+        )->name('result');
+
+    });
 
 
 Route::middleware(['auth', 'verified', 'role:lab_technician'])
@@ -20,6 +36,7 @@ Route::middleware(['auth', 'verified', 'role:lab_technician'])
 ->name('lab.')
 ->namespace('Lab')
 ->group(function () {
+    // LIVEWIRE COMPONENT ROUTES
 
     Route::name('investigations.')
     ->prefix('investigations')

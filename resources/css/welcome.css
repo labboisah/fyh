@@ -1,3 +1,7 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 :root {
     --primary-green: #27AE60;
     --primary-orange: #FF8C42;

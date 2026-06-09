@@ -1,260 +1,356 @@
-@section('title', 'result entry')
-<div class="space-y-12">
 
-<flux:card>
 
-    <flux:heading size="lg">
+<div class="container-fluid">
 
-        Laboratory Result Entry
 
-    </flux:heading>
+<!-- Search Card -->
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-flask"></i>
+                    Laboratory Result Entry
+                </h5>
+            </div>
 
-    <div class="mt-4">
+            <div class="card-body">
 
-        <flux:input
-            wire:model.live.debounce.700ms="bill_number"
-            label="Bill Number"
-            placeholder="Enter Bill Number"
-        />
+                <label class="form-label">
 
+                    Bill Number
+
+                </label>
+
+                <input type="text" class="form-control" wire:model="bill_number" wire:keydown.enter="search" placeholder="Enter Bill Number">
+
+
+            </div>
+            <div class="col-md-4 d-flex align-items-end"> 
+                <button class="btn btn-success w-100" wire:click="search" wire:loading.attr="disabled"> 
+                    <span wire:loading.remove wire:target="search"> 
+                        <i class="bi bi-search"></i> Search 
+                    </span> 
+                    <span wire:loading wire:target="search"> 
+                        <span class="spinner-border spinner-border-sm me-2"> 
+
+                        </span> 
+                        Searching... 
+                    </span> 
+                </button> 
+            </div>
+        </div>
     </div>
+</div>
+<!-- Loading -->
 
-</flux:card>
+<div wire:loading wire:target="search">
 
-<div wire:loading wire:target="bill_number">
+    <div class="alert alert-info"> 
+        <div class="spinner-border spinner-border-sm me-2"> 
 
-    <flux:card>
-
-        Pls holdon, we are searching investigation request for you...
-
-    </flux:card>
+        </div> Searching investigation requests... 
+    </div>
 
 </div>
 
-    
+<!-- Bill Information -->
+
 @if($bill)
-<flux:card>
-<div class="grid grid-cols-4 gap-4">
 
-    <div>
+<div class="card shadow-sm border-0 mb-4">
 
-        <strong>Bill Number</strong>
+    <div class="card-header bg-primary text-white">
 
-        <div>{{ $bill->bill_number }}</div>
+        Investigation Summary
 
     </div>
 
-    <div>
+    <div class="card-body">
 
-        <strong>Total Investigations</strong>
+        <div class="row">
 
-        <div>{{ count($requests) }}</div>
+            <div class="col-md-3">
 
-    </div>
+                <strong>Bill Number</strong>
 
-    <div>
-
-        <strong>Patient</strong>
-
-        @if($patient)
-
-
-            <div class="grid grid-cols-1 gap-4 mt-4">
-
-                <div>
-                    <strong>Name:</strong>
-                    {{ $patient->name() }}
-                </div>
-
-                <div>
-                    <strong>Gender:</strong>
-                    {{ $patient->demographic->gender }}
-                </div>
-
-                <div>
-                    <strong>Phone Number:</strong>
-                    {{ $patient->demographic->phone_number }}
-                </div>
-
-            </div>
-        @elseif($walkin)
-        
-            <div class="grid grid-cols-1 gap-4 mt-4">
-
-                <div>
-                    <strong>Name:</strong>
-                    {{ $walkin->name }}
-                </div>
-
-                <div>
-                    <strong>Phone:</strong>
-                    {{ $walkin->phone_number }}
-                </div>
-
-                <div>
-                    <strong>Address:</strong>
-                    {{ $walkin->address }}
-                </div>
+                <p>{{ $bill->bill_number }}</p>
 
             </div>
 
-        @endif
+            <div class="col-md-3">
 
-    </div>
+                <strong>Total Investigations</strong>
 
-    <div>
-        @if($loaded)
-        <a href="{{ route('lab.requests.results.show', $bill) }}">
+                <p>{{ count($requests) }}</p>
 
-            <flux:button variant="primary">
+            </div>
 
-                Print Report
+            <div class="col-md-4">
 
-            </flux:button>
+                <strong>Patient Information</strong>
 
-        </a>
-        @endif
+                @if($patient)
+
+                    <p class="mb-1">
+
+                        <strong>Name:</strong>
+
+                        {{ $patient->name() }}
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Gender:</strong>
+
+                        {{ $patient->demographic->gender }}
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Phone:</strong>
+
+                        {{ $patient->demographic->phone_number }}
+
+                    </p>
+
+                @elseif($walkin)
+
+                    <p class="mb-1">
+
+                        <strong>Name:</strong>
+
+                        {{ $walkin->name }}
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Phone:</strong>
+
+                        {{ $walkin->phone_number }}
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Address:</strong>
+
+                        {{ $walkin->address }}
+
+                    </p>
+
+                @endif
+
+            </div>
+
+            <div class="col-md-2 text-end">
+
+                @if($loaded)
+
+                <a href="{{ route('lab.requests.results.show', $bill) }}"
+                   target="_blank"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-printer"></i>
+
+                    Print Report
+
+                </a>
+
+                @endif
+
+            </div>
+
+        </div>
+
     </div>
 
 </div>
 
-</flux:card>
 @endif
 
+<!-- Investigations -->
 
 @if($loaded && count($requests))
-@foreach($requests as $request)
-    <flux:card class="mb-4">
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    @foreach($requests as $request)
 
-            <div>
-                <strong>Lab No</strong>
-                <div>
-                    <flux:input
-                        label="Laboratory Number"
-                        wire:model="labNumbers.{{ $request->id }}"
-                        placeholder="Enter Lab Number" />
-                </div>
-            </div>
+    <div class="card shadow-sm border-0 mb-4">
 
-            <div>
-                <strong>Specimen</strong>
-                <div>{{ $request->specimen }}</div>
-            </div>
+        <div class="card-header">
 
-            <div>
-                <strong>Status</strong>
-                <div>{{ $request->status }}</div>
-            </div>
-
-            <div>
-                <strong>Requested Date</strong>
-                <div>
-                    {{ optional($request->requested_at)->format('d M Y') }}
-                </div>
-            </div>
-
-        </div>
-
-        <div class="mt-3 mb-4">
-
-            <strong>Clinical Diagnosis</strong>
-
-            <div class="text-gray-600">
-
-                {{ $request->clinical_diagnoses }}
-
-            </div>
-
-        </div>
-
-        <hr>
-
-            <div class="flex justify-between items-center mt-4">
+            <div class="d-flex justify-content-between align-items-center">
 
                 <div>
 
-                    <h4 class="font-bold">
+                    <h5 class="mb-1">
 
                         {{ $request->investigation->name }}
 
-                    </h4>
+                    </h5>
 
-                    <p class="text-sm text-gray-500">
+                    <small class="text-muted">
 
-                        @if($request->status == 'Completed')
+                        Requested:
 
-                        <span class="badge bg-success">
-                            Completed
-                        </span>
+                        {{ $request->created_at->format('d M Y h:i A') }}
 
-                        @elseif($request->status == 'Pending')
-
-                        <span class="badge bg-warning">
-                            Pending
-                        </span>
-
-                        @else
-
-                        <span class="badge bg-secondary">
-                            {{ $request->status }}
-                        </span>
-
-                        @endif
-                    </p>
-                    <p class="text-sm text-gray-500">
-                        Requested on:
-                        {{ $request->created_at->format('M d, Y h:i A') }}
-                    </p>
-                    <p class="text-sm text-gray-500">
-                        Requested by:
-                        {{ $request->requestedBy->name ?? 'N/A' }}
-                    </p>
-                    <p class="text-sm text-gray-500">
-                        Performed by:
-                        {{ $request->performedBy->name ?? 'N/A' }}
-                    </p>
-                    
+                    </small>
 
                 </div>
 
-                <flux:button
-                    variant="primary"
-                    wire:click="saveInvestigation({{ $request->id }})">
+                <div>
 
-                    Save Result
+                    @if($request->status == 'Completed')
 
-                </flux:button>
+                        <span class="badge bg-success">
+
+                            Completed
+
+                        </span>
+
+                    @elseif($request->status == 'Pending')
+
+                        <span class="badge bg-warning text-dark">
+
+                            Pending
+
+                        </span>
+
+                    @else
+
+                        <span class="badge bg-secondary">
+
+                            {{ $request->status }}
+
+                        </span>
+
+                    @endif
+
+                </div>
 
             </div>
 
-            <div class="mt-4">
+        </div>
 
-                <table class="table-auto w-full">
+        <div class="card-body">
 
-                    <thead>
+            <!-- Investigation Details -->
+
+            <div class="row mb-4">
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+
+                        Lab Number
+
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        wire:model="labNumbers.{{ $request->id }}">
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+
+                        Specimen
+
+                    </label>
+
+                    <div>
+
+                        {{ $request->specimen }}
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+
+                        Requested By
+
+
+                    </label>
+
+
+                    <div>
+
+                        {{ $request->requestedBy->name ?? 'N/A' }}
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+
+                        Performed By
+
+                    </label>
+
+                    <div>
+
+                        {{ $request->performedBy->name ?? 'N/A' }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label class="form-label">
+
+                    Clinical Diagnosis
+
+                </label>
+
+                <div class="alert alert-light">
+
+                    {{ $request->clinical_diagnoses }}
+
+                </div>
+
+            </div>
+
+            <!-- Parameters -->
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-light">
 
                         <tr>
 
-                            <th class="text-left p-2">
-                                Parameter
+                            <th>Parameter</th>
+
+                            <th>Unit</th>
+
+                            <th>Reference Range</th>
+
+                            <th width="250">
+
+                                Result Value
+
                             </th>
 
-                            <th class="text-left p-2">
-                                Unit
-                            </th>
+                            <th width="120">
 
-                            <th class="text-left p-2">
-                                Reference
-                            </th>
-
-                            <th class="text-left p-2">
-                                Value
-                            </th>
-
-                            <th class="text-left p-2">
                                 Action
+
                             </th>
 
                         </tr>
@@ -270,46 +366,46 @@
 
                         <tr>
 
-                            <td class="p-2">
+                            <td>
 
                                 {{ $parameter->name }}
 
                             </td>
 
-                            <td class="p-2">
+                            <td>
 
                                 {{ $parameter->unit }}
 
                             </td>
 
-                            <td class="p-2">
+                            <td>
 
                                 {{ $parameter->reference_range }}
 
                             </td>
 
-                            <td class="p-2">
+                            <td>
 
-                                <flux:input wire:model.live="results.{{ $request->id }}.{{ $parameter->id }}"/>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    wire:model.defer="results.{{ $request->id }}.{{ $parameter->id }}">
 
                             </td>
 
+                            <td>
 
-
-                            <td class="p-2">
-
-                                <flux:button
-                                    size="sm"
-                                    variant="danger"
+                                <button
+                                    class="btn btn-sm btn-danger"
                                     wire:click="
                                     deleteResult(
                                     {{ $request->id }},
                                     {{ $parameter->id }}
                                     )">
 
-                                    Delete
+                                    <i class="bi bi-trash"></i>
 
-                                </flux:button>
+                                </button>
 
                             </td>
 
@@ -323,21 +419,43 @@
 
             </div>
 
-        </flux:card>
+            <div class="text-end mt-3">
+
+                <button
+                    class="btn btn-success"
+                    wire:click="
+                    saveInvestigation(
+                    {{ $request->id }}
+                    )">
+
+                    <i class="bi bi-save"></i>
+
+                    Save Result
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
     @endforeach
 
 @endif
 
+<!-- No Records -->
+
 @if($loaded && count($requests) == 0)
 
-    <flux:card>
+    <div class="alert alert-warning">
 
-        No investigation found for this Lab Number.
+        No investigation request found for this Bill Number.
 
-    </flux:card>
+    </div>
 
 @endif
 
 
 </div>
+

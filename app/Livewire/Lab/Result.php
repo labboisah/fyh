@@ -4,11 +4,12 @@ namespace App\Livewire\Lab;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+
 use App\Models\InvestigationRequest;
 use App\Models\InvestigationResult;
 use App\Models\Bill;
 
-#[Layout('layouts.flux')]
+#[Layout('layouts.live')]
 class Result extends Component
 {
     public string $bill_number = '';
@@ -27,14 +28,34 @@ class Result extends Component
 
     public bool $loaded = false;
 
-    public function updatedBillNumber()
+    // public function updatedBillNumber()
+    // {
+    //     if (strlen(trim($this->bill_number)) >= 3) {
+    //         $this->loadRequest();
+    //     } else {
+    //         $this->resetRequestData();
+    //     }
+    // }
+
+    public function search()
     {
-        if (strlen(trim($this->bill_number)) >= 3) {
-            $this->loadRequest();
-        } else {
-            $this->resetRequestData();
+        if (blank($this->bill_number)) {
+
+            $this->dispatch(
+                'toast',
+                type: 'warning',
+                message: 'Please enter a Bill Number.'
+            );
+
+            return;
         }
+
+        $this->loadRequest();
+
+        
+
     }
+
 
     public function resetRequestData()
     {
@@ -114,7 +135,7 @@ class Result extends Component
         if (!$request) {
             return;
         }
-
+        
 
         foreach ($request->investigation->parameters as $parameter) {
 
@@ -126,7 +147,7 @@ class Result extends Component
                 continue;
             }
 
-            InvestigationResult::updateOrCreate(
+            $result = InvestigationResult::updateOrCreate(
                 [
                     'investigation_request_id' => $requestId,
                     'parameter_id' => $parameter->id,
@@ -135,6 +156,7 @@ class Result extends Component
                     'value' => $value,
                 ]
             );
+            
         }
 
         $requestModel = InvestigationRequest::find($requestId);
@@ -148,7 +170,7 @@ class Result extends Component
             'performed_by' => auth()->id(),
             'completed_at' => now(),
         ]);
-
+        
         $this->loadRequest();
 
         $this->dispatch(
