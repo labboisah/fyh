@@ -6,7 +6,7 @@
 
         <title>Fatima Yahaya Hospital Sifawa - Record Management System</title>
         
-        @vite(['resources/css/welcome.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     </head>
