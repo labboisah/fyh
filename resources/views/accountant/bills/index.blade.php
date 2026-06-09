@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@section('title', 'Bills Management')
+
+@push('vite')
+    <script src="{{ asset('js/datatable.js') }}"></script>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -109,4 +115,7 @@
         });
     });
 </script>
+@push('vite')
+    @vite('resources/js/datatable.js')
+@endpush
 @endsection

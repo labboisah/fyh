@@ -13,3 +13,5 @@ window.Alpine = Alpine;
 Alpine.start();
 
 import './ButtonLoad.js';
+
+import './print.js';

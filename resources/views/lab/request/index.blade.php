@@ -39,5 +39,7 @@
         </div>
     </div>
 </div>
-
+@push('vite')
+    @vite('resources/js/datatable.js')
+@endpush
 @endsection

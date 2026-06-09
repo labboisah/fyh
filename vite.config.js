@@ -9,7 +9,11 @@ export default defineConfig({
                 'resources/css/welcome.css', 
                 'resources/css/guest.css',
                 // js 
-                'resources/js/app.js'],
+                'resources/js/app.js',
+                'resources/js/datatable.js',
+                'resources/js/charts.js',
+                'resources/js/address.js',
+            ],
             refresh: true,
         }),
     ],

@@ -1,3 +1,8 @@
+// import other datable extensions if needed, e.g.:
+// import 'datatables.net-responsive-bs5';
+// import 'datatables.net-buttons-bs5';
+// import 'datatables.net-buttons/js/buttons.html5.js';
+// import 'datatables.net-buttons/js/buttons.print.js';
 document.addEventListener('DOMContentLoaded', function() {
                 if (window.jQuery && $.fn.DataTable) {
                     $('table.datatable').each(function () {

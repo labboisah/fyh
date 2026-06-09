@@ -22,6 +22,9 @@
       type="image/png">
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+
+
 @livewireStyles
 @stack('styles')
 
@@ -64,8 +67,8 @@
     @livewireScripts
 </div>
 
+@stack('vite')
 
-<script src="{{ asset('js/ajax/address.js') }}"></script>
 
 @stack('scripts')
 

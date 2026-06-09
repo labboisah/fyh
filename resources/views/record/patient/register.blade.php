@@ -236,4 +236,7 @@
         </div>
     </div>
 </div>
+@push('vite')
+    @vite('resources/js/address.js')
+@endpush
 @endsection
