@@ -1,45 +1,5 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Fatima Yahaya Hospital') }}</title>
-
-        <!-- Bootstrap CSS (local) -->
-        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-        <!-- Bootstrap Icons -->
-        <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
-        <!-- Fonts: using local/system fonts -->
-        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-        <link rel="stylesheet" href="{{ asset('css/basic.css') }}">
-
-        @vite(['resources/css/guest.css', 'resources/js/app.js'])    
-    </head>
-    <body>
-        
-
-        <div class="auth-container">
-            
-            <div class="auth-body">
-                <div class="text text-center"><img src="{{asset('images/logo.png')}}" width="100" alt=""></div>
-                
-                {{ $slot }}
-                
-            </div>
-        </div>
-
-        <!-- Bootstrap JS -->
-        <script>
-            (function () {
-                const pageLoader = document.getElementById('page-loader');
-
-                const hidePageLoader = () => {
-                    if (pageLoader) {
-                        pageLoader.classList.add('hidden');
-                    }
-                };
+(function () {
+                              
 
                 const disableElement = (element) => {
                     if (!element || element.dataset.loading === 'true') {
@@ -69,6 +29,15 @@
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         ${label}
                     `;
+
+                    setTimeout(() => {
+                        if (button.dataset.originalHtml) {
+                            button.innerHTML = button.dataset.originalHtml;
+                            button.disabled = false;
+                            delete button.dataset.loading;
+                            delete button.dataset.originalHtml;
+                        }
+                    }, 2000);
                 };
 
                 const isActionableLink = (link) => {
@@ -102,6 +71,11 @@
 
                         link.addEventListener('click', function () {
                             disableElement(link);
+                            showPageLoader();
+
+                            if (typeof NProgress !== 'undefined') {
+                                NProgress.start();
+                            }
                         });
                     });
 
@@ -130,7 +104,36 @@
                         });
                     });
                 });
+
+                // Handle both normal load and cache restoration (back button)
+                window.addEventListener('load', function () {
+                    hidePageLoader();
+                    if (typeof NProgress !== 'undefined') {
+                        NProgress.done();
+                    }
+                });
+
+                // Handle pageshow event (fires on load and cache restoration)
+                window.addEventListener('pageshow', function (event) {
+                    // Hide loader immediately when page is shown from cache or normal load
+                    hidePageLoader();
+                    if (typeof NProgress !== 'undefined') {
+                        NProgress.done();
+                    }
+                    // If this is a cached page restoration, ensure loader is hidden
+                    if (event.persisted) {
+                        loaderHideTimeout = setTimeout(hidePageLoader, 50);
+                    }
+                });
+
+                // Handle pagehide event to prepare for navigation
+                window.addEventListener('pagehide', function () {
+                    // Clear any pending operations
+                    if (loaderHideTimeout) {
+                        clearTimeout(loaderHideTimeout);
+                    }
+                });
+
+                // Safety timeout: hide loader if still visible after 3 seconds
+                loaderHideTimeout = setTimeout(hidePageLoader, 3000);
             })();
-        </script>
-    </body>
-</html>
