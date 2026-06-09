@@ -6,16 +6,15 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Fatima Yahaya Hospital') }}</title>
-
+        @vite(['resources/css/app.css', 'resources/js/app.js']) 
         <!-- Bootstrap CSS (local) -->
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
         <!-- Fonts: using local/system fonts -->
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-        <link rel="stylesheet" href="{{ asset('css/basic.css') }}">
 
-        @vite(['resources/css/guest.css', 'resources/js/app.js'])    
+           
     </head>
     <body>
         
