@@ -6,8 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Fatima Yahaya Hospital') }}</title>
-
-        @vite(['resources/css/app.css', 'resources/js/app.js']) 
+        
+        @vite(['resources/css/guest.css', 'resources/js/app.js']) 
         
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
