@@ -213,7 +213,7 @@
                             <p class="mb-1"><strong>Patient:</strong> {{ $patientName }}</p>
                             <p class="mb-1"><strong>Hospital No:</strong> {{ $hospitalNumber }}</p>
                             <p class="mb-1"><strong>Method:</strong> {{ $payment->paymentMethod->name }}</p>
-                            <p class="mb-0"><strong>Bill Number #:</strong> {{ $payment->bill->number ?? 'N/A' }}</p>
+                            <p class="mb-0"><strong>Bill Number #:</strong> {{ $payment->bill->bill_number ?? 'N/A' }}</p>
                         </div>
 
                         <div class="divider"></div>
