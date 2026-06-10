@@ -279,7 +279,7 @@
         <p><strong>Patient:</strong> {{ $patientName }}</p>
         <p><strong>Hospital No:</strong> {{ $hospitalNumber }}</p>
         <p><strong>Method:</strong> {{ $payment->paymentMethod->name }}</p>
-        <p><strong>Ref #:</strong> {{ $payment->reference_number ?? 'N/A' }}</p>
+        <p><strong>Bill No #:</strong> {{ $payment->bill->bill_number ?? 'N/A' }}</p>
 
         <div class="divider"></div>
         <table>
