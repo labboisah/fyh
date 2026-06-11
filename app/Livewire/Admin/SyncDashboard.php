@@ -104,6 +104,6 @@ class SyncDashboard extends Component
 
     public function render()
     {
-        return view('components.lab.result');
+        return view('components.admin.sync');
     }
 }

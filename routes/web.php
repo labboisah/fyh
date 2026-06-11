@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\BillServiceController;
 use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
+use App\Livewire\Admin\BillManagement;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
@@ -85,7 +86,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
         // bills management
         Route::prefix('bills')->name('bills.')->group(function () {
-            Route::get('/', [BillController::class, 'index'])->name('index');
+            Route::get('/', BillManagement::class)->name('index');
             Route::get('/{bill}', [BillController::class, 'show'])->name('show');
             Route::get('/{bill}/edit', [BillController::class, 'edit'])->name('edit');  
             Route::put('/{bill}', [BillController::class, 'update'])->name('update');

@@ -263,7 +263,9 @@
                                     
                                     @if(Auth::user()->hasRole('administrator'))
                                         <li><a class="dropdown-item" href="{{ route('admin.bills.index') }}"><i class="bi bi-receipt me-2"></i> Bills Management</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.payments.index') }}"><i class="bi bi-credit-card-2-front me-2"></i> Payments Management</a></li>
                                         <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
                                         <li><a class="dropdown-item" href="{{ route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
                                         <li><a class="dropdown-item" href="{{ route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
                                     @endif

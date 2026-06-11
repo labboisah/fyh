@@ -78,7 +78,7 @@ class FinancialReportController extends Controller
             $endDate = Carbon::parse($request->input('end_date', now()->format('Y-m-d')))->endOfDay();
         }
 
-        $payments = Payment::where('payments.status', 'paid')
+        $payments = Payment::where('payments.status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->with(['bill.patientVisit.patient', 'bill.walkinPatient', 'paymentMethod', 'recordedBy'])
             ->get();

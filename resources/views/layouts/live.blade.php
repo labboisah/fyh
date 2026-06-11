@@ -84,11 +84,7 @@
     </div>
 
 </div>
-<!-- Bootstrap -->
-<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
-<!-- Custom Scripts -->
-<script src="{{ asset('js/ajax/address.js') }}"></script>
 
 <!-- Livewire -->
 @livewireScripts
@@ -152,7 +148,9 @@ document.addEventListener('livewire:init', () => {
 </script>
 <!-- Page Specific Scripts -->
 @stack('scripts')
+@stack('modals')
 
+@stack('vite')
 
 </body>
 

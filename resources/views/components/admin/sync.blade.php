@@ -105,7 +105,8 @@
                     </td>
 
                     <td>
-
+                        @if($model['pending'] || $model['failed'])
+                            
                         <button
                             class="btn btn-primary btn-sm"
                             wire:click="sync(@js($model['class']))"
@@ -121,6 +122,11 @@
                             </span>
 
                         </button>
+                        @else
+                            <span class="text-success">
+                                Synchronized
+                            </span>
+                        @endif
 
                     </td>
 
