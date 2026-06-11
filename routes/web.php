@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Livewire\Admin\BillManagement;
+use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\ExpenseManagement;
 use App\Livewire\Admin\RevenueManagement;
 use App\Http\Controllers\ReportsController;
@@ -56,7 +57,7 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::get('/', AdminDashboard::class)->middleware('role:administrator')->name('index');
     
     Route::middleware('role:administrator')->group(function () {
         // Roles Management
