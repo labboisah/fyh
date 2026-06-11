@@ -190,7 +190,7 @@
                             @if(Auth::user()->hasRole('administrator'))
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.index') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Control</a>
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.access-control') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Control</a>
                                 </li>
                                 <!-- Add more admin-specific links here -->
                                  <li class="nav-item">
