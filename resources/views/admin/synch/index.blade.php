@@ -6,7 +6,7 @@
     <div class="container">
         <h1>Data Synchronization Dashboard</h1>
         <!-- Add your synchronization dashboard content here -->
-         <table class="table table-bordered">
+         <table class="table table-bordered datatable" data-refresh="15000">
             <thead>
                 <tr>
                     <th>Table</th>
@@ -16,7 +16,6 @@
                     <th>Failed Sync</th>
                     <th>Local Origin</th>
                     <th>Online Origin</th>
-                    <th>Available</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -38,4 +37,7 @@
             </tbody>
          </table>
     </div>
+    @push('vite')
+        @vite('resources/js/datatable.js')
+    @endpush
 @endsection

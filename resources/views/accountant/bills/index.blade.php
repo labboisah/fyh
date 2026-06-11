@@ -2,9 +2,7 @@
 
 @section('title', 'Bills Management')
 
-@push('vite')
-    <script src="{{ asset('js/datatable.js') }}"></script>
-@endpush
+
 
 @section('content')
 <div class="container-fluid">

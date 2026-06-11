@@ -70,6 +70,13 @@ class SyncOperation extends Model
             'status' => 'synced',
             'synced_at' => now(),
             'remote_id' => $remoteId,
+            'error_message' => null,
+        ]);
+
+        $this->updateSourceModel([
+            'sync_status' => 'synced',
+            'remote_id' => $remoteId,
+            'sync_updated_at' => now(),
         ]);
     }
 
@@ -82,6 +89,11 @@ class SyncOperation extends Model
             'status' => 'failed',
             'error_message' => $errorMessage,
             'last_attempted_at' => now(),
+        ]);
+
+        $this->updateSourceModel([
+            'sync_status' => 'failed',
+            'sync_updated_at' => now(),
         ]);
     }
 
@@ -101,5 +113,23 @@ class SyncOperation extends Model
     {
         $maxAttempts = config('sync.queue.max_attempts', 5);
         return $this->attempts < $maxAttempts;
+    }
+
+    private function updateSourceModel(array $attributes): void
+    {
+        if (!class_exists($this->model_type)) {
+            return;
+        }
+
+        $model = $this->model_type::find($this->model_id);
+
+        if (!$model) {
+            return;
+        }
+
+        $this->model_type::withoutEvents(function () use ($model, $attributes) {
+            $model->forceFill($attributes);
+            $model->save();
+        });
     }
 }

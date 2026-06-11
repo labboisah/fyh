@@ -128,7 +128,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         ->name('system.update.run');
 
     Route::get('/sync/dashboard', [SyncronizationController::class, 'index'])
-        ->name('sync.dashboard');
+        ->name('sync.dashboards');
 });
 
 // Record Officer Routes - Patient Registration and Visit Recording
@@ -208,6 +208,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
 require __DIR__.'/nurse.php';
 require __DIR__.'/midwife.php';
 require __DIR__.'/lab.php';

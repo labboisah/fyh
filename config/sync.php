@@ -91,7 +91,7 @@ return [
         'App\Models\PatientVisit',
         'App\Models\VitalSign',
         'App\Models\Observation',
-        'App\Models\Diagnosis',
+        'App\Models\Diagnose',
         'App\Models\Discharge',
         'App\Models\AntenatalCare',
         'App\Models\Labour',
@@ -116,9 +116,14 @@ return [
     */
     'excluded_fields' => [
         'password',
+        'id',
         'remember_token',
         'api_token',
         'two_factor_secret',
         'api_secret',
+        'remote_id',
+        'sync_status',
+        'sync_origin',
+        'sync_updated_at',
     ],
 ];

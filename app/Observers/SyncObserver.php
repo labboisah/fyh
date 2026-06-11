@@ -62,6 +62,15 @@ class SyncObserver
             $model->ensureSyncUuid();
         }
 
+        $model::withoutEvents(function () use ($model) {
+            $model->forceFill([
+                'sync_status' => 'pending',
+                'sync_updated_at' => now(),
+            ]);
+
+            $model->save();
+        });
+
         $syncOperation = $model->createSyncOperation($operation);
 
         $delay = config('sync.observer.dispatch_delay', 3);

@@ -144,7 +144,10 @@ class SyncRecordJob implements ShouldQueue
             return 'delete';
         }
 
-        $remoteExists = $this->remoteRecordExists($this->syncOperation->sync_uuid);
+        $remoteExists = $this->remoteRecordExists(
+            $this->syncOperation->sync_uuid,
+            $this->syncOperation->model_type
+        );
 
         if ($remoteExists === null) {
             return null;
@@ -165,7 +168,7 @@ class SyncRecordJob implements ShouldQueue
                 return false;
             }
 
-            $exists = $this->remoteRecordExists($payload[$payloadKey]);
+            $exists = $this->remoteRecordExists($payload[$payloadKey], $dependencyClass);
 
             if ($exists === null) {
                 return false;
@@ -195,7 +198,7 @@ class SyncRecordJob implements ShouldQueue
         ];
     }
 
-    private function remoteRecordExists(string $syncUuid): ?bool
+    private function remoteRecordExists(string $syncUuid, ?string $modelType = null): ?bool
     {
         $endpoint = config('sync.remote.endpoint');
         $token = config('sync.remote.token');
@@ -206,9 +209,13 @@ class SyncRecordJob implements ShouldQueue
         }
 
         try {
-            $response = Http::withToken($token)
+            $request = Http::withToken($token)
                 ->timeout(config('sync.remote.timeout', 30))
-                ->get("{$endpoint}/api/v1/sync/status/{$syncUuid}");
+                ->acceptJson();
+
+            $response = $request->get("{$endpoint}/api/v1/sync/status/{$syncUuid}", array_filter([
+                'model_type' => $modelType,
+            ]));
 
             if ($response->successful()) {
                 return true;
@@ -310,7 +317,7 @@ class SyncRecordJob implements ShouldQueue
         try {
             $response = Http::withToken($token)
                 ->timeout(5)
-                ->get("{$endpoint}/api/v1/health");
+                ->get("{$endpoint}/api/v1/sync/health");
 
             return $response->successful();
         } catch (Throwable $exception) {

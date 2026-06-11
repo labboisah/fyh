@@ -39,3 +39,5 @@ Route::prefix('v1/sync')->middleware('auth.sync.token')->group(function () {
     // Health check
     Route::get('/health', [SyncController::class, 'healthCheck']);
 });
+
+Route::middleware('auth.sync.token')->get('/v1/health', [SyncController::class, 'healthCheck']);

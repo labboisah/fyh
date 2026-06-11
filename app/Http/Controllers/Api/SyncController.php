@@ -126,6 +126,34 @@ class SyncController extends Controller
      */
     public function getSyncStatus(Request $request, $syncUuid): JsonResponse
     {
+        $modelType = $request->query('model_type');
+
+        if ($modelType) {
+            if (!class_exists($modelType)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Model class not found',
+                ], 404);
+            }
+
+            $model = $modelType::where('sync_uuid', $syncUuid)->first();
+
+            if (!$model) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Synced record not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'sync_uuid' => $syncUuid,
+                'status' => $model->sync_status ?? 'synced',
+                'remote_id' => $model->getKey(),
+                'model_type' => $modelType,
+            ]);
+        }
+
         $sync = \App\Models\SyncOperation::where('sync_uuid', $syncUuid)->first();
 
         if (!$sync) {
@@ -180,7 +208,7 @@ class SyncController extends Controller
         $this->resolveRelationshipSyncUuids($payload);
 
         $payload['sync_uuid'] = $syncUuid;
-        $payload['sync_origin'] = config('sync.environment');
+        $payload['sync_origin'] = $data['origin'] ?? config('sync.environment');
         $payload['sync_status'] = 'synced';
 
         return DB::transaction(function () use ($modelType, $operation, $payload, $syncUuid) {
@@ -194,7 +222,12 @@ class SyncController extends Controller
                 return ['success' => true, 'id' => $model ? $model->getKey() : null, 'model_type' => $modelType];
             }
 
-            $model = $modelType::updateOrCreate(['sync_uuid' => $syncUuid], $payload);
+            $model = $model ?: new $modelType();
+
+            $modelType::withoutEvents(function () use ($model, $payload) {
+                $model->forceFill($payload);
+                $model->save();
+            });
 
             return ['success' => true, 'id' => $model->getKey(), 'model_type' => $modelType];
         });
