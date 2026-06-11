@@ -125,15 +125,17 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label">Recorded By</label>
-                    <select class="form-select" wire:model.live="recordedBy">
-                        <option value="">All Users</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @if($canFilterUsers)
+                    <div class="col-md-2">
+                        <label class="form-label">Recorded By</label>
+                        <select class="form-select" wire:model.live="recordedBy">
+                            <option value="">All Users</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
                 <div class="col-md-1">
                     <div class="form-check">
@@ -330,7 +332,7 @@
                                 <td>{{ $patientName }}</td>
                                 <td>
                                     @if($payment->bill)
-                                        <a href="{{ route('admin.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
+                                        <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $payment->bill) : route('accountant.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
                                     @else
                                         <span class="text-muted">N/A</span>
                                     @endif

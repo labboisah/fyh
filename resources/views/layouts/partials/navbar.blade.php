@@ -196,20 +196,37 @@
                                  <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center" href="{{ route('admin.users.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Users</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.services.index') }}"><i class="bi bi-gear-fill me-2 text-success"></i>Services</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.investigations.index') }}"><i class="bi bi-clipboard2-data me-2 text-success"></i>Investigation</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.departments.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Departments</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.wards.index') }}"><i class="bi bi-buildings me-2 text-success"></i>Wards</a>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-sliders me-2 text-success"></i>
+                                        Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="managementDropdown">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.services.index') }}">
+                                                <i class="bi bi-gear-fill me-2"></i>
+                                                Services
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.investigations.index') }}">
+                                                <i class="bi bi-clipboard2-data me-2"></i>
+                                                Investigation
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
+                                                <i class="bi bi-buildings me-2"></i>
+                                                Departments
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.wards.index') }}">
+                                                <i class="bi bi-hospital me-2"></i>
+                                                Wards
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
 
                                 
@@ -268,9 +285,31 @@
                                         <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
                                         <li><a class="dropdown-item" href="{{ route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
                                         <li><a class="dropdown-item" href="{{ route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
+                                    @elseif(Auth::user()->hasRole('accountant'))
+                                        <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
                                     @endif
                                 </ul>
                             </li>
+
+                            @if(Auth::user()->hasRole('administrator'))
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="activitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-activity me-2 text-success"></i>
+                                        Activities
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="activitiesDropdown">
+                                        @foreach(\App\Models\Department::orderBy('name')->get(['id', 'name']) as $activityDepartment)
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('reports.activities.show', $activityDepartment) }}">
+                                                    <i class="bi bi-building me-2"></i>
+                                                    {{ $activityDepartment->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            @endif
 
                             @auth
                                 <li class="nav-item dropdown">
@@ -280,6 +319,7 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                         <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('reports.my-activities.index') }}">My Activities</a></li>
                                         @if(Auth::user()->hasRole('administrator'))
                                             <li><hr class="dropdown-divider"></li>
                                             <li>

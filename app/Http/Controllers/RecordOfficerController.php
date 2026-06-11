@@ -116,7 +116,11 @@ class RecordOfficerController extends Controller
                 'contact_address' => $validated['nok_contact_address'],
                 'telephone' => $validated['nok_telephone'],
             ]);
-
+            // record activity
+                $patient->visitActivities()->create([
+                    'recorded_by' => auth()->user()->id,
+                    'activity' => "Patient Registered"
+                ]);
             // generate file opening bill with discount
         
             $visit = $patient->registerNewVisit();

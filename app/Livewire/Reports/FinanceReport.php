@@ -82,10 +82,8 @@ class FinanceReport extends Component
 
         return view('components.reports.finance-report', [
             'bills' => (clone $billQuery)->paginate(15),
-            'users' => User::query()
-                ->whereIn('id', Bill::query()->select('issued_by')->whereNotNull('issued_by'))
-                ->orderBy('name')
-                ->get(['id', 'name']),
+            'users' => $this->reportUsers(),
+            'canFilterUsers' => auth()->user()->hasRole('administrator'),
             'summary' => $this->summary($billQuery, $paymentQuery),
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),
@@ -123,8 +121,8 @@ class FinanceReport extends Component
             $query->where('status', $this->status);
         }
 
-        if ($this->issuedBy !== '') {
-            $query->where('issued_by', $this->issuedBy);
+        if ($this->effectiveIssuedBy() !== '') {
+            $query->where('issued_by', $this->effectiveIssuedBy());
         }
 
         return $query;
@@ -137,7 +135,7 @@ class FinanceReport extends Component
         return Payment::query()
             ->where('status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('paid_by', $this->issuedBy));
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('paid_by', $this->effectiveIssuedBy()));
     }
 
     private function summary($billQuery, $paymentQuery): array
@@ -164,7 +162,7 @@ class FinanceReport extends Component
 
         return Revenue::query()
             ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('created_by', $this->issuedBy));
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('created_by', $this->effectiveIssuedBy()));
     }
 
     private function filteredExpenseQuery()
@@ -173,7 +171,7 @@ class FinanceReport extends Component
 
         return Expense::query()
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('created_by', $this->issuedBy));
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('created_by', $this->effectiveIssuedBy()));
     }
 
     private function breakdownRows()
@@ -214,7 +212,7 @@ class FinanceReport extends Component
             ->join('services', 'bill_services.service_id', '=', 'services.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('bills.status', $this->status))
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('bills.issued_by', $this->effectiveIssuedBy()))
             ->selectRaw('services.name as label, SUM(bill_services.subtotal) as amount, SUM(bill_services.quantity) as quantity, COUNT(bill_services.id) as count')
             ->groupBy('services.id', 'services.name')
             ->get();
@@ -224,7 +222,7 @@ class FinanceReport extends Component
             ->join('investigations', 'bill_investigations.investigation_id', '=', 'investigations.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('bills.status', $this->status))
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('bills.issued_by', $this->effectiveIssuedBy()))
             ->selectRaw('investigations.name as label, SUM(bill_investigations.subtotal) as amount, SUM(bill_investigations.quantity) as quantity, COUNT(bill_investigations.id) as count')
             ->groupBy('investigations.id', 'investigations.name')
             ->get();
@@ -252,7 +250,7 @@ class FinanceReport extends Component
             ->leftJoin('users', 'bills.issued_by', '=', 'users.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('bills.status', $this->status))
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('bills.issued_by', $this->effectiveIssuedBy()))
             ->selectRaw('COALESCE(users.name, "Unknown") as label, SUM(bills.amount) as amount, SUM(bills.due_amount) as due_amount, COUNT(bills.id) as count')
             ->groupBy('bills.issued_by', 'users.name')
             ->orderByDesc('amount')
@@ -269,7 +267,7 @@ class FinanceReport extends Component
             ->leftJoin('departments', 'services.department_id', '=', 'departments.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('bills.status', $this->status))
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('bills.issued_by', $this->effectiveIssuedBy()))
             ->selectRaw('COALESCE(departments.name, "Unassigned") as label, SUM(bill_services.subtotal) as amount, COUNT(bill_services.id) as count')
             ->groupBy('departments.id', 'departments.name')
             ->get();
@@ -293,7 +291,7 @@ class FinanceReport extends Component
             ->leftJoin('payment_methods', 'payments.payment_method_id', '=', 'payment_methods.id')
             ->where('payments.status', 'completed')
             ->whereBetween('payments.payment_date', [$startDate, $endDate])
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('payments.paid_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('payments.paid_by', $this->effectiveIssuedBy()))
             ->selectRaw('COALESCE(payment_methods.name, "Unknown") as label, SUM(payments.amount) as amount, COUNT(payments.id) as count')
             ->groupBy('payments.payment_method_id', 'payment_methods.name')
             ->orderByDesc('amount')
@@ -306,7 +304,7 @@ class FinanceReport extends Component
 
         return Bill::query()
             ->whereBetween('issued_date', [$startDate, $endDate])
-            ->when($this->issuedBy !== '', fn ($query) => $query->where('issued_by', $this->issuedBy))
+            ->when($this->effectiveIssuedBy() !== '', fn ($query) => $query->where('issued_by', $this->effectiveIssuedBy()))
             ->selectRaw('status as label, SUM(amount) as amount, COUNT(id) as count')
             ->groupBy('status')
             ->orderByDesc('amount')
@@ -336,7 +334,28 @@ class FinanceReport extends Component
             'end_date' => $this->todayOnly ? null : $this->dateTo,
             'today' => $this->todayOnly ? 1 : null,
             'status' => $this->status ?: null,
-            'issued_by' => $this->issuedBy ?: null,
+            'issued_by' => $this->effectiveIssuedBy() ?: null,
         ]);
+    }
+
+    private function effectiveIssuedBy(): string
+    {
+        if (auth()->user()->hasRole('accountant') && ! auth()->user()->hasRole('administrator')) {
+            return (string) auth()->id();
+        }
+
+        return $this->issuedBy;
+    }
+
+    private function reportUsers()
+    {
+        if (auth()->user()->hasRole('accountant') && ! auth()->user()->hasRole('administrator')) {
+            return User::whereKey(auth()->id())->get(['id', 'name']);
+        }
+
+        return User::query()
+            ->whereIn('id', Bill::query()->select('issued_by')->whereNotNull('issued_by'))
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 }

@@ -1,13 +1,22 @@
 <?php
 
 use App\Http\Controllers\Report\FinancialReportController;
+use App\Http\Controllers\Report\ActivityReportController;
+use App\Http\Controllers\Report\MyActivityReportController;
 use App\Http\Controllers\Report\PaymentReportController;
+use App\Livewire\Reports\ActivityReport;
 use App\Livewire\Reports\FinanceReport;
+use App\Livewire\Reports\MyActivityReport;
 use App\Livewire\Reports\PaymentReport;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware(['auth', 'verified'])->prefix('reports')->name('reports.')->group(function () {
+    Route::get('/my-activities', MyActivityReport::class)->name('my-activities.index');
+    Route::get('/my-activities/pdf', [MyActivityReportController::class, 'pdf'])->name('my-activities.pdf');
+});
+
 // Financial Reports Routes (for accountant and administrator roles only)
-Route::middleware(['auth', 'verified', 'role:administrator'])->prefix('reports')->name('reports.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:administrator,accountant'])->prefix('reports')->name('reports.')->group(function () {
     Route::prefix('finance')->name('finance.')->group(function () {
         Route::get('/', FinanceReport::class)->name('index');
         Route::get('/search', [FinancialReportController::class, 'search'])->name('search');
@@ -19,5 +28,11 @@ Route::middleware(['auth', 'verified', 'role:administrator'])->prefix('reports')
         Route::get('/', PaymentReport::class)->name('index');
         Route::get('/export', [PaymentReportController::class, 'export'])->name('export');
         Route::get('/pdf', [PaymentReportController::class, 'pdf'])->name('pdf');
+    });
+
+    Route::middleware('role:administrator')->prefix('activities/{department}')->name('activities.')->group(function () {
+        Route::get('/', ActivityReport::class)->name('show');
+        Route::get('/export', [ActivityReportController::class, 'export'])->name('export');
+        Route::get('/pdf', [ActivityReportController::class, 'pdf'])->name('pdf');
     });
 });

@@ -21,7 +21,7 @@ class PaymentReportController extends Controller
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('method'), fn ($query) => $query->where('payment_method_id', $request->input('method')))
-            ->when($request->filled('recorded_by'), fn ($query) => $query->where('paid_by', $request->input('recorded_by')))
+            ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy($request)))
             ->latest('payment_date')
             ->get();
 
@@ -79,21 +79,21 @@ class PaymentReportController extends Controller
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('method'), fn ($query) => $query->where('payment_method_id', $request->input('method')))
-            ->when($request->filled('recorded_by'), fn ($query) => $query->where('paid_by', $request->input('recorded_by')))
+            ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy($request)))
             ->latest('payment_date')
             ->get();
 
         $revenues = Revenue::query()
             ->with(['category', 'department', 'createdBy'])
             ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($request->filled('recorded_by'), fn ($query) => $query->where('created_by', $request->input('recorded_by')))
+            ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('created_by', $this->effectiveRecordedBy($request)))
             ->latest('revenue_date')
             ->get();
 
         $expenses = Expense::query()
             ->with(['category', 'department', 'createdBy'])
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($request->filled('recorded_by'), fn ($query) => $query->where('created_by', $request->input('recorded_by')))
+            ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('created_by', $this->effectiveRecordedBy($request)))
             ->latest('expense_date')
             ->get();
 
@@ -141,5 +141,14 @@ class PaymentReportController extends Controller
             'address' => strtoupper(config('app.address', '')),
             'logo' => public_path('images/logo.png'),
         ];
+    }
+
+    private function effectiveRecordedBy(Request $request): string
+    {
+        if ($request->user()->hasRole('accountant') && ! $request->user()->hasRole('administrator')) {
+            return (string) $request->user()->id;
+        }
+
+        return $request->input('recorded_by', '');
     }
 }

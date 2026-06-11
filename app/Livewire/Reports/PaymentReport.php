@@ -86,10 +86,8 @@ class PaymentReport extends Component
         return view('components.reports.payment-report', [
             'payments' => (clone $query)->paginate(15),
             'paymentMethods' => PaymentMethod::where('is_active', true)->orderBy('name')->get(),
-            'users' => User::query()
-                ->whereIn('id', Payment::query()->select('paid_by')->whereNotNull('paid_by'))
-                ->orderBy('name')
-                ->get(['id', 'name']),
+            'users' => $this->reportUsers(),
+            'canFilterUsers' => auth()->user()->hasRole('administrator'),
             'summary' => $this->summary($query),
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),
@@ -133,8 +131,8 @@ class PaymentReport extends Component
             $query->where('payment_method_id', $this->method);
         }
 
-        if ($this->recordedBy !== '') {
-            $query->where('paid_by', $this->recordedBy);
+        if ($this->effectiveRecordedBy() !== '') {
+            $query->where('paid_by', $this->effectiveRecordedBy());
         }
 
         return $query;
@@ -164,7 +162,7 @@ class PaymentReport extends Component
 
         return Revenue::query()
             ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('created_by', $this->recordedBy));
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('created_by', $this->effectiveRecordedBy()));
     }
 
     private function filteredExpenseQuery()
@@ -173,7 +171,7 @@ class PaymentReport extends Component
 
         return Expense::query()
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('created_by', $this->recordedBy));
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('created_by', $this->effectiveRecordedBy()));
     }
 
     private function breakdownRows()
@@ -214,7 +212,7 @@ class PaymentReport extends Component
             ->whereBetween('payments.payment_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('payments.status', $this->status))
             ->when($this->method !== '', fn ($query) => $query->where('payments.payment_method_id', $this->method))
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('payments.paid_by', $this->recordedBy))
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('payments.paid_by', $this->effectiveRecordedBy()))
             ->selectRaw('COALESCE(payment_methods.name, "Unknown") as label, SUM(payments.amount) as amount, COUNT(payments.id) as count')
             ->groupBy('payments.payment_method_id', 'payment_methods.name')
             ->orderByDesc('amount')
@@ -230,7 +228,7 @@ class PaymentReport extends Component
             ->whereBetween('payments.payment_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('payments.status', $this->status))
             ->when($this->method !== '', fn ($query) => $query->where('payments.payment_method_id', $this->method))
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('payments.paid_by', $this->recordedBy))
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('payments.paid_by', $this->effectiveRecordedBy()))
             ->selectRaw('COALESCE(users.name, "Unknown") as label, SUM(payments.amount) as amount, COUNT(payments.id) as count')
             ->groupBy('payments.paid_by', 'users.name')
             ->orderByDesc('amount')
@@ -244,7 +242,7 @@ class PaymentReport extends Component
         return Payment::query()
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->when($this->method !== '', fn ($query) => $query->where('payment_method_id', $this->method))
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('paid_by', $this->recordedBy))
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy()))
             ->selectRaw('status as label, SUM(amount) as amount, COUNT(id) as count')
             ->groupBy('status')
             ->orderByDesc('amount')
@@ -259,7 +257,7 @@ class PaymentReport extends Component
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
             ->when($this->method !== '', fn ($query) => $query->where('payment_method_id', $this->method))
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('paid_by', $this->recordedBy))
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy()))
             ->selectRaw('DATE(payment_date) as label, SUM(amount) as amount, COUNT(id) as count')
             ->groupByRaw('DATE(payment_date)')
             ->orderBy('label')
@@ -275,7 +273,7 @@ class PaymentReport extends Component
             ->whereBetween('payments.payment_date', [$startDate, $endDate])
             ->when($this->status !== '', fn ($query) => $query->where('payments.status', $this->status))
             ->when($this->method !== '', fn ($query) => $query->where('payments.payment_method_id', $this->method))
-            ->when($this->recordedBy !== '', fn ($query) => $query->where('payments.paid_by', $this->recordedBy))
+            ->when($this->effectiveRecordedBy() !== '', fn ($query) => $query->where('payments.paid_by', $this->effectiveRecordedBy()))
             ->selectRaw('bills.bill_number as label, SUM(payments.amount) as amount, COUNT(payments.id) as count')
             ->groupBy('bills.id', 'bills.bill_number')
             ->orderByDesc('amount')
@@ -307,7 +305,28 @@ class PaymentReport extends Component
             'today' => $this->todayOnly ? 1 : null,
             'status' => $this->status ?: null,
             'method' => $this->method ?: null,
-            'recorded_by' => $this->recordedBy ?: null,
+            'recorded_by' => $this->effectiveRecordedBy() ?: null,
         ]);
+    }
+
+    private function effectiveRecordedBy(): string
+    {
+        if (auth()->user()->hasRole('accountant') && ! auth()->user()->hasRole('administrator')) {
+            return (string) auth()->id();
+        }
+
+        return $this->recordedBy;
+    }
+
+    private function reportUsers()
+    {
+        if (auth()->user()->hasRole('accountant') && ! auth()->user()->hasRole('administrator')) {
+            return User::whereKey(auth()->id())->get(['id', 'name']);
+        }
+
+        return User::query()
+            ->whereIn('id', Payment::query()->select('paid_by')->whereNotNull('paid_by'))
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 }

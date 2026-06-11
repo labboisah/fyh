@@ -115,15 +115,17 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label">Issued By</label>
-                    <select class="form-select" wire:model.live="issuedBy">
-                        <option value="">All Users</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @if($canFilterUsers)
+                    <div class="col-md-2">
+                        <label class="form-label">Issued By</label>
+                        <select class="form-select" wire:model.live="issuedBy">
+                            <option value="">All Users</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
                 <div class="col-md-1">
                     <div class="form-check">
@@ -316,7 +318,11 @@
                                     ?? 'N/A';
                             @endphp
                             <tr>
-                                <td><a href="{{ route('admin.bills.show', $bill) }}">{{ $bill->bill_number }}</a></td>
+                                <td>
+                                    <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $bill) : route('accountant.bills.show', $bill) }}">
+                                        {{ $bill->bill_number }}
+                                    </a>
+                                </td>
                                 <td>{{ $patientName }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit($bill->service_description, 35) }}</td>
                                 <td class="text-end">{{ number_format($bill->amount, 2) }}</td>

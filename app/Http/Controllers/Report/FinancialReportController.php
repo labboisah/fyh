@@ -44,16 +44,17 @@ class FinancialReportController extends Controller
 
         $sortBy = $request->input('sort_by', 'services');
         $data = null;
+        $issuedBy = $this->effectiveIssuedBy($request);
 
         switch ($sortBy) {
             case 'users':
-                $data = $this->getUsersFinancialData($startDate, $endDate);
+                $data = $this->getUsersFinancialData($startDate, $endDate, $issuedBy);
                 break;
             case 'departments':
-                $data = $this->getDepartmentsFinancialData($startDate, $endDate);
+                $data = $this->getDepartmentsFinancialData($startDate, $endDate, $issuedBy);
                 break;
             default:
-                $data = $this->getServicesFinancialData($startDate, $endDate);
+                $data = $this->getServicesFinancialData($startDate, $endDate, $issuedBy);
                 break;
         }
 
@@ -75,7 +76,7 @@ class FinancialReportController extends Controller
 
         $payments = Payment::where('payments.status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
-            ->when($request->filled('issued_by'), fn ($query) => $query->where('paid_by', $request->input('issued_by')))
+            ->when($this->effectiveIssuedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveIssuedBy($request)))
             ->with(['bill.patientVisit.patient', 'bill.walkinPatient', 'paymentMethod', 'recordedBy'])
             ->get();
 
@@ -134,27 +135,27 @@ class FinancialReportController extends Controller
             ->with(['patientVisit.patient.demographic', 'walkinPatient', 'issuedBy'])
             ->whereBetween('issued_date', [$startDate, $endDate])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
-            ->when($request->filled('issued_by'), fn ($query) => $query->where('issued_by', $request->input('issued_by')))
+            ->when($this->effectiveIssuedBy($request) !== '', fn ($query) => $query->where('issued_by', $this->effectiveIssuedBy($request)))
             ->latest('issued_date')
             ->get();
 
         $payments = Payment::query()
             ->where('status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
-            ->when($request->filled('issued_by'), fn ($query) => $query->where('paid_by', $request->input('issued_by')))
+            ->when($this->effectiveIssuedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveIssuedBy($request)))
             ->get();
 
         $revenues = Revenue::query()
             ->with(['category', 'department', 'createdBy'])
             ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($request->filled('issued_by'), fn ($query) => $query->where('created_by', $request->input('issued_by')))
+            ->when($this->effectiveIssuedBy($request) !== '', fn ($query) => $query->where('created_by', $this->effectiveIssuedBy($request)))
             ->latest('revenue_date')
             ->get();
 
         $expenses = Expense::query()
             ->with(['category', 'department', 'createdBy'])
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->when($request->filled('issued_by'), fn ($query) => $query->where('created_by', $request->input('issued_by')))
+            ->when($this->effectiveIssuedBy($request) !== '', fn ($query) => $query->where('created_by', $this->effectiveIssuedBy($request)))
             ->latest('expense_date')
             ->get();
 
@@ -202,12 +203,22 @@ class FinancialReportController extends Controller
         ];
     }
 
+    private function effectiveIssuedBy(Request $request): string
+    {
+        if ($request->user()->hasRole('accountant') && ! $request->user()->hasRole('administrator')) {
+            return (string) $request->user()->id;
+        }
+
+        return $request->input('issued_by', '');
+    }
 
 
-    public function getUsersFinancialData($startDate, $endDate)
+
+    public function getUsersFinancialData($startDate, $endDate, string $issuedBy = '')
     {
         $summary = Bill::selectRaw('issued_by, SUM(amount) as total_amount, SUM(discount) as total_discount, SUM(due_amount) as total_due')
             ->whereBetween('issued_date', [$startDate, $endDate])
+            ->when($issuedBy !== '', fn ($query) => $query->where('issued_by', $issuedBy))
             ->groupBy('issued_by')
             ->with('issuedBy:id,name')
             ->get()
@@ -223,6 +234,7 @@ class FinancialReportController extends Controller
 
         $details = Bill::with(['patientVisit.patient.demographic', 'walkinPatient'])
             ->whereBetween('issued_date', [$startDate, $endDate])
+            ->when($issuedBy !== '', fn ($query) => $query->where('issued_by', $issuedBy))
             ->orderByDesc('issued_date')
             ->get()
             ->groupBy('issued_by');
@@ -230,7 +242,7 @@ class FinancialReportController extends Controller
         return compact('summary', 'details');
     }
 
-    public function getDepartmentsFinancialData($startDate, $endDate)
+    public function getDepartmentsFinancialData($startDate, $endDate, string $issuedBy = '')
     {
         $data = [];
 
@@ -251,16 +263,19 @@ class FinancialReportController extends Controller
                 $serviceTotal = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
                     ->where('bill_services.service_id', $service->id)
                     ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                     ->sum('bill_services.subtotal');
                 
                 $serviceCount = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
                     ->where('bill_services.service_id', $service->id)
                     ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                     ->count();
                 
                 $billServices = BillService::join('bills', 'bill_services.bill_id', '=', 'bills.id')
                     ->where('bill_services.service_id', $service->id)
                     ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                    ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                     ->get();                
                 
             }
@@ -271,16 +286,19 @@ class FinancialReportController extends Controller
                     $investigationTotal = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
                         ->where('bill_investigations.investigation_id', $investigation->id)
                         ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                         ->sum('bill_investigations.subtotal');
                     
                     $investigationCount = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
                         ->where('bill_investigations.investigation_id', $investigation->id)
                         ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                         ->count();
                     
                     $billInvestigations = BillInvestigation::join('bills', 'bill_investigations.bill_id', '=', 'bills.id')
                         ->where('bill_investigations.investigation_id', $investigation->id)
                         ->whereBetween('bills.issued_date', [$startDate, $endDate])
+                        ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
                         ->get();  
                 }            
             }
@@ -317,11 +335,12 @@ class FinancialReportController extends Controller
         return compact('summary');
     }
 
-    public function getServicesFinancialData($startDate, $endDate)
+    public function getServicesFinancialData($startDate, $endDate, string $issuedBy = '')
     {
         $summary = BillService::join('services', 'bill_services.service_id', '=', 'services.id')
             ->join('bills', 'bill_services.bill_id', '=', 'bills.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
+            ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
             ->selectRaw('services.id as service_id, services.name as service_name, SUM(bill_services.subtotal) as total_amount, SUM(bill_services.quantity) as total_quantity, COUNT(bill_services.id) as service_count')
             ->groupBy('services.id', 'services.name')
             ->orderByDesc('total_amount')
@@ -334,6 +353,7 @@ class FinancialReportController extends Controller
             ->leftJoin('patient_demographics', 'patients.id', '=', 'patient_demographics.patient_id')
             ->leftJoin('walkin_patients', 'bills.walkin_id', '=', 'walkin_patients.id')
             ->whereBetween('bills.issued_date', [$startDate, $endDate])
+            ->when($issuedBy !== '', fn ($query) => $query->where('bills.issued_by', $issuedBy))
             ->selectRaw('services.id as service_id, services.name as service_name, bills.bill_number, COALESCE(CONCAT(patient_demographics.first_name, " ", patient_demographics.last_name), walkin_patients.name) as patient_name, bill_services.quantity, bill_services.subtotal as amount, bills.issued_date')
             ->orderBy('services.name')
             ->orderByDesc('bills.issued_date')
