@@ -19,10 +19,11 @@ use App\Http\Controllers\Admin\BillServiceController;
 use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
-use App\Livewire\Admin\BillManagement;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
+use App\Livewire\Admin\BillManagement;
 use App\Livewire\Admin\ExpenseManagement;
 use App\Livewire\Admin\RevenueManagement;
+use App\Livewire\Dashboard as UserDashboard;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
@@ -39,9 +40,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', UserDashboard::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
