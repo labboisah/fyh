@@ -16,8 +16,18 @@
         </div>
 
         <div class="text-muted small text-end">
-            <div><i class="bi bi-calendar-event me-1"></i>{{ $lastUpdated->format('F j, Y') }}</div>
-            <div><i class="bi bi-arrow-repeat me-1"></i>Updated {{ $lastUpdated->format('h:i:s A') }}</div>
+            <div wire:ignore>
+                <i class="bi bi-calendar-event me-1"></i>
+                <span id="admin-dashboard-local-date">{{ $lastUpdated->format('F j, Y') }}</span>
+            </div>
+            <div wire:ignore>
+                <i class="bi bi-clock me-1"></i>
+                <span id="admin-dashboard-local-time">{{ $lastUpdated->format('h:i:s A') }}</span>
+            </div>
+            <div>
+                <i class="bi bi-arrow-repeat me-1"></i>
+                Data refreshed {{ $lastUpdated->format('h:i:s A') }}
+            </div>
         </div>
     </div>
 
@@ -221,3 +231,33 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        function updateAdminDashboardLocalClock() {
+            const dateElement = document.getElementById('admin-dashboard-local-date');
+            const timeElement = document.getElementById('admin-dashboard-local-time');
+
+            if (!dateElement || !timeElement) {
+                return;
+            }
+
+            const now = new Date();
+
+            dateElement.textContent = now.toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
+
+            timeElement.textContent = now.toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            });
+        }
+
+        updateAdminDashboardLocalClock();
+        setInterval(updateAdminDashboardLocalClock, 1000);
+    </script>
+@endpush
