@@ -33,6 +33,11 @@
                 <i class="bi bi-download me-1"></i>
                 CSV
             </a>
+
+            <a class="btn btn-danger" href="{{ $pdfUrl }}">
+                <i class="bi bi-file-earmark-pdf me-1"></i>
+                PDF
+            </a>
         </div>
     </div>
 
@@ -62,6 +67,27 @@
             <div class="border rounded p-3 bg-white h-100">
                 <p class="text-muted small mb-1">Open Bills</p>
                 <h4 class="text-warning mb-0">{{ number_format($summary['open_bills']) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="border rounded p-3 bg-white h-100">
+                <p class="text-muted small mb-1">Other Revenue</p>
+                <h4 class="text-success mb-0">{{ number_format($summary['total_revenue'], 2) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="border rounded p-3 bg-white h-100">
+                <p class="text-muted small mb-1">Expenses</p>
+                <h4 class="text-danger mb-0">{{ number_format($summary['total_expense'], 2) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="border rounded p-3 bg-white h-100">
+                <p class="text-muted small mb-1">Net Position</p>
+                <h4 class="{{ $summary['net_position'] >= 0 ? 'text-success' : 'text-danger' }} mb-0">{{ number_format($summary['net_position'], 2) }}</h4>
             </div>
         </div>
     </div>

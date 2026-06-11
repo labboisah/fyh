@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Bill;
 use App\Models\Payment;
 use App\Models\BillService;
+use App\Models\Expense;
+use App\Models\Revenue;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\BillInvestigation;
 use App\Models\Department;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FinancialReportController extends Controller
 {
@@ -68,18 +71,11 @@ class FinancialReportController extends Controller
      */
     public function export(Request $request)
     {
-        $todayOnly = $request->boolean('today', false);
-
-        if ($todayOnly) {
-            $startDate = Carbon::today();
-            $endDate = Carbon::today()->endOfDay();
-        } else {
-            $startDate = Carbon::parse($request->input('start_date', now()->startOfMonth()->format('Y-m-d')))->startOfDay();
-            $endDate = Carbon::parse($request->input('end_date', now()->format('Y-m-d')))->endOfDay();
-        }
+        [$startDate, $endDate] = $this->dateRange($request);
 
         $payments = Payment::where('payments.status', 'completed')
             ->whereBetween('payment_date', [$startDate, $endDate])
+            ->when($request->filled('issued_by'), fn ($query) => $query->where('paid_by', $request->input('issued_by')))
             ->with(['bill.patientVisit.patient', 'bill.walkinPatient', 'paymentMethod', 'recordedBy'])
             ->get();
 
@@ -128,6 +124,82 @@ class FinancialReportController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$filename}",
         ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        [$startDate, $endDate] = $this->dateRange($request);
+
+        $bills = Bill::query()
+            ->with(['patientVisit.patient.demographic', 'walkinPatient', 'issuedBy'])
+            ->whereBetween('issued_date', [$startDate, $endDate])
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
+            ->when($request->filled('issued_by'), fn ($query) => $query->where('issued_by', $request->input('issued_by')))
+            ->latest('issued_date')
+            ->get();
+
+        $payments = Payment::query()
+            ->where('status', 'completed')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->when($request->filled('issued_by'), fn ($query) => $query->where('paid_by', $request->input('issued_by')))
+            ->get();
+
+        $revenues = Revenue::query()
+            ->with(['category', 'department', 'createdBy'])
+            ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($request->filled('issued_by'), fn ($query) => $query->where('created_by', $request->input('issued_by')))
+            ->latest('revenue_date')
+            ->get();
+
+        $expenses = Expense::query()
+            ->with(['category', 'department', 'createdBy'])
+            ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($request->filled('issued_by'), fn ($query) => $query->where('created_by', $request->input('issued_by')))
+            ->latest('expense_date')
+            ->get();
+
+        $summary = [
+            'bill_count' => $bills->count(),
+            'total_billed' => $bills->sum('amount'),
+            'total_due' => $bills->sum('due_amount'),
+            'total_collected' => $payments->sum('amount'),
+            'total_revenue' => $revenues->sum('amount'),
+            'total_expense' => $expenses->sum('amount'),
+            'net_position' => $payments->sum('amount') + $revenues->sum('amount') - $expenses->sum('amount'),
+        ];
+
+        $hospital = $this->hospitalHeaderData();
+        $generatedBy = $request->user();
+
+        $pdf = Pdf::loadView('reports.pdf.finance-report', compact('bills', 'revenues', 'expenses', 'summary', 'startDate', 'endDate', 'hospital', 'generatedBy'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('billing-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    private function dateRange(Request $request): array
+    {
+        if ($request->boolean('today', false)) {
+            return [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()];
+        }
+
+        $startDate = Carbon::parse($request->input('start_date', now()->startOfMonth()->format('Y-m-d')))->startOfDay();
+        $endDate = Carbon::parse($request->input('end_date', now()->format('Y-m-d')))->endOfDay();
+
+        if ($startDate->gt($endDate)) {
+            return [$endDate->copy()->startOfDay(), $startDate->copy()->endOfDay()];
+        }
+
+        return [$startDate, $endDate];
+    }
+
+    private function hospitalHeaderData(): array
+    {
+        return [
+            'name' => strtoupper(config('app.title', config('app.name', 'FAYHOS'))),
+            'address' => strtoupper(config('app.address', '')),
+            'logo' => public_path('images/logo.png'),
+        ];
     }
 
 

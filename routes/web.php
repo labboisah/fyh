@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Livewire\Admin\BillManagement;
+use App\Livewire\Admin\ExpenseManagement;
+use App\Livewire\Admin\RevenueManagement;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
@@ -71,8 +73,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::resource('wards', WardController::class);
 
         Route::resource('investigations', InvestigationController::class);
-        Route::resource('expenses', ExpenseController::class)->except(['show']);
-        Route::resource('revenues', RevenueController::class)->except(['show']);
+        Route::get('expenses', ExpenseManagement::class)->name('expenses.index');
+        Route::resource('expenses', ExpenseController::class)->except(['index', 'show']);
+        Route::get('revenues', RevenueManagement::class)->name('revenues.index');
+        Route::resource('revenues', RevenueController::class)->except(['index', 'show']);
 
 
         Route::prefix('wards/beds')->name('beds.')->group(function () {

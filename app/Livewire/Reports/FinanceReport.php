@@ -5,7 +5,9 @@ namespace App\Livewire\Reports;
 use App\Models\Bill;
 use App\Models\BillInvestigation;
 use App\Models\BillService;
+use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Revenue;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
@@ -88,6 +90,7 @@ class FinanceReport extends Component
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),
             'exportUrl' => route('reports.finance.export', $this->exportParameters()),
+            'pdfUrl' => route('reports.finance.pdf', $this->exportParameters()),
         ]);
     }
 
@@ -139,13 +142,38 @@ class FinanceReport extends Component
 
     private function summary($billQuery, $paymentQuery): array
     {
+        $revenueTotal = $this->filteredRevenueQuery()->sum('amount');
+        $expenseTotal = $this->filteredExpenseQuery()->sum('amount');
+        $collectedTotal = (float) (clone $paymentQuery)->sum('amount');
+
         return [
             'bill_count' => (clone $billQuery)->count(),
             'total_billed' => (float) (clone $billQuery)->sum('amount'),
             'total_due' => (float) (clone $billQuery)->sum('due_amount'),
-            'total_collected' => (float) (clone $paymentQuery)->sum('amount'),
+            'total_collected' => $collectedTotal,
+            'total_revenue' => (float) $revenueTotal,
+            'total_expense' => (float) $expenseTotal,
+            'net_position' => (float) (($collectedTotal + $revenueTotal) - $expenseTotal),
             'open_bills' => (clone $billQuery)->whereIn('status', ['pending', 'partial'])->count(),
         ];
+    }
+
+    private function filteredRevenueQuery()
+    {
+        [$startDate, $endDate] = $this->dateRange();
+
+        return Revenue::query()
+            ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($this->issuedBy !== '', fn ($query) => $query->where('created_by', $this->issuedBy));
+    }
+
+    private function filteredExpenseQuery()
+    {
+        [$startDate, $endDate] = $this->dateRange();
+
+        return Expense::query()
+            ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($this->issuedBy !== '', fn ($query) => $query->where('created_by', $this->issuedBy));
     }
 
     private function breakdownRows()
@@ -307,6 +335,8 @@ class FinanceReport extends Component
             'start_date' => $this->todayOnly ? null : $this->dateFrom,
             'end_date' => $this->todayOnly ? null : $this->dateTo,
             'today' => $this->todayOnly ? 1 : null,
+            'status' => $this->status ?: null,
+            'issued_by' => $this->issuedBy ?: null,
         ]);
     }
 }

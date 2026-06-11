@@ -4,6 +4,8 @@ namespace App\Livewire\Reports;
 
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Expense;
+use App\Models\Revenue;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
@@ -92,6 +94,7 @@ class PaymentReport extends Component
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),
             'exportUrl' => route('reports.payments.export', $this->exportParameters()),
+            'pdfUrl' => route('reports.payments.pdf', $this->exportParameters()),
         ]);
     }
 
@@ -139,13 +142,38 @@ class PaymentReport extends Component
 
     private function summary($query): array
     {
+        $completedAmount = (float) (clone $query)->where('status', 'completed')->sum('amount');
+        $revenueTotal = $this->filteredRevenueQuery()->sum('amount');
+        $expenseTotal = $this->filteredExpenseQuery()->sum('amount');
+
         return [
             'payment_count' => (clone $query)->count(),
-            'completed_amount' => (float) (clone $query)->where('status', 'completed')->sum('amount'),
+            'completed_amount' => $completedAmount,
             'pending_amount' => (float) (clone $query)->where('status', 'pending')->sum('amount'),
             'reversed_amount' => (float) (clone $query)->where('status', 'reversed')->sum('amount'),
             'reversed_count' => (clone $query)->where('status', 'reversed')->count(),
+            'total_revenue' => (float) $revenueTotal,
+            'total_expense' => (float) $expenseTotal,
+            'net_position' => (float) (($completedAmount + $revenueTotal) - $expenseTotal),
         ];
+    }
+
+    private function filteredRevenueQuery()
+    {
+        [$startDate, $endDate] = $this->dateRange();
+
+        return Revenue::query()
+            ->whereBetween('revenue_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($this->recordedBy !== '', fn ($query) => $query->where('created_by', $this->recordedBy));
+    }
+
+    private function filteredExpenseQuery()
+    {
+        [$startDate, $endDate] = $this->dateRange();
+
+        return Expense::query()
+            ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($this->recordedBy !== '', fn ($query) => $query->where('created_by', $this->recordedBy));
     }
 
     private function breakdownRows()
