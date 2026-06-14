@@ -14,6 +14,7 @@ class Newborn extends Model
     protected $fillable = [
         'delivery_id',
         'patient_id',
+        'patient_visit_id',
         'recorded_by',
         'sex',
         'birth_order',
@@ -67,6 +68,11 @@ class Newborn extends Model
     public function delivery()
     {
         return $this->belongsTo(Delivery::class);
+    }
+
+    public function visit()
+    {
+        return $this->belongsTo(PatientVisit::class, 'patient_visit_id');
     }
 
     /**

@@ -12,6 +12,12 @@ use App\Http\Controllers\PostnatalExaminationController;
 use App\Http\Controllers\ChildFollowUpController;
 use App\Http\Controllers\MaternalMedicationController;
 use App\Http\Controllers\Midwife\PatientController;
+use App\Livewire\Midwife\AntenatalManagement;
+use App\Livewire\Midwife\ChildFollowUpManagement;
+use App\Livewire\Midwife\DeliveryManagement;
+use App\Livewire\Midwife\LabourManagement;
+use App\Livewire\Midwife\NewbornManagement;
+use App\Livewire\Midwife\PostnatalManagement;
 
 Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
     ->prefix('midwife')
@@ -20,6 +26,12 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         
         // Dashboard route
         Route::get('/', [MidwifeController::class, 'dashboard'])->name('dashboard');
+        Route::get('/anc-management/{patient?}', AntenatalManagement::class)->name('anc-management');
+        Route::get('/labour-management/{patient?}', LabourManagement::class)->name('labour-management');
+        Route::get('/delivery-management/{patient?}', DeliveryManagement::class)->name('delivery-management');
+        Route::get('/newborn-management/{patient?}', NewbornManagement::class)->name('newborn-management');
+        Route::get('/postnatal-management/{patient?}', PostnatalManagement::class)->name('postnatal-management');
+        Route::get('/child-follow-up-management/{patient?}', ChildFollowUpManagement::class)->name('child-follow-up-management');
         
         Route::name('patient.')
             ->prefix('patient')

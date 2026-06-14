@@ -116,14 +116,16 @@ class RecordOfficerController extends Controller
                 'contact_address' => $validated['nok_contact_address'],
                 'telephone' => $validated['nok_telephone'],
             ]);
-            // record activity
-                $patient->visitActivities()->create([
-                    'recorded_by' => auth()->user()->id,
-                    'activity' => "Patient Registered"
-                ]);
+            
             // generate file opening bill with discount
         
             $visit = $patient->registerNewVisit();
+
+            // record activity
+            $visit->visitActivities()->create([
+                'recorded_by' => auth()->user()->id,
+                'activity' => "File Open" 
+            ]);
 
             $discount = $validated['discount'] ?? 0;
             $patient->generateFileOpeningBill($visit, $discount, $request->anc ?? false);
@@ -147,11 +149,7 @@ class RecordOfficerController extends Controller
      */
     public function listPatients()
     {
-        $patients = Patient::with('demographic')
-            ->latest('registration_date')
-            ->paginate(15);
-
-        return view('record.patient.list', compact('patients'));
+        return view('record.patient.list');
     }
 
     /**

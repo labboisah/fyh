@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'access' => \App\Http\Middleware\CheckRoleOrPermission::class,
             'auth.sync.token' => \App\Http\Middleware\AuthenticateSyncToken::class,
         ]);
     })

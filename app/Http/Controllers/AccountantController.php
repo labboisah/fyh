@@ -570,7 +570,9 @@ class AccountantController extends Controller
      */
     public function showBill(Bill $bill)
     {
-        $bill->load(['patientVisit.patient', 'walkinPatient', 'issuedBy', 'payments', 'services', 'investigations']);
+        $this->authorizeOwnedTodayBill($bill);
+
+        $bill->load(['patientVisit.patient.demographic', 'walkinPatient', 'issuedBy', 'payments.recordedBy', 'services', 'investigations']);
         return view('accountant.bills.show', compact('bill'));
     }
 
@@ -579,6 +581,8 @@ class AccountantController extends Controller
      */
     public function editBill(Bill $bill)
     {
+        $this->authorizeOwnedTodayBill($bill);
+
         $patients = Patient::orderBy('hospital_number')->get();
         return view('accountant.bills.edit', compact('bill', 'patients'));
     }
@@ -588,6 +592,8 @@ class AccountantController extends Controller
      */
     public function updateBill(Request $request, Bill $bill)
     {
+        $this->authorizeOwnedTodayBill($bill);
+
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'service_description' => 'required|string|max:500',
@@ -610,9 +616,21 @@ class AccountantController extends Controller
      */
     public function deleteBill(Bill $bill)
     {
+        $this->authorizeOwnedTodayBill($bill);
+
         $bill->delete();
         return redirect()->route('accountant.bills.index')
             ->with('success', 'Bill deleted successfully.');
+    }
+
+    private function authorizeOwnedTodayBill(Bill $bill): void
+    {
+        abort_unless(
+            (int) $bill->issued_by === (int) Auth::id()
+                && $bill->issued_date
+                && $bill->issued_date->isSameDay(Carbon::today()),
+            403
+        );
     }
 
     /**

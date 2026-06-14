@@ -34,11 +34,11 @@
 
             </a>
 
-            <a href="{{ route('midwife.labour.show', $delivery->labour_id) }}"
+            <a href="{{ $delivery->labour_id ? route('midwife.labour.show', $delivery->labour_id) : route('midwife.delivery-management', $delivery->patient) }}"
                class="btn btn-outline-secondary">
 
                 <i class="bi bi-arrow-left"></i>
-                Back
+                {{ $delivery->labour_id ? 'Back' : 'Delivery Management' }}
 
             </a>
 

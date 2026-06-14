@@ -29,6 +29,11 @@ class Labour extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function visit()
+    {
+        return $this->belongsTo(PatientVisit::class, 'patient_visit_id');
+    }
+
     /**
      * Get the admission for this labour
      */

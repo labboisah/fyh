@@ -283,6 +283,8 @@ class ChildFollowUpController extends Controller
 
             'patient_id' => $newborn->patient_id,
 
+            'patient_visit_id' => $newborn->patient_visit_id ?? $newborn->patient?->currentVisit()?->id,
+
             'recorded_by' => auth()->id(),
 
             /*

@@ -4,12 +4,17 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-clipboard-check"></i> Child Follow-up Records Registration</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-clipboard-check"></i> Child Follow-up Records Registration</h1>
+        <a href="{{ route('midwife.child-follow-up-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct Child Follow-up Entry
+        </a>
+    </div>
 
     
 
     @if($newborns->isEmpty())
-        <div class="alert alert-info">No follow-up records for this newborn yet.</div>
+        <div class="alert alert-info">No newborn records found. Use direct maternity entry to record a child follow-up without requiring a newborn record first.</div>
     @else
         <div class="card">
             <div class="card-body p-0">
@@ -50,6 +55,6 @@
         </div>
     @endif
 
-    <a href="{{ route('midwife.newborn.show', $newborn) }}" class="btn btn-outline-secondary mt-3">Back to Newborn</a>
+    <a href="{{ route('midwife.newborn.index') }}" class="btn btn-outline-secondary mt-3">Back to Newborn</a>
 </div>
 @endsection

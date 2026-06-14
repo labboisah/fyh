@@ -20,6 +20,11 @@ class ServiceRequest extends Model
         'payment_status',
     ];
 
+    protected $casts = [
+        'requested_at' => 'datetime',
+        'completed_at' => 'datetime',
+    ];
+
     public function patientVisit()
     {
         return $this->belongsTo(PatientVisit::class);

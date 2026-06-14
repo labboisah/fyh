@@ -1,3 +1,18 @@
+@php
+    $navUser = Auth::user();
+    $canNav = function (array $roles = [], array $permissions = []) use ($navUser) {
+        if (! $navUser) {
+            return false;
+        }
+
+        return (! empty($roles) && $navUser->hasAnyRole($roles))
+            || (! empty($permissions) && $navUser->hasAnyPermission($permissions));
+    };
+    $showAdminSidebar = $navUser !== null;
+    $navDepartmentName = strtolower((string) $navUser?->department?->name);
+    $canManageDepartmentInvestigations = str_contains($navDepartmentName, 'lab') || str_contains($navDepartmentName, 'radio');
+@endphp
+
 <nav class="navbar navbar-expand-lg hospital-navbar shadow-sm">
                 <div class="container">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
@@ -17,24 +32,25 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('dashboard') }}"><i class="bi bi-house-fill me-2 text-success"></i>Home</a>
                             </li>
 
-                            @if(Auth::user()->hasRole('record'))
+                            @if(! $showAdminSidebar)
+                            @if($canNav(['record'], ['patient.read']))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('record.patients.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Patients</a>
                             </li>
                             @endif
 
-                            @if(Auth::user()->hasRole('nurse'))
+                            @if($canNav(['nurse'], ['vital_sign.read', 'observation.read', 'nursing_note.read']))
 
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>{{ count(auth()->user()->pendingServiceRequests()) }} Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('nurse.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>{{ auth()->user()->department ? count(auth()->user()->pendingServiceRequests()) : 0 }} Patients</a>
                             </li>
                             @endif
 
 
 
-                            @if(Auth::user()->hasRole('doctor'))
+                            @if($canNav(['doctor'], ['prescription.read', 'admission.read', 'discharge.read']))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ count(auth()->user()->pendingServiceRequests()) }} Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ auth()->user()->department ? count(auth()->user()->pendingServiceRequests()) : 0 }} Patients</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('doctor.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Admission</a>
@@ -45,14 +61,14 @@
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('midwife'))
+                            @if($canNav(['midwife'], ['antenatal_care.read']))
                             
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ count(auth()->user()->pendingServiceRequests()) }} ANC Patients</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('midwife.patient.index') }}"><i class="bi bi-people-fill me-2 text-success"></i> {{ auth()->user()->department ? count(auth()->user()->pendingServiceRequests()) : 0 }} ANC Patients</a>
                             </li>
                             @endif
 
-                            @if(Auth::user()->hasRole('midwife'))
+                            @if($canNav(['midwife'], ['antenatal_care.read', 'labour.read', 'delivery.read', 'newborn.read']))
                             <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-lightning-fill me-2 text-success"></i>
@@ -141,9 +157,9 @@
 
                             @endif
 
-                            @if(Auth::user()->hasRole('lab_technician') || Auth::user()->hasRole('lab_scientist'))
+                            @if($canNav(['lab_technician', 'lab_scientist'], ['laboratory_request.read', 'laboratory_investigation.read', 'laboratory_result.create']))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -153,22 +169,30 @@
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.result') }}"><i class="bi bi-clipboard2-data me-2 text-success"></i>Results Entry</a>
                             </li>
                             @endif
-                            @if(Auth::user()->hasRole('head_of_department'))
+                            @if($canNav(['head_of_department'], ['consumable.read', 'consumable_stock.read', 'user.read']))
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center" href="{{ route('department.users.index') }}"><i class="bi bi-people me-2 text-success"></i>Users</a>
+                            </li>
+                            @if($canManageDepartmentInvestigations)
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center" href="{{ route('department.investigations.index') }}"><i class="bi bi-clipboard2-data me-2 text-success"></i>Investigations</a>
+                                </li>
+                            @endif
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('department.consumables.index') }}"><i class="bi bi-box-seam me-2 text-success"></i>Consumables</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('department.stocks.index') }}"><i class="bi bi-boxes me-2 text-success"></i>Stock</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('department.stocks.index') }}"><i class="bi bi-boxes me-2 text-success"></i>Consumable Stock</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('department.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i>Expense</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('department.stock-usage.index') }}"><i class="bi bi-clipboard-check me-2 text-success"></i>Stock Usage</a>
                             </li>
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('radiologist'))
+                            @if($canNav(['radiologist', 'radiographer'], ['radiology_request.read', 'radiology_investigation.read']))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{auth()->user()->department->requestStats()['pending']}} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
                             </li>
 
                             <li class="nav-item">
@@ -177,7 +201,7 @@
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('accountant'))
+                            @if($canNav(['accountant'], ['bill.read', 'payment.read']))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.bills.index') }}"><i class="fa-solid fa-naira-sign me-2 text-success"></i>  Billing</a>
                             </li>
@@ -187,52 +211,66 @@
                             
                             @endif
 
-                            @if(Auth::user()->hasRole('administrator'))
+                            @if(! $showAdminSidebar && $canNav(['administrator'], ['role.read', 'permission.read', 'user.read', 'service.read', 'investigation.read', 'department.read', 'ward.read']))
                                 
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.access-control') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Control</a>
-                                </li>
+                                @if($canNav(['administrator'], ['role.read', 'permission.read']))
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="{{ route('admin.access-control') }}"><i class="bi bi-shield-check me-2 text-success"></i>Access Control</a>
+                                    </li>
+                                @endif
                                 <!-- Add more admin-specific links here -->
-                                 <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('admin.users.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Users</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-sliders me-2 text-success"></i>
-                                        Management
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="managementDropdown">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin.services.index') }}">
-                                                <i class="bi bi-gear-fill me-2"></i>
-                                                Services
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin.investigations.index') }}">
-                                                <i class="bi bi-clipboard2-data me-2"></i>
-                                                Investigation
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
-                                                <i class="bi bi-buildings me-2"></i>
-                                                Departments
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin.wards.index') }}">
-                                                <i class="bi bi-hospital me-2"></i>
-                                                Wards
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
+                                @if($canNav(['administrator'], ['user.read']))
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="{{ route('admin.users.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Users</a>
+                                    </li>
+                                @endif
+                                @if($canNav(['administrator'], ['service.read', 'investigation.read', 'department.read', 'ward.read']))
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-sliders me-2 text-success"></i>
+                                            Management
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="managementDropdown">
+                                            @if($canNav(['administrator'], ['service.read']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('admin.services.index') }}">
+                                                        <i class="bi bi-gear-fill me-2"></i>
+                                                        Services
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if($canNav(['administrator'], ['investigation.read']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('admin.investigations.index') }}">
+                                                        <i class="bi bi-clipboard2-data me-2"></i>
+                                                        Investigation
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if($canNav(['administrator'], ['department.read']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
+                                                        <i class="bi bi-buildings me-2"></i>
+                                                        Departments
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if($canNav(['administrator'], ['ward.read']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('admin.wards.index') }}">
+                                                        <i class="bi bi-hospital me-2"></i>
+                                                        Wards
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @endif
 
                                 
                             @endif
 
-                            @if(Auth::user()->hasRole('pharmacist'))
+                            @if($canNav(['pharmacist'], ['medicine.read', 'medicine_stock.read', 'pharmacy_sale.read', 'expiry_alert.read']))
                                 <li class="nav-item">
                                     <a class="nav-link" href="#">
                                         <i class="bi bi-file-medical me-1"></i>
@@ -271,6 +309,7 @@
                                 
                             @endif
 
+                            @if(! $showAdminSidebar && $canNav(['administrator', 'accountant'], ['bill.read', 'payment.read', 'expense.read', 'department_report.read']))
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-cash-stack me-2 text-success"></i>
@@ -278,21 +317,29 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                                     
-                                    @if(Auth::user()->hasRole('administrator'))
+                                    @if($canNav(['administrator'], ['bill.read']))
                                         <li><a class="dropdown-item" href="{{ route('admin.bills.index') }}"><i class="bi bi-receipt me-2"></i> Bills Management</a></li>
+                                    @endif
+                                    @if($canNav(['administrator'], ['payment.read']))
                                         <li><a class="dropdown-item" href="{{ route('admin.payments.index') }}"><i class="bi bi-credit-card-2-front me-2"></i> Payments Management</a></li>
+                                    @endif
+                                    @if($canNav(['administrator', 'accountant'], ['bill.read', 'report.read', 'department_report.read']))
                                         <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
+                                    @endif
+                                    @if($canNav(['administrator', 'accountant'], ['payment.read', 'report.read', 'department_report.read']))
                                         <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
+                                    @endif
+                                    @if($canNav(['administrator'], ['expense.read']))
                                         <li><a class="dropdown-item" href="{{ route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
+                                    @endif
+                                    @if($canNav(['administrator'], ['revenue.read']))
                                         <li><a class="dropdown-item" href="{{ route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
-                                    @elseif(Auth::user()->hasRole('accountant'))
-                                        <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
                                     @endif
                                 </ul>
                             </li>
+                            @endif
 
-                            @if(Auth::user()->hasRole('administrator'))
+                            @if(! $showAdminSidebar && $canNav(['administrator'], ['department_report.read']))
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="activitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-activity me-2 text-success"></i>
@@ -309,6 +356,7 @@
                                         @endforeach
                                     </ul>
                                 </li>
+                            @endif
                             @endif
 
                             @auth

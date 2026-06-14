@@ -230,29 +230,29 @@ $billDate = now()->format('M d, Y h:i A');
 
                         <div class="divider"></div>
                         <table class="w-100">
-                            @foreach($bill->serviceRequests as $serviceRequest)
+                            @foreach($bill->services as $service)
                                 <tr>
-                                    <td style="width:50%;">{{ Str::limit($serviceRequest->service->name, 15) }}</td>
-                                    <td class="text-end">{{ number_format($serviceRequest->service->price, 2) }}</td>
-                                    <td class="text-end">{{ $serviceRequest->quantity }}</td>
-                                    <td class="text-end">{{ number_format($serviceRequest->subtotal, 2) }}</td>
+                                    <td style="width:50%;">{{ Str::limit($service->name, 15) }}</td>
+                                    <td class="text-end">{{ number_format($service->pivot->unit_price, 2) }}</td>
+                                    <td class="text-end">{{ $service->pivot->quantity }}</td>
+                                    <td class="text-end">{{ number_format($service->pivot->subtotal, 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="small text-muted">Status: {{ $serviceRequest->payment_status }}</td>
+                                    <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
                             @endforeach
-                            @foreach($bill->investigationRequests as $investigationRequest)
+                            @foreach($bill->investigations as $investigation)
                                 <tr>
-                                    <td>{{ Str::limit($investigationRequest->investigation->name, 15) }}</td>
-                                    <td class="text-end">{{ number_format($investigationRequest->investigation->price, 2) }}</td>
-                                    <td class="text-end">{{ $investigationRequest->quantity }}</td>
-                                    <td class="text-end">{{ number_format($investigationRequest->subtotal, 2) }}</td>
+                                    <td>{{ Str::limit($investigation->name, 15) }}</td>
+                                    <td class="text-end">{{ number_format($investigation->pivot->unit_price, 2) }}</td>
+                                    <td class="text-end">{{ $investigation->pivot->quantity }}</td>
+                                    <td class="text-end">{{ number_format($investigation->pivot->subtotal, 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="small text-muted">Status: {{ $investigationRequest->payment_status }}</td>
+                                    <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -363,34 +363,34 @@ $billDate = now()->format('M d, Y h:i A');
             </div>
         </div>
 
-        @if($bill->serviceRequests->count() > 0 || $bill->investigationRequests->count() > 0)
+        @if($bill->services->count() > 0 || $bill->investigations->count() > 0)
             <div class="mb-3">
                 <p class="mb-1 text-muted small">Services & Items</p>
                 <table class="table table-borderless table-sm mb-0 w-100">
                     <tbody>
-                    @foreach($bill->serviceRequests as $serviceRequest)
+                    @foreach($bill->services as $service)
                         <tr>
-                            <td class="small">{{ $serviceRequest->service->name }}</td>
-                            <td class="text-end small">{{ number_format($serviceRequest->service->price, 2) }}</td>
-                            <td class="text-end small">{{ $serviceRequest->quantity }}</td>
-                            <td class="text-end small">{{ number_format($serviceRequest->subtotal, 2) }}</td>
+                            <td class="small">{{ $service->name }}</td>
+                            <td class="text-end small">{{ number_format($service->pivot->unit_price, 2) }}</td>
+                            <td class="text-end small">{{ $service->pivot->quantity }}</td>
+                            <td class="text-end small">{{ number_format($service->pivot->subtotal, 2) }}</td>
                         </tr>
                         <tr>
-                            <td class="small text-muted">Status: {{ $serviceRequest->payment_status }}</td>
+                            <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                             <td></td>
                             <td></td>
                             <td></td>
                         </tr>
                     @endforeach
-                    @foreach($bill->investigationRequests as $investigationRequest)
+                    @foreach($bill->investigations as $investigation)
                         <tr>
-                            <td class="small">{{ $investigationRequest->investigation->name }}</td>
-                            <td class="text-end small">{{ number_format($investigationRequest->investigation->price, 2) }}</td>
-                            <td class="text-end small">{{ $investigationRequest->quantity }}</td>
-                            <td class="text-end small">{{ number_format($investigationRequest->subtotal, 2) }}</td>
+                            <td class="small">{{ $investigation->name }}</td>
+                            <td class="text-end small">{{ number_format($investigation->pivot->unit_price, 2) }}</td>
+                            <td class="text-end small">{{ $investigation->pivot->quantity }}</td>
+                            <td class="text-end small">{{ number_format($investigation->pivot->subtotal, 2) }}</td>
                         </tr>
                         <tr>
-                            <td class="small text-muted">Status: {{ $investigationRequest->payment_status }}</td>
+                            <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -449,29 +449,29 @@ $billDate = now()->format('M d, Y h:i A');
 
         <div class="divider"></div>
         <table>
-            @foreach($bill->serviceRequests as $serviceRequest)
+            @foreach($bill->services as $service)
                 <tr>
-                    <td style="width:40%;">{{ Str::limit($serviceRequest->service->name, 15) }}</td>
-                    <td class="text-right">{{ number_format($serviceRequest->service->price, 2) }}</td>
-                    <td class="text-right">{{ $serviceRequest->quantity }}</td>
-                    <td class="text-right">{{ number_format($serviceRequest->subtotal, 2) }}</td>
+                    <td style="width:40%;">{{ Str::limit($service->name, 15) }}</td>
+                    <td class="text-right">{{ number_format($service->pivot->unit_price, 2) }}</td>
+                    <td class="text-right">{{ $service->pivot->quantity }}</td>
+                    <td class="text-right">{{ number_format($service->pivot->subtotal, 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="small text-muted">Status: {{ $serviceRequest->payment_status }}</td>
+                    <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                     <td></td>
                     <td></td>
                     <td></td>
                 </tr>
             @endforeach
-            @foreach($bill->investigationRequests as $investigationRequest)
+            @foreach($bill->investigations as $investigation)
                 <tr>
-                    <td>{{ Str::limit($investigationRequest->investigation->name, 15) }}</td>
-                    <td class="text-right">{{ number_format($investigationRequest->investigation->price, 2) }}</td>
-                    <td class="text-right">{{ $investigationRequest->quantity }}</td>
-                    <td class="text-right">{{ number_format($investigationRequest->subtotal, 2) }}</td>
+                    <td>{{ Str::limit($investigation->name, 15) }}</td>
+                    <td class="text-right">{{ number_format($investigation->pivot->unit_price, 2) }}</td>
+                    <td class="text-right">{{ $investigation->pivot->quantity }}</td>
+                    <td class="text-right">{{ number_format($investigation->pivot->subtotal, 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="small text-muted">Status: {{ $investigationRequest->payment_status }}</td>
+                    <td class="small text-muted">Status: {{ ucfirst($bill->status) }}</td>
                     <td></td>
                     <td></td>
                     <td></td>

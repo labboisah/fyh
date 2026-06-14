@@ -516,10 +516,10 @@ class PermissionSeeder extends Seeder
                 'consumable_stock.update',
                 'consumable_stock.delete',
 
-                'expense.create',
-                'expense.read',
-                'expense.update',
-                'expense.delete',
+                'investigation.create',
+                'investigation.read',
+                'investigation.update',
+                'investigation.delete',
                 
                 'department_report.generate',
                 'department_report.read',

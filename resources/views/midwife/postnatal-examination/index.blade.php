@@ -4,10 +4,15 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-clipboard-check"></i> Postnatal Examinations Registration</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-clipboard-check"></i> Postnatal Examinations Registration</h1>
+        <a href="{{ route('midwife.postnatal-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct Postnatal Entry
+        </a>
+    </div>
 
     @if($deliveries->isEmpty())
-        <div class="alert alert-info">No deliveries found with postnatal examinations.</div>
+        <div class="alert alert-info">No deliveries found. Use direct maternity entry to record postnatal care for patients who do not have delivery records in this system.</div>
     @else
         <div class="card">
             <div class="card-body p-0">
@@ -48,6 +53,6 @@
         </div>
     @endif
 
-    <a href="{{ route('midwife.delivery.show', $delivery) }}" class="btn btn-outline-secondary mt-3">Back to Delivery</a>
+    <a href="{{ route('midwife.delivery.index') }}" class="btn btn-outline-secondary mt-3">Back to Delivery</a>
 </div>
 @endsection

@@ -304,6 +304,8 @@ class NewbornController extends Controller
 
         'patient_id' => $delivery->patient_id,
 
+        'patient_visit_id' => $delivery->patient_visit_id ?? $delivery->patient?->currentVisit()?->id,
+
         'recorded_by' => auth()->id(),
 
         /*

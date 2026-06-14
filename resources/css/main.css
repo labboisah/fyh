@@ -54,6 +54,177 @@ body {
     border-color: var(--primary-green);
 }
 
+.sidebar-toggle-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 8px;
+}
+
+.sidebar-toggle-btn i {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* ========== ADMIN SIDEBAR ========== */
+.admin-layout {
+    display: flex;
+    align-items: stretch;
+    min-height: calc(100vh - 86px);
+}
+
+.admin-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-sidebar {
+    width: 280px;
+    flex: 0 0 280px;
+    background: #fff;
+    border-right: 1px solid rgba(39, 174, 96, 0.18);
+    box-shadow: 4px 0 18px rgba(39, 174, 96, 0.08);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 0px);
+    overflow-y: auto;
+    transition: margin-left 0.25s ease, width 0.25s ease, flex-basis 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+}
+
+body.sidebar-collapsed .admin-sidebar {
+    width: 68px;
+    flex-basis: 68px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    overflow: hidden;
+}
+
+
+.admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.75rem 1rem;
+    border-bottom: 1px solid rgba(39, 174, 96, 0.16);
+    margin-bottom: 0.75rem;
+}
+
+.admin-sidebar-title {
+    min-width: 0;
+}
+
+body.sidebar-collapsed .admin-sidebar-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.sidebar-collapsed .admin-sidebar-title,
+body.sidebar-collapsed .admin-sidebar-nav {
+    display: none;
+}
+
+.admin-sidebar-nav {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.admin-sidebar-section {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6c757d;
+    letter-spacing: 0.04em;
+    padding: 1rem 0.75rem 0.35rem;
+}
+
+.admin-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #2b2f32;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.admin-sidebar-toggle span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.admin-sidebar-toggle i:first-child {
+    color: var(--primary-green);
+    width: 1.2rem;
+    text-align: center;
+}
+
+.admin-sidebar-toggle:hover,
+.admin-sidebar-toggle:not(.collapsed) {
+    color: var(--primary-green);
+    background: var(--light-green);
+}
+
+.admin-sidebar-chevron {
+    transition: transform 0.2s ease;
+    color: #6c757d;
+}
+
+.admin-sidebar-toggle:not(.collapsed) .admin-sidebar-chevron {
+    transform: rotate(180deg);
+}
+
+.admin-sidebar-submenu {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.25rem 0 0.4rem 0.8rem;
+    border-left: 2px solid rgba(39, 174, 96, 0.16);
+    margin-left: 1.05rem;
+}
+
+.admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: #2b2f32;
+    text-decoration: none;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.admin-sidebar-link i {
+    color: var(--primary-green);
+    font-size: 1rem;
+    width: 1.2rem;
+    text-align: center;
+}
+
+.admin-sidebar-link:hover,
+.admin-sidebar-link.active {
+    color: var(--primary-green);
+    background: var(--light-green);
+}
+
+.admin-sidebar-scroll {
+    display: grid;
+    gap: 0.25rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
 /* ========== BUTTONS ========== */
 .btn-accent {
     background: linear-gradient(90deg, var(--primary-green), var(--primary-orange));
@@ -323,6 +494,35 @@ a:hover {
 
     header {
         padding: 1rem 0 !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .admin-layout {
+        display: block;
+    }
+
+    .admin-sidebar {
+        width: auto;
+        height: auto;
+        position: static;
+        border-right: 0;
+        border-bottom: 1px solid rgba(39, 174, 96, 0.18);
+        box-shadow: 0 4px 18px rgba(39, 174, 96, 0.08);
+    }
+
+    body.sidebar-collapsed .admin-sidebar {
+        width: auto;
+        min-height: 72px;
+        padding: 0.75rem;
+    }
+
+    .admin-sidebar-nav {
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    }
+
+    .admin-sidebar-scroll {
+        max-height: none;
     }
 }
 

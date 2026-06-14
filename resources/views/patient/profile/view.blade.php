@@ -55,90 +55,64 @@
                     </li>
 
                     @if(auth()->user()->hasRole('accountant'))
-
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#bills"
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle"
+                                data-bs-toggle="dropdown"
                                 type="button">
-                            <i class="bi bi-receipt me-1"></i> Bills
+                            <i class="bi bi-wallet2 me-1"></i> Finance
                         </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#payments"
-                                type="button">
-                            <i class="bi bi-credit-card me-1"></i> Payments
-                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#bills" type="button">
+                                    <i class="bi bi-receipt me-2"></i> Bills
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#payments" type="button">
+                                    <i class="bi bi-credit-card me-2"></i> Payments
+                                </button>
+                            </li>
+                        </ul>
                     </li>
                     @endif
                     
                     @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#investigations"
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle"
+                                data-bs-toggle="dropdown"
                                 type="button">
-                            <i class="bi bi-clipboard2-pulse me-1"></i> Investigations
+                            <i class="bi bi-clipboard2-pulse me-1"></i> Clinical
                         </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#observations"
-                                type="button">
-                            <i class="bi bi-eye me-1"></i> Observations
-                        </button>
-                    </li>
-                    <!-- vital signs -->
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#vitalsigns"
-                                type="button">
-                            <i class="bi bi-heart-pulse me-1"></i> Vital Signs
-                        </button>
-                    </li>
-                    <!-- vital signs -->
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#prescriptions"
-                                type="button">
-                            <i class="bi bi-prescription2 me-1"></i> Prescriptions
-                        </button>
-                    </li>
-                    <!-- drug chart -->
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#drugchart"
-                                type="button">
-                            <i class="bi bi-capsule-pill me-1"></i> Drug Chart
-                        </button>
-                    </li>
-                    <!-- drug chart -->
-                    <li class="nav-item">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#fluidbalance"
-                                type="button">
-                            <i class="bi bi-droplet me-1"></i> Fluid Balance
-                        </button>
-                    </li>
-                   
-                    <!-- nursing Note -->
-                    <li class="nav-item text-danger">
-                        <button class="nav-link"
-                                data-bs-toggle="tab"
-                                data-bs-target="#continuations"
-                                type="button">
-                            <i class="bi bi-pencil me-1"></i> Continuation Sheet
-                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#investigations" type="button"><i class="bi bi-clipboard2-pulse me-2"></i> Investigations</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#observations" type="button"><i class="bi bi-eye me-2"></i> Observations</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#vitalsigns" type="button"><i class="bi bi-heart-pulse me-2"></i> Vital Signs</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button"><i class="bi bi-prescription2 me-2"></i> Prescriptions</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#drugchart" type="button"><i class="bi bi-capsule-pill me-2"></i> Drug Chart</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#fluidbalance" type="button"><i class="bi bi-droplet me-2"></i> Fluid Balance</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#continuations" type="button"><i class="bi bi-pencil me-2"></i> Continuation Sheet</button></li>
+                        </ul>
                     </li>
 
                      @endif
+
+                    @if(auth()->user()->hasRole('midwife'))
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                type="button">
+                            <i class="bi bi-heart-pulse-fill me-1"></i> Maternity
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-anc" type="button"><i class="bi bi-heart-pulse-fill me-2"></i> ANC Records</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-labour" type="button"><i class="bi bi-activity me-2"></i> Labour Records</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-delivery" type="button"><i class="bi bi-hospital-fill me-2"></i> Delivery Records</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-newborn" type="button"><i class="bi bi-bandaid-fill me-2"></i> Newborn Records</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-postnatal" type="button"><i class="bi bi-journal-medical me-2"></i> Postnatal Records</button></li>
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#maternity-child-follow-up" type="button"><i class="bi bi-arrow-repeat me-2"></i> Child Follow-up</button></li>
+                        </ul>
+                    </li>
+                    @endif
 
                     <li class="nav-item text-danger">
                         <button class="nav-link"
@@ -217,6 +191,28 @@
                 <div class="tab-pane fade" id="continuations">
                     @include('patient.profile.continuations')
                 </div>
+
+                @if(auth()->user()->hasRole('midwife'))
+                    <div class="tab-pane fade" id="maternity-anc">
+                        @include('patient.profile.maternity.antenatal')
+                    </div>
+                    <div class="tab-pane fade" id="maternity-labour">
+                        @include('patient.profile.maternity.labour')
+                    </div>
+                    <div class="tab-pane fade" id="maternity-delivery">
+                        @include('patient.profile.maternity.delivery')
+                    </div>
+                    <div class="tab-pane fade" id="maternity-newborn">
+                        @include('patient.profile.maternity.newborn')
+                    </div>
+                    <div class="tab-pane fade" id="maternity-postnatal">
+                        @include('patient.profile.maternity.postnatal')
+                    </div>
+                    <div class="tab-pane fade" id="maternity-child-follow-up">
+                        @include('patient.profile.maternity.child-follow-up')
+                    </div>
+                @endif
+
                 <!-- ACTIVITIES -->
                 <div class="tab-pane fade" id="activities">
                     @include('patient.profile.activities')

@@ -10,11 +10,19 @@ use App\Http\Controllers\Patient\FluidBalanceController;
 use App\Http\Controllers\Patient\ContinuationController;
 use App\Http\Controllers\Patient\DischargeController;
 use App\Http\Controllers\Patient\VisitController;
+use App\Livewire\Clinical\AdmissionWorkspace;
+use App\Livewire\Clinical\ContinuationSheet;
+use App\Livewire\Clinical\DischargeWorkspace;
+use App\Livewire\Clinical\DrugChartWorkspace;
+use App\Livewire\Clinical\FluidBalanceWorkspace;
+use App\Livewire\Clinical\InvestigationRequestWorkspace;
+use App\Livewire\Clinical\ObservationRecorder;
+use App\Livewire\Clinical\PrescriptionWorkspace;
+use App\Livewire\Clinical\VitalSignRecorder;
 use Illuminate\Support\Facades\Route;
 
 Route::name('patient.')
     ->middleware('auth')
-    ->namespace('Patient')
     ->prefix('patient')
     ->group(function () {
         Route::get('/', [PatientController::class, 'index'])->name('index');
@@ -25,7 +33,7 @@ Route::name('patient.')
         Route::name('vitalsign.')
         ->prefix('vital-sign')
         ->group(function () {
-            Route::get('/{patient}/create', [VitalSignController::class, 'create'])->name('create');
+            Route::get('/{patient}/create', VitalSignRecorder::class)->name('create');
             Route::post('/{patient}/register', [VitalSignController::class, 'register'])->name('register');
             Route::get('/{vitalSign}/edit', [VitalSignController::class, 'edit'])->name('edit');
             Route::put('/{vitalSign}/update', [VitalSignController::class, 'update'])->name('update');
@@ -34,7 +42,7 @@ Route::name('patient.')
         Route::name('investigation.')
         ->prefix('investigation')
         ->group(function () {
-            Route::get('/{patient}/create', [InvestigationController::class, 'create'])->name('create');
+            Route::get('/{patient}/create', InvestigationRequestWorkspace::class)->name('create');
             Route::post('/{patient}/store', [InvestigationController::class, 'store'])->name('store');
             Route::get('/{investigationRequest}/show', [InvestigationController::class, 'show'])->name('show');
         });
@@ -50,7 +58,7 @@ Route::name('patient.')
          Route::name('continuation.')
         ->prefix('continuation')
         ->group(function () {
-            Route::get('/{patient}/create', [ContinuationController::class, 'create'])->name('create');
+            Route::get('/{patient}/create', ContinuationSheet::class)->name('create');
             Route::post('/{patient}/store', [ContinuationController::class, 'store'])->name('store');
         });
 
@@ -58,7 +66,7 @@ Route::name('patient.')
         Route::name('admission.')
         ->prefix('admission')
         ->group(function () {
-            Route::get('/{patient}/create', [AdmissionController::class, 'create'])->name('create');
+            Route::get('/{patient}/create', AdmissionWorkspace::class)->name('create');
             Route::get('/{admission}/confirmed', [AdmissionController::class, 'confirmed'])->name('confirmed');
             Route::post('/{patient}/store', [AdmissionController::class, 'store'])->name('store');
         });
@@ -67,7 +75,7 @@ Route::name('patient.')
         Route::name('discharge.')
         ->prefix('discharge')
         ->group(function () {
-            Route::get('/{admission}/create', [DischargeController::class, 'create'])->name('create');
+            Route::get('/{admission}/create', DischargeWorkspace::class)->name('create');
             Route::post('/{admission}/store', [DischargeController::class, 'store'])->name('store');
         });
 
@@ -75,7 +83,7 @@ Route::name('patient.')
         Route::name('observation.')
         ->prefix('observation')
         ->group(function () {
-            Route::get('/{patient}/record', [ObservationController::class, 'record'])->name('record');
+            Route::get('/{patient}/record', ObservationRecorder::class)->name('record');
             Route::post('/{patient}/register', [ObservationController::class, 'register'])->name('register');
         });
 
@@ -83,7 +91,7 @@ Route::name('patient.')
         Route::name('fluidbalance.')
         ->prefix('fluid-balance')
         ->group(function () {
-            Route::get('/{patient}/record', [FluidBalanceController::class, 'record'])->name('record');
+            Route::get('/{patient}/record', FluidBalanceWorkspace::class)->name('record');
             Route::post('/{patient}/register', [FluidBalanceController::class, 'register'])->name('register');
         });
 
@@ -91,7 +99,7 @@ Route::name('patient.')
         Route::name('drugchart.')
         ->prefix('drugchart')
         ->group(function () {
-            Route::get('/{patient}/record', [DrugchartController::class, 'record'])->name('record');
+            Route::get('/{patient}/record', DrugChartWorkspace::class)->name('record');
             Route::post('/{patient}/register', [DrugchartController::class, 'register'])->name('register');
         });
 
@@ -99,7 +107,7 @@ Route::name('patient.')
         Route::name('prescription.')
         ->prefix('prescription')
         ->group(function () {
-            Route::get('/{patient}/create', [PrescriptionController::class, 'create'])->name('create');
+            Route::get('/{patient}/create', PrescriptionWorkspace::class)->name('create');
             Route::get('/{prescription}/show', [PrescriptionController::class, 'show'])->name('show');
             Route::get('/{prescription}/submit', [PrescriptionController::class, 'submit'])->name('submit');
             Route::post('/{prescription}/add-medicine', [PrescriptionController::class, 'addMedicine'])->name('add');

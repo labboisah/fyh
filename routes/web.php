@@ -24,6 +24,9 @@ use App\Livewire\Admin\AccessControlManager;
 use App\Livewire\Admin\BillManagement;
 use App\Livewire\Admin\ExpenseManagement;
 use App\Livewire\Admin\RevenueManagement;
+use App\Livewire\Accountant\BillWorkspace;
+use App\Livewire\Accountant\PaymentWorkspace;
+use App\Livewire\Patient\PatientRegistration;
 use App\Livewire\Dashboard as UserDashboard;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
@@ -59,9 +62,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboard::class)->middleware('role:administrator')->name('index');
     
-    Route::middleware('role:administrator')->group(function () {
-        Route::get('access-control', AccessControlManager::class)->name('access-control');
+    Route::get('access-control', AccessControlManager::class)
+        ->middleware('access:role:administrator,permission:role.read,permission:permission.read')
+        ->name('access-control');
 
+    Route::middleware('role:administrator')->group(function () {
         // Roles Management
         Route::resource('roles', RoleController::class);
         
@@ -130,12 +135,15 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     });
 
     Route::get('/system/update', [SystemUpdateController::class, 'index'])
+        ->middleware('role:administrator')
         ->name('system.update');
 
     Route::post('/system/update/run', [SystemUpdateController::class, 'update'])
+        ->middleware('role:administrator')
         ->name('system.update.run');
 
     Route::get('/sync/dashboard', [SyncronizationController::class, 'index'])
+        ->middleware('role:administrator')
         ->name('sync.dashboards');
 });
 
@@ -146,7 +154,7 @@ Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('
     // Patient Management
     Route::get('patients', [RecordOfficerController::class, 'listPatients'])->name('patients.index');
     Route::get('patients/search', [RecordOfficerController::class, 'search'])->name('patients.search');
-    Route::get('patients/register', [RecordOfficerController::class, 'registerForm'])->name('patients.register.form');
+    Route::get('patients/register', PatientRegistration::class)->name('patients.register.form');
     Route::post('patients/register', [RecordOfficerController::class, 'register'])->name('patients.register');
     Route::get('patients/{patient}', [RecordOfficerController::class, 'showPatient'])->name('patients.show');
     Route::get('patients/{patient}/edit', [RecordOfficerController::class, 'editForm'])->name('patients.edit.form');
@@ -175,24 +183,24 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     Route::get('/', [AccountantController::class, 'dashboard'])->name('dashboard');
     
     // Bills Management
-    Route::get('bills', [AccountantController::class, 'listBills'])->name('bills.index');
-    Route::get('/bills/create/', [AccountantController::class, 'createBill'])->name('bills.create');
+    Route::get('bills', BillWorkspace::class)->name('bills.index');
+    Route::get('/bills/create/', BillWorkspace::class)->name('bills.create');
     Route::get('/bills/patient-details', [AccountantController::class, 'patientDetailsByHospitalNumber'])->name('bills.patient-details');
     Route::get('/bills/walkin/create', [AccountantController::class, 'createWalkinBill'])->name('bills.create-walkin');
     Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
-    Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
-    Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
-    Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
-    Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
     
     // bill paymnt routes
     Route::get('bills/payments/verify', [AccountantController::class, 'verifyBill'])->name('bills.payments.verify');
     Route::post('bills/payments/verify', [AccountantController::class, 'verifyBillNow'])->name('bills.payments.verify-now');
     Route::get('bills/{bill}/payments/create', [AccountantController::class, 'createPaymentForBill'])->name('bills.payments.create');
     Route::post('bills/{bill}/payments', [AccountantController::class, 'storePaymentForBill'])->name('bills.payments.store');
+    Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
+    Route::get('bills/{bill}/edit', BillWorkspace::class)->name('bills.edit');
+    Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
+    Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
 
     // Payments Management
-    Route::get('payments', [AccountantController::class, 'listPayments'])->name('payments.index');
+    Route::get('payments', PaymentWorkspace::class)->name('payments.index');
     Route::get('{patient}/payments/create', [AccountantController::class, 'createPayment'])->name('payments.create');
     Route::post('payments', [AccountantController::class, 'storePayment'])->name('payments.store');
     Route::get('payments/{payment}/receipt', [AccountantController::class, 'paymentReceipt'])->name('payments.receipt');

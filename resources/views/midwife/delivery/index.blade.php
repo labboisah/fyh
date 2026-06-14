@@ -11,6 +11,11 @@
             </h1>
             <small class="text-muted">Manage patient delivery records and newborn registrations</small>
         </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ route('midwife.delivery-management') }}" class="btn btn-primary">
+                <i class="bi bi-diagram-3"></i> Direct Delivery Entry
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -29,7 +34,7 @@
 
     @if(count($labours) == 0)
          <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No completed labour records found in the system. Please ensure patients have completed labours to manage deliveries.
+            <i class="bi bi-info-circle"></i> No completed labour records found. Use direct maternity entry to record a delivery for patients who came only for delivery.
         </div>
     @else
         <div class="card">

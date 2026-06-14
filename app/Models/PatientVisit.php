@@ -62,6 +62,10 @@ class PatientVisit extends Model
         return $this->hasMany(InvestigationRequest::class);
     }
 
+    public function serviceRequests() {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
     /**
      * Get the user who created this visit record
      */
@@ -110,7 +114,30 @@ class PatientVisit extends Model
         return $this->hasOne(AntenatalCare::class, 'patient_visit_id');
     }
 
-   
+    public function labours()
+    {
+        return $this->hasMany(Labour::class, 'patient_visit_id');
+    }
+
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class, 'patient_visit_id');
+    }
+
+    public function newborns()
+    {
+        return $this->hasMany(Newborn::class, 'patient_visit_id');
+    }
+
+    public function postnatalExaminations()
+    {
+        return $this->hasMany(PostnatalExamination::class, 'patient_visit_id');
+    }
+
+    public function childFollowUps()
+    {
+        return $this->hasMany(ChildFollowUp::class, 'patient_visit_id');
+    }
 
     public function registeredAdmission() {
         return $this->admissions->where('status','registered')->first();
@@ -140,10 +167,6 @@ class PatientVisit extends Model
         }
 
         return $status;
-    }
-
-    public function departmentServiceRequests() {
-        return $this->hasMany(DepartmentServiceRequest::class);
     }
 
     public function visitActivities() {
@@ -228,6 +251,9 @@ class PatientVisit extends Model
     }
 
     public function generateBedSpaceBill(Admission $admission, Bed $bed, $days, $discount = 0) {
+        $service = Service::where('category', 'Admission')
+            ->where('name', 'like', '%Bed%')
+            ->first();
         $baseAmount = $bed->ward->price * $days;
         $discountAmount = $baseAmount * ($discount / 100);
         $finalAmount = max(0, $baseAmount - $discountAmount);
@@ -246,12 +272,14 @@ class PatientVisit extends Model
             'department_id'=> auth()->user()->department->id,
         ]);
 
-        $bill->billServices()->create([
-            'service_id'=>$service->id,
-            'unit_price'=>$service->price,
-            'quantity'=> 1,
-            'subtotal' => $service->price
+        if ($service) {
+            $bill->billServices()->create([
+                'service_id' => $service->id,
+                'unit_price' => $bed->ward->price,
+                'quantity' => $days,
+                'subtotal' => $baseAmount,
             ]);
+        }
 
         
     }

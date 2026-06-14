@@ -107,9 +107,13 @@
 
                                 <p>
 
-                                    <span class="badge bg-primary">
-                                        {{ ucfirst($delivery->labour->status) }}
-                                    </span>
+                                    @if($delivery->labour)
+                                        <span class="badge bg-primary">
+                                            {{ ucfirst($delivery->labour->status) }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">Direct visit record</span>
+                                    @endif
 
                                 </p>
 

@@ -15,6 +15,7 @@ class Delivery extends Model
     protected $fillable = [
         'labour_id',
         'patient_id',
+        'patient_visit_id',
         'delivered_by',
         'assisted_by',
         'delivery_date_time',
@@ -55,6 +56,11 @@ class Delivery extends Model
     public function labour()
     {
         return $this->belongsTo(Labour::class);
+    }
+
+    public function visit()
+    {
+        return $this->belongsTo(PatientVisit::class, 'patient_visit_id');
     }
 
     /**
@@ -134,7 +140,7 @@ class Delivery extends Model
      */
     public function getThirdStageDuration()
     {
-        if ($this->labour->third_stage_started_at && $this->placenta_delivered_at) {
+        if ($this->labour?->third_stage_started_at && $this->placenta_delivered_at) {
             return $this->labour->third_stage_started_at->diffInMinutes($this->placenta_delivered_at);
         }
         return null;

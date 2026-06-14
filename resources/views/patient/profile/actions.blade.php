@@ -4,120 +4,23 @@
         <!-- midwife specific role -->
         @if(auth()->user()->hasRole('midwife'))
             <div class="row">
-                <!-- register for antinatal care -->
-               <!-- Antenatal Care -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.antenatal.create', $patient) }}"
-                        class="btn btn-outline-primary">
-
-                            <i class="bi bi-heart-pulse-fill me-2"></i>
-                            Register Antenatal Care
-
-                        </a>
-
+                @foreach([
+                    ['route' => 'midwife.anc-management', 'label' => 'Antenatal Care', 'icon' => 'bi-heart-pulse-fill', 'class' => 'btn-outline-primary'],
+                    ['route' => 'midwife.labour-management', 'label' => 'Labour', 'icon' => 'bi-activity', 'class' => 'btn-outline-warning'],
+                    ['route' => 'midwife.delivery-management', 'label' => 'Delivery', 'icon' => 'bi-hospital-fill', 'class' => 'btn-outline-danger'],
+                    ['route' => 'midwife.newborn-management', 'label' => 'Newborn', 'icon' => 'bi-bandaid-fill', 'class' => 'btn-outline-info'],
+                    ['route' => 'midwife.postnatal-management', 'label' => 'Postnatal', 'icon' => 'bi-journal-medical', 'class' => 'btn-outline-secondary'],
+                    ['route' => 'midwife.child-follow-up-management', 'label' => 'Child Follow-up', 'icon' => 'bi-arrow-repeat', 'class' => 'btn-outline-dark'],
+                ] as $maternityAction)
+                    <div class="col-md-2">
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="{{ route($maternityAction['route'], $patient) }}" class="btn {{ $maternityAction['class'] }}">
+                                <i class="bi {{ $maternityAction['icon'] }} me-2"></i>{{ $maternityAction['label'] }}
+                            </a>
+                        </div>
                     </div>
+                @endforeach
 
-                </div>
-
-                <!-- Labour -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.labour.create', $patient) }}"
-                        class="btn btn-outline-warning">
-
-                            <i class="bi bi-activity me-2"></i>
-                            Register Labour
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Delivery -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.delivery.create', $patient) }}"
-                        class="btn btn-outline-danger">
-
-                            <i class="bi bi-hospital-fill me-2"></i>
-                            Register Delivery
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Newborn -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.newborn.create', $patient) }}"
-                        class="btn btn-outline-info">
-
-                            <i class="bi bi-bandaid-fill me-2"></i>
-                            Register Newborn
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Newborn Examination -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.newborn-examination.create', $patient) }}"
-                        class="btn btn-outline-success">
-
-                            <i class="bi bi-clipboard2-pulse-fill me-2"></i>
-                            Examine Newborn
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Postnatal Care -->
-                <div class="col-md-2">
-
-                    <div class="d-grid gap-2 mb-3">
-
-                        <a href="{{ route('midwife.postnatal-examination.create', $patient) }}"
-                        class="btn btn-outline-secondary">
-
-                            <i class="bi bi-journal-medical me-2"></i>
-                            Register Postnatal Care
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Child Follow-up -->
-                <div class="col-md-2">
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('midwife.child-follow-up.create', $patient) }}"
-                        class="btn btn-outline-dark">
-                            <i class="bi bi-arrow-repeat me-2"></i>
-                            Register Child Follow-up
-                        </a>
-                    </div>
-                </div>
-                <!-- Antenatal Progress -->
                 <div class="col-md-2">
                     <div class="d-grid gap-2 mb-3">
                         <a href="{{ route('midwife.patient.progress', $patient) }}" class="btn btn-outline-primary">
@@ -133,7 +36,7 @@
                         </a>
                     </div>
                 </div>
-            </div>    
+            </div>
         @endif
             <!-- nurse specific role -->
         @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))

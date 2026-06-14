@@ -14,6 +14,7 @@ class PostnatalExamination extends Model
     protected $fillable = [
         'delivery_id',
         'patient_id',
+        'patient_visit_id',
         'recorded_by',
         'examination_date_time',
         'hours_post_delivery',
@@ -91,6 +92,11 @@ class PostnatalExamination extends Model
     public function delivery()
     {
         return $this->belongsTo(Delivery::class);
+    }
+
+    public function visit()
+    {
+        return $this->belongsTo(PatientVisit::class, 'patient_visit_id');
     }
 
     /**

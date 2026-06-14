@@ -72,7 +72,7 @@ class InvestigationRequest extends Model
     {
         $year = substr(date('Y'), 2, 2);
         $type = Investigation::find($investigationId)->investigationType;
-        $count = count($type->department->investigationRequests()) + 1;
+        $count = $type->department->investigationRequests()->count() + 1;
         $number = strtoupper(substr($type->name, 0, 3)) . $year . str_pad($count, 4, '0', STR_PAD_LEFT);
         $request = InvestigationRequest::find($requestId);
         $request->update(['lab_no'=>$number]);

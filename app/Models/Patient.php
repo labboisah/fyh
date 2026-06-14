@@ -123,6 +123,7 @@ class Patient extends Model
         $serviceRequest->requested_by = auth()->user()->id;
         $serviceRequest->requested_at = now();
         $serviceRequest->status = 'pending';
+        $serviceRequest->clinical_diagnoses = 'File opening consultation';
         $serviceRequest->save();
         
     }

@@ -43,21 +43,46 @@
 
     @include('layouts.partials.navbar')
 
-    @if(View::exists('layouts.partials.breadcrumb'))
-        @include('layouts.partials.breadcrumb')
-    @endif
+    @if(Auth::check())
+        <div class="admin-layout flex-grow-1">
+            @include('layouts.partials.admin-sidebar')
 
-    <main class="flex-grow-1 py-4">
+            <div class="admin-content">
+                @if(View::exists('layouts.partials.breadcrumb'))
+                    @include('layouts.partials.breadcrumb')
+                @endif
 
-        <div class="container container-fluid">
+                <main class="flex-grow-1 py-4">
 
-            @include('layouts.partials.alerts')
+                    <div class="container-fluid">
 
-            {{ $slot }}
+                        @include('layouts.partials.alerts')
 
+                        {{ $slot }}
+
+                    </div>
+
+                </main>
+            </div>
         </div>
+    @else
 
-    </main>
+        @if(View::exists('layouts.partials.breadcrumb'))
+            @include('layouts.partials.breadcrumb')
+        @endif
+
+        <main class="flex-grow-1 py-4">
+
+            <div class="container container-fluid">
+
+                @include('layouts.partials.alerts')
+
+                {{ $slot }}
+
+            </div>
+
+        </main>
+    @endif
 
 </div>
 <div class="toast-container position-fixed top-0 end-0 p-3">

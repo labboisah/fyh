@@ -277,6 +277,7 @@ class LabourController extends Controller
 
         $validated['admission_id'] = $visit->currentAdmission(Ward::find(2))->id;
         $validated['patient_id'] = $patient->id;
+        $validated['patient_visit_id'] = $visit->id;
         $validated['recorded_by'] = Auth::id();
 
         $labour = Labour::create($validated);

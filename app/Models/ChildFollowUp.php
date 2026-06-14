@@ -15,6 +15,7 @@ class ChildFollowUp extends Model
     protected $fillable = [
         'newborn_id',
         'patient_id',
+        'patient_visit_id',
         'recorded_by',
         'follow_up_date_time',
         'days_of_life',
@@ -110,6 +111,11 @@ class ChildFollowUp extends Model
     public function newborn()
     {
         return $this->belongsTo(Newborn::class);
+    }
+
+    public function visit()
+    {
+        return $this->belongsTo(PatientVisit::class, 'patient_visit_id');
     }
 
     /**

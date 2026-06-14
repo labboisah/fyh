@@ -4,11 +4,16 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-baby-carriage"></i> Newborns Babies</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-baby-carriage"></i> Newborns Babies</h1>
+        <a href="{{ route('midwife.newborn-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct Newborn Entry
+        </a>
+    </div>
 
 
     @if($deliveries->isEmpty())
-        <div class="alert alert-info">No deliveries with newborns found.</div>
+        <div class="alert alert-info">No deliveries found. Use direct maternity entry to record a newborn when there is no delivery record in this system.</div>
     @else
         <div class="card">
             <div class="card-body p-0">

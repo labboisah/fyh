@@ -249,6 +249,8 @@ class DeliveryController extends Controller
 
         'patient_id' => $labour->patient_id,
 
+        'patient_visit_id' => $labour->patient_visit_id ?? $labour->patient?->currentVisit()?->id,
+
         'delivered_by' => auth()->id(),
 
         'assisted_by' => $request->assisted_by ?? auth()->id(),
@@ -703,7 +705,7 @@ class DeliveryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    if ($delivery->delivery_status == 'successful') {
+    if ($delivery->delivery_status == 'successful' && $delivery->labour) {
 
         $delivery->labour->update([
 
@@ -713,7 +715,7 @@ class DeliveryController extends Controller
 
         ]);
 
-    } elseif ($delivery->delivery_status == 'complicated') {
+    } elseif ($delivery->delivery_status == 'complicated' && $delivery->labour) {
 
         $delivery->labour->update([
 
