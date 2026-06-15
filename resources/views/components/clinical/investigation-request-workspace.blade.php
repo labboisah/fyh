@@ -37,7 +37,7 @@
                                         <select class="form-select" wire:model="rows.{{ $index }}.investigation_id">
                                             <option value="">Select investigation</option>
                                             @foreach($investigations->where('investigation_type_id', $row['type_id']) as $investigation)
-                                                <option value="{{ $investigation->id }}">{{ $investigation->name }} - {{ number_format((float) $investigation->price, 2) }}</option>
+                                                <option value="{{ $investigation->id }}">{{ $investigation->name }} - &#8358;{{ number_format((float) $investigation->price, 2) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -46,15 +46,18 @@
                                         <input class="form-control" wire:model="rows.{{ $index }}.specimen">
                                     </div>
                                     <div class="col-md-1 d-flex align-items-end">
-                                        <button type="button" class="btn btn-outline-danger" wire:click="removeRow({{ $index }})">x</button>
+                                        <button type="button" class="btn btn-outline-danger" wire:click="removeRow({{ $index }})" @disabled($editingRequestId)>x</button>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
 
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-primary" wire:click="addRow">Add Investigation</button>
-                            <button type="submit" class="btn btn-success">Register Request & Bill</button>
+                            <button type="button" class="btn btn-outline-primary" wire:click="addRow" @disabled($editingRequestId)>Add Investigation</button>
+                            <button type="submit" class="btn btn-success">{{ $editingRequestId ? 'Update Request & Bill' : 'Register Request & Bill' }}</button>
+                            @if($editingRequestId)
+                                <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -67,8 +70,14 @@
                 <div class="list-group list-group-flush">
                     @forelse($recentRequests as $request)
                         <div class="list-group-item">
-                            <div class="fw-semibold">{{ $request->investigation?->name }}</div>
-                            <div class="small text-muted">{{ $request->lab_no ?? 'Pending lab number' }} | Bill: {{ $request->bill?->bill_number ?? 'N/A' }} | {{ $request->bill?->status ?? 'pending' }}</div>
+                            <div class="d-flex justify-content-between gap-2">
+                                <div class="fw-semibold">{{ $request->investigation?->name }}</div>
+                                <strong>&#8358;{{ number_format((float) ($request->bill?->due_amount ?? $request->investigation?->price ?? 0), 2) }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <div class="small text-muted">{{ $request->lab_no ?? 'Pending lab number' }} | Bill: {{ $request->bill?->bill_number ?? 'N/A' }} | {{ $request->bill?->status ?? 'pending' }}</div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" wire:click="editRequest({{ $request->id }})">Edit</button>
+                            </div>
                         </div>
                     @empty
                         <div class="list-group-item text-muted">No recent requests.</div>

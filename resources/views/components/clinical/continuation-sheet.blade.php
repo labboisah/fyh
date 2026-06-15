@@ -10,12 +10,23 @@
                 <label class="form-label">Clinical Note</label>
                 <textarea rows="10" class="form-control @error('notes') is-invalid @enderror" wire:model="notes"></textarea>
                 @error('notes') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                <button class="btn btn-success mt-3">Save Note</button>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success">{{ $editingId ? 'Update Note' : 'Save Note' }}</button>
+                    @if($editingId)
+                        <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                    @endif
+                </div>
             </form>
         </div></div></div>
         <div class="col-lg-7"><div class="card border-0 shadow-sm"><div class="list-group list-group-flush">
             @forelse($recent as $note)
-                <div class="list-group-item"><div class="small text-muted">{{ $note->created_at }}</div>{{ $note->note }}</div>
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between gap-2">
+                        <div class="small text-muted">{{ $note->created_at }}</div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $note->id }})">Edit</button>
+                    </div>
+                    {{ $note->note }}
+                </div>
             @empty
                 <div class="list-group-item text-muted">No continuation notes yet.</div>
             @endforelse

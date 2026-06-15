@@ -16,18 +16,20 @@
                 <div class="card-body">
                     <form wire:submit.prevent="addItem">
                         <div class="mb-3">
-                            <label class="form-label">Medicine</label>
-                            <select class="form-select @error('medicineId') is-invalid @enderror" wire:model="medicineId">
-                                <option value="">Select medicine</option>
-                                @foreach($medicines as $medicine)
-                                    <option value="{{ $medicine->id }}">{{ $medicine->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('medicineId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <label class="form-label">Treatment / Infection / Disease</label>
+                            <textarea class="form-control @error('treatmentDiagnosis') is-invalid @enderror" rows="2" wire:model.live="treatmentDiagnosis" placeholder="Indicate diagnosis, infection, or disease being treated"></textarea>
+                            @error('treatmentDiagnosis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Other Medicine</label>
-                            <input type="text" class="form-control" wire:model="otherMedicine">
+                            <label class="form-label">Medicine</label>
+                            <input class="form-control @error('medicineName') is-invalid @enderror" list="medicine-options" wire:model.live="medicineName" placeholder="Type or select medicine">
+                            <datalist id="medicine-options">
+                                @foreach($medicines as $medicine)
+                                    <option value="{{ $medicine->name }}" label="{{ $medicine->displayName() }}"></option>
+                                @endforeach
+                            </datalist>
+                            @error('medicineName') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="form-text">Existing medicines show stock status; type a new name to add one.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Medicine Type</label>
@@ -65,7 +67,12 @@
                                 @error('duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
-                        <button class="btn btn-success mt-3" type="submit">Add Medicine</button>
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-success" type="submit">{{ $editingItemId ? 'Update Medicine' : 'Add Medicine' }}</button>
+                            @if($editingItemId)
+                                <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                            @endif
+                        </div>
                     </form>
                 </div>
             </div>
@@ -80,22 +87,49 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
-                            <tr><th>Medicine</th><th>Route</th><th>Dosage</th><th>Period</th><th>Duration</th><th></th></tr>
+                            <tr><th>Medicine</th><th>Company</th><th>Stock</th><th class="text-end">Amount</th><th>Route</th><th>Dosage</th><th>Period</th><th>Duration</th><th></th></tr>
                         </thead>
                         <tbody>
                             @forelse($prescription?->prescriptionItems ?? [] as $item)
                                 <tr wire:key="prescription-item-{{ $item->id }}">
-                                    <td>{{ $item->medicine?->name }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $item->medicine?->name }}</div>
+                                        @if($item->medicine?->generic_name)
+                                            <small class="text-muted">{{ $item->medicine->generic_name }}</small>
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->medicine?->manufacturer ?? 'N/A' }}</td>
+                                    <td>
+                                        @php($quantity = $item->medicine?->availableQuantity() ?? 0)
+                                        <span class="badge bg-{{ $quantity > 0 ? 'success' : 'danger' }}">
+                                            {{ $quantity > 0 ? 'Available: ' . $quantity : 'Not available' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">&#8358;{{ number_format($item->medicine?->latestSellingPrice() ?? 0, 2) }}</td>
                                     <td>{{ $item->route?->name }}</td>
                                     <td>{{ $item->dosage }}</td>
                                     <td>{{ $item->period }}</td>
                                     <td>{{ $item->duration }}</td>
-                                    <td class="text-end"><button class="btn btn-sm btn-outline-danger" wire:click="removeItem({{ $item->id }})">Remove</button></td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" wire:click="editItem({{ $item->id }})">Edit</button>
+                                            <button class="btn btn-outline-danger" wire:click="removeItem({{ $item->id }})">Remove</button>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="6" class="text-center text-muted py-4">No medicine added yet.</td></tr>
+                                <tr><td colspan="9" class="text-center text-muted py-4">No medicine added yet.</td></tr>
                             @endforelse
                         </tbody>
+                        @if($prescription?->prescriptionItems?->count())
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Prescription Amount</th>
+                                    <th class="text-end">&#8358;{{ number_format($prescription->prescriptionItems->sum(fn($item) => $item->medicine?->latestSellingPrice() ?? 0), 2) }}</th>
+                                    <th colspan="5"></th>
+                                </tr>
+                            </tfoot>
+                        @endif
                     </table>
                 </div>
             </div>

@@ -1,6 +1,11 @@
 
-    <div class="card-header bg-success text-white">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-vial me-2"></i>Investigation Requests</h5>
+        @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse'))
+            <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-sm btn-light">
+                <i class="bi bi-pencil-square me-1"></i> Manage
+            </a>
+        @endif
     </div>
     <div class="card-body">
         @if($patient->currentVisit()->investigationRequests()->count() > 0)
@@ -39,6 +44,9 @@
                         <td><b>Investigation:</b></td><td> {{ $investigationRequest->investigation->name ?? 'N/A'}}</td>
                     </tr>
                     <tr>
+                        <td><b>Amount:</b></td><td>&#8358;{{ number_format((float) ($investigationRequest->bill?->due_amount ?? $investigationRequest->investigation?->price ?? 0), 2) }}</td>
+                    </tr>
+                    <tr>
                         <td><b>Requested By:</b></td><td> {{ $investigationRequest->requestedBy->name ?? 'N/A' }}</td>
                     </tr>
                     <tr>
@@ -64,6 +72,9 @@
                         <td><b>Clinical Notes:</b></td><td>{{ $investigationRequest->clinical_diagnoses }}</td>  
                     </tr>
                 </table>
+                @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse'))
+                    <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-sm btn-outline-primary mt-2">Edit in Investigation Request</a>
+                @endif
             @endforeach
         @else
             <p class="text-muted">No pending investigation requests.</p>

@@ -1,4 +1,12 @@
 @if($patient->currentVisit()->prescriptions()->count() > 0)
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-capsule-pill me-2"></i>Drug Chart</h5>
+    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
+        <a href="{{ route('patient.drugchart.record', $patient) }}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil-square me-1"></i> Manage
+        </a>
+    @endif
+</div>
 @foreach($patient->currentVisit()->prescriptions as $prescription)
 @foreach($prescription->prescriptionItems as $pItem)
 <div class="row">
@@ -63,6 +71,9 @@
             
         @else
             <div class="alert alert-warning"> No Drug Chart found</div>
+        @endif
+        @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
+            <a href="{{ route('patient.drugchart.record', $patient) }}" class="btn btn-sm btn-outline-primary">Edit in Drug Chart</a>
         @endif
     </div>
 </div>

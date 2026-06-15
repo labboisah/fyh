@@ -34,11 +34,11 @@
 
                 <tbody>
 
-                    @foreach(App\Models\MedicineBatch::latest()->get() as $batch)
+                    @foreach($batches as $batch)
 
                     <tr>
 
-                        <td>{{ $batch->medicine->name }}</td>
+                        <td>{{ $batch->medicine?->name ?? 'N/A' }}</td>
                         <td>{{ $batch->batch_number }}</td>
                         <td>{{ $batch->quantity_received }}</td>
                         <td>{{ $batch->purchase_price }}</td>

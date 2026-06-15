@@ -43,6 +43,120 @@
         @endforeach
     </div>
 
+    @if($pharmacyDashboard)
+        <div class="row g-4 mb-4">
+            <div class="col-xl-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Submitted Prescriptions</h5>
+                        <a href="{{ route('pharmacy.transactions.create') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-receipt me-1"></i> Dispense
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Doctor</th>
+                                        <th>Medicines</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($pharmacyDashboard['pendingPrescriptions'] as $prescription)
+                                        @php
+                                            $patient = $prescription->patientVisit?->patient;
+                                            $items = $prescription->prescriptionItems;
+                                            $amount = $items->sum(fn($item) => $item->medicine?->latestSellingPrice() ?? 0);
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">{{ $patient?->demographic?->full_name ?? 'N/A' }}</div>
+                                                <small class="text-muted">{{ $patient?->hospital_number ?? '' }}</small>
+                                            </td>
+                                            <td>
+                                                {{ $prescription->prescribedBy?->name ?? 'N/A' }}
+                                                <div class="small text-muted">{{ $prescription->prescribedBy?->department?->name ?? '' }}</div>
+                                            </td>
+                                            <td>
+                                                {{ $items->pluck('medicine.name')->filter()->take(3)->implode(', ') ?: 'No medicine' }}
+                                                @if($items->count() > 3)
+                                                    <span class="text-muted">+{{ $items->count() - 3 }} more</span>
+                                                @endif
+                                            </td>
+                                            <td>&#8358;{{ number_format($amount, 2) }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ route('patient.prescription.show', $prescription) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                                    @if($patient)
+                                                        <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-secondary">Profile</a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-4">No submitted prescriptions waiting for pharmacy.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-5">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Expiry Alerts</h5>
+                            </div>
+                            <div class="card-body">
+                                @forelse($pharmacyDashboard['expiringBatches'] as $batch)
+                                    <div class="d-flex justify-content-between gap-3 border-bottom py-2">
+                                        <div>
+                                            <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
+                                            <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+                                        </div>
+                                        <span class="badge text-bg-danger align-self-center">{{ $batch->expiry_date }}</span>
+                                    </div>
+                                @empty
+                                    <div class="text-muted">No expiry alerts.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Low Stock</h5>
+                            </div>
+                            <div class="card-body">
+                                @forelse($pharmacyDashboard['lowStockBatches'] as $batch)
+                                    <div class="d-flex justify-content-between gap-3 border-bottom py-2">
+                                        <div>
+                                            <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
+                                            <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+                                        </div>
+                                        <span class="badge text-bg-warning align-self-center">{{ $batch->quantity_remaining }} left</span>
+                                    </div>
+                                @empty
+                                    <div class="text-muted">No low-stock batches.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card shadow-sm h-100">

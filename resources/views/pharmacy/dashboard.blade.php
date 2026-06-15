@@ -1,4 +1,21 @@
+@php
+    $pendingPrescriptions = \App\Models\Prescription::with([
+        'patientVisit.patient.demographic',
+        'prescribedBy',
+        'prescriptionItems.medicine.batches',
+    ])->where('status', 'submitted')->latest()->limit(10)->get();
 
+    $todayPrescriptions = \App\Models\Prescription::whereDate('created_at', today())->count();
+    $pendingPrescriptionCount = \App\Models\Prescription::where('status', 'submitted')->count();
+    $dispensedToday = \App\Models\PharmacyDispense::whereDate('created_at', today())->count();
+    $lowStockCount = \App\Models\MedicineBatch::where('quantity_remaining', '<=', 10)->count();
+    $expiringBatches = \App\Models\MedicineBatch::with('medicine')
+        ->whereDate('expiry_date', '>=', today())
+        ->whereDate('expiry_date', '<=', today()->addDays(60))
+        ->orderBy('expiry_date')
+        ->limit(10)
+        ->get();
+@endphp
 
 <div class="container-fluid">
 
@@ -10,7 +27,7 @@
             <div class="card shadow-sm border-0 bg-primary text-white">
                 <div class="card-body">
                     <h6>Prescriptions Today</h6>
-                    <h3>{{ $today_prescriptions ?? 0 }}</h3>
+                    <h3>{{ $todayPrescriptions }}</h3>
                     <i class="bi bi-file-medical fs-2"></i>
                 </div>
             </div>
@@ -20,7 +37,7 @@
             <div class="card shadow-sm border-0 bg-warning text-dark">
                 <div class="card-body">
                     <h6>Pending Prescriptions</h6>
-                    <h3>{{ $pending_prescriptions ?? 0 }}</h3>
+                    <h3>{{ $pendingPrescriptionCount }}</h3>
                     <i class="bi bi-hourglass-split fs-2"></i>
                 </div>
             </div>
@@ -30,7 +47,7 @@
             <div class="card shadow-sm border-0 bg-success text-white">
                 <div class="card-body">
                     <h6>Dispensed Today</h6>
-                    <h3>{{ $dispensed_today ?? 0 }}</h3>
+                    <h3>{{ $dispensedToday }}</h3>
                     <i class="bi bi-capsule-pill fs-2"></i>
                 </div>
             </div>
@@ -40,7 +57,7 @@
             <div class="card shadow-sm border-0 bg-danger text-white">
                 <div class="card-body">
                     <h6>Low Stock Medicines</h6>
-                    <h3>{{ $low_stock ?? 0 }}</h3>
+                    <h3>{{ $lowStockCount }}</h3>
                     <i class="bi bi-exclamation-triangle fs-2"></i>
                 </div>
             </div>
@@ -68,18 +85,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @forelse($prescriptions ?? [] as $prescription)
+                        @forelse($pendingPrescriptions as $prescription)
+                            @php
+                                $patient = $prescription->patientVisit?->patient;
+                                $items = $prescription->prescriptionItems;
+                            @endphp
                             <tr>
-                                <td>{{ $prescription->patient->name }}</td>
-                                <td>{{ $prescription->medicine->name }}</td>
-                                <td>{{ $prescription->doctor->name }}</td>
+                                <td>{{ $patient?->demographic?->full_name ?? 'N/A' }}</td>
+                                <td>{{ $items->pluck('medicine.name')->filter()->implode(', ') ?: 'No medicine' }}</td>
+                                <td>{{ $prescription->prescribedBy?->name ?? 'N/A' }}</td>
                                 <td>{{ $prescription->created_at->format('d M Y') }}</td>
 
                                 <td>
-                                <a href="{{ route('pharmacy.dispense',$prescription->id) }}"
+                                <a href="{{ route('patient.prescription.show',$prescription) }}"
                                 class="btn btn-sm btn-primary">
 
-                                <i class="bi bi-capsule"></i> Dispense
+                                <i class="bi bi-eye"></i> View
                                 </a>
                                 </td>
                             </tr>
@@ -102,9 +123,9 @@
                 Expiry Alerts
                 </div>
                 <div class="card-body">
-                    @forelse($expiring_medicines ?? [] as $drug)
+                    @forelse($expiringBatches as $drug)
                         <div class="d-flex justify-content-between border-bottom py-2">
-                            <span>{{ $drug->name }}</span>
+                            <span>{{ $drug->medicine?->name ?? 'N/A' }} <small class="text-muted">({{ $drug->batch_number }})</small></span>
                             <span class="badge bg-danger">
                             {{ $drug->expiry_date }}
                             </span>

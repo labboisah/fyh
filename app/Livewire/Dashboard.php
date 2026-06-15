@@ -6,9 +6,11 @@ use App\Models\AuditLog;
 use App\Models\Bill;
 use App\Models\InvestigationRequest;
 use App\Models\Medicine;
+use App\Models\MedicineBatch;
 use App\Models\Patient;
 use App\Models\PatientVisit;
 use App\Models\Payment;
+use App\Models\Prescription;
 use App\Models\ServiceRequest;
 use App\Models\WalkinPatient;
 use Carbon\Carbon;
@@ -30,6 +32,7 @@ class Dashboard extends Component
             'cards' => $this->cards($user),
             'quickActions' => $this->quickActions($user),
             'recentActivities' => $this->recentActivities($user->id),
+            'pharmacyDashboard' => $user->hasRole('pharmacist') ? $this->pharmacyDashboard() : null,
             'lastUpdated' => now(),
         ]);
     }
@@ -85,9 +88,10 @@ class Dashboard extends Component
 
         if ($user->hasRole('pharmacist')) {
             $cards = $cards->merge([
-                $this->card('Medicines', Medicine::count(), 'bi-capsule', 'text-primary', 'Configured medicines'),
+                $this->card('Submitted Prescriptions', Prescription::where('status', 'submitted')->count(), 'bi-file-medical', 'text-primary', 'Awaiting pharmacy action'),
                 $this->card('Transactions Today', $this->safeCount('stock_transactions', 'created_at'), 'bi-arrow-left-right', 'text-success', 'Stock activity today'),
-                $this->card('Dispenses Today', $this->safeCount('pharmacy_dispenses', 'created_at'), 'bi-file-medical', 'text-warning', 'Dispenses today'),
+                $this->card('Dispenses Today', $this->safeCount('pharmacy_dispenses', 'created_at'), 'bi-capsule-pill', 'text-warning', 'Medicines dispensed today'),
+                $this->card('Low Stock Batches', MedicineBatch::where('quantity_remaining', '<=', 10)->count(), 'bi-exclamation-triangle', 'text-danger', 'Batches at or below 10 units'),
             ]);
         }
 
@@ -135,7 +139,42 @@ class Dashboard extends Component
             ]);
         }
 
+        if ($user->hasRole('pharmacist')) {
+            $actions = $actions->merge([
+                ['label' => 'Dispense Medicine', 'description' => 'Create pharmacy transaction', 'icon' => 'bi-receipt', 'route' => route('pharmacy.transactions.create'), 'class' => 'btn-outline-primary'],
+                ['label' => 'Medicines', 'description' => 'Manage medicine catalog', 'icon' => 'bi-capsule', 'route' => route('pharmacy.medicines.index'), 'class' => 'btn-outline-success'],
+                ['label' => 'Stock', 'description' => 'Review pharmacy batches', 'icon' => 'bi-box', 'route' => route('pharmacy.stocks.index'), 'class' => 'btn-outline-warning'],
+                ['label' => 'Expiry Alerts', 'description' => 'Check expiring batches', 'icon' => 'bi-exclamation-triangle', 'route' => route('pharmacy.expiries.index'), 'class' => 'btn-outline-danger'],
+            ]);
+        }
+
         return $actions;
+    }
+
+    private function pharmacyDashboard(): array
+    {
+        return [
+            'pendingPrescriptions' => Prescription::with([
+                'patientVisit.patient.demographic',
+                'prescribedBy.department',
+                'prescriptionItems.medicine.batches',
+            ])
+                ->where('status', 'submitted')
+                ->latest()
+                ->limit(8)
+                ->get(),
+            'expiringBatches' => MedicineBatch::with('medicine')
+                ->whereDate('expiry_date', '>=', today())
+                ->whereDate('expiry_date', '<=', today()->addDays(60))
+                ->orderBy('expiry_date')
+                ->limit(8)
+                ->get(),
+            'lowStockBatches' => MedicineBatch::with('medicine')
+                ->where('quantity_remaining', '<=', 10)
+                ->orderBy('quantity_remaining')
+                ->limit(8)
+                ->get(),
+        ];
     }
 
     private function recentActivities(int $userId)

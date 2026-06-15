@@ -19,7 +19,7 @@
                             <select class="form-select @error('wardId') is-invalid @enderror" wire:model.live="wardId">
                                 <option value="">Select ward</option>
                                 @foreach($wards as $ward)
-                                    <option value="{{ $ward->id }}">{{ $ward->name }} - {{ number_format((float) $ward->price, 2) }}/day</option>
+                                    <option value="{{ $ward->id }}">{{ $ward->name }} - &#8358;{{ number_format((float) $ward->price, 2) }}/day</option>
                                 @endforeach
                             </select>
                             @error('wardId') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -43,23 +43,43 @@
                             <label class="form-label">Note</label>
                             <textarea class="form-control" rows="3" wire:model="note"></textarea>
                         </div>
-                        <div class="alert alert-info">Estimated bed bill: <strong>{{ number_format($estimatedAmount, 2) }}</strong></div>
-                        <button class="btn btn-success" type="submit">Register Admission</button>
+                        <div class="alert alert-info">Estimated ward/bed charge: <strong>&#8358;{{ number_format($estimatedAmount, 2) }}</strong></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success" type="submit">{{ $editingId ? 'Update Admission' : 'Register Admission' }}</button>
+                            @if($editingId)
+                                <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                            @endif
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white"><h2 class="h6 mb-0">Admissions This Visit</h2></div>
+                <div class="card-header bg-white"><h2 class="h6 mb-0">Ward/Bed Charges This Visit</h2></div>
                 <div class="table-responsive">
                     <table class="table mb-0">
-                        <thead class="table-light"><tr><th>Ward</th><th>Bed</th><th>Date</th><th>Status</th></tr></thead>
+                        <thead class="table-light"><tr><th>Ward</th><th>Bed</th><th>Days</th><th>Rate/Day</th><th>Date</th><th>Status</th><th class="text-end">Ward/Bed Charge</th><th></th></tr></thead>
                         <tbody>
                             @forelse($admissions as $admission)
-                                <tr><td>{{ $admission->bed?->ward?->name }}</td><td>{{ $admission->bed?->bed_no }}</td><td>{{ $admission->date }}</td><td>{{ $admission->status }}</td></tr>
+                                @php
+                                    $bedBill = $admission->bills->firstWhere('service_description', 'Bed Space Charges') ?? $admission->bills->first();
+                                    $daysBilled = (int) ($bedBill?->billServices?->sum('quantity') ?: 1);
+                                    $dailyRate = (float) ($admission->bed?->ward?->price ?? $bedBill?->billServices?->first()?->unit_price ?? 0);
+                                    $bedCharge = (float) ($bedBill?->due_amount ?? ($dailyRate * $daysBilled));
+                                @endphp
+                                <tr>
+                                    <td>{{ $admission->bed?->ward?->name }}</td>
+                                    <td>{{ $admission->bed?->bed_no }}</td>
+                                    <td>{{ $daysBilled }}</td>
+                                    <td>&#8358;{{ number_format($dailyRate, 2) }}</td>
+                                    <td>{{ $admission->date }}</td>
+                                    <td>{{ $admission->status }}</td>
+                                    <td class="text-end">&#8358;{{ number_format($bedCharge, 2) }}</td>
+                                    <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $admission->id }})">Edit</button></td>
+                                </tr>
                             @empty
-                                <tr><td colspan="4" class="text-center text-muted py-4">No admissions for this visit.</td></tr>
+                                <tr><td colspan="8" class="text-center text-muted py-4">No admissions for this visit.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

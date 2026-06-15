@@ -1,7 +1,12 @@
 <!-- display patient vital signs -->
 
-    <div class="card-header bg-success text-white">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Continuation Sheet</h5>
+        @if(auth()->user()->hasRole('doctor'))
+            <a href="{{ route('patient.continuation.create', $patient) }}" class="btn btn-sm btn-light">
+                <i class="bi bi-pencil-square me-1"></i> Manage
+            </a>
+        @endif
     </div>
     <div class="card-body">
        
@@ -23,6 +28,11 @@
                         <label class="form-label text-muted">Date</label>
                         <p class="h6">{{ date('M d, Y', strtotime($continuation->date)) }}</p>
                     </div>
+                    @if(auth()->user()->hasRole('doctor'))
+                        <div class="col-md-12">
+                            <a href="{{ route('patient.continuation.create', $patient) }}" class="btn btn-sm btn-outline-primary">Edit in Continuation Sheet</a>
+                        </div>
+                    @endif
                 
                 </div>
             @endforeach

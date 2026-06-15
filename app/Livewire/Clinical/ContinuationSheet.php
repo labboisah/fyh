@@ -13,6 +13,7 @@ class ContinuationSheet extends Component
     use ManagesClinicalVisit;
 
     public string $notes = '';
+    public ?int $editingId = null;
 
     public function mount(Patient $patient): void
     {
@@ -32,15 +33,37 @@ class ContinuationSheet extends Component
             'notes' => ['required', 'string', 'max:10000'],
         ]);
 
-        $this->currentVisit()->continuations()->create([
-            'note' => $validated['notes'],
-            'written_by' => auth()->id(),
-            'date' => now(),
-            'time' => now()->format('h:i:s A'),
-        ]);
+        if ($this->editingId) {
+            $this->currentVisit()->continuations()->findOrFail($this->editingId)->update([
+                'note' => $validated['notes'],
+            ]);
+            $this->logActivity('Continuation note updated');
+        } else {
+            $this->currentVisit()->continuations()->create([
+                'note' => $validated['notes'],
+                'written_by' => auth()->id(),
+                'date' => now(),
+                'time' => now()->format('h:i:s A'),
+            ]);
+            $this->logActivity('Continuation note recorded');
+        }
 
-        $this->logActivity('Continuation sheet updated');
+        $this->editingId = null;
         $this->notes = '';
-        $this->feedback('Continuation note recorded successfully.');
+        $this->feedback('Continuation note saved successfully.');
+    }
+
+    public function edit(int $id): void
+    {
+        $note = $this->currentVisit()->continuations()->findOrFail($id);
+        $this->editingId = $note->id;
+        $this->notes = $note->note;
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingId = null;
+        $this->notes = '';
+        $this->resetValidation();
     }
 }

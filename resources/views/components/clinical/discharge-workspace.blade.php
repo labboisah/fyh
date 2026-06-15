@@ -16,7 +16,7 @@
                     <div class="col-md-4"><label class="form-label">Next Appointment</label><input type="date" class="form-control" wire:model="nextAppointmentDate"></div>
                     <div class="col-12"><label class="form-label">Reason / Summary</label><textarea rows="6" class="form-control @error('reason') is-invalid @enderror" wire:model="reason"></textarea>@error('reason') <div class="invalid-feedback">{{ $message }}</div> @enderror</div>
                 </div>
-                <button class="btn btn-success mt-3">Discharge Patient</button>
+                <button class="btn btn-success mt-3">{{ $admission->discharge ? 'Update Discharge Summary' : 'Discharge Patient' }}</button>
             </form>
         </div>
     </div>

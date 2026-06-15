@@ -40,7 +40,7 @@
         data-stock="{{ $batch->quantity_remaining }}">
 
         {{ $batch->medicine->name }}
-        (Price: {{ $batch->selling_price }})
+        (Stock: {{ $batch->quantity_remaining }}, Price: {{ $batch->selling_price }})
         </option>
 
         @endforeach
@@ -50,7 +50,7 @@
 
             <div class="mb-3">
                 <label>Quantity</label>
-                <input type="number" id="quantityInput" class="form-control">
+                <input type="number" id="quantityInput" class="form-control" min="1">
             </div>
 
             
@@ -93,8 +93,8 @@
                         </tr>
                     </tfoot>
                 </table>
-                <button class="btn btn-danger w-90" id="addMedicineBtn">
-                    <i class="bi bi-check-circle"></i> Procede Payment
+                <button class="btn btn-danger w-90" id="submitTransactionBtn" type="submit">
+                    <i class="bi bi-check-circle"></i> Proceed Payment
                 </button>
             </div>
 
@@ -125,8 +125,13 @@ document.getElementById('addMedicineBtn')
     const name = selected.dataset.name;
     const price = parseFloat(selected.dataset.price);
     const quantity = parseInt(quantityInput.value);
+    const stock = parseInt(selected.dataset.stock);
 
     if(!batchId || !quantity) return;
+    if(quantity > stock) {
+        alert(`Only ${stock} available for ${name}.`);
+        return;
+    }
 
     const subtotal = price * quantity;
 

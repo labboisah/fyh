@@ -13,6 +13,7 @@ class FluidBalanceWorkspace extends Component
     use ManagesClinicalVisit;
 
     public array $form = [];
+    public ?int $editingId = null;
 
     public function mount(Patient $patient): void
     {
@@ -52,9 +53,47 @@ class FluidBalanceWorkspace extends Component
             'form.faces' => ['nullable', 'numeric', 'min:0'],
         ])['form'];
 
-        $admission->fluidBalances()->create($validated + ['recorded_by' => auth()->id()]);
-        $this->logActivity('Fluid balance chart updated');
+        if ($this->editingId) {
+            $admission->fluidBalances()->findOrFail($this->editingId)->update($validated);
+            $this->logActivity('Fluid balance entry updated');
+        } else {
+            $admission->fluidBalances()->create($validated + ['recorded_by' => auth()->id()]);
+            $this->logActivity('Fluid balance entry recorded');
+        }
+
+        $this->editingId = null;
         $this->form = ['date' => now()->toDateString(), 'time' => now()->format('H:i')];
-        $this->feedback('Fluid balance recorded successfully.');
+        $this->feedback('Fluid balance saved successfully.');
+    }
+
+    public function edit(int $id): void
+    {
+        $admission = $this->currentVisit()->confirmAdmission();
+        $fluid = $admission?->fluidBalances()->findOrFail($id);
+
+        if (! $fluid) {
+            return;
+        }
+
+        $this->editingId = $fluid->id;
+        $this->form = [
+            'date' => $fluid->date,
+            'time' => $fluid->time,
+            'type_in' => $fluid->type_in,
+            'tube_in' => $fluid->tube_in,
+            'oral' => $fluid->oral,
+            'iv' => $fluid->iv,
+            'type_out' => $fluid->type_out,
+            'tube_out' => $fluid->tube_out,
+            'urine' => $fluid->urine,
+            'faces' => $fluid->faces,
+        ];
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingId = null;
+        $this->form = ['date' => now()->toDateString(), 'time' => now()->format('H:i')];
+        $this->resetValidation();
     }
 }

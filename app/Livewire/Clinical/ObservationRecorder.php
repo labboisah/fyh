@@ -13,6 +13,7 @@ class ObservationRecorder extends Component
     use ManagesClinicalVisit;
 
     public array $form = [];
+    public ?int $editingId = null;
 
     public function mount(Patient $patient): void
     {
@@ -43,7 +44,7 @@ class ObservationRecorder extends Component
             'form.remark' => ['nullable', 'string', 'max:10000'],
         ])['form'];
 
-        $this->currentVisit()->observations()->create([
+        $payload = [
             'temperature' => $validated['temperature'] ?? null,
             'mate_pulse' => $validated['mate_pulse'] ?? null,
             'blood_pressure' => ! empty($validated['blood_pressure_systolic']) && ! empty($validated['blood_pressure_diastolic'])
@@ -56,11 +57,46 @@ class ObservationRecorder extends Component
             'date' => $validated['date'],
             'time' => $validated['time'],
             'remark' => $validated['remark'] ?? null,
-            'recorded_by' => auth()->id(),
-        ]);
+        ];
 
-        $this->logActivity('Observation recorded');
+        if ($this->editingId) {
+            $this->currentVisit()->observations()->findOrFail($this->editingId)->update($payload);
+            $this->logActivity('Observation updated');
+        } else {
+            $this->currentVisit()->observations()->create($payload + ['recorded_by' => auth()->id()]);
+            $this->logActivity('Observation recorded');
+        }
+
+        $this->editingId = null;
         $this->form = ['date' => now()->toDateString(), 'time' => now()->format('H:i')];
-        $this->feedback('Observation recorded successfully.');
+        $this->feedback('Observation saved successfully.');
+    }
+
+    public function edit(int $id): void
+    {
+        $observation = $this->currentVisit()->observations()->findOrFail($id);
+        [$systolic, $diastolic] = array_pad(explode('/', (string) $observation->blood_pressure, 2), 2, null);
+
+        $this->editingId = $observation->id;
+        $this->form = [
+            'temperature' => $observation->temperature,
+            'mate_pulse' => $observation->mate_pulse,
+            'blood_pressure_systolic' => $systolic,
+            'blood_pressure_diastolic' => $diastolic,
+            'respiratory_rate' => $observation->respiration,
+            'drop_rate' => $observation->drop_rate,
+            'constraction' => $observation->constraction,
+            'fits' => $observation->fits,
+            'date' => $observation->date,
+            'time' => $observation->time,
+            'remark' => $observation->remark,
+        ];
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingId = null;
+        $this->form = ['date' => now()->toDateString(), 'time' => now()->format('H:i')];
+        $this->resetValidation();
     }
 }

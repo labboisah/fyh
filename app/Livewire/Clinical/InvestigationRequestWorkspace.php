@@ -16,6 +16,7 @@ class InvestigationRequestWorkspace extends Component
 {
     use ManagesClinicalVisit;
 
+    public ?int $editingRequestId = null;
     public string $clinicalDiagnoses = '';
     public array $rows = [
         ['type_id' => '', 'investigation_id' => '', 'specimen' => ''],
@@ -64,6 +65,14 @@ class InvestigationRequestWorkspace extends Component
 
         $visit = $this->currentVisit();
 
+        if ($this->editingRequestId) {
+            if ($this->updateRequest($validated['rows'][0], $validated['clinicalDiagnoses'])) {
+                $this->resetRequestForm();
+                $this->feedback('Investigation request and bill updated successfully.');
+            }
+            return;
+        }
+
         foreach ($validated['rows'] as $row) {
             $investigation = Investigation::with('investigationType.department')->findOrFail($row['investigation_id']);
 
@@ -106,9 +115,73 @@ class InvestigationRequestWorkspace extends Component
             $this->logActivity("Investigation request created for {$investigation->name}");
         }
 
+        $this->resetRequestForm();
+        $this->feedback('Investigation request and bill created successfully.');
+    }
+
+    public function editRequest(int $id): void
+    {
+        $request = $this->currentVisit()->investigationRequests()->with('investigation')->findOrFail($id);
+        $this->editingRequestId = $request->id;
+        $this->clinicalDiagnoses = (string) $request->clinical_diagnoses;
+        $this->rows = [[
+            'type_id' => (string) $request->investigation?->investigation_type_id,
+            'investigation_id' => (string) $request->investigation_id,
+            'specimen' => (string) $request->specimen,
+        ]];
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->resetRequestForm();
+    }
+
+    private function updateRequest(array $row, string $clinicalDiagnoses): bool
+    {
+        $request = $this->currentVisit()->investigationRequests()->with('bill.billInvestigations')->findOrFail($this->editingRequestId);
+        $investigation = Investigation::with('investigationType.department')->findOrFail($row['investigation_id']);
+
+        if ((int) $investigation->investigation_type_id !== (int) $row['type_id']) {
+            $this->feedback('The investigation does not belong to the selected investigation type.', 'warning');
+            return false;
+        }
+
+        $request->update([
+            'investigation_id' => $investigation->id,
+            'clinical_diagnoses' => $clinicalDiagnoses,
+            'specimen' => $row['specimen'] ?: null,
+        ]);
+
+        $amount = (float) ($investigation->price ?? 0);
+        $bill = $request->bill;
+        if ($bill) {
+            $bill->update([
+                'amount' => $amount,
+                'due_amount' => $amount,
+                'service_description' => 'Investigation: ' . $investigation->name,
+                'department_id' => $investigation->investigationType?->department_id,
+            ]);
+
+            $billInvestigation = $bill->billInvestigations()->first();
+            if ($billInvestigation) {
+                $billInvestigation->update([
+                    'investigation_id' => $investigation->id,
+                    'unit_price' => $amount,
+                    'quantity' => 1,
+                    'subtotal' => $amount,
+                ]);
+            }
+        }
+
+        $this->logActivity("Investigation request updated for {$investigation->name}");
+        return true;
+    }
+
+    private function resetRequestForm(): void
+    {
+        $this->editingRequestId = null;
         $this->rows = [['type_id' => '', 'investigation_id' => '', 'specimen' => '']];
         $this->clinicalDiagnoses = '';
         $this->resetValidation();
-        $this->feedback('Investigation request and bill created successfully.');
     }
 }

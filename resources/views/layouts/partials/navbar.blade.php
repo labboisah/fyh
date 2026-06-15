@@ -11,6 +11,52 @@
     $showAdminSidebar = $navUser !== null;
     $navDepartmentName = strtolower((string) $navUser?->department?->name);
     $canManageDepartmentInvestigations = str_contains($navDepartmentName, 'lab') || str_contains($navDepartmentName, 'radio');
+
+    $navClinicalPatient = null;
+    foreach (['patient', 'prescription', 'admission', 'investigationRequest', 'vitalSign'] as $routeKey) {
+        $routeValue = request()->route($routeKey);
+
+        if ($routeValue instanceof \App\Models\Patient) {
+            $navClinicalPatient = $routeValue;
+            break;
+        }
+
+        if ($routeValue instanceof \App\Models\Prescription) {
+            $navClinicalPatient = $routeValue->patientVisit?->patient;
+            break;
+        }
+
+        if ($routeValue instanceof \App\Models\Admission) {
+            $navClinicalPatient = $routeValue->patientVisit?->patient;
+            break;
+        }
+
+        if ($routeValue instanceof \App\Models\InvestigationRequest) {
+            $navClinicalPatient = $routeValue->patientVisit?->patient;
+            break;
+        }
+
+        if ($routeValue instanceof \App\Models\VitalSign) {
+            $navClinicalPatient = $routeValue->patientVisit?->patient;
+            break;
+        }
+    }
+
+    $navClinicalVisit = $navClinicalPatient?->currentVisit();
+    $navClinicalCounts = [
+        'vitals' => $navClinicalVisit?->vitalSigns()->count() ?? 0,
+        'observations' => $navClinicalVisit?->observations()->count() ?? 0,
+        'drug_charts' => $navClinicalVisit
+            ? \App\Models\DrugChart::whereHas('prescriptionItem.prescription', fn ($query) => $query->where('patient_visit_id', $navClinicalVisit->id))->count()
+            : 0,
+        'fluid_balance' => $navClinicalVisit
+            ? $navClinicalVisit->admissions()->withCount('fluidBalances')->get()->sum('fluid_balances_count')
+            : 0,
+        'investigations' => $navClinicalVisit?->investigationRequests()->count() ?? 0,
+        'admissions' => $navClinicalVisit?->admissions()->count() ?? 0,
+        'prescriptions' => $navClinicalVisit?->prescriptions()->count() ?? 0,
+        'continuations' => $navClinicalVisit?->continuations()->count() ?? 0,
+    ];
 @endphp
 
 <nav class="navbar navbar-expand-lg hospital-navbar shadow-sm">
@@ -31,6 +77,8 @@
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('dashboard') }}"><i class="bi bi-house-fill me-2 text-success"></i>Home</a>
                             </li>
+
+                            
 
                             @if(! $showAdminSidebar)
                             @if($canNav(['record'], ['patient.read']))

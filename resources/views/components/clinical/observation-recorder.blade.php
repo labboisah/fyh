@@ -27,17 +27,29 @@
                         <div class="col-md-6"><label class="form-label">Time</label><input type="time" class="form-control" wire:model="form.time"></div>
                     </div>
                     <div class="mt-3"><label class="form-label">Remark</label><textarea class="form-control" wire:model="form.remark"></textarea></div>
-                    <button class="btn btn-success mt-3">Save Observation</button>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-success">{{ $editingId ? 'Update Observation' : 'Save Observation' }}</button>
+                        @if($editingId)
+                            <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                        @endif
+                    </div>
                 </form>
             </div></div>
         </div>
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm"><div class="table-responsive">
-                <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Time</th><th>Temp</th><th>BP</th><th>Remark</th></tr></thead><tbody>
+                <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Time</th><th>Temp</th><th>BP</th><th>Remark</th><th></th></tr></thead><tbody>
                     @forelse($recent as $item)
-                        <tr><td>{{ $item->date }}</td><td>{{ $item->time }}</td><td>{{ $item->temperature }}</td><td>{{ $item->blood_pressure }}</td><td>{{ $item->remark }}</td></tr>
+                        <tr>
+                            <td>{{ $item->date }}</td>
+                            <td>{{ $item->time }}</td>
+                            <td>{{ $item->temperature }}</td>
+                            <td>{{ $item->blood_pressure }}</td>
+                            <td>{{ $item->remark }}</td>
+                            <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $item->id }})">Edit</button></td>
+                        </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-4">No observations recorded yet.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No observations recorded yet.</td></tr>
                     @endforelse
                 </tbody></table>
             </div></div>

@@ -5,6 +5,7 @@ use App\Http\Controllers\Nurse\NurseController;
 use App\Http\Controllers\Nurse\PatientController;
 use App\Http\Controllers\Nurse\VitalSignsController;
 use App\Http\Controllers\Patient\InvestigationController;
+use App\Livewire\Clinical\ClinicalRecordIndex;
 use App\Livewire\Nurse\PatientManagement;
 
 Route::middleware(['auth', 'verified', 'role:nurse'])
@@ -12,6 +13,11 @@ Route::middleware(['auth', 'verified', 'role:nurse'])
 ->name('nurse.')
 ->group(function () {
     Route::get('/', [NurseController::class, 'dashboard'])->name('dashboard');
+    Route::get('/clinicals/vital-signs', ClinicalRecordIndex::class)->defaults('type', 'vital-signs')->name('clinicals.vital-signs');
+    Route::get('/clinicals/observations', ClinicalRecordIndex::class)->defaults('type', 'observations')->name('clinicals.observations');
+    Route::get('/clinicals/drug-charts', ClinicalRecordIndex::class)->defaults('type', 'drug-charts')->name('clinicals.drug-charts');
+    Route::get('/clinicals/fluid-balances', ClinicalRecordIndex::class)->defaults('type', 'fluid-balances')->name('clinicals.fluid-balances');
+    Route::get('/clinicals/investigations', ClinicalRecordIndex::class)->defaults('type', 'investigations')->name('clinicals.investigations');
     
     Route::name('patient.')
     ->prefix('patients')

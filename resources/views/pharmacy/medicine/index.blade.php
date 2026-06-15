@@ -37,14 +37,14 @@
                     <tr>
 
                         <td>{{ $medicine->name }}</td>
-                        <td>{{ $medicine->medicineType->name }}</td>
+                        <td>{{ $medicine->medicineType?->name ?? 'N/A' }}</td>
                         <td>{{ $medicine->generic_name }}</td>
                         <td>{{ $medicine->form }}</td>
                         <td>{{ $medicine->manufacturer }}</td>
 
                         <td>
                         <span class="badge bg-success">
-                        {{ $medicine->batches->sum('quantity_remaining') }}
+                        {{ $medicine->availableQuantity() }}
                         </span>
                         </td>
 

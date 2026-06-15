@@ -39,9 +39,20 @@ class AjaxController extends Controller
     function getMedicines($medicineTypeId) {
        
         return response()->json(
-            Medicine::where('medicine_type_id', $medicineTypeId)
+            Medicine::with('batches')
+                ->where('medicine_type_id', $medicineTypeId)
                 ->orderBy('name')
-                ->get(['id', 'name'])
+                ->get()
+                ->map(fn (Medicine $medicine) => [
+                    'id' => $medicine->id,
+                    'name' => $medicine->name,
+                    'generic_name' => $medicine->generic_name,
+                    'manufacturer' => $medicine->manufacturer,
+                    'display_name' => $medicine->displayName(),
+                    'available_quantity' => $medicine->availableQuantity(),
+                    'available' => $medicine->availableQuantity() > 0,
+                    'selling_price' => $medicine->latestSellingPrice(),
+                ])
         );
        
     }

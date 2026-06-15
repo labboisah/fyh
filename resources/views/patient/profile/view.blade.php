@@ -84,13 +84,22 @@
                             <i class="bi bi-clipboard2-pulse me-1"></i> Clinical
                         </button>
                         <ul class="dropdown-menu">
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#investigations" type="button"><i class="bi bi-clipboard2-pulse me-2"></i> Investigations</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#observations" type="button"><i class="bi bi-eye me-2"></i> Observations</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#vitalsigns" type="button"><i class="bi bi-heart-pulse me-2"></i> Vital Signs</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button"><i class="bi bi-prescription2 me-2"></i> Prescriptions</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#drugchart" type="button"><i class="bi bi-capsule-pill me-2"></i> Drug Chart</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#fluidbalance" type="button"><i class="bi bi-droplet me-2"></i> Fluid Balance</button></li>
-                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#continuations" type="button"><i class="bi bi-pencil me-2"></i> Continuation Sheet</button></li>
+                            @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
+                                <li><h6 class="dropdown-header">Nursing Clinicals</h6></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#vitalsigns" type="button"><i class="bi bi-heart-pulse me-2"></i> Vital Signs</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#observations" type="button"><i class="bi bi-eye me-2"></i> Observations</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#drugchart" type="button"><i class="bi bi-capsule-pill me-2"></i> Drug Chart</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#fluidbalance" type="button"><i class="bi bi-droplet me-2"></i> Fluid Balance</button></li>
+                            @endif
+
+                            @if(auth()->user()->hasRole('doctor'))
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Doctor Clinicals</h6></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#investigations" type="button"><i class="bi bi-clipboard2-pulse me-2"></i> Investigations</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#admissions" type="button"><i class="bi bi-hospital me-2"></i> Admissions</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button"><i class="bi bi-prescription2 me-2"></i> Prescriptions</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#continuations" type="button"><i class="bi bi-pencil me-2"></i> Continuation Sheet</button></li>
+                            @endif
                         </ul>
                     </li>
 
@@ -186,6 +195,10 @@
                 <!-- INVESTIGATIONS -->
                 <div class="tab-pane fade" id="investigations">
                     @include('patient.profile.investigations')
+                </div>
+
+                <div class="tab-pane fade" id="admissions">
+                    @include('patient.profile.admissions')
                 </div>
 
                 <div class="tab-pane fade" id="continuations">

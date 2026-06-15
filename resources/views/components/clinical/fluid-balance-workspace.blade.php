@@ -17,15 +17,28 @@
                         <div class="col-md-6"><label class="form-label">{{ $label }}</label><input class="form-control" wire:model="form.{{ $field }}"></div>
                     @endforeach
                 </div>
-                <button class="btn btn-success mt-3">Save Fluid Balance</button>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success">{{ $editingId ? 'Update Fluid Balance' : 'Save Fluid Balance' }}</button>
+                    @if($editingId)
+                        <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                    @endif
+                </div>
             </form>
         </div></div></div>
         <div class="col-lg-7"><div class="card border-0 shadow-sm"><div class="table-responsive">
-            <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Time</th><th>Oral</th><th>IV</th><th>Urine</th><th>Faeces</th></tr></thead><tbody>
+            <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Time</th><th>Oral</th><th>IV</th><th>Urine</th><th>Faeces</th><th></th></tr></thead><tbody>
                 @forelse($recent as $item)
-                    <tr><td>{{ $item->date }}</td><td>{{ $item->time }}</td><td>{{ $item->oral }}</td><td>{{ $item->iv }}</td><td>{{ $item->urine }}</td><td>{{ $item->faces }}</td></tr>
+                    <tr>
+                        <td>{{ $item->date }}</td>
+                        <td>{{ $item->time }}</td>
+                        <td>{{ $item->oral }}</td>
+                        <td>{{ $item->iv }}</td>
+                        <td>{{ $item->urine }}</td>
+                        <td>{{ $item->faces }}</td>
+                        <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $item->id }})">Edit</button></td>
+                    </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center text-muted py-4">No fluid balance entries yet.</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-4">No fluid balance entries yet.</td></tr>
                 @endforelse
             </tbody></table>
         </div></div></div>

@@ -16,19 +16,80 @@ $patient = $prescription->patientVisit->patient;
 @endsection
 @section('content')
 <style>
-        #printWrapper {
-            width: 794px;          /* A4 width at 96 DPI */
-            min-height: 1123px;    /* A4 height */
-            padding: 20px;
+    .prescription-print {
+        background: #fff;
+        color: #111;
+    }
+
+    .prescription-header {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .prescription-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+    }
+
+    .print-only {
+        display: none;
+    }
+
+    @media print {
+        body.print-a4 .no-print,
+        body.print-thermal .no-print,
+        body.print-a4 nav,
+        body.print-thermal nav,
+        body.print-a4 footer,
+        body.print-thermal footer {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block;
+        }
+
+        body.print-a4 #print,
+        body.print-thermal #print {
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        body.print-a4 {
             background: #fff;
         }
 
-        @media screen {
-            #printWrapper {
-                margin: auto;
-            }
+        body.print-a4 #print {
+            width: 190mm;
+            min-height: 277mm;
+            font-size: 12px;
         }
-        </style>
+
+        body.print-thermal #print {
+            width: 76mm;
+            font-size: 10px;
+        }
+
+        body.print-thermal .prescription-header {
+            display: block;
+            text-align: center;
+        }
+
+        body.print-thermal .prescription-logo {
+            width: 56px;
+            height: 56px;
+            margin-bottom: .35rem;
+        }
+
+        body.print-thermal table {
+            font-size: 9px;
+        }
+    }
+</style>
     <div class="container">
         <div class="row">
             <div class="col-md-5">
@@ -48,16 +109,15 @@ $patient = $prescription->patientVisit->patient;
                         </div>
 
                         <div class="form-group mb-2">
-                            <label for="medicine_id">Medicine</label>
-                            <select name="medicine_id" id="medicine_id" class="form-control" required>
-                                <option value="">Select Medicine</option>
-                            </select>
+                            <label for="medicine_name">Medicine</label>
+                            <input type="text" name="medicine_name" id="medicine_name" class="form-control" list="medicine_options" required placeholder="Type or select medicine">
+                            <datalist id="medicine_options"></datalist>
+                            <small class="text-muted">Existing medicines show generic name, company, stock, and price.</small>
                         </div>
-                        <input type="text" id="other_medicine"
-                        name="other_medicine"
-                        class="form-control mt-2"
-                        placeholder="Enter medicine name"
-                        style="display:none;">
+                        <div class="form-group mb-2">
+                            <label for="treatment_diagnosis">Treatment / Infection / Disease</label>
+                            <textarea name="treatment_diagnosis" id="treatment_diagnosis" class="form-control" rows="2" required>{{ old('treatment_diagnosis', $prescription->treatment_diagnosis) }}</textarea>
+                        </div>
 
                         <div class="form-group mb-2">
                             <label for="ward_id">Route</label>
@@ -99,14 +159,15 @@ $patient = $prescription->patientVisit->patient;
                 </div>
             </div>
             <div class="col-md-7">
-                <div id="print" class="p-4">
-                    <div class="row">
-                        <div class="col-md-12 text-center">
-                            <img src="{{asset('images/logo.png')}}" width="100" height="100" alt="">
+                <div id="print" class="prescription-print p-4">
+                    <div class="prescription-header">
+                        <div>
+                            <img src="{{asset('images/logo.png')}}" class="prescription-logo" alt="Hospital logo">
                         </div>
-                        <div class="col-md-12">
-                            <h3 class="text text-center text-success" style="transform: scaley(1.5);">FATIMA YAHAYA HOSPITAL, SIFAWA</h3>
-                            <h5 class="text text-center text-danger"><em>No 5, Birnin Kebbi Road Sifawa, Bodinga LG, Sokoto state</em></h5>
+                        <div>
+                            <h3 class="text-success mb-1">FATIMA YAHAYA HOSPITAL, SIFAWA</h3>
+                            <div class="text-danger"><em>No 5, Birnin Kebbi Road Sifawa, Bodinga LG, Sokoto state</em></div>
+                            <div class="small text-muted">Prescription Form</div>
                         </div>
                     </div>
                     <hr>
@@ -129,6 +190,14 @@ $patient = $prescription->patientVisit->patient;
                         Prescribed By:
                         <strong class="">{{ $prescription->prescribedBy->name}}</strong>
                         </p>
+                        <p class="mb-0 text-muted">
+                        Doctor Department:
+                        <strong class="">{{ $prescription->prescribedBy->department?->name ?? 'N/A' }}</strong>
+                        </p>
+                        <p class="mb-0 text-muted">
+                        Treatment / Infection / Disease:
+                        <strong class="">{{ $prescription->treatment_diagnosis ?? 'N/A' }}</strong>
+                        </p>
                         
                     </div>
                     <hr>
@@ -136,6 +205,9 @@ $patient = $prescription->patientVisit->patient;
                         <thead>
                             <tr>
                                 <th>Medicine</th>
+                                <th>Company</th>
+                                <th>Stock</th>
+                                <th>Amount</th>
                                 <th>Route</th>
                                 <th>Dosage</th>
                                 <th>Period</th>
@@ -146,7 +218,15 @@ $patient = $prescription->patientVisit->patient;
                         <tbody>
                             @foreach($prescription->prescriptionItems as $pit)
                             <tr>
-                                <td>{{$pit->medicine->name}}</td>
+                                <td>
+                                    {{$pit->medicine->name}}
+                                    @if($pit->medicine->generic_name)
+                                        <br><small>{{ $pit->medicine->generic_name }}</small>
+                                    @endif
+                                </td>
+                                <td>{{$pit->medicine->manufacturer ?? 'N/A'}}</td>
+                                <td>{{$pit->medicine->availabilityLabel()}}</td>
+                                <td>&#8358;{{ number_format($pit->medicine->latestSellingPrice(), 2) }}</td>
                                 <td>{{$pit->route->name}}</td>
                                 <td>{{$pit->dosage}}</td>
                                 <td>{{$pit->period}}</td>
@@ -154,11 +234,25 @@ $patient = $prescription->patientVisit->patient;
                             </tr>
                             @endforeach
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Prescription Amount</th>
+                                <th>&#8358;{{ number_format($prescription->prescriptionItems->sum(fn($item) => $item->medicine?->latestSellingPrice() ?? 0), 2) }}</th>
+                                <th colspan="4"></th>
+                            </tr>
+                        </tfoot>
                     </table>
+                    <div class="row mt-4 print-only">
+                        <div class="col-6">Doctor Signature: __________________</div>
+                        <div class="col-6 text-end">Date: {{ now()->format('d M, Y') }}</div>
+                    </div>
                 
                 </div>
-                <a href="{{route('patient.prescription.submit', $prescription)}}" class="btn btn-success">Submit to Pharmacy</a>
-                <a onclick="printDiv('print');" class="btn btn-primary">Print</a>
+                <div class="d-flex flex-wrap gap-2 mt-3 no-print">
+                    <a href="{{route('patient.prescription.submit', $prescription)}}" class="btn btn-success">Submit to Pharmacy</a>
+                    <button type="button" onclick="printPrescription('a4');" class="btn btn-primary">Print A4</button>
+                    <button type="button" onclick="printPrescription('thermal');" class="btn btn-outline-primary">Print Thermal</button>
+                </div>
             </div>
         </div>
         
@@ -168,8 +262,7 @@ $patient = $prescription->patientVisit->patient;
 document.addEventListener('DOMContentLoaded', function () {
 
     const medicineTypeSelect = document.getElementById('medicine_type_id');
-    const medicineSelect = document.getElementById('medicine_id');
-    const otherMedicineInput = document.getElementById('other_medicine');
+    const medicineOptions = document.getElementById('medicine_options');
 
     const ajaxBaseUrl = "{{ url('/ajax/medicines') }}";
 
@@ -178,9 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const medicineTypeId = this.value;
 
-        // Reset select
-        medicineSelect.innerHTML = '<option value="">Select Medicine</option>';
-        otherMedicineInput.style.display = 'none';
+        medicineOptions.innerHTML = '';
 
         if (!medicineTypeId) return;
 
@@ -199,58 +290,33 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
 
             if (!data.length) {
-                medicineSelect.innerHTML =
-                    '<option disabled>No medicines found</option>';
                 return;
             }
 
             data.forEach(item => {
                 const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.name;
-                medicineSelect.appendChild(option);
+                option.value = item.name;
+                option.label = `${item.name} - ${item.available ? 'Available' : 'Not available'} - ₦${Number(item.selling_price || 0).toFixed(2)}`;
+                medicineOptions.appendChild(option);
             });
-
-            // Add OTHER option
-            const otherOption = document.createElement('option');
-            otherOption.value = 'other';
-            otherOption.textContent = 'Other (Specify)';
-            medicineSelect.appendChild(otherOption);
 
         })
         .catch(error => {
 
             console.error(error);
 
-            medicineSelect.innerHTML =
-                '<option disabled>Error loading medicines</option>';
-
         });
-    });
-
-    // Show text input when "Other" is selected
-    medicineSelect.addEventListener('change', function () {
-
-        if (this.value === 'other') {
-            otherMedicineInput.style.display = 'block';
-        } else {
-            otherMedicineInput.style.display = 'none';
-        }
-
     });
 
 });
 </script>
 
 <script>
-    function printDiv(divId) {
-        const divContent = document.getElementById(divId).innerHTML;
-        const originalContent = document.body.innerHTML;
-
-        document.body.innerHTML = divContent;
+    function printPrescription(mode) {
+        document.body.classList.remove('print-a4', 'print-thermal');
+        document.body.classList.add(mode === 'thermal' ? 'print-thermal' : 'print-a4');
         window.print();
-        document.body.innerHTML = originalContent;
-        location.reload();
+        setTimeout(() => document.body.classList.remove('print-a4', 'print-thermal'), 500);
     }
 </script>
 @endsection

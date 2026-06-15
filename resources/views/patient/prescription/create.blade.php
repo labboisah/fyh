@@ -31,17 +31,15 @@
                         </div>
 
                         <div class="form-group mb-2">
-                            <label for="medicine_id">Medicine</label>
-                            <select name="medicine_id" id="medicine_id" class="form-control" required>
-                                <option value="">Select Medicine</option>
-                            </select>
+                            <label for="medicine_name">Medicine</label>
+                            <input type="text" name="medicine_name" id="medicine_name" class="form-control" list="medicine_options" required placeholder="Type or select medicine">
+                            <datalist id="medicine_options"></datalist>
+                            <small class="text-muted">Existing medicines show generic name, company, stock, and price.</small>
                         </div>
-
-                        <input type="text" id="other_medicine"
-                        name="other_medicine"
-                        class="form-control mt-2"
-                        placeholder="Enter medicine name"
-                        style="display:none;">
+                        <div class="form-group mb-2">
+                            <label for="treatment_diagnosis">Treatment / Infection / Disease</label>
+                            <textarea name="treatment_diagnosis" id="treatment_diagnosis" class="form-control" rows="2" required></textarea>
+                        </div>
 
                         <div class="form-group mb-2">
                             <label for="ward_id">Route</label>
@@ -91,8 +89,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     const medicineTypeSelect = document.getElementById('medicine_type_id');
-    const medicineSelect = document.getElementById('medicine_id');
-    const otherMedicineInput = document.getElementById('other_medicine');
+    const medicineOptions = document.getElementById('medicine_options');
 
     const ajaxBaseUrl = "{{ url('/ajax/medicines') }}";
 
@@ -101,9 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const medicineTypeId = this.value;
 
-        // Reset select
-        medicineSelect.innerHTML = '<option value="">Select Medicine</option>';
-        otherMedicineInput.style.display = 'none';
+        medicineOptions.innerHTML = '';
 
         if (!medicineTypeId) return;
 
@@ -122,44 +117,22 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
 
             if (!data.length) {
-                medicineSelect.innerHTML =
-                    '<option disabled>No medicines found</option>';
                 return;
             }
 
             data.forEach(item => {
                 const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.name;
-                medicineSelect.appendChild(option);
+                option.value = item.name;
+                option.label = `${item.name} - ${item.available ? 'Available' : 'Not available'} - ₦${Number(item.selling_price || 0).toFixed(2)}`;
+                medicineOptions.appendChild(option);
             });
-
-            // Add OTHER option
-            const otherOption = document.createElement('option');
-            otherOption.value = 'other';
-            otherOption.textContent = 'Other (Specify)';
-            medicineSelect.appendChild(otherOption);
 
         })
         .catch(error => {
 
             console.error(error);
 
-            medicineSelect.innerHTML =
-                '<option disabled>Error loading medicines</option>';
-
         });
-    });
-
-    // Show text input when "Other" is selected
-    medicineSelect.addEventListener('change', function () {
-
-        if (this.value === 'other') {
-            otherMedicineInput.style.display = 'block';
-        } else {
-            otherMedicineInput.style.display = 'none';
-        }
-
     });
 
 });

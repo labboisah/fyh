@@ -20,6 +20,11 @@ class Admission extends Model
         return $this->belongsTo(PatientVisit::class);
     }
 
+    public function bed()
+    {
+        return $this->belongsTo(Bed::class);
+    }
+
     public function fluidBalances(){
         return $this->hasMany(FluidBalance::class);
     }
@@ -30,6 +35,11 @@ class Admission extends Model
 
     public function discharge() {
         return $this->hasOne(Discharge::class);
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
     }
 
     /**

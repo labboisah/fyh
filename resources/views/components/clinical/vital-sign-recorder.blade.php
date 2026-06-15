@@ -29,17 +29,29 @@
                     </div>
                     <div class="mt-3"><label class="form-label">Recorded Date</label><input type="datetime-local" class="form-control" wire:model="form.recorded_date"></div>
                     <div class="mt-3"><label class="form-label">Notes</label><textarea class="form-control" wire:model="form.notes"></textarea></div>
-                    <button class="btn btn-success mt-3">Save Vital Signs</button>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-success">{{ $editingId ? 'Update Vital Signs' : 'Save Vital Signs' }}</button>
+                        @if($editingId)
+                            <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
+                        @endif
+                    </div>
                 </form>
             </div></div>
         </div>
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm"><div class="table-responsive">
-                <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Temp</th><th>BP</th><th>HR</th><th>SpO2</th></tr></thead><tbody>
+                <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Temp</th><th>BP</th><th>HR</th><th>SpO2</th><th></th></tr></thead><tbody>
                     @forelse($recent as $vital)
-                        <tr><td>{{ $vital->recorded_date }}</td><td>{{ $vital->body_temperature }}</td><td>{{ $vital->blood_pressure_systolic }}/{{ $vital->blood_pressure_diastolic }}</td><td>{{ $vital->heart_rate }}</td><td>{{ $vital->oxygen_saturation }}</td></tr>
+                        <tr>
+                            <td>{{ $vital->recorded_date }}</td>
+                            <td>{{ $vital->body_temperature }}</td>
+                            <td>{{ $vital->blood_pressure_systolic }}/{{ $vital->blood_pressure_diastolic }}</td>
+                            <td>{{ $vital->heart_rate }}</td>
+                            <td>{{ $vital->oxygen_saturation }}</td>
+                            <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $vital->id }})">Edit</button></td>
+                        </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-4">No vital signs recorded yet.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No vital signs recorded yet.</td></tr>
                     @endforelse
                 </tbody></table>
             </div></div>

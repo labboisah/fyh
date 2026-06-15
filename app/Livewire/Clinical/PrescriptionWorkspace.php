@@ -17,13 +17,14 @@ class PrescriptionWorkspace extends Component
     use ManagesClinicalVisit;
 
     public ?int $prescriptionId = null;
-    public string $medicineId = '';
+    public ?int $editingItemId = null;
+    public string $medicineName = '';
     public string $medicineTypeId = '';
-    public string $otherMedicine = '';
     public string $routeId = '';
     public string $dosage = '';
     public string $period = '';
     public string $duration = '';
+    public string $treatmentDiagnosis = '';
 
     public function mount(Patient $patient): void
     {
@@ -34,12 +35,14 @@ class PrescriptionWorkspace extends Component
             ->where('status', 'active')
             ->latest()
             ->value('id');
+
+        $this->treatmentDiagnosis = (string) ($this->prescription()?->treatment_diagnosis ?? '');
     }
 
     public function render()
     {
         return view('components.clinical.prescription-workspace', [
-            'medicines' => Medicine::orderBy('name')->get(),
+            'medicines' => Medicine::with('batches')->orderBy('name')->get(),
             'medicineTypes' => MedicineType::orderBy('name')->get(),
             'routes' => MedicineRoute::orderBy('name')->get(),
             'prescription' => $this->prescription(),
@@ -49,53 +52,73 @@ class PrescriptionWorkspace extends Component
     public function addItem(): void
     {
         $validated = $this->validate([
-            'medicineId' => ['nullable', 'integer', 'exists:medicines,id'],
+            'medicineName' => ['required', 'string', 'max:255'],
             'medicineTypeId' => ['nullable', 'integer', 'exists:medicine_types,id'],
-            'otherMedicine' => ['nullable', 'string', 'max:255'],
             'routeId' => ['required', 'integer', 'exists:routes,id'],
             'dosage' => ['required', 'string', 'max:255'],
             'period' => ['required', 'string', 'max:255'],
             'duration' => ['required', 'string', 'max:255'],
+            'treatmentDiagnosis' => ['required', 'string', 'max:1000'],
         ]);
 
-        $medicine = trim($validated['otherMedicine']) !== ''
-            ? Medicine::firstOrCreate([
-                'name' => $validated['otherMedicine'],
-            ], [
-                'medicine_type_id' => $validated['medicineTypeId'] ?: null,
-            ])
-            : Medicine::find($validated['medicineId']);
+        $medicine = $this->resolveMedicine($validated['medicineName'], $validated['medicineTypeId'] ?? null);
 
         if (! $medicine) {
-            $this->feedback('Select a medicine or enter a new medicine name.', 'warning');
+            $this->feedback('Type or select a medicine.', 'warning');
             return;
         }
 
         $prescription = $this->prescription() ?: $this->currentVisit()->prescriptions()->create([
             'prescribe_by' => auth()->id(),
             'status' => 'active',
+            'treatment_diagnosis' => $validated['treatmentDiagnosis'],
         ]);
 
         $this->prescriptionId = $prescription->id;
+        $prescription->update(['treatment_diagnosis' => $validated['treatmentDiagnosis']]);
 
-        $prescription->prescriptionItems()->create([
+        $payload = [
             'medicine_id' => $medicine->id,
             'route_id' => (int) $validated['routeId'],
             'dosage' => $validated['dosage'],
             'period' => $validated['period'],
             'duration' => $validated['duration'],
-        ]);
+        ];
 
-        $this->logActivity("Prescription item added for medicine: {$medicine->name}");
+        if ($this->editingItemId) {
+            $prescription->prescriptionItems()->findOrFail($this->editingItemId)->update($payload);
+            $this->logActivity("Prescription item updated for medicine: {$medicine->name}");
+        } else {
+            $prescription->prescriptionItems()->create($payload);
+            $this->logActivity("Prescription item added for medicine: {$medicine->name}");
+        }
+
+        $this->editingItemId = null;
         $this->resetItemForm();
-        $this->feedback('Medicine added to prescription.');
+        $this->feedback('Medicine saved to prescription.');
+    }
+
+    public function editItem(int $itemId): void
+    {
+        $item = $this->prescription()?->prescriptionItems()->with('medicine')->findOrFail($itemId);
+
+        $this->editingItemId = $item->id;
+        $this->medicineName = (string) $item->medicine?->name;
+        $this->medicineTypeId = (string) ($item->medicine?->medicine_type_id ?? '');
+        $this->routeId = (string) $item->route_id;
+        $this->dosage = (string) $item->dosage;
+        $this->period = (string) $item->period;
+        $this->duration = (string) $item->duration;
+        $this->treatmentDiagnosis = (string) ($this->prescription()?->treatment_diagnosis ?? '');
     }
 
     public function removeItem(int $itemId): void
     {
         $prescription = $this->prescription();
         $item = $prescription?->prescriptionItems()->findOrFail($itemId);
+        $medicineName = $item?->medicine?->name;
         $item?->delete();
+        $this->logActivity("Prescription item removed: {$medicineName}");
         $this->feedback('Medicine removed from prescription.', 'danger');
     }
 
@@ -108,6 +131,11 @@ class PrescriptionWorkspace extends Component
             return;
         }
 
+        if (blank($prescription->treatment_diagnosis)) {
+            $this->feedback('Enter the treatment, infection, or disease before submitting.', 'warning');
+            return;
+        }
+
         $prescription->update(['status' => 'submitted']);
         $this->logActivity('Prescription submitted to pharmacy');
         $this->feedback('Prescription submitted to pharmacy.');
@@ -116,13 +144,42 @@ class PrescriptionWorkspace extends Component
     private function prescription(): ?Prescription
     {
         return $this->prescriptionId
-            ? Prescription::with(['prescriptionItems.medicine', 'prescriptionItems.route'])->find($this->prescriptionId)
+            ? Prescription::with(['prescriptionItems.medicine.batches', 'prescriptionItems.route'])->find($this->prescriptionId)
             : null;
+    }
+
+    private function resolveMedicine(string $medicineName, ?string $medicineTypeId): ?Medicine
+    {
+        $medicineName = trim($medicineName);
+        $medicines = Medicine::with('batches')->get();
+
+        $medicine = $medicines->first(fn (Medicine $medicine) => $medicine->displayName() === $medicineName)
+            ?? $medicines->first(fn (Medicine $medicine) => strcasecmp($medicine->name, $medicineName) === 0);
+
+        if ($medicine) {
+            return $medicine;
+        }
+
+        if (! $medicineTypeId) {
+            return null;
+        }
+
+        return Medicine::firstOrCreate([
+            'name' => $medicineName,
+        ], [
+            'medicine_type_id' => (int) $medicineTypeId,
+        ]);
     }
 
     private function resetItemForm(): void
     {
-        $this->reset(['medicineId', 'medicineTypeId', 'otherMedicine', 'routeId', 'dosage', 'period', 'duration']);
+        $this->reset(['medicineName', 'medicineTypeId', 'routeId', 'dosage', 'period', 'duration']);
         $this->resetValidation();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingItemId = null;
+        $this->resetItemForm();
     }
 }

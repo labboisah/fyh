@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Pharmacy;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Medicine;
+use App\Models\MedicineBatch;
 
 class StockController extends Controller
 {
     public function index() {
-       return view('pharmacy.stock.index'); 
+       $batches = MedicineBatch::with('medicine')->latest()->get();
+       return view('pharmacy.stock.index', compact('batches')); 
     }
 
     public function create() {
@@ -19,23 +21,23 @@ class StockController extends Controller
 
     public function store(Request $request) {
         $data = $request->validate([
-            "medicine_id" => "required",
-            "batch_number" => "required",
-            "quantity_received" => "required",
-            "purchase_price" => "required",
-            "selling_price" => "required",
-            "manufacture_date" => "required",
-            "expiry_date" => "required"
+            "medicine_id" => "required|exists:medicines,id",
+            "batch_number" => "required|string|max:255",
+            "quantity_received" => "required|integer|min:1",
+            "purchase_price" => "required|numeric|min:0",
+            "selling_price" => "required|numeric|min:0",
+            "manufacture_date" => "nullable|date",
+            "expiry_date" => "required|date|after_or_equal:today"
         ]);
-        $medicine = Medicine::find($request->medicine_id);
+        $medicine = Medicine::findOrFail($data['medicine_id']);
         $medicine->batches()->create([
-            "batch_number" => $request->batch_number,
-            "quantity_received" => $request->quantity_received,
-            "purchase_price" => $request->purchase_price,
-            "selling_price" => $request->selling_price,
-            "manufacture_date" => $request->manufacture_date,
-            "expiry_date" => $request->expiry_date,
-            'quantity_remaining' => $request->quantity_received
+            "batch_number" => $data['batch_number'],
+            "quantity_received" => $data['quantity_received'],
+            "purchase_price" => $data['purchase_price'],
+            "selling_price" => $data['selling_price'],
+            "manufacture_date" => $data['manufacture_date'],
+            "expiry_date" => $data['expiry_date'],
+            'quantity_remaining' => $data['quantity_received']
         ]);
         return redirect()->route('pharmacy.stocks.index')->with('success', 'Stock Updated');
     }

@@ -33,18 +33,18 @@
 
                 <tbody>
 
-                    @foreach(App\Models\StockTransaction::latest()->get() as $transaction)
+                    @foreach($transactions as $transaction)
 
                     <tr>
                         <td>{{$loop->iteration}}</td>
                         <td>
                             @foreach($transaction->stockTransactionItems as $item)
-                                {{$item->medicineBatch->medicine->name}},
+                                {{ $item->medicineBatch?->medicine?->name ?? 'N/A' }},
                             @endforeach
                         </td>
                         <td>{{ $transaction->total_amount }}</td>
                         <td>{{ $transaction->reference }}</td>
-                        <td>{{ $transaction->createdBy->name }}</td>
+                        <td>{{ $transaction->createdBy?->name ?? 'System' }}</td>
                         
                         <td>
                         <a href="#" class="btn btn-sm btn-info">

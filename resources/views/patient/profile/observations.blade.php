@@ -1,7 +1,12 @@
 <!-- display patient vital signs -->
 
-    <div class="card-header bg-success text-white">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Observation</h5>
+        @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
+            <a href="{{ route('patient.observation.record', $patient) }}" class="btn btn-sm btn-light">
+                <i class="bi bi-pencil-square me-1"></i> Manage
+            </a>
+        @endif
     </div>
     <div class="card-body">
        
@@ -58,6 +63,11 @@
                         <label class="form-label text-muted">Remark</label>
                         <p class="h6">{{ $observation->remark ?? 'N/A' }} </p>
                     </div>
+                    @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
+                        <div class="col-md-12">
+                            <a href="{{ route('patient.observation.record', $patient) }}" class="btn btn-sm btn-outline-primary">Edit in Observations</a>
+                        </div>
+                    @endif
                 </div>
                 <hr>
             
