@@ -25,7 +25,7 @@
 
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
-                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount', $bill->getBalanceAttribute()) }}" required>
+                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" min="0.01" max="{{ max(0, $bill->getBalanceAttribute()) }}" value="{{ old('amount', max(0, $bill->getBalanceAttribute())) }}" required>
                             @error('amount')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

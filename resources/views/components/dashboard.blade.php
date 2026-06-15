@@ -45,7 +45,7 @@
 
     @if($pharmacyDashboard)
         <div class="row g-4 mb-4">
-            <div class="col-xl-7">
+            <div class="{{ $pharmacyDashboard['canManageInventory'] ? 'col-xl-7' : 'col-12' }}">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Submitted Prescriptions</h5>
@@ -90,10 +90,7 @@
                                             <td>&#8358;{{ number_format($amount, 2) }}</td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{ route('patient.prescription.show', $prescription) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                                    @if($patient)
-                                                        <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-secondary">Profile</a>
-                                                    @endif
+                                                    <a href="{{ route('pharmacy.prescriptions.show', $prescription) }}" class="btn btn-sm btn-outline-primary">View</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -109,51 +106,53 @@
                 </div>
             </div>
 
-            <div class="col-xl-5">
-                <div class="row g-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Expiry Alerts</h5>
-                            </div>
-                            <div class="card-body">
-                                @forelse($pharmacyDashboard['expiringBatches'] as $batch)
-                                    <div class="d-flex justify-content-between gap-3 border-bottom py-2">
-                                        <div>
-                                            <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
-                                            <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+            @if($pharmacyDashboard['canManageInventory'])
+                <div class="col-xl-5">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Expiry Alerts</h5>
+                                </div>
+                                <div class="card-body">
+                                    @forelse($pharmacyDashboard['expiringBatches'] as $batch)
+                                        <div class="d-flex justify-content-between gap-3 border-bottom py-2">
+                                            <div>
+                                                <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
+                                                <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+                                            </div>
+                                            <span class="badge text-bg-danger align-self-center">{{ $batch->expiry_date }}</span>
                                         </div>
-                                        <span class="badge text-bg-danger align-self-center">{{ $batch->expiry_date }}</span>
-                                    </div>
-                                @empty
-                                    <div class="text-muted">No expiry alerts.</div>
-                                @endforelse
+                                    @empty
+                                        <div class="text-muted">No expiry alerts.</div>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Low Stock</h5>
-                            </div>
-                            <div class="card-body">
-                                @forelse($pharmacyDashboard['lowStockBatches'] as $batch)
-                                    <div class="d-flex justify-content-between gap-3 border-bottom py-2">
-                                        <div>
-                                            <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
-                                            <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Low Stock</h5>
+                                </div>
+                                <div class="card-body">
+                                    @forelse($pharmacyDashboard['lowStockBatches'] as $batch)
+                                        <div class="d-flex justify-content-between gap-3 border-bottom py-2">
+                                            <div>
+                                                <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
+                                                <small class="text-muted">Batch {{ $batch->batch_number }}</small>
+                                            </div>
+                                            <span class="badge text-bg-warning align-self-center">{{ $batch->quantity_remaining }} left</span>
                                         </div>
-                                        <span class="badge text-bg-warning align-self-center">{{ $batch->quantity_remaining }} left</span>
-                                    </div>
-                                @empty
-                                    <div class="text-muted">No low-stock batches.</div>
-                                @endforelse
+                                    @empty
+                                        <div class="text-muted">No low-stock batches.</div>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     @endif
 
@@ -192,28 +191,18 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush" style="max-height: 430px; overflow-y: auto;">
                         @forelse($recentActivities as $activity)
-                            @php
-                                $actionLabel = ucwords(str_replace(['.', '_'], [' ', ' '], $activity->action));
-                                $modelLabel = $activity->model_type ? class_basename($activity->model_type) : null;
-                            @endphp
                             <div class="list-group-item">
                                 <div class="d-flex justify-content-between gap-3">
-                                    <div>
-                                        <div class="fw-semibold">{{ $actionLabel }}</div>
-                                        <div class="small text-muted">
-                                            @if($modelLabel)
-                                                {{ $modelLabel }}
-                                                @if($activity->model_id)
-                                                    #{{ $activity->model_id }}
-                                                @endif
-                                            @else
-                                                System activity
-                                            @endif
+                                    <div class="d-flex gap-2">
+                                        <i class="bi {{ $activity['icon'] ?? 'bi-activity' }} text-success mt-1"></i>
+                                        <div>
+                                            <div class="fw-semibold">{{ $activity['title'] }}</div>
+                                            <div class="small text-muted">{{ $activity['subtitle'] }}</div>
                                         </div>
                                     </div>
                                     <div class="text-end text-muted small">
-                                        {{ $activity->created_at?->format('M j, h:i A') }}
-                                        <div>{{ $activity->created_at?->diffForHumans() }}</div>
+                                        {{ $activity['created_at']?->format('M j, h:i A') }}
+                                        <div>{{ $activity['created_at']?->diffForHumans() }}</div>
                                     </div>
                                 </div>
                             </div>

@@ -10,8 +10,11 @@ use App\Models\MedicineBatch;
 use App\Models\Patient;
 use App\Models\PatientVisit;
 use App\Models\Payment;
+use App\Models\PharmacyDispense;
 use App\Models\Prescription;
 use App\Models\ServiceRequest;
+use App\Models\StockTransaction;
+use App\Models\VisitActivity;
 use App\Models\WalkinPatient;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -31,7 +34,7 @@ class Dashboard extends Component
             'user' => $user,
             'cards' => $this->cards($user),
             'quickActions' => $this->quickActions($user),
-            'recentActivities' => $this->recentActivities($user->id),
+            'recentActivities' => $this->recentActivities($user),
             'pharmacyDashboard' => $user->hasRole('pharmacist') ? $this->pharmacyDashboard() : null,
             'lastUpdated' => now(),
         ]);
@@ -40,6 +43,7 @@ class Dashboard extends Component
     private function cards($user): Collection
     {
         $cards = collect();
+        $canManagePharmacy = $this->canManagePharmacy($user);
 
         if ($user->hasRole('record')) {
             $cards = $cards->merge([
@@ -91,8 +95,11 @@ class Dashboard extends Component
                 $this->card('Submitted Prescriptions', Prescription::where('status', 'submitted')->count(), 'bi-file-medical', 'text-primary', 'Awaiting pharmacy action'),
                 $this->card('Transactions Today', $this->safeCount('stock_transactions', 'created_at'), 'bi-arrow-left-right', 'text-success', 'Stock activity today'),
                 $this->card('Dispenses Today', $this->safeCount('pharmacy_dispenses', 'created_at'), 'bi-capsule-pill', 'text-warning', 'Medicines dispensed today'),
-                $this->card('Low Stock Batches', MedicineBatch::where('quantity_remaining', '<=', 10)->count(), 'bi-exclamation-triangle', 'text-danger', 'Batches at or below 10 units'),
             ]);
+
+            if ($canManagePharmacy) {
+                $cards->push($this->card('Low Stock Batches', MedicineBatch::where('quantity_remaining', '<=', 10)->count(), 'bi-exclamation-triangle', 'text-danger', 'Batches at or below 10 units'));
+            }
         }
 
         if ($user->hasRole('administrator')) {
@@ -105,7 +112,7 @@ class Dashboard extends Component
         }
 
         if ($cards->isEmpty()) {
-            $cards->push($this->card('My Activities Today', AuditLog::where('actor_id', $user->id)->whereDate('created_at', today())->count(), 'bi-activity', 'text-success', 'Actions recorded today'));
+            $cards->push($this->card('My Activities Today', $this->auditActivityCount($user->id), 'bi-activity', 'text-success', 'Actions recorded today'));
         }
 
         return $cards;
@@ -142,10 +149,15 @@ class Dashboard extends Component
         if ($user->hasRole('pharmacist')) {
             $actions = $actions->merge([
                 ['label' => 'Dispense Medicine', 'description' => 'Create pharmacy transaction', 'icon' => 'bi-receipt', 'route' => route('pharmacy.transactions.create'), 'class' => 'btn-outline-primary'],
+            ]);
+
+            if ($this->canManagePharmacy($user)) {
+                $actions = $actions->merge([
                 ['label' => 'Medicines', 'description' => 'Manage medicine catalog', 'icon' => 'bi-capsule', 'route' => route('pharmacy.medicines.index'), 'class' => 'btn-outline-success'],
                 ['label' => 'Stock', 'description' => 'Review pharmacy batches', 'icon' => 'bi-box', 'route' => route('pharmacy.stocks.index'), 'class' => 'btn-outline-warning'],
                 ['label' => 'Expiry Alerts', 'description' => 'Check expiring batches', 'icon' => 'bi-exclamation-triangle', 'route' => route('pharmacy.expiries.index'), 'class' => 'btn-outline-danger'],
-            ]);
+                ]);
+            }
         }
 
         return $actions;
@@ -153,7 +165,10 @@ class Dashboard extends Component
 
     private function pharmacyDashboard(): array
     {
+        $canManagePharmacy = $this->canManagePharmacy(auth()->user());
+
         return [
+            'canManageInventory' => $canManagePharmacy,
             'pendingPrescriptions' => Prescription::with([
                 'patientVisit.patient.demographic',
                 'prescribedBy.department',
@@ -163,26 +178,155 @@ class Dashboard extends Component
                 ->latest()
                 ->limit(8)
                 ->get(),
-            'expiringBatches' => MedicineBatch::with('medicine')
+            'expiringBatches' => $canManagePharmacy ? MedicineBatch::with('medicine')
                 ->whereDate('expiry_date', '>=', today())
                 ->whereDate('expiry_date', '<=', today()->addDays(60))
                 ->orderBy('expiry_date')
                 ->limit(8)
-                ->get(),
-            'lowStockBatches' => MedicineBatch::with('medicine')
+                ->get() : collect(),
+            'lowStockBatches' => $canManagePharmacy ? MedicineBatch::with('medicine')
                 ->where('quantity_remaining', '<=', 10)
                 ->orderBy('quantity_remaining')
                 ->limit(8)
-                ->get(),
+                ->get() : collect(),
         ];
     }
 
-    private function recentActivities(int $userId)
+    private function recentActivities($user): Collection
+    {
+        $activities = collect();
+
+        $activities = $activities->merge(
+            AuditLog::where('actor_id', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($activity) => [
+                    'title' => ucwords(str_replace(['.', '_'], [' ', ' '], $activity->action)),
+                    'subtitle' => $activity->model_type ? class_basename($activity->model_type) . ($activity->model_id ? ' #' . $activity->model_id : '') : 'System activity',
+                    'created_at' => $activity->created_at,
+                    'icon' => 'bi-shield-check',
+                ])
+        );
+
+        $activities = $activities->merge(
+            VisitActivity::with('patientVisit.patient.demographic')
+                ->where('recorded_by', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(function ($activity) {
+                    $patient = $activity->patientVisit?->patient;
+
+                    return [
+                        'title' => $activity->activity,
+                        'subtitle' => $patient ? (($patient->demographic?->full_name ?? 'Patient') . ' - ' . $patient->hospital_number) : 'Visit activity',
+                        'created_at' => $activity->created_at,
+                        'icon' => 'bi-activity',
+                    ];
+                })
+        );
+
+        $activities = $activities->merge(
+            Bill::with(['patientVisit.patient.demographic', 'walkinPatient'])
+                ->where('issued_by', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($bill) => [
+                    'title' => 'Bill generated: ' . $bill->bill_number,
+                    'subtitle' => $bill->patientName() . ' - ' . number_format((float) $bill->due_amount, 2),
+                    'created_at' => $bill->created_at,
+                    'icon' => 'bi-receipt',
+                ])
+        );
+
+        $activities = $activities->merge(
+            Payment::with(['bill.patientVisit.patient.demographic', 'bill.walkinPatient'])
+                ->where('paid_by', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($payment) => [
+                    'title' => 'Payment recorded: ' . $payment->payment_id,
+                    'subtitle' => ($payment->bill?->patientName() ?? 'Payment') . ' - ' . number_format((float) $payment->amount, 2),
+                    'created_at' => $payment->created_at,
+                    'icon' => 'bi-cash-coin',
+                ])
+        );
+
+        $activities = $activities->merge(
+            ServiceRequest::with(['service', 'patientVisit.patient.demographic'])
+                ->where(fn ($query) => $query->where('requested_by', $user->id)->orWhere('performed_by', $user->id))
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($request) => [
+                    'title' => 'Service request: ' . ($request->service?->name ?? 'Service'),
+                    'subtitle' => ($request->patientVisit?->patient?->demographic?->full_name ?? 'Patient') . ' - ' . ucfirst($request->status ?? 'pending'),
+                    'created_at' => $request->created_at,
+                    'icon' => 'bi-clipboard-pulse',
+                ])
+        );
+
+        $activities = $activities->merge(
+            InvestigationRequest::with(['investigation', 'patientVisit.patient.demographic', 'walkinPatient'])
+                ->where(fn ($query) => $query->where('requested_by', $user->id)->orWhere('performed_by', $user->id))
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($request) => [
+                    'title' => 'Investigation: ' . ($request->investigation?->name ?? 'Investigation'),
+                    'subtitle' => ($request->patientVisit?->patient?->demographic?->full_name ?? $request->walkinPatient?->name ?? 'Patient') . ' - ' . ucfirst($request->status ?? 'pending'),
+                    'created_at' => $request->created_at,
+                    'icon' => 'bi-vial',
+                ])
+        );
+
+        $activities = $activities->merge(
+            StockTransaction::with('stockTransactionItems.medicineBatch.medicine')
+                ->where('created_by', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($transaction) => [
+                    'title' => 'Pharmacy transaction: ' . ucfirst($transaction->type),
+                    'subtitle' => number_format((float) $transaction->total_amount, 2),
+                    'created_at' => $transaction->created_at,
+                    'icon' => 'bi-capsule',
+                ])
+        );
+
+        $activities = $activities->merge(
+            PharmacyDispense::with('medicineBatch.medicine')
+                ->where('created_by', $user->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($dispense) => [
+                    'title' => 'Medicine dispensed: ' . ($dispense->medicineBatch?->medicine?->name ?? 'Medicine'),
+                    'subtitle' => 'Quantity: ' . $dispense->quantity,
+                    'created_at' => $dispense->created_at,
+                    'icon' => 'bi-capsule-pill',
+                ])
+        );
+
+        return $activities
+            ->filter(fn ($activity) => $activity['created_at'])
+            ->sortByDesc('created_at')
+            ->take(10)
+            ->values();
+    }
+
+    private function auditActivityCount(int $userId): int
     {
         return AuditLog::where('actor_id', $userId)
+            ->whereDate('created_at', today())
+            ->count()
+            + VisitActivity::where('recorded_by', $userId)
             ->latest()
-            ->limit(10)
-            ->get();
+            ->whereDate('created_at', today())
+            ->count();
     }
 
     private function card(string $label, mixed $value, string $icon, string $iconClass, string $description): array
@@ -214,5 +358,10 @@ class Dashboard extends Component
         }
 
         return DB::table($table)->whereDate($dateColumn, today())->count();
+    }
+
+    private function canManagePharmacy($user): bool
+    {
+        return $user?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
     }
 }

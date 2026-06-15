@@ -15,4 +15,8 @@ class StockTransactionItem extends Model
     public function medicineBatch() {
         return $this->belongsTo(MedicineBatch::class);
     }
+
+    public function prescriptionItem() {
+        return $this->belongsTo(PrescriptionItem::class);
+    }
 }

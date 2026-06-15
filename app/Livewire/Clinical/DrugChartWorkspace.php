@@ -28,6 +28,7 @@ class DrugChartWorkspace extends Component
     {
         $items = PrescriptionItem::with(['medicine', 'route'])
             ->whereHas('prescription', fn ($query) => $query->where('patient_visit_id', $this->currentVisit()->id))
+            ->where('medication_status', PrescriptionItem::STATUS_STARTED)
             ->latest()
             ->get();
 
@@ -52,6 +53,7 @@ class DrugChartWorkspace extends Component
 
         $item = PrescriptionItem::with('medicine', 'prescription')
             ->whereHas('prescription', fn ($query) => $query->where('patient_visit_id', $this->currentVisit()->id))
+            ->where('medication_status', PrescriptionItem::STATUS_STARTED)
             ->findOrFail($validated['prescriptionItemId']);
 
         $payload = [

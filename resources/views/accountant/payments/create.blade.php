@@ -22,7 +22,7 @@
                         <input type="hidden" value="{{$patient->id}}" name='patient_id'>
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
-                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('amount', $patient->payment()['pending'] ?? 0) }}" required>
+                            <input type="number" id="amount" name="amount" class="form-control @error('amount') is-invalid @enderror" placeholder="0.00" step="0.01" min="0.01" max="{{ max(0, $patient->payment()['pending'] ?? 0) }}" value="{{ old('amount', max(0, $patient->payment()['pending'] ?? 0)) }}" required>
                             @error('amount')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

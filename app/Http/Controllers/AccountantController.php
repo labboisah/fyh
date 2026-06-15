@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Models\BillService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use App\Models\WalkinPatient;
 use App\Models\ServiceRequest;
 
@@ -360,30 +361,39 @@ class AccountantController extends Controller
     public function storePaymentForBill(Request $request, Bill $bill) {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'payment_method_id' => 'required',
+            'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
         ]);
 
-        $data = [];
-        $data['paid_by'] = Auth::id();
-        $data['status'] = 'completed';
-        $data['payment_id'] = Payment::generatePaymentID();
-        $data['payment_date'] = date('d M, Y');
-        $data['bill_id'] = $bill->id;
-        $data['payment_method_id'] = $validated['payment_method_id'];
-        $data['amount'] = $validated['amount'];
-        
-        $payment = Payment::create($data);
+        $payment = DB::transaction(function () use ($validated, $bill) {
+            $bill = Bill::whereKey($bill->id)->lockForUpdate()->firstOrFail();
+            $balance = max(0, (float) $bill->balance);
 
-        // Update bill status
-        $totalPaid = $bill->totalPaid();
-        $bill->refreshRequestPaymentStatuses();
+            if ($balance <= 0) {
+                throw ValidationException::withMessages(['amount' => 'This bill has already been fully paid.']);
+            }
 
-        if ($totalPaid >= $bill->due_amount) {
-            $bill->update(['status' => 'paid']);
-        } else {
-            $bill->update(['status' => 'partial']);
-        }
+            if ((float) $validated['amount'] > $balance) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Payment amount cannot be greater than the bill balance of ' . number_format($balance, 2) . '.',
+                ]);
+            }
+
+            $payment = Payment::create([
+                'paid_by' => Auth::id(),
+                'status' => 'completed',
+                'payment_id' => Payment::generatePaymentID(),
+                'payment_date' => $validated['payment_date'],
+                'bill_id' => $bill->id,
+                'patient_id' => $bill->patientVisit?->patient_id,
+                'payment_method_id' => $validated['payment_method_id'],
+                'amount' => $validated['amount'],
+            ]);
+
+            $this->refreshBillAfterPayment($bill);
+
+            return $payment;
+        });
 
         // Load relationships for receipt
         $payment->load(['bill', 'recordedBy']);
@@ -605,6 +615,14 @@ class AccountantController extends Controller
         ]);
 
         $validated['due_amount'] = round($validated['amount'] * (1 - ($validated['discount'] / 100)), 2);
+
+        $paidAmount = (float) $bill->payments()->where('status', 'completed')->sum('amount');
+        if ($paidAmount > (float) $validated['due_amount']) {
+            return back()
+                ->withErrors(['amount' => 'Bill due amount cannot be less than completed payments already collected (' . number_format($paidAmount, 2) . ').'])
+                ->withInput();
+        }
+
         $bill->update($validated);
 
         return redirect()->route('accountant.bills.show', $bill)
@@ -656,50 +674,73 @@ class AccountantController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required',
+            'patient_id' => 'required|exists:patients,id',
+            'payment_method' => 'required|exists:payment_methods,id',
             'insurance_provider' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
         ]);
-        $patient = Patient::find($request->patient_id);
+        $patient = Patient::with('patientVisits.bills.payments')->findOrFail($validated['patient_id']);
+        $outstanding = $patient->patientVisits
+            ->flatMap->bills
+            ->sum(fn ($bill) => max(0, (float) $bill->balance));
 
-        $payableAmout = $request->amount;
-        foreach($patient->patientVisits as $visit){
-            foreach($visit->bills as $bill){
-                if($bill->getBalanceAttribute() > 0 && $payableAmout > 0){
-                    $data = [];
-                    $data['paid_by'] = Auth::id();
-                    $data['status'] = 'completed';
-                    $data['payment_id'] = Payment::generatePaymentID();
-                    $data['payment_date'] = date('d M, Y');
-                    $data['bill_id'] = $bill->id;
-                    $data['payment_method_id'] = $request->payment_method;
-                    
-                    $billPendingPayment = $bill->getBalanceAttribute();
-
-                    if($payableAmout > $billPendingPayment){
-                        $data['amount'] = $billPendingPayment;
-                        $payableAmout -= $billPendingPayment;
-                    }else{
-                        $data['amount'] = $payableAmout;
-                    }
-                    
-
-                    $payment = Payment::firstOrCreate($data);
-
-                    // Update bill status if bill_id provided
-                    
-                    $totalPaid = $bill->totalPaid();
-                    $bill->refreshRequestPaymentStatuses();
-
-                    if ($totalPaid >= $bill->due_amount) {
-                        $bill->update(['status' => 'paid']);
-                    } else {
-                        $bill->update(['status' => 'partial']);
-                    }
-                    
-                }
-            }
+        if ((float) $validated['amount'] > (float) $outstanding) {
+            return back()
+                ->withErrors(['amount' => 'Payment amount cannot be greater than the patient outstanding balance of ' . number_format($outstanding, 2) . '.'])
+                ->withInput();
         }
+
+        if ($outstanding <= 0) {
+            return back()
+                ->withErrors(['amount' => 'This patient has no outstanding bill balance.'])
+                ->withInput();
+        }
+
+        $payment = DB::transaction(function () use ($validated, $patient) {
+            $payableAmount = (float) $validated['amount'];
+            $lastPayment = null;
+
+            $bills = Bill::query()
+                ->whereHas('patientVisit', fn ($query) => $query->where('patient_id', $patient->id))
+                ->with('payments')
+                ->orderBy('issued_date')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($bills as $bill) {
+                $billPendingPayment = max(0, (float) $bill->balance);
+
+                if ($billPendingPayment <= 0 || $payableAmount <= 0) {
+                    continue;
+                }
+
+                $amount = min($payableAmount, $billPendingPayment);
+
+                $lastPayment = Payment::create([
+                    'paid_by' => Auth::id(),
+                    'status' => 'completed',
+                    'payment_id' => Payment::generatePaymentID(),
+                    'payment_date' => $validated['payment_date'],
+                    'bill_id' => $bill->id,
+                    'patient_id' => $patient->id,
+                    'payment_method_id' => $validated['payment_method'],
+                    'amount' => $amount,
+                    'insurance_provider' => $validated['insurance_provider'] ?? null,
+                ]);
+
+                $payableAmount -= $amount;
+                $this->refreshBillAfterPayment($bill);
+            }
+
+            return $lastPayment;
+        });
+
+        if (! $payment) {
+            return back()
+                ->withErrors(['amount' => 'No outstanding bill was available for this payment.'])
+                ->withInput();
+        }
+
         // Load relationships for receipt
         
         $payment->load(['bill', 'recordedBy']);
@@ -716,6 +757,21 @@ class AccountantController extends Controller
         
         $payment->load(['bill.services', 'patient', 'recordedBy']);
         return view('accountant.payments.receipt', compact('payment'));
+    }
+
+    private function refreshBillAfterPayment(Bill $bill): void
+    {
+        $bill->refresh();
+        $totalPaid = (float) $bill->payments()->where('status', 'completed')->sum('amount');
+        $bill->refreshRequestPaymentStatuses();
+
+        if ($totalPaid >= (float) $bill->due_amount) {
+            $bill->update(['status' => 'paid']);
+        } elseif ($totalPaid > 0) {
+            $bill->update(['status' => 'partial']);
+        } else {
+            $bill->update(['status' => 'pending']);
+        }
     }
 
     /**

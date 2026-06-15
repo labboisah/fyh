@@ -11,6 +11,7 @@
     $showAdminSidebar = $navUser !== null;
     $navDepartmentName = strtolower((string) $navUser?->department?->name);
     $canManageDepartmentInvestigations = str_contains($navDepartmentName, 'lab') || str_contains($navDepartmentName, 'radio');
+    $canManagePharmacyInventory = $navUser?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
 
     $navClinicalPatient = null;
     foreach (['patient', 'prescription', 'admission', 'investigationRequest', 'vitalSign'] as $routeKey) {
@@ -318,7 +319,7 @@
                                 
                             @endif
 
-                            @if($canNav(['pharmacist'], ['medicine.read', 'medicine_stock.read', 'pharmacy_sale.read', 'expiry_alert.read']))
+                            @if($canNav(['pharmacist'], ['pharmacy_sale.read', 'dispense.read']))
                                 <li class="nav-item">
                                     <a class="nav-link" href="#">
                                         <i class="bi bi-file-medical me-1"></i>
@@ -333,26 +334,28 @@
                                     </a>
                                 </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{route('pharmacy.medicines.index')}}">
-                                        <i class="bi bi-capsule me-1"></i>
-                                        Medicine
-                                    </a>
-                                </li>
+                                @if($canManagePharmacyInventory)
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pharmacy.medicines.index')}}">
+                                            <i class="bi bi-capsule me-1"></i>
+                                            Medicine
+                                        </a>
+                                    </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{route('pharmacy.stocks.index')}}">
-                                        <i class="bi bi-box-seam me-1"></i>
-                                        Stock
-                                    </a>
-                                </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pharmacy.stocks.index')}}">
+                                            <i class="bi bi-box-seam me-1"></i>
+                                            Stock
+                                        </a>
+                                    </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{route('pharmacy.expiries.index')}}">
-                                        <i class="bi bi-exclamation-triangle me-1"></i>
-                                        Expiry Alerts
-                                    </a>
-                                </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pharmacy.expiries.index')}}">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Expiry Alerts
+                                        </a>
+                                    </li>
+                                @endif
 
                                 
                             @endif

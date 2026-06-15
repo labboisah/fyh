@@ -110,7 +110,10 @@ Route::name('patient.')
             Route::get('/{patient}/create', PrescriptionWorkspace::class)->name('create');
             Route::get('/{prescription}/show', [PrescriptionController::class, 'show'])->name('show');
             Route::get('/{prescription}/submit', [PrescriptionController::class, 'submit'])->name('submit');
+            Route::post('/item/{prescriptionItem}/start', [PrescriptionController::class, 'startMedication'])->name('item.start');
+            Route::post('/item/{prescriptionItem}/stop', [PrescriptionController::class, 'stopMedication'])->name('item.stop');
             Route::post('/{prescription}/add-medicine', [PrescriptionController::class, 'addMedicine'])->name('add');
+            Route::delete('/{prescription}', [PrescriptionController::class, 'destroy'])->name('destroy');
             Route::post('/{patient}/store', [PrescriptionController::class, 'store'])->name('store');
         });
     });

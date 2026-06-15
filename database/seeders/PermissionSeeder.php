@@ -443,11 +443,8 @@ class PermissionSeeder extends Seeder
         */
         if (isset($roles['pharmacist'])) {
             $roles['pharmacist']->sync([
-                'medicine.read','medicine.update',
-                'medicine_stock.create','medicine_stock.read','medicine_stock.update',
                 'pharmacy_sale.create','pharmacy_sale.read',
                 'dispense.create','dispense.read',
-                'expiry_alert.read',
             ]);
         }
 
@@ -531,6 +528,20 @@ class PermissionSeeder extends Seeder
                 'temporary_permission.revoke',
 
                 'user.read'
+            ]);
+
+            $roles['head_of_department']->sync([
+                'medicine.create',
+                'medicine.read',
+                'medicine.update',
+                'medicine.delete',
+
+                'medicine_stock.create',
+                'medicine_stock.read',
+                'medicine_stock.update',
+                'medicine_stock.delete',
+
+                'expiry_alert.read',
             ]);
         }
     }

@@ -14,7 +14,10 @@ class DrugChartController extends Controller
     }
 
     public function register(Request $request, Patient $patient) {
-        $prescriptionItem = PrescriptionItem::find($request->prescription_item_id);
+        $prescriptionItem = PrescriptionItem::whereKey($request->prescription_item_id)
+            ->where('medication_status', PrescriptionItem::STATUS_STARTED)
+            ->whereHas('prescription', fn ($query) => $query->where('patient_visit_id', $patient->currentVisit()?->id))
+            ->firstOrFail();
 
         $prescriptionItem->drugCharts()->create([
             'dosage' => $request->dosage,

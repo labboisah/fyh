@@ -87,7 +87,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
-                            <tr><th>Medicine</th><th>Company</th><th>Stock</th><th class="text-end">Amount</th><th>Route</th><th>Dosage</th><th>Period</th><th>Duration</th><th></th></tr>
+                            <tr><th>Medicine</th><th>Company</th><th>Stock</th><th class="text-end">Amount</th><th>Route</th><th>Dosage</th><th>Period</th><th>Duration</th><th>Status</th><th></th></tr>
                         </thead>
                         <tbody>
                             @forelse($prescription?->prescriptionItems ?? [] as $item)
@@ -110,15 +110,38 @@
                                     <td>{{ $item->dosage }}</td>
                                     <td>{{ $item->period }}</td>
                                     <td>{{ $item->duration }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $item->isStarted() ? 'success' : 'secondary' }}">
+                                            {{ $item->isStarted() ? 'Started' : 'Stopped' }}
+                                        </span>
+                                        @if($item->medication_status_changed_at)
+                                            <div class="small text-muted">{{ $item->medication_status_changed_at->format('M d, h:i A') }}</div>
+                                        @endif
+                                    </td>
                                     <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" wire:click="editItem({{ $item->id }})">Edit</button>
-                                            <button class="btn btn-outline-danger" wire:click="removeItem({{ $item->id }})">Remove</button>
-                                        </div>
+                                        @if(auth()->user()->hasRole('doctor'))
+                                            <div class="d-flex justify-content-end gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" wire:click="editItem({{ $item->id }})">
+                                                    Edit
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeItem({{ $item->id }})" wire:confirm="Delete this medicine from the prescription?">
+                                                    Delete
+                                                </button>
+                                                @if($item->isStarted())
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" wire:click="stopMedication({{ $item->id }})">
+                                                        Stop
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-sm btn-outline-success" wire:click="startMedication({{ $item->id }})">
+                                                        Start
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="9" class="text-center text-muted py-4">No medicine added yet.</td></tr>
+                                <tr><td colspan="10" class="text-center text-muted py-4">No medicine added yet.</td></tr>
                             @endforelse
                         </tbody>
                         @if($prescription?->prescriptionItems?->count())
@@ -126,7 +149,7 @@
                                 <tr>
                                     <th colspan="3" class="text-end">Prescription Amount</th>
                                     <th class="text-end">&#8358;{{ number_format($prescription->prescriptionItems->sum(fn($item) => $item->medicine?->latestSellingPrice() ?? 0), 2) }}</th>
-                                    <th colspan="5"></th>
+                                    <th colspan="6"></th>
                                 </tr>
                             </tfoot>
                         @endif

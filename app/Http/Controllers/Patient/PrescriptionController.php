@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use App\Models\Patient;
 use App\Models\Medicine;
+use Illuminate\Support\Facades\DB;
 
 class PrescriptionController extends Controller
 {
@@ -104,6 +106,73 @@ class PrescriptionController extends Controller
         $prescription->update(['status' => 'submitted']);
 
         return back()->with('success', 'Prescription submitted to pharmacy.');
+    }
+
+    public function startMedication(PrescriptionItem $prescriptionItem)
+    {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
+        $prescriptionItem->load('medicine', 'prescription.patientVisit');
+        $prescriptionItem->startMedication(auth()->id());
+
+        $prescriptionItem->prescription?->patientVisit?->visitActivities()->create([
+            'activity' => "Medication started: {$prescriptionItem->medicine?->name}",
+            'recorded_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Medication started.');
+    }
+
+    public function stopMedication(PrescriptionItem $prescriptionItem)
+    {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
+        $prescriptionItem->load('medicine', 'prescription.patientVisit');
+        $prescriptionItem->stopMedication(auth()->id());
+
+        $prescriptionItem->prescription?->patientVisit?->visitActivities()->create([
+            'activity' => "Medication stopped: {$prescriptionItem->medicine?->name}",
+            'recorded_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Medication stopped.');
+    }
+
+    public function destroy(Prescription $prescription)
+    {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
+        $prescription->load([
+            'patientVisit.patient',
+            'prescriptionItems.drugCharts',
+            'prescriptionItems.medicine',
+        ]);
+
+        $patient = $prescription->patientVisit?->patient;
+        $medicineNames = $prescription->prescriptionItems
+            ->pluck('medicine.name')
+            ->filter()
+            ->implode(', ');
+
+        DB::transaction(function () use ($prescription, $medicineNames) {
+            $prescription->patientVisit?->visitActivities()->create([
+                'activity' => 'Prescription deleted' . ($medicineNames ? ": {$medicineNames}" : ''),
+                'recorded_by' => auth()->id(),
+            ]);
+
+            foreach ($prescription->prescriptionItems as $item) {
+                $item->drugCharts()->delete();
+            }
+
+            $prescription->prescriptionItems()->delete();
+            $prescription->delete();
+        });
+
+        if ($patient) {
+            return redirect()->route('patient.show', $patient)->with('success', 'Prescription deleted.');
+        }
+
+        return redirect()->route('patient.index')->with('success', 'Prescription deleted.');
     }
 
     private function resolveMedicine(string $medicineName, ?string $medicineTypeId): ?Medicine

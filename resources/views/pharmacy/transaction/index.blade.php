@@ -4,14 +4,19 @@
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-4">
-        <i class="bi bi-receipt"></i> Stock Transactions
+        <i class="bi bi-receipt"></i> Transactions
         </h4>
 
-        <a href="{{ route('pharmacy.transactions.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Add Transaction
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('pharmacy.transactions.report') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-graph-up"></i> Report
+            </a>
+            <a href="{{ route('pharmacy.transactions.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Transaction
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm p-4">
@@ -24,8 +29,10 @@
                     <tr>
                         <th>#</th>
                         <th>Medicines</th>
-                        <th>Total Ammount</th>
+                        <th>Total Amount</th>
                         <th>Reference</th>
+                        <th>Bill</th>
+                        <th>Payment</th>
                         <th>Created By</th>
                         <th>Action</th>
                     </tr>
@@ -44,16 +51,16 @@
                         </td>
                         <td>{{ $transaction->total_amount }}</td>
                         <td>{{ $transaction->reference }}</td>
+                        <td>{{ $transaction->bill?->bill_number ?? 'N/A' }}</td>
+                        <td>{{ $transaction->payment?->payment_id ?? 'N/A' }}</td>
                         <td>{{ $transaction->createdBy?->name ?? 'System' }}</td>
                         
                         <td>
-                        <a href="#" class="btn btn-sm btn-info">
-                        <i class="bi bi-eye"></i>
-                        </a>
-
-                        <a href="#" class="btn btn-sm btn-warning">
-                        <i class="bi bi-pencil"></i>
-                        </a>
+                        @if($transaction->payment)
+                            <a href="{{ route('pharmacy.finance.payments.receipt', $transaction->payment) }}" class="btn btn-sm btn-info">
+                            <i class="bi bi-receipt"></i>
+                            </a>
+                        @endif
 
                         </td>
 

@@ -29,12 +29,21 @@ class PrescriptionWorkspace extends Component
     public function mount(Patient $patient): void
     {
         $this->patient = $patient;
-        $this->prescriptionId = $this->currentVisit()
-            ->prescriptions()
-            ->where('prescribe_by', auth()->id())
-            ->where('status', 'active')
-            ->latest()
-            ->value('id');
+        $requestedPrescriptionId = request()->integer('prescription');
+
+        if ($requestedPrescriptionId) {
+            $this->prescriptionId = $this->currentVisit()
+                ->prescriptions()
+                ->whereKey($requestedPrescriptionId)
+                ->value('id');
+        } else {
+            $this->prescriptionId = $this->currentVisit()
+                ->prescriptions()
+                ->where('prescribe_by', auth()->id())
+                ->where('status', 'active')
+                ->latest()
+                ->value('id');
+        }
 
         $this->treatmentDiagnosis = (string) ($this->prescription()?->treatment_diagnosis ?? '');
     }
@@ -51,6 +60,8 @@ class PrescriptionWorkspace extends Component
 
     public function addItem(): void
     {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
         $validated = $this->validate([
             'medicineName' => ['required', 'string', 'max:255'],
             'medicineTypeId' => ['nullable', 'integer', 'exists:medicine_types,id'],
@@ -100,6 +111,8 @@ class PrescriptionWorkspace extends Component
 
     public function editItem(int $itemId): void
     {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
         $item = $this->prescription()?->prescriptionItems()->with('medicine')->findOrFail($itemId);
 
         $this->editingItemId = $item->id;
@@ -114,12 +127,35 @@ class PrescriptionWorkspace extends Component
 
     public function removeItem(int $itemId): void
     {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
         $prescription = $this->prescription();
         $item = $prescription?->prescriptionItems()->findOrFail($itemId);
         $medicineName = $item?->medicine?->name;
+        $item?->drugCharts()->delete();
         $item?->delete();
         $this->logActivity("Prescription item removed: {$medicineName}");
         $this->feedback('Medicine removed from prescription.', 'danger');
+    }
+
+    public function startMedication(int $itemId): void
+    {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
+        $item = $this->prescription()?->prescriptionItems()->with('medicine')->findOrFail($itemId);
+        $item->startMedication(auth()->id());
+        $this->logActivity("Medication started: {$item->medicine?->name}");
+        $this->feedback('Medication started.');
+    }
+
+    public function stopMedication(int $itemId): void
+    {
+        abort_unless(auth()->user()->hasRole('doctor'), 403);
+
+        $item = $this->prescription()?->prescriptionItems()->with('medicine')->findOrFail($itemId);
+        $item->stopMedication(auth()->id());
+        $this->logActivity("Medication stopped: {$item->medicine?->name}");
+        $this->feedback('Medication stopped.', 'warning');
     }
 
     public function submitPrescription(): void

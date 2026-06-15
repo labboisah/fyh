@@ -277,11 +277,17 @@ class BillWorkspace extends Component
         }
 
         [$amount, $servicePayload, $investigationPayload] = $this->buildBillPayload($serviceRows, $investigationRows);
+        $dueAmount = round($amount * (1 - ($this->discount / 100)), 2);
+        $paidAmount = (float) $bill->payments()->where('status', 'completed')->sum('amount');
+
+        if ($paidAmount > $dueAmount) {
+            throw new \RuntimeException('Bill due amount cannot be less than completed payments already collected (' . number_format($paidAmount, 2) . ').');
+        }
 
         $bill->update([
             'service_description' => $this->billDescription($serviceRows, $investigationRows),
             'amount' => $amount,
-            'due_amount' => round($amount * (1 - ($this->discount / 100)), 2),
+            'due_amount' => $dueAmount,
             'discount' => $this->discount,
             'status' => $this->billStatus,
             'issued_date' => $this->issuedDate,

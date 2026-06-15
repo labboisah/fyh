@@ -16,7 +16,7 @@
         <div class="row">
             @if($patient->currentVisit()->prescriptions()->count()>0)
             @foreach($patient->currentVisit()->prescriptions as $prescription)
-            @foreach($prescription->prescriptionItems as $item)
+            @foreach($prescription->prescriptionItems->filter(fn($item) => $item->isStarted()) as $item)
             <div class="col-md-4 ">
                 <div class="card-body">
                     <h2>{{$item->medicine->name}}</h2>
@@ -56,6 +56,9 @@
             @endforeach
             @else
             <div class="alert alert-warning">No Prescription for the last visit of this patient  <a class="btn btn-outline-secondary" href="{{route('patient.show',$patient)}}"><i class="bi bi-arrow-left me-2"></i>Back to Patient Profile</a></div>
+            @endif
+            @if($patient->currentVisit()->prescriptions->flatMap->prescriptionItems->filter(fn($item) => $item->isStarted())->isEmpty())
+                <div class="alert alert-warning">No started medication is available for drug chart. Ask the doctor to start a medication first.</div>
             @endif
         </div>
         

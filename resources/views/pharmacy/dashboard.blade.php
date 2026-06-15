@@ -8,13 +8,14 @@
     $todayPrescriptions = \App\Models\Prescription::whereDate('created_at', today())->count();
     $pendingPrescriptionCount = \App\Models\Prescription::where('status', 'submitted')->count();
     $dispensedToday = \App\Models\PharmacyDispense::whereDate('created_at', today())->count();
-    $lowStockCount = \App\Models\MedicineBatch::where('quantity_remaining', '<=', 10)->count();
-    $expiringBatches = \App\Models\MedicineBatch::with('medicine')
+    $canManageInventory = auth()->user()?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
+    $lowStockCount = $canManageInventory ? \App\Models\MedicineBatch::where('quantity_remaining', '<=', 10)->count() : 0;
+    $expiringBatches = $canManageInventory ? \App\Models\MedicineBatch::with('medicine')
         ->whereDate('expiry_date', '>=', today())
         ->whereDate('expiry_date', '<=', today()->addDays(60))
         ->orderBy('expiry_date')
         ->limit(10)
-        ->get();
+        ->get() : collect();
 @endphp
 
 <div class="container-fluid">
@@ -53,22 +54,24 @@
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-danger text-white">
-                <div class="card-body">
-                    <h6>Low Stock Medicines</h6>
-                    <h3>{{ $lowStockCount }}</h3>
-                    <i class="bi bi-exclamation-triangle fs-2"></i>
+        @if($canManageInventory)
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 bg-danger text-white">
+                    <div class="card-body">
+                        <h6>Low Stock Medicines</h6>
+                        <h3>{{ $lowStockCount }}</h3>
+                        <i class="bi bi-exclamation-triangle fs-2"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
 
     </div>
 
 
     <div class="row mt-4">
 
-        <div class="col-md-8">
+        <div class="{{ $canManageInventory ? 'col-md-8' : 'col-12' }}">
             <div class="card shadow-sm">
                 <div class="card-header">
                 Recent Prescriptions
@@ -117,24 +120,26 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                Expiry Alerts
-                </div>
-                <div class="card-body">
-                    @forelse($expiringBatches as $drug)
-                        <div class="d-flex justify-content-between border-bottom py-2">
-                            <span>{{ $drug->medicine?->name ?? 'N/A' }} <small class="text-muted">({{ $drug->batch_number }})</small></span>
-                            <span class="badge bg-danger">
-                            {{ $drug->expiry_date }}
-                            </span>
-                        </div>
-                    @empty
-                    <p class="text-muted">No expiry alerts</p>
-                    @endforelse
+        @if($canManageInventory)
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                    Expiry Alerts
+                    </div>
+                    <div class="card-body">
+                        @forelse($expiringBatches as $drug)
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                <span>{{ $drug->medicine?->name ?? 'N/A' }} <small class="text-muted">({{ $drug->batch_number }})</small></span>
+                                <span class="badge bg-danger">
+                                {{ $drug->expiry_date }}
+                                </span>
+                            </div>
+                        @empty
+                        <p class="text-muted">No expiry alerts</p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>

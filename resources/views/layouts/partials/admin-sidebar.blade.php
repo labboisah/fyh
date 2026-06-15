@@ -9,11 +9,21 @@
         return collect($patterns)->contains(fn ($pattern) => request()->routeIs($pattern));
     };
 
-    $matchesItemAccess = function (array $item, string $roleName = '', array $permissionNames = []) use ($sidebarUser) {
+    $matchesItemAccess = function (array $item, string $roleName = '', array $permissionNames = []) use ($sidebarUser, $roleNames) {
         $itemRoles = $item['roles'] ?? [];
         $itemPermissions = $item['permissions'] ?? [];
         $permissionRoles = $item['permission_roles'] ?? null;
         $departmentKeywords = $item['department_keywords'] ?? [];
+        $requiredRoles = $item['required_roles'] ?? [];
+        $requiredAnyRoles = $item['required_any_roles'] ?? [];
+
+        if (! empty($requiredRoles) && count(array_intersect($requiredRoles, $roleNames)) !== count($requiredRoles)) {
+            return false;
+        }
+
+        if (! empty($requiredAnyRoles) && count(array_intersect($requiredAnyRoles, $roleNames)) === 0) {
+            return false;
+        }
 
         if (! empty($departmentKeywords)) {
             $departmentName = strtolower((string) $sidebarUser?->department?->name);
@@ -77,10 +87,16 @@
         ['label' => 'Consumable Stock', 'icon' => 'bi-boxes', 'route' => 'department.stocks.index', 'patterns' => ['department.stocks.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read']],
         ['label' => 'Stock Usage', 'icon' => 'bi-clipboard-check', 'route' => 'department.stock-usage.index', 'patterns' => ['department.stock-usage.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read']],
 
-        ['label' => 'Pharmacy Transactions', 'icon' => 'bi-arrow-left-right', 'route' => 'pharmacy.transactions.index', 'patterns' => ['pharmacy.transactions.*'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
-        ['label' => 'Medicines', 'icon' => 'bi-capsule', 'route' => 'pharmacy.medicines.index', 'patterns' => ['pharmacy.medicines.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine.read']],
-        ['label' => 'Pharmacy Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine_stock.read']],
-        ['label' => 'Expiry Alerts', 'icon' => 'bi-exclamation-triangle', 'route' => 'pharmacy.expiries.index', 'patterns' => ['pharmacy.expiries.*'], 'roles' => ['pharmacist'], 'permissions' => ['expiry_alert.read']],
+        ['label' => 'Transactions', 'icon' => 'bi-arrow-left-right', 'route' => 'pharmacy.transactions.index', 'patterns' => ['pharmacy.transactions.index', 'pharmacy.transactions.create'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
+        ['label' => 'Prescriptions', 'icon' => 'bi-prescription2', 'route' => 'pharmacy.prescriptions.index', 'patterns' => ['pharmacy.prescriptions.*'], 'roles' => ['pharmacist'], 'permissions' => ['dispense.read', 'pharmacy_sale.read']],
+        ['label' => 'Activities', 'icon' => 'bi-activity', 'route' => 'reports.my-activities.index', 'patterns' => ['reports.my-activities.*'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read', 'dispense.read']],
+        ['label' => 'Transaction Report', 'icon' => 'bi-graph-up', 'route' => 'pharmacy.transactions.report', 'patterns' => ['pharmacy.transactions.report'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
+        ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'pharmacy.finance.bills', 'patterns' => ['pharmacy.finance.bills'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
+        ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'pharmacy.finance.payments', 'patterns' => ['pharmacy.finance.payments', 'pharmacy.finance.payments.receipt'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
+        ['label' => 'Financial Report', 'icon' => 'bi-file-earmark-text', 'route' => 'pharmacy.finance.report', 'patterns' => ['pharmacy.finance.report'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
+        ['label' => 'Medicines', 'icon' => 'bi-capsule', 'route' => 'pharmacy.medicines.index', 'patterns' => ['pharmacy.medicines.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
+        ['label' => 'Pharmacy Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine_stock.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
+        ['label' => 'Expiry Alerts', 'icon' => 'bi-exclamation-triangle', 'route' => 'pharmacy.expiries.index', 'patterns' => ['pharmacy.expiries.*'], 'roles' => ['pharmacist'], 'permissions' => ['expiry_alert.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
 
         ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.*'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
         ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'accountant.payments.index', 'patterns' => ['accountant.payments.*'], 'roles' => ['accountant'], 'permissions' => ['payment.read']],
@@ -136,7 +152,18 @@
 
     $temporaryItems = collect($navigationItems)
         ->filter(fn ($item) => ! empty($item['permissions']) && count(array_intersect($item['permissions'], $temporaryPermissionNames)) > 0)
-        ->filter(function ($item) use ($sidebarUser) {
+        ->filter(function ($item) use ($sidebarUser, $roleNames) {
+            $requiredRoles = $item['required_roles'] ?? [];
+            $requiredAnyRoles = $item['required_any_roles'] ?? [];
+
+            if (! empty($requiredRoles) && count(array_intersect($requiredRoles, $roleNames)) !== count($requiredRoles)) {
+                return false;
+            }
+
+            if (! empty($requiredAnyRoles) && count(array_intersect($requiredAnyRoles, $roleNames)) === 0) {
+                return false;
+            }
+
             $departmentKeywords = $item['department_keywords'] ?? [];
 
             if (empty($departmentKeywords)) {

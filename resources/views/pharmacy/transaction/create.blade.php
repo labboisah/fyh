@@ -24,6 +24,22 @@
         <input type="hidden" name="items" id="itemsInput">
         
         <input type="hidden" id="total_amount" name="total_amount" value="0">
+
+        <div class="mb-3">
+            <label>Payment Method</label>
+            <select name="payment_method_id" class="form-control @error('payment_method_id') is-invalid @enderror" required>
+                <option value="">Select Payment Method</option>
+                @foreach($paymentMethods as $method)
+                    <option value="{{ $method->id }}" @selected(old('payment_method_id') == $method->id)>{{ $method->name }}</option>
+                @endforeach
+            </select>
+            @error('payment_method_id')<small class="text-danger">{{ $message }}</small>@enderror
+        </div>
+
+        <div class="mb-3">
+            <label>Payment Reference</label>
+            <input type="text" name="reference_number" class="form-control" value="{{ old('reference_number') }}" placeholder="Optional receipt/POS/transfer reference">
+        </div>
         
         <div class="mb-3">
         <label>Medicine</label>
