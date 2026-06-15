@@ -56,6 +56,27 @@
         @media print {
             html, body { width: 210mm; min-height: 297mm; margin: 0; background: white !important; }
 
+            .hospital-navbar,
+            .admin-sidebar,
+            .breadcrumb,
+            header,
+            .toast-container,
+            .no-print {
+                display: none !important;
+            }
+
+            .min-vh-100,
+            .admin-layout,
+            .admin-content,
+            main,
+            main .container-fluid {
+                display: block !important;
+                width: 100% !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
             /* Reduce overall font sizes and spacing */
             body, .print-content { font-size: 12px; }
             h2 { font-size: 16px; margin: 0 0 4px 0; }
@@ -82,25 +103,16 @@
 
             p, li { orphans: 2; widows: 2; }
 
-            /* Show only the print area */
-            body * { visibility: hidden; }
-            #print, #print * { visibility: visible; }
-
             #print {
-                position: fixed;
-                left: 50%;
-                top: 0;
-                transform: translateX(-50%);
+                position: static !important;
                 width: 194mm;
-                min-height: 281mm;
-                margin: 0;
+                min-height: auto;
+                margin: 0 auto;
                 background: white;
                 box-shadow: none !important;
             }
 
             .watermark-logo { opacity: 0.06 !important; }
-
-            .no-print { display: none !important; }
         }
     </style>
 
@@ -109,6 +121,8 @@
 
         <div class="print-content p-4">
             <div class="text-center mb-4">
+                <!-- hospital logo -->
+                 
                 <h2 class="text-success fw-bold" style="transform: scaleY(1.3);">
                     FATIMA YAHAYA HOSPITAL, SIFAWA
                 </h2>

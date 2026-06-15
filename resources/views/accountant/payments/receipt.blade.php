@@ -201,8 +201,8 @@
                 <div class="card-body p-1">
                     <div class="thermal-receipt-preview">
                         <div class="text-center mb-3">
-                            <h5 class="mb-1">{{ strtoupper(config('app.title', 'FATIMA YAHAYA HOSPITAL, SIFAWA')) }}</h5>
-                            <h6>{{strtoupper(config('app.address', 'No 5. Birnin Kebbi Road, Sifawa, Bodinga LG, Sokoto State'))}}</h6>
+                            <h5 class="mb-1">{{ strtoupper(config('app.title')) ?? 'FATIMA YAHAYA HOSPITAL, SIFAWA' }}</h5>
+                            <h6>{{strtoupper(config('app.address')) ?? 'No 5. Birnin Kebbi Road, Sifawa, Bodinga LG, Sokoto State'}}</h6>
                             <p class="small mb-1">Payment Receipt</p>
                             <div class="divider"></div>
                         </div>
