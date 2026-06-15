@@ -203,7 +203,7 @@
                         <div class="text-center mb-3">
                             <h5 class="mb-1">{{ strtoupper(config('app.title')) ?? 'FATIMA YAHAYA HOSPITAL, SIFAWA' }}</h5>
                             <h6>{{strtoupper(config('app.address')) ?? 'No 5. Birnin Kebbi Road, Sifawa, Bodinga LG, Sokoto State'}}</h6>
-                            <p class="small mb-1">Payment Receipt</p>
+                            <p class="small mb-1">PAYMENT RECEIPT</p>
                             <div class="divider"></div>
                         </div>
 
@@ -269,8 +269,9 @@
 <div id="thermal-receipt-template" class="d-none">
     <div class="thermal-receipt">
         <div class="text-center">
-            <h3 style="margin-bottom:0;">{{ strtoupper(config('app.name', 'FAYHOS')) }}</h3>
-            <p class="small" style="margin:0;">Payment Receipt</p>
+            <h5 class="mb-1">{{ strtoupper(config('app.title')) ?? 'FATIMA YAHAYA HOSPITAL, SIFAWA' }}</h5>
+            <h6>{{strtoupper(config('app.address')) ?? 'No 5. Birnin Kebbi Road, Sifawa, Bodinga LG, Sokoto State'}}</h6>
+            <p class="small mb-1">PAYMENT RECEIPT</p>
             <div class="divider"></div>
         </div>
 
