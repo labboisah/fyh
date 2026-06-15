@@ -239,39 +239,9 @@
 
             window.__fayhosSidebarToggleBound = true;
 
-            if (!document.getElementById('sidebarToggleRuntimeStyle')) {
-                const style = document.createElement('style');
-                style.id = 'sidebarToggleRuntimeStyle';
-                style.textContent = `
-                    body.sidebar-collapsed .admin-sidebar {
-                        width: 68px;
-                        flex-basis: 68px;
-                        padding-left: 0.75rem;
-                        padding-right: 0.75rem;
-                        overflow: hidden;
-                    }
-                    body.sidebar-collapsed .admin-sidebar-header {
-                        justify-content: center;
-                        padding-left: 0;
-                        padding-right: 0;
-                    }
-                    body.sidebar-collapsed .admin-sidebar-title,
-                    body.sidebar-collapsed .admin-sidebar-nav {
-                        display: none;
-                    }
-                    @media (max-width: 991.98px) {
-                        body.sidebar-collapsed .admin-sidebar {
-                            width: auto;
-                            min-height: 72px;
-                            padding: 0.75rem;
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
             const toggle = document.getElementById('sidebarToggle');
             const icon = toggle ? toggle.querySelector('i') : null;
+            const mobileQuery = window.matchMedia('(max-width: 991.98px)');
 
             if (!toggle || !icon) {
                 return;
@@ -284,12 +254,37 @@
                 icon.classList.toggle('bi-list', collapsed);
             };
 
-            applySidebarState(localStorage.getItem('sidebar-collapsed') === 'true');
+            const preferredCollapsedState = function () {
+                const storageKey = mobileQuery.matches ? 'sidebar-collapsed-mobile' : 'sidebar-collapsed';
+                const stored = localStorage.getItem(storageKey);
+
+                if (stored !== null) {
+                    return stored === 'true';
+                }
+
+                return mobileQuery.matches;
+            };
+
+            applySidebarState(preferredCollapsedState());
 
             toggle.addEventListener('click', function () {
                 const collapsed = !document.body.classList.contains('sidebar-collapsed');
-                localStorage.setItem('sidebar-collapsed', collapsed ? 'true' : 'false');
+                const storageKey = mobileQuery.matches ? 'sidebar-collapsed-mobile' : 'sidebar-collapsed';
+                localStorage.setItem(storageKey, collapsed ? 'true' : 'false');
                 applySidebarState(collapsed);
+            });
+
+            document.querySelectorAll('.admin-sidebar-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (mobileQuery.matches) {
+                        localStorage.setItem('sidebar-collapsed-mobile', 'true');
+                        applySidebarState(true);
+                    }
+                });
+            });
+
+            mobileQuery.addEventListener('change', function () {
+                applySidebarState(preferredCollapsedState());
             });
         });
     </script>

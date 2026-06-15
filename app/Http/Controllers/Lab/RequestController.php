@@ -292,8 +292,13 @@ class RequestController extends Controller
 
     public function showResult(Bill $bill)
     {
+        $bill->load([
+            'patientVisit.patient.demographic',
+            'walkinPatient',
+            'investigationRequests.investigation',
+            'investigationRequests.investigationResults.parameter',
+        ]);
 
-    return view('lab.request.result', compact('bill'));
+        return view('lab.request.result', compact('bill'));
     }
 }
-

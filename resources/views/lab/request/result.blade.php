@@ -10,11 +10,23 @@
 @endsection
 
 @section('content')
+    @php
+        $completedRequests = $bill->investigationRequests
+            ->filter(function ($request) {
+                return $request->investigationResults
+                    ->filter(fn ($result) => filled($result->value))
+                    ->isNotEmpty();
+            })
+            ->values();
+    @endphp
     <style>
         #print {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             background: white;
+            width: min(100%, 190mm);
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         .watermark-logo {
@@ -42,7 +54,7 @@
         @page { size: A4; margin: 8mm; }
 
         @media print {
-            html, body { width: 210mm; height: 297mm; margin: 0; }
+            html, body { width: 210mm; min-height: 297mm; margin: 0; background: white !important; }
 
             /* Reduce overall font sizes and spacing */
             body, .print-content { font-size: 12px; }
@@ -74,13 +86,25 @@
             body * { visibility: hidden; }
             #print, #print * { visibility: visible; }
 
-            #print { position: absolute; left: 0; top: 0; width: auto; background: white; }
+            #print {
+                position: fixed;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+                width: 194mm;
+                min-height: 281mm;
+                margin: 0;
+                background: white;
+                box-shadow: none !important;
+            }
 
             .watermark-logo { opacity: 0.06 !important; }
+
+            .no-print { display: none !important; }
         }
     </style>
 
-    <div id="print" style="avoid">
+    <div id="print">
         <div class="watermark-logo"></div>
 
         <div class="print-content p-4">
@@ -101,7 +125,7 @@
                 <p class="mb-1 text-muted">
                     Hospital Number:
                     @if($bill->patientVisit)
-                        <strong>{{ $bill->patientVisit->patient->hash_algos }}</strong>
+                        <strong>{{ $bill->patientVisit->patient->hospital_number }}</strong>
                     @else
                         <strong>Walk-in Patient</strong>
                     @endif
@@ -111,39 +135,42 @@
             </div>
 
             <hr>
-            @foreach($bill->investigationRequests as $investigationRequest)
-                <div class="">
+            @forelse($completedRequests as $investigationRequest)
+                @php
+                    $uploadedResults = $investigationRequest->investigationResults
+                        ->filter(fn ($result) => filled($result->value))
+                        ->values();
+                @endphp
+                <div class="result-section">
                     <!-- request informations -->
-                    <h5 class="fw-bold">{{ $investigationRequest->investigation->name }}</h5>
+                    <h5 class="fw-bold">{{ $investigationRequest->investigation?->name ?? 'Investigation' }}</h5>
                     <p class="text-muted mb-3">Lab No: {{ $investigationRequest->lab_no }}</p>
-                    @if($investigationRequest->investigationResults->isEmpty())
-                        <div class="alert alert-warning">No results recorded yet.</div>
-                    @else
-                        <table class="table table-bordered table-sm">
-                            <thead>
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                                <th>Reference Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($uploadedResults as $result)
                                 <tr>
-                                    <th>Parameter</th>
-                                    <th>Value</th>
-                                    <th>Reference Range</th>
+                                    <td>{{ $result->parameter?->name ?? 'Parameter' }}</td>
+                                    <td>{{ $result->value }}</td>
+                                    <td>{{ $result->parameter?->reference_range ?? 'N/A' }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($investigationRequest->investigationResults as $result)
-                                    <tr>
-                                        <td>{{ $result->parameter->name ?? 'Parameter' }}</td>
-                                        <td>{{ $result->value }}</td>
-                                        <td>{{ $result->parameter->reference_range }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endif
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            @endforeach
+            @empty
+                <div class="alert alert-warning">No uploaded lab results are available for this bill.</div>
+            @endforelse
         </div>
     </div>
 
-    <div class="mt-3">
+    <div class="mt-3 no-print">
         <button onclick="window.print()" class="btn btn-primary">
             <i class="bi bi-printer me-1"></i> Print Results
         </button>
