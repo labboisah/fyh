@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Nurse;
 
+use App\Models\Patient;
 use App\Models\PatientVisit;
 use App\Models\Service;
 use App\Models\ServiceRequest;
@@ -37,6 +38,7 @@ class PatientManagement extends Component
 
         return view('components.nurse.patient-management', [
             'requests' => (clone $baseQuery)->paginate($this->perPage),
+            'allPatients' => $this->allPatientsSearch(),
             'services' => $this->departmentServices(),
             'summary' => [
                 'total' => (clone $baseQuery)->count(),
@@ -211,6 +213,36 @@ class PatientManagement extends Component
 
         return Service::where('department_id', auth()->user()->department_id)
             ->orderBy('name')
+            ->get();
+    }
+
+    private function allPatientsSearch()
+    {
+        $search = trim($this->search);
+
+        if ($search === '') {
+            return collect();
+        }
+
+        return Patient::with(['demographic', 'nextOfKin', 'patientVisits' => fn ($query) => $query->latest('created_at')])
+            ->where(function (Builder $query) use ($search) {
+                $query
+                    ->where('hospital_number', 'like', "%{$search}%")
+                    ->orWhereHas('demographic', function (Builder $demographicQuery) use ($search) {
+                        $demographicQuery
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('phone_number', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('nextOfKin', function (Builder $nextOfKinQuery) use ($search) {
+                        $nextOfKinQuery
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('telephone', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->limit(25)
             ->get();
     }
 
