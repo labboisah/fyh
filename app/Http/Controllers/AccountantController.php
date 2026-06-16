@@ -604,7 +604,6 @@ class AccountantController extends Controller
         $this->authorizeOwnedTodayBill($bill);
 
         $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
             'service_description' => 'required|string|max:500',
             'amount' => 'required|numeric|min:0.01',
             'discount' => 'required|numeric|min:0|max:100',
@@ -673,7 +672,6 @@ class AccountantController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'patient_id' => 'required|exists:patients,id',
             'payment_method' => 'required|exists:payment_methods,id',
             'insurance_provider' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
@@ -721,7 +719,6 @@ class AccountantController extends Controller
                     'payment_id' => Payment::generatePaymentID(),
                     'payment_date' => $validated['payment_date'],
                     'bill_id' => $bill->id,
-                    'patient_id' => $patient->id,
                     'payment_method_id' => $validated['payment_method'],
                     'amount' => $amount,
                     'insurance_provider' => $validated['insurance_provider'] ?? null,
