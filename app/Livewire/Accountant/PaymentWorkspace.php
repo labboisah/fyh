@@ -185,7 +185,6 @@ class PaymentWorkspace extends Component
             } else {
                 $payment = Payment::create(array_merge($payload, [
                     'bill_id' => $bill->id,
-                    'patient_id' => $bill->patientVisit?->patient_id,
                     'payment_id' => Payment::generatePaymentID(),
                     'paid_by' => Auth::id(),
                 ]));

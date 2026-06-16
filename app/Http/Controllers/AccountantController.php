@@ -385,7 +385,6 @@ class AccountantController extends Controller
                 'payment_id' => Payment::generatePaymentID(),
                 'payment_date' => $validated['payment_date'],
                 'bill_id' => $bill->id,
-                'patient_id' => $bill->patientVisit?->patient_id,
                 'payment_method_id' => $validated['payment_method_id'],
                 'amount' => $validated['amount'],
             ]);
