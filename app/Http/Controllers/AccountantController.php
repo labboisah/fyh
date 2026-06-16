@@ -671,11 +671,13 @@ class AccountantController extends Controller
     public function storePayment(Request $request)
     {
         $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|exists:payment_methods,id',
             'insurance_provider' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
         ]);
+
         $patient = Patient::with('patientVisits.bills.payments')->findOrFail($validated['patient_id']);
         $outstanding = $patient->patientVisits
             ->flatMap->bills
