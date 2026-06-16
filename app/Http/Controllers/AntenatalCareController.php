@@ -92,8 +92,9 @@ class AntenatalCareController extends Controller
             'counseling_topics' => 'nullable|string',
             'took_supplements' => 'nullable|boolean',
             'clinical_notes' => 'nullable|string',
-            'status' => 'in:normal,complicated,high_risk',
+            'status' => 'nullable|in:normal,complicated,high_risk',
         ]);
+        $validated['status'] = $validated['status'] ?? 'normal';
 
         // Add recorded_by user ID
         $validated['recorded_by'] = auth()->user()->id;
@@ -178,8 +179,9 @@ class AntenatalCareController extends Controller
             'counseling_topics' => 'nullable|string',
             'took_supplements' => 'nullable|boolean',
             'clinical_notes' => 'nullable|string',
-            'status' => 'in:normal,complicated,high_risk',
+            'status' => 'nullable|in:normal,complicated,high_risk',
         ]);
+        $validated['status'] = $validated['status'] ?? $antenatalCare->status ?? 'normal';
 
         // Update the record
         $antenatalCare->update($validated);

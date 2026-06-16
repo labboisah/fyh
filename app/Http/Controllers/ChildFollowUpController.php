@@ -269,7 +269,10 @@ class ChildFollowUpController extends Controller
                 'max:5000',
             ],
 
-        ]);
+    ]);
+        $validated['follow_up_date_time'] = $validated['follow_up_date_time'] ?? now();
+        $validated['location'] = $validated['location'] ?? 'hospital';
+        $validated['health_status'] = $validated['health_status'] ?? 'normal';
 
         /*
         |--------------------------------------------------------------------------
@@ -300,7 +303,7 @@ class ChildFollowUpController extends Controller
                 => $validated['days_of_life'] ?? null,
 
             'follow_up_period'
-                => $validated['follow_up_period'],
+                => $validated['follow_up_period'] ?? null,
 
             /*
             |--------------------------------------------------------------------------
@@ -703,6 +706,9 @@ class ChildFollowUpController extends Controller
         ],
 
     ]);
+    $validated['follow_up_date_time'] = $validated['follow_up_date_time'] ?? $childFollowUp->follow_up_date_time ?? now();
+    $validated['location'] = $validated['location'] ?? $childFollowUp->location ?? 'hospital';
+    $validated['health_status'] = $validated['health_status'] ?? $childFollowUp->health_status ?? 'normal';
 
     /*
     |--------------------------------------------------------------------------
@@ -725,7 +731,7 @@ class ChildFollowUpController extends Controller
             => $validated['days_of_life'] ?? null,
 
         'follow_up_period'
-            => $validated['follow_up_period'],
+            => $validated['follow_up_period'] ?? null,
 
         /*
         |--------------------------------------------------------------------------

@@ -145,6 +145,7 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Status</label>
                                         <select class="form-select @error('form.status') is-invalid @enderror" wire:model="form.status">
+                                            <option value="">Optional</option>
                                             <option value="normal">Normal</option>
                                             <option value="complicated">Complicated</option>
                                             <option value="high_risk">High Risk</option>
@@ -172,6 +173,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Stage</label>
                                         <select class="form-select" wire:model="form.stage">
+                                            <option value="">Optional</option>
                                             <option value="not_started">Not Started</option>
                                             <option value="first_stage">First Stage</option>
                                             <option value="second_stage">Second Stage</option>
@@ -182,6 +184,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Status</label>
                                         <select class="form-select" wire:model="form.status">
+                                            <option value="">Optional</option>
                                             <option value="ongoing">Ongoing</option>
                                             <option value="completed">Completed</option>
                                             <option value="complicated">Complicated</option>
@@ -208,6 +211,7 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Delivery Type</label>
                                         <select class="form-select" wire:model="form.delivery_type">
+                                            <option value="">Optional</option>
                                             <option value="vaginal">Vaginal</option>
                                             <option value="assisted_vaginal">Assisted Vaginal</option>
                                             <option value="caesarean">Caesarean</option>
@@ -221,6 +225,7 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Status</label>
                                         <select class="form-select" wire:model="form.delivery_status">
+                                            <option value="">Optional</option>
                                             <option value="successful">Successful</option>
                                             <option value="complicated">Complicated</option>
                                             <option value="maternal_death">Maternal Death</option>
@@ -248,6 +253,7 @@
                                     <div class="col-md-3">
                                         <label class="form-label">Sex</label>
                                         <select class="form-select" wire:model="form.sex">
+                                            <option value="">Optional</option>
                                             <option value="female">Female</option>
                                             <option value="male">Male</option>
                                         </select>
@@ -263,6 +269,7 @@
                                     <div class="col-md-3">
                                         <label class="form-label">Status</label>
                                         <select class="form-select" wire:model="form.status">
+                                            <option value="">Optional</option>
                                             <option value="alive">Alive</option>
                                             <option value="stillborn">Stillborn</option>
                                             <option value="early_neonatal_death">Early Neonatal Death</option>
@@ -297,6 +304,7 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Recovery Status</label>
                                         <select class="form-select" wire:model="form.recovery_status">
+                                            <option value="">Optional</option>
                                             <option value="normal">Normal</option>
                                             <option value="complicated">Complicated</option>
                                             <option value="needs_referral">Needs Referral</option>
@@ -345,6 +353,7 @@
                                     <div class="col-md-3">
                                         <label class="form-label">Health Status</label>
                                         <select class="form-select" wire:model="form.health_status">
+                                            <option value="">Optional</option>
                                             <option value="normal">Normal</option>
                                             <option value="at_risk">At Risk</option>
                                             <option value="needs_referral">Needs Referral</option>
@@ -529,7 +538,7 @@
                                     ],
                                     'child_follow_up' => [
                                         'Location and Growth' => [
-                                            ['location', 'Location', 'select', ['hospital' => 'Hospital', 'clinic' => 'Clinic', 'home' => 'Home', 'other' => 'Other']],
+                                            ['location', 'Location', 'select', ['' => 'Optional', 'hospital' => 'Hospital', 'clinic' => 'Clinic', 'home' => 'Home', 'other' => 'Other']],
                                             ['location_details', 'Location Details', 'textarea'],
                                             ['temperature', 'Temperature', 'text'],
                                             ['heart_rate', 'Heart Rate', 'text'],

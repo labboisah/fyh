@@ -14,8 +14,10 @@
         $itemPermissions = $item['permissions'] ?? [];
         $permissionRoles = $item['permission_roles'] ?? null;
         $departmentKeywords = $item['department_keywords'] ?? [];
+        $excludedDepartmentKeywords = $item['except_department_keywords'] ?? [];
         $requiredRoles = $item['required_roles'] ?? [];
         $requiredAnyRoles = $item['required_any_roles'] ?? [];
+        $departmentName = strtolower((string) $sidebarUser?->department?->name);
 
         if (! empty($requiredRoles) && count(array_intersect($requiredRoles, $roleNames)) !== count($requiredRoles)) {
             return false;
@@ -26,11 +28,19 @@
         }
 
         if (! empty($departmentKeywords)) {
-            $departmentName = strtolower((string) $sidebarUser?->department?->name);
             $matchesDepartment = collect($departmentKeywords)
                 ->contains(fn ($keyword) => str_contains($departmentName, strtolower($keyword)));
 
             if (! $matchesDepartment) {
+                return false;
+            }
+        }
+
+        if (! empty($excludedDepartmentKeywords)) {
+            $matchesExcludedDepartment = collect($excludedDepartmentKeywords)
+                ->contains(fn ($keyword) => str_contains($departmentName, strtolower($keyword)));
+
+            if ($matchesExcludedDepartment) {
                 return false;
             }
         }
@@ -83,9 +93,9 @@
 
         ['label' => 'Users', 'icon' => 'bi-people', 'route' => 'department.users.index', 'patterns' => ['department.users.*'], 'roles' => ['head_of_department'], 'permissions' => ['user.read'], 'permission_roles' => ['head_of_department']],
         ['label' => 'Investigations', 'icon' => 'bi-clipboard2-data', 'route' => 'department.investigations.index', 'patterns' => ['department.investigations.*'], 'roles' => ['head_of_department'], 'permissions' => ['investigation.read'], 'permission_roles' => ['head_of_department'], 'department_keywords' => ['lab', 'radio']],
-        ['label' => 'Consumables', 'icon' => 'bi-box-seam', 'route' => 'department.consumables.index', 'patterns' => ['department.consumables.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable.read']],
-        ['label' => 'Consumable Stock', 'icon' => 'bi-boxes', 'route' => 'department.stocks.index', 'patterns' => ['department.stocks.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read']],
-        ['label' => 'Stock Usage', 'icon' => 'bi-clipboard-check', 'route' => 'department.stock-usage.index', 'patterns' => ['department.stock-usage.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read']],
+        ['label' => 'Consumables', 'icon' => 'bi-box-seam', 'route' => 'department.consumables.index', 'patterns' => ['department.consumables.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable.read'], 'except_department_keywords' => ['pharmacy']],
+        ['label' => 'Consumable Stock', 'icon' => 'bi-boxes', 'route' => 'department.stocks.index', 'patterns' => ['department.stocks.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read'], 'except_department_keywords' => ['pharmacy']],
+        ['label' => 'Stock Usage', 'icon' => 'bi-clipboard-check', 'route' => 'department.stock-usage.index', 'patterns' => ['department.stock-usage.*'], 'roles' => ['head_of_department'], 'permissions' => ['consumable_stock.read'], 'except_department_keywords' => ['pharmacy']],
 
         ['label' => 'Transactions', 'icon' => 'bi-arrow-left-right', 'route' => 'pharmacy.transactions.index', 'patterns' => ['pharmacy.transactions.index', 'pharmacy.transactions.create'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
         ['label' => 'Prescriptions', 'icon' => 'bi-prescription2', 'route' => 'pharmacy.prescriptions.index', 'patterns' => ['pharmacy.prescriptions.*'], 'roles' => ['pharmacist'], 'permissions' => ['dispense.read', 'pharmacy_sale.read']],
@@ -95,7 +105,7 @@
         ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'pharmacy.finance.payments', 'patterns' => ['pharmacy.finance.payments', 'pharmacy.finance.payments.receipt'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
         ['label' => 'Financial Report', 'icon' => 'bi-file-earmark-text', 'route' => 'pharmacy.finance.report', 'patterns' => ['pharmacy.finance.report'], 'roles' => ['pharmacist'], 'permissions' => ['pharmacy_sale.read']],
         ['label' => 'Medicines', 'icon' => 'bi-capsule', 'route' => 'pharmacy.medicines.index', 'patterns' => ['pharmacy.medicines.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
-        ['label' => 'Pharmacy Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine_stock.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
+        ['label' => 'Batches / Medicine Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist'], 'permissions' => ['medicine_stock.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
         ['label' => 'Expiry Alerts', 'icon' => 'bi-exclamation-triangle', 'route' => 'pharmacy.expiries.index', 'patterns' => ['pharmacy.expiries.*'], 'roles' => ['pharmacist'], 'permissions' => ['expiry_alert.read'], 'required_roles' => ['pharmacist', 'head_of_department']],
 
         ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.*'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
@@ -165,14 +175,27 @@
             }
 
             $departmentKeywords = $item['department_keywords'] ?? [];
+            $excludedDepartmentKeywords = $item['except_department_keywords'] ?? [];
 
             if (empty($departmentKeywords)) {
-                return true;
+                $matchesDepartment = true;
+            } else {
+                $departmentName = strtolower((string) $sidebarUser?->department?->name);
+                $matchesDepartment = collect($departmentKeywords)
+                    ->contains(fn ($keyword) => str_contains($departmentName, strtolower($keyword)));
             }
 
             $departmentName = strtolower((string) $sidebarUser?->department?->name);
 
-            return collect($departmentKeywords)
+            if (! $matchesDepartment) {
+                return false;
+            }
+
+            if (empty($excludedDepartmentKeywords)) {
+                return true;
+            }
+
+            return ! collect($excludedDepartmentKeywords)
                 ->contains(fn ($keyword) => str_contains($departmentName, strtolower($keyword)));
         })
         ->unique('route')

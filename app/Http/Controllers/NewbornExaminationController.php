@@ -34,7 +34,7 @@ class NewbornExaminationController extends Controller
         */
 
         'examination_date_time' => [
-            'required',
+            'nullable',
             'date',
         ],
 
@@ -368,7 +368,7 @@ class NewbornExaminationController extends Controller
         ],
 
         'exam_status' => [
-            'required',
+            'nullable',
             'in:normal,abnormal,needs_follow_up,referral_needed',
         ],
 
@@ -384,6 +384,8 @@ class NewbornExaminationController extends Controller
         ],
 
     ]);
+    $validated['examination_date_time'] = $validated['examination_date_time'] ?? now();
+    $validated['exam_status'] = $validated['exam_status'] ?? 'normal';
 
     /*
     |--------------------------------------------------------------------------
@@ -667,7 +669,7 @@ class NewbornExaminationController extends Controller
         */
 
         'examination_date_time' => [
-            'required',
+            'nullable',
             'date',
         ],
 
@@ -1001,7 +1003,7 @@ class NewbornExaminationController extends Controller
         ],
 
         'exam_status' => [
-            'required',
+            'nullable',
             'in:normal,abnormal,needs_follow_up,referral_needed',
         ],
 
@@ -1017,6 +1019,8 @@ class NewbornExaminationController extends Controller
         ],
 
     ]);
+    $validated['examination_date_time'] = $validated['examination_date_time'] ?? $newbornExamination->examination_date_time ?? now();
+    $validated['exam_status'] = $validated['exam_status'] ?? $newbornExamination->exam_status ?? 'normal';
 
     /*
     |--------------------------------------------------------------------------

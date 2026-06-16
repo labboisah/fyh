@@ -396,7 +396,7 @@ class PostnatalExaminationController extends Controller
                 => $validated['hours_post_delivery'] ?? null,
 
             'examination_time'
-                => $validated['examination_time'],
+                => $validated['examination_time'] ?? null,
 
             /*
             |--------------------------------------------------------------------------
@@ -590,7 +590,7 @@ class PostnatalExaminationController extends Controller
             'activity' => "Postnatal examination recorded for delivery ID: {$delivery->id}",
             'recorded_by' => auth()->id(),
         ]);
-        
+
         /*
         |--------------------------------------------------------------------------
         | Redirect
@@ -948,6 +948,8 @@ class PostnatalExaminationController extends Controller
             ],
 
         ]);
+        $validated['examination_date_time'] = $validated['examination_date_time'] ?? $postnatalExamination->examination_date_time ?? now();
+        $validated['recovery_status'] = $validated['recovery_status'] ?? $postnatalExamination->recovery_status ?? 'normal';
 
         /*
         |--------------------------------------------------------------------------
@@ -970,7 +972,7 @@ class PostnatalExaminationController extends Controller
                 => $validated['hours_post_delivery'] ?? null,
 
             'examination_time'
-                => $validated['examination_time'],
+                => $validated['examination_time'] ?? null,
 
             /*
             |--------------------------------------------------------------------------

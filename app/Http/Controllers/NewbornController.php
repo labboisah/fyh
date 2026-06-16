@@ -40,7 +40,7 @@ class NewbornController extends Controller
         */
 
         'sex' => [
-            'required',
+            'nullable',
             'in:male,female',
         ],
 
@@ -291,6 +291,9 @@ class NewbornController extends Controller
         ],
 
     ]);
+    $validated['sex'] = $validated['sex'] ?? 'female';
+    $validated['birth_date_time'] = $validated['birth_date_time'] ?? now();
+    $validated['status'] = $validated['status'] ?? 'alive';
 
     /*
     |--------------------------------------------------------------------------
@@ -776,7 +779,7 @@ class NewbornController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'sex' => $validated['sex'],
+            'sex' => $validated['sex'] ?? $newborn->sex ?? 'female',
 
             'birth_order' => $validated['birth_order'] ?? 1,
 
@@ -784,7 +787,7 @@ class NewbornController extends Controller
                 => $validated['newborn_registration_number'] ?? null,
 
             'birth_date_time'
-                => $validated['birth_date_time'],
+                => $validated['birth_date_time'] ?? $newborn->birth_date_time,
 
             'presentation'
                 => $validated['presentation'] ?? null,
@@ -925,7 +928,7 @@ class NewbornController extends Controller
             */
 
             'status'
-                => $validated['status'],
+                => $validated['status'] ?? $newborn->status ?? 'alive',
 
             'neonatal_observations'
                 => $validated['neonatal_observations'] ?? null,

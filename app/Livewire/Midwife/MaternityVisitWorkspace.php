@@ -139,10 +139,11 @@ class MaternityVisitWorkspace extends Component
             'form.management_plan' => ['nullable', 'string'],
             'form.counseling_topics' => ['nullable', 'string'],
             'form.took_supplements' => ['boolean'],
-            'form.status' => ['required', 'in:normal,complicated,high_risk'],
+            'form.status' => ['nullable', 'in:normal,complicated,high_risk'],
             'form.clinical_notes' => ['nullable', 'string', 'max:5000'],
         ])['form'];
         $validated = $this->nullEmptyStrings($validated);
+        $validated['status'] = $validated['status'] ?: 'normal';
 
         AntenatalCare::create($validated + [
             'patient_id' => $visit->patient_id,
@@ -171,19 +172,21 @@ class MaternityVisitWorkspace extends Component
             'form.pulse_rate' => ['nullable', 'string', 'max:20'],
             'form.temperature' => ['nullable', 'string', 'max:20'],
             'form.respiration_rate' => ['nullable', 'string', 'max:20'],
-            'form.stage' => ['required', 'in:not_started,first_stage,second_stage,third_stage,completed'],
+            'form.stage' => ['nullable', 'in:not_started,first_stage,second_stage,third_stage,completed'],
             'form.first_stage_started_at' => ['nullable', 'date'],
             'form.second_stage_started_at' => ['nullable', 'date'],
             'form.third_stage_started_at' => ['nullable', 'date'],
             'form.fetal_heart_rate' => ['nullable', 'string', 'max:20'],
             'form.fetal_monitoring_notes' => ['nullable', 'string', 'max:3000'],
             'form.complications' => ['nullable', 'string', 'max:3000'],
-            'form.status' => ['required', 'in:ongoing,completed,complicated'],
+            'form.status' => ['nullable', 'in:ongoing,completed,complicated'],
             'form.clinical_notes' => ['nullable', 'string', 'max:5000'],
         ])['form'];
         $validated = $this->nullEmptyStrings($validated);
 
         $validated['labour_onset_time'] = $validated['labour_onset_time'] ?: now();
+        $validated['stage'] = $validated['stage'] ?: 'not_started';
+        $validated['status'] = $validated['status'] ?: 'ongoing';
 
         $labour = Labour::create($validated + [
             'patient_id' => $visit->patient_id,
@@ -200,7 +203,7 @@ class MaternityVisitWorkspace extends Component
         $validated = $this->validate([
             'form.labour_id' => ['nullable', 'exists:labours,id'],
             'form.delivery_date_time' => ['nullable', 'date'],
-            'form.delivery_type' => ['required', 'in:vaginal,assisted_vaginal,caesarean'],
+            'form.delivery_type' => ['nullable', 'in:vaginal,assisted_vaginal,caesarean'],
             'form.reason_for_delivery_type' => ['nullable', 'string', 'max:3000'],
             'form.assisted_with' => ['nullable', 'in:vacuum,forceps'],
             'form.indication_for_assistance' => ['nullable', 'string', 'max:3000'],
@@ -221,14 +224,17 @@ class MaternityVisitWorkspace extends Component
             'form.general_condition' => ['nullable', 'string', 'max:255'],
             'form.complications' => ['nullable', 'string', 'max:5000'],
             'form.management_of_complications' => ['nullable', 'string', 'max:5000'],
-            'form.number_of_babies' => ['required', 'integer', 'min:1', 'max:10'],
-            'form.delivery_status' => ['required', 'in:successful,complicated,maternal_death,fetal_death'],
+            'form.number_of_babies' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'form.delivery_status' => ['nullable', 'in:successful,complicated,maternal_death,fetal_death'],
             'form.delivery_summary' => ['nullable', 'string', 'max:5000'],
         ])['form'];
         $validated = $this->nullEmptyStrings($validated);
 
         $validated['labour_id'] = $validated['labour_id'] ?: null;
         $validated['delivery_date_time'] = $validated['delivery_date_time'] ?: now();
+        $validated['delivery_type'] = $validated['delivery_type'] ?: 'vaginal';
+        $validated['number_of_babies'] = $validated['number_of_babies'] ?: 1;
+        $validated['delivery_status'] = $validated['delivery_status'] ?: 'successful';
         $validated['placenta_delivered_at'] = $validated['placenta_delivered_at'] ?: $validated['delivery_date_time'];
 
         $delivery = Delivery::create($validated + [
@@ -249,7 +255,7 @@ class MaternityVisitWorkspace extends Component
     {
         $validated = $this->validate([
             'form.delivery_id' => ['nullable', 'exists:deliveries,id'],
-            'form.sex' => ['required', 'in:male,female'],
+            'form.sex' => ['nullable', 'in:male,female'],
             'form.birth_order' => ['nullable', 'integer', 'min:1', 'max:10'],
             'form.birth_date_time' => ['nullable', 'date'],
             'form.birth_weight' => ['nullable', 'string', 'max:50'],
@@ -280,13 +286,15 @@ class MaternityVisitWorkspace extends Component
             'form.screening_test_results' => ['nullable', 'string', 'max:5000'],
             'form.special_care_needed' => ['nullable', 'string', 'max:5000'],
             'form.referred_to' => ['nullable', 'string', 'max:5000'],
-            'form.status' => ['required', 'in:alive,stillborn,early_neonatal_death'],
+            'form.status' => ['nullable', 'in:alive,stillborn,early_neonatal_death'],
             'form.neonatal_observations' => ['nullable', 'string', 'max:5000'],
         ])['form'];
         $validated = $this->nullEmptyStrings($validated);
 
         $validated['delivery_id'] = $validated['delivery_id'] ?: null;
         $validated['birth_date_time'] = $validated['birth_date_time'] ?: now();
+        $validated['sex'] = $validated['sex'] ?: 'female';
+        $validated['status'] = $validated['status'] ?: 'alive';
 
         $newborn = Newborn::create($validated + [
             'patient_id' => $visit->patient_id,
@@ -354,7 +362,7 @@ class MaternityVisitWorkspace extends Component
             'form.contraception_method_chosen' => ['nullable', 'string', 'max:5000'],
             'form.hygiene_taught' => ['boolean'],
             'form.danger_signs_explained' => ['boolean'],
-            'form.recovery_status' => ['required', 'in:normal,complicated,needs_referral'],
+            'form.recovery_status' => ['nullable', 'in:normal,complicated,needs_referral'],
             'form.clinical_summary' => ['nullable', 'string', 'max:5000'],
             'form.management_plan' => ['nullable', 'string', 'max:5000'],
             'form.medications_prescribed' => ['nullable', 'string', 'max:5000'],
@@ -365,6 +373,7 @@ class MaternityVisitWorkspace extends Component
 
         $validated['delivery_id'] = $validated['delivery_id'] ?: null;
         $validated['examination_date_time'] = $validated['examination_date_time'] ?: now();
+        $validated['recovery_status'] = $validated['recovery_status'] ?: 'normal';
 
         PostnatalExamination::create($validated + [
             'patient_id' => $visit->patient_id,
@@ -382,7 +391,7 @@ class MaternityVisitWorkspace extends Component
             'form.follow_up_date_time' => ['nullable', 'date'],
             'form.days_of_life' => ['nullable', 'integer', 'min:0', 'max:3660'],
             'form.follow_up_period' => ['nullable', 'in:day_3,day_7,day_10,day_14,6weeks,3months,6months,year1'],
-            'form.location' => ['required', 'in:hospital,clinic,home,other'],
+            'form.location' => ['nullable', 'in:hospital,clinic,home,other'],
             'form.location_details' => ['nullable', 'string', 'max:5000'],
             'form.weight' => ['nullable', 'string', 'max:50'],
             'form.feeding_type' => ['nullable', 'string', 'max:255'],
@@ -445,7 +454,7 @@ class MaternityVisitWorkspace extends Component
             'form.cord_care_advice_given' => ['boolean'],
             'form.hygiene_safety_advice_given' => ['boolean'],
             'form.danger_signs_explained' => ['boolean'],
-            'form.health_status' => ['required', 'in:normal,at_risk,needs_referral,referred'],
+            'form.health_status' => ['nullable', 'in:normal,at_risk,needs_referral,referred'],
             'form.referral_reason' => ['nullable', 'string', 'max:5000'],
             'form.referral_destination' => ['nullable', 'string', 'max:5000'],
             'form.clinical_summary' => ['nullable', 'string', 'max:5000'],
@@ -457,6 +466,8 @@ class MaternityVisitWorkspace extends Component
 
         $validated['newborn_id'] = $validated['newborn_id'] ?: null;
         $validated['follow_up_date_time'] = $validated['follow_up_date_time'] ?: now();
+        $validated['location'] = $validated['location'] ?: 'hospital';
+        $validated['health_status'] = $validated['health_status'] ?: 'normal';
 
         ChildFollowUp::create($validated + [
             'patient_id' => $visit->patient_id,
@@ -554,12 +565,12 @@ class MaternityVisitWorkspace extends Component
                 'complications' => '',
                 'management_plan' => '',
                 'counseling_topics' => '',
-                'took_supplements' => true,
-                'status' => 'normal',
+                'took_supplements' => false,
+                'status' => '',
                 'clinical_notes' => '',
             ],
             'labour' => [
-                'labour_onset_time' => now()->format('Y-m-d\TH:i'),
+                'labour_onset_time' => '',
                 'mode_of_onset' => '',
                 'reason_for_induction' => '',
                 'gestational_weeks' => '',
@@ -573,20 +584,20 @@ class MaternityVisitWorkspace extends Component
                 'pulse_rate' => '',
                 'temperature' => '',
                 'respiration_rate' => '',
-                'stage' => 'not_started',
+                'stage' => '',
                 'first_stage_started_at' => '',
                 'second_stage_started_at' => '',
                 'third_stage_started_at' => '',
                 'fetal_heart_rate' => '',
                 'fetal_monitoring_notes' => '',
                 'complications' => '',
-                'status' => 'ongoing',
+                'status' => '',
                 'clinical_notes' => '',
             ],
             'delivery' => [
                 'labour_id' => '',
-                'delivery_date_time' => now()->format('Y-m-d\TH:i'),
-                'delivery_type' => 'vaginal',
+                'delivery_date_time' => '',
+                'delivery_type' => '',
                 'reason_for_delivery_type' => '',
                 'assisted_with' => '',
                 'indication_for_assistance' => '',
@@ -596,7 +607,7 @@ class MaternityVisitWorkspace extends Component
                 'episiotomy' => '',
                 'perineal_repair' => '',
                 'placenta_delivery_method' => '',
-                'placenta_delivered_at' => now()->format('Y-m-d\TH:i'),
+                'placenta_delivered_at' => '',
                 'placental_examination' => '',
                 'estimated_blood_loss' => '',
                 'blood_loss_assessment' => '',
@@ -607,15 +618,15 @@ class MaternityVisitWorkspace extends Component
                 'general_condition' => '',
                 'complications' => '',
                 'management_of_complications' => '',
-                'number_of_babies' => 1,
-                'delivery_status' => 'successful',
+                'number_of_babies' => '',
+                'delivery_status' => '',
                 'delivery_summary' => '',
             ],
             'newborn' => [
                 'delivery_id' => '',
-                'sex' => 'female',
+                'sex' => '',
                 'birth_order' => '',
-                'birth_date_time' => now()->format('Y-m-d\TH:i'),
+                'birth_date_time' => '',
                 'birth_weight' => '',
                 'birth_length' => '',
                 'head_circumference' => '',
@@ -644,12 +655,12 @@ class MaternityVisitWorkspace extends Component
                 'screening_test_results' => '',
                 'special_care_needed' => '',
                 'referred_to' => '',
-                'status' => 'alive',
+                'status' => '',
                 'neonatal_observations' => '',
             ],
             'postnatal' => [
                 'delivery_id' => '',
-                'examination_date_time' => now()->format('Y-m-d\TH:i'),
+                'examination_date_time' => '',
                 'hours_post_delivery' => '',
                 'examination_time' => '',
                 'blood_pressure' => '',
@@ -701,7 +712,7 @@ class MaternityVisitWorkspace extends Component
                 'contraception_method_chosen' => '',
                 'hygiene_taught' => false,
                 'danger_signs_explained' => false,
-                'recovery_status' => 'normal',
+                'recovery_status' => '',
                 'clinical_summary' => '',
                 'management_plan' => '',
                 'medications_prescribed' => '',
@@ -710,10 +721,10 @@ class MaternityVisitWorkspace extends Component
             ],
             'child_follow_up' => [
                 'newborn_id' => '',
-                'follow_up_date_time' => now()->format('Y-m-d\TH:i'),
+                'follow_up_date_time' => '',
                 'days_of_life' => '',
                 'follow_up_period' => '',
-                'location' => 'hospital',
+                'location' => '',
                 'location_details' => '',
                 'weight' => '',
                 'feeding_type' => '',
@@ -776,7 +787,7 @@ class MaternityVisitWorkspace extends Component
                 'cord_care_advice_given' => false,
                 'hygiene_safety_advice_given' => false,
                 'danger_signs_explained' => false,
-                'health_status' => 'normal',
+                'health_status' => '',
                 'referral_reason' => '',
                 'referral_destination' => '',
                 'clinical_summary' => '',

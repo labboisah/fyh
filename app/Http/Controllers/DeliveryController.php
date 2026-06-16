@@ -236,6 +236,7 @@ class DeliveryController extends Controller
     $validated['delivery_type'] = $validated['delivery_type'] ?? 'vaginal';
     $validated['number_of_babies'] = $validated['number_of_babies'] ?? 1;
     $validated['delivery_status'] = $validated['delivery_status'] ?? 'successful';
+    $validated['placenta_delivered_at'] = $validated['placenta_delivered_at'] ?? $validated['delivery_date_time'];
 
     /*
     |--------------------------------------------------------------------------
@@ -590,6 +591,11 @@ class DeliveryController extends Controller
         ],
 
     ]);
+    $validated['delivery_date_time'] = $validated['delivery_date_time'] ?? $delivery->delivery_date_time ?? now();
+    $validated['delivery_type'] = $validated['delivery_type'] ?? $delivery->delivery_type ?? 'vaginal';
+    $validated['placenta_delivered_at'] = $validated['placenta_delivered_at'] ?? $delivery->placenta_delivered_at ?? $validated['delivery_date_time'];
+    $validated['number_of_babies'] = $validated['number_of_babies'] ?? $delivery->number_of_babies ?? 1;
+    $validated['delivery_status'] = $validated['delivery_status'] ?? $delivery->delivery_status ?? 'successful';
 
     /*
     |--------------------------------------------------------------------------
