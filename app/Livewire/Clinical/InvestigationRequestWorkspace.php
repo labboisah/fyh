@@ -54,70 +54,107 @@ class InvestigationRequestWorkspace extends Component
     }
 
     public function save(): void
-    {
-        $validated = $this->validate([
-            'clinicalDiagnoses' => ['required', 'string', 'max:5000'],
-            'rows' => ['required', 'array', 'min:1'],
-            'rows.*.type_id' => ['required', 'integer', 'exists:investigation_types,id'],
-            'rows.*.investigation_id' => ['required', 'integer', 'exists:investigations,id'],
-            'rows.*.specimen' => ['nullable', 'string', 'max:255'],
-        ]);
+{
+    $validated = $this->validate([
+        'clinicalDiagnoses' => ['required', 'string', 'max:5000'],
+        'rows' => ['required', 'array', 'min:1'],
+        'rows.*.type_id' => ['required', 'integer', 'exists:investigation_types,id'],
+        'rows.*.investigation_id' => ['required', 'integer', 'exists:investigations,id'],
+        'rows.*.specimen' => ['nullable', 'string', 'max:255'],
+    ]);
 
-        $visit = $this->currentVisit();
+    $visit = $this->currentVisit();
 
-        if ($this->editingRequestId) {
-            if ($this->updateRequest($validated['rows'][0], $validated['clinicalDiagnoses'])) {
-                $this->resetRequestForm();
-                $this->feedback('Investigation request and bill updated successfully.');
-            }
+    if ($this->editingRequestId) {
+        if ($this->updateRequest($validated['rows'][0], $validated['clinicalDiagnoses'])) {
+            $this->resetRequestForm();
+            $this->feedback('Investigation request and bill updated successfully.');
+        }
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | First validate all investigations and calculate total bill amount
+    |--------------------------------------------------------------------------
+    */
+    $investigations = collect();
+    $totalAmount = 0;
+
+    foreach ($validated['rows'] as $row) {
+        $investigation = Investigation::with('investigationType.department')
+            ->findOrFail($row['investigation_id']);
+
+        if ((int) $investigation->investigation_type_id !== (int) $row['type_id']) {
+            $this->feedback('One investigation does not belong to the selected investigation type.', 'warning');
             return;
         }
 
-        foreach ($validated['rows'] as $row) {
-            $investigation = Investigation::with('investigationType.department')->findOrFail($row['investigation_id']);
+        $amount = (float) ($investigation->price ?? 0);
 
-            if ((int) $investigation->investigation_type_id !== (int) $row['type_id']) {
-                $this->feedback('One investigation does not belong to the selected investigation type.', 'warning');
-                return;
-            }
+        $investigations->push([
+            'row' => $row,
+            'investigation' => $investigation,
+            'amount' => $amount,
+        ]);
 
-            $request = $visit->investigationRequests()->create([
-                'investigation_id' => $investigation->id,
-                'requested_by' => auth()->id(),
-                'clinical_diagnoses' => $validated['clinicalDiagnoses'],
-                'requested_at' => now(),
-                'specimen' => $row['specimen'] ?: null,
-            ]);
-
-            InvestigationRequest::updateLabNumber($request->id, $investigation->id);
-
-            $amount = (float) ($investigation->price ?? 0);
-            $bill = $visit->bills()->create([
-                'amount' => $amount,
-                'due_amount' => $amount,
-                'service_description' => 'Investigation: ' . $investigation->name,
-                'status' => 'pending',
-                'issued_by' => auth()->id(),
-                'issued_date' => now(),
-                'bill_number' => Bill::generateBillNumber(),
-                'due_date' => now()->addDays(2)->toDateString(),
-                'department_id' => $investigation->investigationType?->department_id,
-            ]);
-
-            $request->update(['bill_id' => $bill->id]);
-            $bill->billInvestigations()->create([
-                'investigation_id' => $investigation->id,
-                'unit_price' => $amount,
-                'quantity' => 1,
-                'subtotal' => $amount,
-            ]);
-
-            $this->logActivity("Investigation request created for {$investigation->name}");
-        }
-
-        $this->resetRequestForm();
-        $this->feedback('Investigation request and bill created successfully.');
+        $totalAmount += $amount;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create only one bill for all investigations
+    |--------------------------------------------------------------------------
+    */
+    $bill = $visit->bills()->create([
+        'amount' => $totalAmount,
+        'due_amount' => $totalAmount,
+        'service_description' => 'Investigation Bill',
+        'status' => 'pending',
+        'issued_by' => auth()->id(),
+        'issued_date' => now(),
+        'bill_number' => Bill::generateBillNumber(),
+        'due_date' => now()->addDays(2)->toDateString(),
+
+        // If investigations may belong to different departments, this may need adjustment.
+        // For now, we use the first investigation department.
+        'department_id' => $investigations->first()['investigation']->investigationType?->department_id,
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create requests normally, but attach them to the same bill
+    |--------------------------------------------------------------------------
+    */
+    foreach ($investigations as $item) {
+        $row = $item['row'];
+        $investigation = $item['investigation'];
+        $amount = $item['amount'];
+
+        $request = $visit->investigationRequests()->create([
+            'investigation_id' => $investigation->id,
+            'requested_by' => auth()->id(),
+            'clinical_diagnoses' => $validated['clinicalDiagnoses'],
+            'requested_at' => now(),
+            'specimen' => $row['specimen'] ?: null,
+            'bill_id' => $bill->id,
+        ]);
+
+        InvestigationRequest::updateLabNumber($request->id, $investigation->id);
+
+        $bill->billInvestigations()->create([
+            'investigation_id' => $investigation->id,
+            'unit_price' => $amount,
+            'quantity' => 1,
+            'subtotal' => $amount,
+        ]);
+
+        $this->logActivity("Investigation request created for {$investigation->name}");
+    }
+
+    $this->resetRequestForm();
+    $this->feedback('Investigation requests and single accumulated bill created successfully.');
+}
 
     public function editRequest(int $id): void
     {

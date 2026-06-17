@@ -17,7 +17,7 @@ use App\Models\InvestigationResult;
 Route::middleware([
         'auth',
         'verified',
-        'role:lab_technician'
+        
     ])
     ->prefix('lab')
     ->name('lab.')
@@ -31,7 +31,7 @@ Route::middleware([
     });
 
 
-Route::middleware(['auth', 'verified', 'role:lab_technician'])
+Route::middleware(['auth', 'verified'])
 ->prefix('lab')
 ->name('lab.')
 ->namespace('Lab')

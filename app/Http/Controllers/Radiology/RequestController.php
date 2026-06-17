@@ -10,98 +10,21 @@ use App\Models\InvestigationRequest;
 
 class RequestController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        if ($request->ajax()) {
-            $requests = auth()->user()->department->investigationRequests()
-                ->with(['bill', 'patientVisit.patient.demographic', 'requestedBy', 'performedBy', 'investigation'])
-                ->orderByDesc('created_at')
-                ->get()
-                ->filter(fn ($investigationRequest) => $investigationRequest->bill !== null);
+        $requests = auth()->user()->department->investigationRequests()
+            ->with([
+                'bill',
+                'patientVisit.patient.demographic',
+                'requestedBy',
+                'performedBy',
+                'investigation',
+            ])
+            ->orderByDesc('created_at')
+            ->get()
+            ->filter(fn ($investigationRequest) => $investigationRequest->bill !== null);
 
-            $recordsTotal = $requests->count();
-            $search = trim(strtolower($request->input('search.value', '')));
-
-            if ($search !== '') {
-                $requests = $requests->filter(function ($investigationRequest) use ($search) {
-                    $patientName = $investigationRequest->bill->patientName() ?? 'N/A';
-                    $hospitalNumber = $investigationRequest->patientVisit?->patient?->hospital_number ?? 'Walk in Patient';
-                    $investigationName = $investigationRequest->investigation->name ?? '';
-                    $requestedBy = $investigationRequest->requestedBy->name ?? '';
-                    $status = $investigationRequest->bill->status ?? '';
-
-                    return Str::contains(strtolower($patientName.' '.$hospitalNumber.' '.$investigationName.' '.$requestedBy.' '.$status), $search);
-                });
-            }
-
-            $recordsFiltered = $requests->count();
-            $orderCol = (int) $request->input('order.0.column', 4);
-            $orderDir = $request->input('order.0.dir', 'desc');
-
-            $requests = $requests->sortBy(function ($investigationRequest) use ($orderCol) {
-                return match ($orderCol) {
-                    1 => strtolower($investigationRequest->bill->patientName() ?? ''),
-                    2 => strtolower($investigationRequest->patientVisit?->patient?->hospital_number ?? ''),
-                    3 => strtolower($investigationRequest->investigation->name ?? ''),
-                    4 => $investigationRequest->requested_at ?? now(),
-                    5 => strtolower($investigationRequest->requestedBy->name ?? ''),
-                    6 => strtolower($investigationRequest->bill->status ?? ''),
-                    7 => $investigationRequest->completed_at ?? now(),
-                    8 => strtolower($investigationRequest->performedBy->name ?? ''),
-                    default => $investigationRequest->requested_at ?? now(),
-                };
-            });
-
-            if ($orderDir !== 'asc') {
-                $requests = $requests->reverse()->values();
-            }
-
-            $start = (int) $request->input('start', 0);
-            $length = (int) $request->input('length', 10);
-            $pageItems = $requests->slice($start, $length)->values();
-
-            $data = $pageItems->map(function ($investigationRequest, $index) use ($start) {
-                $patientName = $investigationRequest->bill->patientName() ?? 'N/A';
-                $hospitalNumber = $investigationRequest->patientVisit?->patient?->hospital_number ?? 'Walk in Patient';
-                $paymentStatus = $investigationRequest->bill->status === 'paid'
-                    ? 'Paid'
-                    : 'No Payment Recorded';
-                $actions = '';
-
-                if ($investigationRequest->bill->status === 'paid') {
-                    $actions .= '<a href="'.route('radiology.requests.createResult', $investigationRequest).'" class="btn btn-outline-primary me-1"><i class="bi bi-save"></i> Save</a>';
-
-                    if ($investigationRequest->completed_at) {
-                        $actions .= '<a href="'.route('radiology.requests.show', $investigationRequest).'" class="btn btn-outline-success me-1"><i class="bi bi-printer"></i> Print</a>';
-                        $actions .= '<a href="'.route('radiology.requests.editResult', $investigationRequest).'" class="btn btn-outline-warning"><i class="bi bi-pencil"></i> Edit</a>';
-                    }
-                } else {
-                    $actions = '<span class="text-muted">No Payment Recorded</span>';
-                }
-
-                return [
-                    $start + $index + 1,
-                    $patientName,
-                    $hospitalNumber,
-                    $investigationRequest->investigation->name,
-                    $investigationRequest->requested_at,
-                    $investigationRequest->requestedBy->name ?? 'N/A',
-                    $paymentStatus,
-                    $investigationRequest->completed_at,
-                    $investigationRequest->performedBy->name ?? 'N/A',
-                    $actions,
-                ];
-            })->toArray();
-
-            return response()->json([
-                'draw' => (int) $request->input('draw', 0),
-                'recordsTotal' => $recordsTotal,
-                'recordsFiltered' => $recordsFiltered,
-                'data' => $data,
-            ]);
-        }
-
-        return view('radiology.request.index');
+        return view('radiology.request.index', compact('requests'));
     }
 
     public function createResult(InvestigationRequest $investigationRequest)
