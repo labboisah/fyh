@@ -92,14 +92,15 @@
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#fluidbalance" type="button"><i class="bi bi-droplet me-2"></i> Fluid Balance</button></li>
                             @endif
 
-                            @if(auth()->user()->hasRole('doctor'))
+                            @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
                                 <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Doctor Clinicals</h6></li>
-                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#investigations" type="button"><i class="bi bi-clipboard2-pulse me-2"></i> Investigations</button></li>
+                                <li><h6 class="dropdown-header">Medication Clinicals</h6></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#admissions" type="button"><i class="bi bi-hospital me-2"></i> Admissions</button></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button"><i class="bi bi-prescription2 me-2"></i> Prescriptions</button></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#continuations" type="button"><i class="bi bi-pencil me-2"></i> Continuation Sheet</button></li>
                             @endif
+                            <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#investigations" type="button"><i class="bi bi-clipboard2-pulse me-2"></i> Investigations</button></li>
+
                         </ul>
                     </li>
 
