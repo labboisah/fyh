@@ -150,7 +150,7 @@
 
                 @if($loaded)
 
-                <a href="{{ route('lab.requests.results.show', $bill) }}"
+                <a href="{{ route('lab.requests.show', $bill) }}"
                    target="_blank"
                    class="btn btn-primary">
 
