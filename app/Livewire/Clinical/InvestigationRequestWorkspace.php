@@ -171,6 +171,8 @@ class InvestigationRequestWorkspace extends Component
             'type_id' => (string) $request->investigation?->investigation_type_id,
             'investigation_id' => (string) $request->investigation_id,
             'specimen' => (string) $request->specimen,
+            'discount' => (string) $request->discount,
+
         ]];
     }
 
@@ -197,10 +199,12 @@ class InvestigationRequestWorkspace extends Component
 
         $amount = (float) ($investigation->price ?? 0);
         $bill = $request->bill;
+        $discount = $this->discount * ($amount/100);
         if ($bill) {
             $bill->update([
                 'amount' => $amount,
-                'due_amount' => $amount,
+                'due_amount' => $amount - $discount,
+                'discount'=> $discount,
                 'service_description' => 'Investigation: ' . $investigation->name,
                 'department_id' => $investigation->investigationType?->department_id,
             ]);
@@ -209,13 +213,13 @@ class InvestigationRequestWorkspace extends Component
             if ($billInvestigation) {
                 $billInvestigation->update([
                     'investigation_id' => $investigation->id,
-                    'unit_price' => $amount,
+                    'unit_price' => $amount - $discount,
                     'quantity' => 1,
-                    'subtotal' => $amount,
+                    'subtotal' => $amount - $discount,
                 ]);
             }
         }
-
+        $this->resetRequestForm();
         $this->logActivity("Investigation request updated for {$investigation->name}");
         return true;
     }
