@@ -73,12 +73,12 @@ class Patient extends Model
 
         $bill = new Bill();
         $bill->patient_visit_id = $visit->id;
-        $baseAmount = $this->fileType->price - $consultationCharges ?? 2000; // Example amount for file opening
+        $baseAmount = $this->fileType->price; // Example amount for file opening
         $discountAmount = $baseAmount * ($discount / 100);
         $bill->amount = $baseAmount;
         $bill->due_amount = max(0, $baseAmount - $discountAmount);
-        $bill->discount = $discount;
-        $bill->service_description = 'File Opening Fee';
+        $bill->discount = $discountAmount;
+        $bill->service_description = 'File Opening Fee & Consultation';
         $bill->bill_number = Bill::generateBillNumber();
         $bill->issued_by = auth()->user()->id;
         $bill->issued_date= now();
@@ -94,26 +94,11 @@ class Patient extends Model
             'subtotal' => $bill->due_amount
             ]);
 
-        // generate another bill for consultation using subtracted amount
-        $consultationBill = new Bill();
-        $consultationBill->patient_visit_id = $visit->id;
-        $consultationBill->amount = $consultationCharges; // Example amount for consultation
-        $consultationBill->due_amount = $consultationCharges; // No discount on consultation fee
-        $consultationBill->service_description = 'Initial Consultation Fee';
-        $consultationBill->bill_number = Bill::generateBillNumber();
-        $consultationBill->issued_by = auth()->user()->id;
-        $consultationBill->issued_date= now();
-        $consultationBill->due_date = now()->addDays(7); // Due in 7 days
-        $consultationBill->status = 'pending';
-        $consultationBill->notes = 'Initial Consultation';
-        $consultationBill->save();
-
-
-        $consultationBill->billServices()->create([
+        $bill->billServices()->create([
             'service_id'=>$consultationService->id,
-            'unit_price'=>$consultationBill->due_amount,
+            'unit_price'=>$consultationCharges,
             'quantity'=> 1,
-            'subtotal' => $consultationBill->due_amount
+            'subtotal' => $consultationCharges
         ]);
 
         // send  consultation service request
@@ -123,7 +108,7 @@ class Patient extends Model
         $serviceRequest->requested_by = auth()->user()->id;
         $serviceRequest->requested_at = now();
         $serviceRequest->status = 'pending';
-        $serviceRequest->clinical_diagnoses = 'File opening consultation';
+        $serviceRequest->clinical_diagnoses = 'File opening & consultation';
         $serviceRequest->save();
         
     }
