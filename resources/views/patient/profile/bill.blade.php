@@ -10,6 +10,7 @@
             <th>Issued Date</th>
             <th>Due Date</th>
             <th>Issued By</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +25,11 @@
                 <td>{{$bill->issued_date}}</td>
                 <td>{{$bill->due_date}}</td>
                 <td>{{$bill->issuedBy->name}}</td>
+                <td>
+                    @if($bill->status == 'pending')
+                    <a href="{{route('accountant.bills.payments.create', $bill)}}" class="btn btn-sm btn-danger">Record Payment</a>
+                    @endif
+                </td>
             </tr>
             @endforeach
         @endforeach

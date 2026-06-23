@@ -38,6 +38,11 @@ class PaymentWorkspace extends Component
     public string $insuranceProvider = '';
     public string $notes = '';
 
+    public array $availableBills = [];
+    public array $selectedBills = [];
+    public array $billAmounts = [];
+    public string $receiptNumber = '';
+
     protected array $queryString = [
         'search' => ['except' => ''],
         'status' => ['except' => ''],
@@ -73,61 +78,70 @@ class PaymentWorkspace extends Component
         ]);
     }
 
-    public function updatedSearch(): void
+    public function loadBills(): void
     {
-        $this->resetPage();
-    }
+        $this->resetValidation();
+        $this->availableBills = [];
+        $this->selectedBills = [];
+        $this->billAmounts = [];
+        $this->receiptNumber = '';
 
-    public function updatedStatus(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedMethod(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedDateFrom(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedDateTo(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedPerPage(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedBillNumber(): void
-    {
-        $this->billId = null;
-        $this->resetErrorBag('billNumber');
-
-        $bill = $this->selectedBill();
-
-        if ($bill) {
-            $this->billId = $bill->id;
-
-            if ($this->amount === '') {
-                $this->amount = (string) max(0, (float) $bill->balance);
-            }
+        if (blank($this->billNumber)) {
+            $this->addError('billNumber', 'Please enter a bill number.');
+            return;
         }
-    }
 
-    public function refreshList(): void
-    {
-        // Livewire polling re-renders the table while the page is visible.
+        $bill = Bill::with([
+            'patientVisit.patient.demographic',
+            'walkinPatient',
+            'payments',
+        ])
+            ->where('bill_number', trim($this->billNumber))
+            ->first();
+
+        if (! $bill) {
+            $this->addError('billNumber', 'No bill was found with this bill number.');
+            return;
+        }
+
+        $query = Bill::with(['payments'])
+            ->whereIn('status', ['pending', 'partial']);
+
+        if ($bill->patient_visit_id) {
+            $query->where('patient_visit_id', $bill->patient_visit_id);
+        } elseif ($bill->walkin_id) {
+            $query->where('walkin_id', $bill->walkin_id);
+        } else {
+            $query->where('id', $bill->id);
+        }
+
+        $bills = $query->orderBy('issued_date')->get();
+
+        if ($bills->isEmpty()) {
+            $this->addError('billNumber', 'No pending or partial bill found for this patient.');
+            return;
+        }
+
+        $this->availableBills = $bills->map(function (Bill $bill) {
+            return [
+                'id' => $bill->id,
+                'bill_number' => $bill->bill_number,
+                'description' => $bill->service_description,
+                'amount' => (float) $bill->amount,
+                'due_amount' => (float) $bill->due_amount,
+                'balance' => (float) $bill->balance,
+                'status' => $bill->status,
+            ];
+        })->toArray();
+
+        foreach ($this->availableBills as $bill) {
+            $this->billAmounts[$bill['id']] = $bill['balance'];
+        }
     }
 
     public function save(): void
     {
         $validated = $this->validate([
-            'amount' => ['required', 'numeric', 'min:0.01'],
             'paymentMethodId' => ['required', 'exists:payment_methods,id'],
             'paymentDate' => ['required', 'date'],
             'paymentStatus' => ['required', 'in:pending,completed,failed,reversed'],
@@ -137,66 +151,95 @@ class PaymentWorkspace extends Component
         ]);
 
         if ($this->editingPaymentId) {
-            $payment = Payment::where('paid_by', Auth::id())->findOrFail($this->editingPaymentId);
-            $bill = $payment->bill;
-        } else {
-            $this->validate([
-                'billNumber' => ['required', 'string', 'exists:bills,bill_number'],
-            ]);
-
-            $bill = $this->selectedBill();
-
-            if (! $bill) {
-                $this->addError('billNumber', 'No bill was found with this bill number.');
-                return;
-            }
-
-            if ($bill->status === 'paid') {
-                $this->addError('billNumber', 'This bill is already fully paid.');
-                return;
-            }
+            $this->updateExistingPayment($validated);
+            return;
         }
 
-        $oldPayment = $this->editingPaymentId
-            ? Payment::where('paid_by', Auth::id())->findOrFail($this->editingPaymentId)
-            : null;
+        $this->validate([
+            'selectedBills' => ['required', 'array', 'min:1'],
+        ]);
 
-        $balanceLimit = (float) $bill->balance + (float) ($oldPayment?->amount ?? 0);
+        DB::transaction(function () use ($validated) {
+            $receiptNumber = $this->generateReceiptNumber();
 
-        if ($validated['paymentStatus'] === 'completed' && (float) $validated['amount'] > $balanceLimit) {
+            foreach ($this->selectedBills as $billId) {
+                $bill = Bill::with('payments')->findOrFail($billId);
+
+                if (! in_array($bill->status, ['pending', 'partial'], true)) {
+                    continue;
+                }
+
+                $amount = (float) ($this->billAmounts[$billId] ?? 0);
+
+                if ($amount <= 0) {
+                    throw new \Exception("Invalid payment amount for bill {$bill->bill_number}.");
+                }
+
+                if ($validated['paymentStatus'] === 'completed' && $amount > (float) $bill->balance) {
+                    throw new \Exception("Payment amount cannot exceed balance for bill {$bill->bill_number}.");
+                }
+
+                $payment = Payment::create([
+                    'bill_id' => $bill->id,
+                    'payment_id' => Payment::generatePaymentID(),
+                    'receipt_number' => $receiptNumber,
+                    'amount' => $amount,
+                    'payment_method_id' => $validated['paymentMethodId'],
+                    'payment_date' => $validated['paymentDate'],
+                    'status' => $validated['paymentStatus'],
+                    'reference_number' => $validated['referenceNumber'],
+                    'insurance_provider' => $validated['insuranceProvider'],
+                    'notes' => $validated['notes'],
+                    'paid_by' => Auth::id(),
+                ]);
+
+                $this->refreshBillStatus($payment->bill_id);
+            }
+
+            $this->receiptNumber = $receiptNumber;
+        });
+
+        $this->dispatch('toast', message: 'Payment recorded successfully.', type: 'success');
+
+        $printedReceipt = $this->receiptNumber;
+
+        $this->resetForm();
+
+        $this->receiptNumber = $printedReceipt;
+    }
+
+    private function updateExistingPayment(array $validated): void
+    {
+        $validatedAmount = $this->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+        ]);
+
+        $payment = Payment::where('paid_by', Auth::id())->findOrFail($this->editingPaymentId);
+        $bill = $payment->bill;
+
+        $balanceLimit = (float) $bill->balance + (float) $payment->amount;
+
+        if ($validated['paymentStatus'] === 'completed' && (float) $validatedAmount['amount'] > $balanceLimit) {
             $this->addError('amount', 'Payment amount cannot be greater than the bill balance of ' . number_format($balanceLimit, 2) . '.');
             return;
         }
 
-        DB::transaction(function () use ($validated, $bill) {
-            $payload = [
-                'amount' => $validated['amount'],
+        DB::transaction(function () use ($validated, $validatedAmount, $payment) {
+            $payment->update([
+                'amount' => $validatedAmount['amount'],
                 'payment_method_id' => $validated['paymentMethodId'],
                 'payment_date' => $validated['paymentDate'],
                 'status' => $validated['paymentStatus'],
                 'reference_number' => $validated['referenceNumber'],
                 'insurance_provider' => $validated['insuranceProvider'],
                 'notes' => $validated['notes'],
-            ];
-
-            if ($this->editingPaymentId) {
-                $payment = Payment::where('paid_by', Auth::id())->findOrFail($this->editingPaymentId);
-                $payment->update($payload);
-            } else {
-                $payment = Payment::create(array_merge($payload, [
-                    'bill_id' => $bill->id,
-                    'payment_id' => Payment::generatePaymentID(),
-                    'paid_by' => Auth::id(),
-                ]));
-            }
+            ]);
 
             $this->refreshBillStatus($payment->bill_id);
         });
 
-        $message = $this->editingPaymentId ? 'Payment updated successfully.' : 'Payment recorded successfully.';
-
         $this->resetForm();
-        $this->dispatch('toast', message: $message, type: 'success');
+        $this->dispatch('toast', message: 'Payment updated successfully.', type: 'success');
     }
 
     public function edit(int $paymentId): void
@@ -252,18 +295,24 @@ class PaymentWorkspace extends Component
             'billNumber',
             'paymentId',
             'amount',
-            'paymentMethodId',
-            'paymentDate',
             'paymentStatus',
             'referenceNumber',
             'insuranceProvider',
             'notes',
+            'availableBills',
+            'selectedBills',
+            'billAmounts',
         ]);
 
         $this->paymentStatus = 'completed';
         $this->paymentDate = now()->format('Y-m-d\TH:i');
         $this->paymentMethodId = (string) (PaymentMethod::where('is_active', true)->orderBy('name')->value('id') ?? '');
         $this->resetValidation();
+    }
+
+    public function refreshList(): void
+    {
+        //
     }
 
     private function filteredPaymentsQuery(): Builder
@@ -277,6 +326,7 @@ class PaymentWorkspace extends Component
                 $query->where(function (Builder $query) use ($search) {
                     $query
                         ->where('payment_id', 'like', "%{$search}%")
+                        ->orWhere('receipt_number', 'like', "%{$search}%")
                         ->orWhere('reference_number', 'like', "%{$search}%")
                         ->orWhereHas('bill', fn (Builder $bill) => $bill->where('bill_number', 'like', "%{$search}%"))
                         ->orWhereHas('bill.walkinPatient', fn (Builder $patient) => $patient->where('name', 'like', "%{$search}%"))
@@ -321,6 +371,7 @@ class PaymentWorkspace extends Component
         }
 
         $totalPaid = $bill->payments()->where('status', 'completed')->sum('amount');
+
         $status = 'pending';
 
         if ($totalPaid >= (float) $bill->due_amount) {
@@ -331,5 +382,10 @@ class PaymentWorkspace extends Component
 
         $bill->update(['status' => $status]);
         $bill->refreshRequestPaymentStatuses();
+    }
+
+    private function generateReceiptNumber(): string
+    {
+        return 'RC' . now()->format('ymdHis') . Auth::id();
     }
 }

@@ -36,6 +36,11 @@ class Role extends Model
         return $this->belongsToMany(Permission::class, 'role_permission');
     }
 
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_role');
+    }
+
     /**
      * Check if role has a specific permission.
      */

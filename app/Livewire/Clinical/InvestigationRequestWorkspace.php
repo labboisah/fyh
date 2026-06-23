@@ -18,6 +18,8 @@ class InvestigationRequestWorkspace extends Component
 
     public ?int $editingRequestId = null;
     public string $clinicalDiagnoses = '';
+    public int $discount = 0;
+
     public array $rows = [
         ['type_id' => '', 'investigation_id' => '', 'specimen' => ''],
     ];
@@ -61,6 +63,7 @@ class InvestigationRequestWorkspace extends Component
         'rows.*.type_id' => ['required', 'integer', 'exists:investigation_types,id'],
         'rows.*.investigation_id' => ['required', 'integer', 'exists:investigations,id'],
         'rows.*.specimen' => ['nullable', 'string', 'max:255'],
+        'discount' => ['nullable', 'max:100']
     ]);
 
     $visit = $this->currentVisit();
@@ -106,9 +109,12 @@ class InvestigationRequestWorkspace extends Component
     | Create only one bill for all investigations
     |--------------------------------------------------------------------------
     */
+    $discount = $this->discount * ($totalAmount/100);
+
     $bill = $visit->bills()->create([
         'amount' => $totalAmount,
-        'due_amount' => $totalAmount,
+        'discount' => $discount,
+        'due_amount' => $totalAmount - $discount,
         'service_description' => 'Investigation Bill',
         'status' => 'pending',
         'issued_by' => auth()->id(),
@@ -217,7 +223,7 @@ class InvestigationRequestWorkspace extends Component
     private function resetRequestForm(): void
     {
         $this->editingRequestId = null;
-        $this->rows = [['type_id' => '', 'investigation_id' => '', 'specimen' => '']];
+        $this->rows = [['type_id' => '', 'investigation_id' => '', 'specimen' => '', 'discount'=>0]];
         $this->clinicalDiagnoses = '';
         $this->resetValidation();
     }

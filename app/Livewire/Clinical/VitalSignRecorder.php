@@ -32,12 +32,12 @@ class VitalSignRecorder extends Component
     public function save(): void
     {
         $validated = $this->validate([
-            'form.body_temperature' => ['required', 'numeric', 'between:35,42'],
-            'form.blood_pressure_systolic' => ['required', 'numeric', 'between:50,250'],
-            'form.blood_pressure_diastolic' => ['required', 'numeric', 'between:30,150'],
-            'form.heart_rate' => ['required', 'numeric', 'between:30,200'],
-            'form.respiratory_rate' => ['required', 'numeric', 'between:10,50'],
-            'form.oxygen_saturation' => ['required', 'numeric', 'between:50,100'],
+            'form.body_temperature' => ['required', 'numeric'],
+            'form.blood_pressure_systolic' => ['required', 'numeric'],
+            'form.blood_pressure_diastolic' => ['required', 'numeric'],
+            'form.heart_rate' => ['required', 'numeric'],
+            'form.respiratory_rate' => ['required', 'numeric'],
+            'form.oxygen_saturation' => ['required', 'numeric'],
             'form.blood_glucose' => ['nullable', 'numeric', 'min:0'],
             'form.weight' => ['nullable', 'numeric', 'min:0'],
             'form.height' => ['nullable', 'numeric', 'min:0'],

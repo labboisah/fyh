@@ -6,6 +6,11 @@ use App\Models\InvestigationRequest;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('visits:close-expired')->hourly();
+
+
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

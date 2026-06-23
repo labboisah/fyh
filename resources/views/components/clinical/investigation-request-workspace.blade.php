@@ -14,12 +14,20 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <form wire:submit.prevent="save">
-                        <div class="mb-3">
-                            <label class="form-label">Clinical Diagnoses</label>
-                            <textarea class="form-control @error('clinicalDiagnoses') is-invalid @enderror" rows="3" wire:model="clinicalDiagnoses"></textarea>
-                            @error('clinicalDiagnoses') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Clinical Diagnoses</label>
+                                    <textarea class="form-control @error('clinicalDiagnoses') is-invalid @enderror" rows="3" wire:model="clinicalDiagnoses"></textarea>
+                                    @error('clinicalDiagnoses') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Discount</label>
+                                <input type="number" min="1" max="100" class="form-control @error('discount') is-invalid @enderror" wire:model="discount" />
+                                    @error('discount') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
-
                         @foreach($rows as $index => $row)
                             <div class="border rounded p-3 mb-3" wire:key="investigation-row-{{ $index }}">
                                 <div class="row g-2">

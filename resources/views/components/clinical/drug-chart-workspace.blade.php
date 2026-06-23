@@ -14,6 +14,8 @@
                     @endforeach
                 </select></div>
                 <div class="mb-3"><label class="form-label">Dosage Given</label><input class="form-control" wire:model="dosage"></div>
+                <div class="mb-3"><label class="form-label">Time</label><input type="time" class="form-control" wire:model="time" /></div>
+
                 <div class="mb-3"><label class="form-label">Comment</label><textarea class="form-control" wire:model="comment"></textarea></div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-success">{{ $editingId ? 'Update Drug Chart' : 'Record Drug Chart' }}</button>
@@ -27,7 +29,7 @@
             <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Time</th><th>Medicine</th><th>Dosage</th><th>Comment</th><th></th></tr></thead><tbody>
                 @forelse($recent as $chart)
                     <tr>
-                        <td>{{ $chart->time }}</td>
+                        <td>{{ date('h:i:s A',strtotime($chart->time)) }}</td>
                         <td>{{ $chart->medicine?->name }}</td>
                         <td>{{ $chart->dosage }}</td>
                         <td>{{ $chart->comment }}</td>
