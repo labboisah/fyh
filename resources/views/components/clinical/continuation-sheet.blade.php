@@ -52,47 +52,47 @@
                     <strong class="text-success">{{ date('M d, Y',strtotime($patient->currentVisit()->visit_date))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
                     </p>
                     <hr>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Recorded By</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">By</label>
                         <p class="h6">{{ $vitalSign->recordedBy->name }}</p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label text-muted">Date</label>
                         <p class="h6">{{ $vitalSign->recorded_date->format('M d, Y') }}</p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Temperature</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Temp</label>
                         <p class="h6">{{ $vitalSign->body_temperature ?? 'N/A' }}°C</p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Blood Pressure</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">BP</label>
                         <p class="h6">{{ $vitalSign->blood_pressure_systolic ?? 'N/A' }}/{{ $vitalSign->blood_pressure_diastolic ?? 'N/A' }}</p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Heart Rate</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">HR</label>
                         <p class="h6">{{ $vitalSign->heart_rate ?? 'N/A' }} bpm</p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Respiratory Rate</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Resp.</label>
                         <p class="h6">{{ $vitalSign->respiratory_rate ?? 'N/A' }} </p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Oxygen Saturation</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Ox</label>
                         <p class="h6">{{ $vitalSign->oxygen_saturation ?? 'N/A' }} </p>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted">Blood Glucose</label>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Blood</label>
                         <p class="h6">{{ $vitalSign->blood_glucose ?? 'N/A' }} </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label text-muted">Weight</label>
                         <p class="h6">{{ $vitalSign->weight ?? 'N/A' }} </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label text-muted">Height</label>
                         <p class="h6">{{ $vitalSign->height ?? 'N/A' }} </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label text-muted">Remark</label>
                         <p class="h6">{{ $vitalSign->notes ?? 'N/A' }} </p>
                     </div>

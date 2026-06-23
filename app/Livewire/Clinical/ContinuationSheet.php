@@ -37,10 +37,10 @@ class ContinuationSheet extends Component
         
         $validated = $this->validate([
             'notes' => ['required', 'string', 'max:10000'],
-            'examination' => ['required', 'string', 'max:10000'],
-            'diagnose' => ['required', 'string', 'max:10000'],
-            'history' => ['required', 'string', 'max:10000'],
-            'plan' => ['required', 'string', 'max:10000'],
+            'examination' => ['nullable', 'string', 'max:10000'],
+            'diagnose' => ['nullable', 'string', 'max:10000'],
+            'history' => ['nullable', 'string', 'max:10000'],
+            'plan' => ['nullable', 'string', 'max:10000'],
         ]);
 
         if ($this->editingId) {
