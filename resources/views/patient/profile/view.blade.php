@@ -16,7 +16,7 @@
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">
 
                     <li class="nav-item">
-                        <button class="nav-link active"
+                        <button class="nav-link"
                                 data-bs-toggle="tab"
                                 data-bs-target="#bio"
                                 type="button">
@@ -125,7 +125,7 @@
                     @endif
 
                     <li class="nav-item text-danger">
-                        <button class="nav-link"
+                        <button class="nav-link active"
                                 data-bs-toggle="tab"
                                 data-bs-target="#actions"
                                 type="button">
@@ -141,7 +141,7 @@
             <div class="card-body tab-content">
 
                 <!-- BIO DATA -->
-                <div class="tab-pane fade show active" id="bio">
+                <div class="tab-pane fade" id="bio">
                     @include('patient.profile.infor')
                 </div>
 
@@ -233,7 +233,7 @@
                 </div>
                 
                 <!-- QUICK ACTIONS -->
-                <div class="tab-pane fade" id="actions">
+                <div class="tab-pane fade show active" id="actions">
                     @include('patient.profile.actions')
                     
                 </div>

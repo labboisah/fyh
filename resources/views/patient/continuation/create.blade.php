@@ -31,6 +31,26 @@
                         </textarea>
                     </div>
 
+                    <div class="form-group">
+                        <textarea name="history" id="" rows="10" class="form-control" placeholder="Write Some paragraph of history">
+                        </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea name="examination" id="" rows="10" class="form-control" placeholder="Write Some paragraph of examination">
+                        </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea name="diagnosis" id="" rows="10" class="form-control" placeholder="Write Some paragraph of diagnosis">
+                        </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea name="plan" id="" rows="10" class="form-control" placeholder="Write Some paragraph of plan">
+                        </textarea>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-send me-1"></i> Save 
                     </button>

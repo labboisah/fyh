@@ -190,15 +190,7 @@
     @endif
 </div>
 
-@if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
-    <div class="col-md-2">
-        <div class="d-grid gap-2 mb-3">
-            <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-outline-danger">
-                <i class="bi bi-file-medical me-2"></i>Send Investigation Request
-            </a>
-        </div>
-    </div>
-@endif
+
 
 @if(auth()->user()->hasRole('doctor'))
 <div class="row">
@@ -245,4 +237,13 @@
 </div>
 @endif
 
+@if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
+    <div class="col-md-2">
+        <div class="d-grid gap-2 mb-3">
+            <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-outline-danger">
+                <i class="bi bi-file-medical me-2"></i>Send Investigation Request
+            </a>
+        </div>
+    </div>
+@endif
 </div>

@@ -19,6 +19,10 @@ class ContinuationController extends Controller
 
         $patient->currentVisit()->continuations()->create([
             'note'=>$request->notes,
+            'history'=>$request->history,
+            'examination'=>$request->examination,
+            'diagnosis'=>$request->diagnosis,
+            'plan'=>$request->plan,
             'written_by'=>auth()->user()->id
         ]);
         // Log activity
