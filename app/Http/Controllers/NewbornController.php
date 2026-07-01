@@ -40,7 +40,6 @@ class NewbornController extends Controller
                             $demographicQuery
                                 ->where('first_name', 'like', $like)
                                 ->orWhere('last_name', 'like', $like)
-                                ->orWhere('middle_name', 'like', $like)
                                 ->orWhere('phone_number', 'like', $like);
                         });
                 });

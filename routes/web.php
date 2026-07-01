@@ -51,7 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('/report')->name('report.')->group(function () {
+    Route::middleware('role:administrator,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department')
+        ->prefix('/report')
+        ->name('report.')
+        ->group(function () {
         Route::get('/', [ReportsController::class, 'index'])->name('index');
         Route::post('/generate', [ReportsController::class, 'generate'])->name('generate');
         Route::get('/show', [ReportsController::class, 'show'])->name('show');
@@ -234,9 +237,3 @@ require __DIR__.'/patient.php';
 require __DIR__.'/pharmacy.php';
 require __DIR__.'/department.php';
 require __DIR__.'/reports.php';
-
-// Reports Routes (for all authenticated users)
-Route::middleware(['auth', 'verified'])->prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', [App\Http\Controllers\ReportsController::class, 'index'])->name('index');
-    Route::match(['get', 'post'], '/generate', [App\Http\Controllers\ReportsController::class, 'generate'])->name('generate');
-});

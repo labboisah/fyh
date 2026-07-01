@@ -10,7 +10,7 @@ use App\Livewire\Reports\MyActivityReport;
 use App\Livewire\Reports\PaymentReport;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->prefix('reports')->name('reports.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:administrator,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department'])->prefix('reports')->name('reports.')->group(function () {
     Route::get('/my-activities', MyActivityReport::class)->name('my-activities.index');
     Route::get('/my-activities/pdf', [MyActivityReportController::class, 'pdf'])->name('my-activities.pdf');
 });
