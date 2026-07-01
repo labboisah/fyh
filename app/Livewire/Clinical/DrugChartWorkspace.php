@@ -18,12 +18,15 @@ class DrugChartWorkspace extends Component
     public string $prescriptionItemId = '';
     public string $dosage = '';
     public string $comment = '';
-    public string $time = '';
+    public string $date;
+    public string $time;
     public ?int $editingId = null;
 
     public function mount(Patient $patient): void
     {
         $this->patient = $patient;
+        $this->date = now()->toDateString();
+        $this->time = now()->format('H:i: A');
     }
 
     public function render()
@@ -51,6 +54,7 @@ class DrugChartWorkspace extends Component
             'prescriptionItemId' => ['required', 'integer', 'exists:prescription_items,id'],
             'dosage' => ['required', 'string', 'max:255'],
             'time' => ['required'],
+            'date' => ['required'],
             'comment' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -64,7 +68,8 @@ class DrugChartWorkspace extends Component
             'medicine_id' => $item->medicine_id,
             'route_id' => $item->route_id,
             'comment' => $validated['comment'] ?? null,
-            'time' =>$validated['time']
+            'time' =>$validated['time'],
+            'date' => $validated['date'],
         ];
 
         if ($this->editingId) {
@@ -74,14 +79,13 @@ class DrugChartWorkspace extends Component
             $this->logActivity("Drug chart entry updated for medicine: {$item->medicine?->name}");
         } else {
             $item->drugCharts()->create($payload + [
-                
                 'dispensed_by' => auth()->id(),
             ]);
             $this->logActivity("Drug chart entry recorded for medicine: {$item->medicine?->name}");
         }
 
         $this->editingId = null;
-        $this->reset(['prescriptionItemId', 'dosage', 'comment', 'time']);
+        $this->reset(['prescriptionItemId', 'dosage', 'comment', 'time', 'date']);
         $this->feedback('Drug chart saved successfully.');
     }
 
@@ -95,12 +99,13 @@ class DrugChartWorkspace extends Component
         $this->dosage = (string) $chart->dosage;
         $this->comment = (string) $chart->comment;
         $this->time = (string) $chart->time;
+        $this->date = (string) $chart->date;
     }
 
     public function cancelEdit(): void
     {
         $this->editingId = null;
-        $this->reset(['prescriptionItemId', 'dosage', 'comment','time']);
+        $this->reset(['prescriptionItemId', 'dosage', 'comment','time', 'date']);
         $this->resetValidation();
     }
 }

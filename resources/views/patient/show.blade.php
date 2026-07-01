@@ -22,7 +22,11 @@
         </p>
         <p class="mb-0 text-muted">
            Absconded Record:
-           <strong class="text-success">{{ $patient->patientVisits->where('status', 'Absconded')->count() }}</strong>
+           <strong class="text-success">{{ $patient->abscondedAdmissions()->count() }}</strong>
+        </p>
+        <p class="mb-0 text-muted">
+           SAMA Record:
+           <strong class="text-success">{{ $patient->samaAdmissions()->count() }}</strong>
         </p>
         <p class="mb-0 text-muted">
            Visit Status:

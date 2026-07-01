@@ -19,7 +19,9 @@ Route::middleware(['auth', 'verified', 'role:nurse'])
     Route::get('/clinicals/fluid-balances', ClinicalRecordIndex::class)->defaults('type', 'fluid-balances')->name('clinicals.fluid-balances');
     Route::get('/clinicals/investigations', ClinicalRecordIndex::class)->defaults('type', 'investigations')->name('clinicals.investigations');
     Route::get('/admissions', [PatientController::class, 'admissions'])->name('admissions.index');
-    
+    Route::get('/admissions/{admission}/absconded', [PatientController::class, 'recordAbsconded'])->name('admissions.record-absconded');
+    Route::get('/admissions/{admission}/sama', [PatientController::class, 'recordSAMA'])->name('admissions.record-sama');
+
     Route::name('patient.')
     ->prefix('patients')
     ->group(function () {

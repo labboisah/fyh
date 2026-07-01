@@ -17,8 +17,9 @@
             <strong class="text-success">{{$pItem->medicine->name}}</strong>
             </p>
             <hr>
+            
             <div class="col-md-3">
-                <label class="form-label text-muted">Prescribe By</label>
+                <label class="form-label text-muted">Prescribed By</label>
                 <p class="h6">{{ $prescription->prescribedBy->name ?? ''}}</p>
             </div>
             <div class="col-md-3">
@@ -33,6 +34,11 @@
                 <label class="form-label text-muted">Duration</label>
                 <p class="h6">{{ $pItem->duration }}</p>
             </div>
+            <!-- medication status -->
+            <div class="col-md-3">
+                <label class="form-label text-muted">Status</label>
+                <p class="badge badge-success text-white">{{ $pItem->medication_status }}</p>
+            </div>
         </div>
     </div>
     <div class="col-md-7">
@@ -43,7 +49,7 @@
                 <tr>
                     <th>Dispense By</th>
                     <th>Dosage</th>
-                    <th>Mode of Administration</th>
+                    <th>Route</th>
                     <th>Date</th>
                     <th>Time</th>
                 </tr>
@@ -54,9 +60,9 @@
                     <tr>
                         <td>{{ $drugChart->dispensedBy->name ?? ''}}</td>
                         <td>{{ $pItem->dosage }}</td>
-                        <td>{{ $drugChart->mode_of_administration }}</td>
-                        <td>{{ $drugChart->time }}</td>
-                        <td>{{ $drugChart->created_at->format('d M, Y') }}</td>
+                        <td>{{ $drugChart->route }}</td>
+                        <td>{{ date('d M, Y', strtotime($drugChart->date)) }}</td>
+                        <td>{{ date('h:i:s A', strtotime($drugChart->time)) }}</td>
                     </tr>
                     @else
                     <tr>

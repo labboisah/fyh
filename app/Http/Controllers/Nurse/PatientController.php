@@ -31,7 +31,7 @@ class PatientController extends Controller
         $admissions = Admission::query()
             ->with(['patientVisit.patient.demographic', 'bed.ward', 'admittedBy'])
             ->whereDoesntHave('discharge')
-            ->whereNotIn('status', ['discharged', 'Discharged', 'closed', 'Closed'])
+            ->whereNotIn('status', ['discharged', 'Discharged', 'closed', 'Closed', 'absconded', 'Absconded', 'sama', 'SAMA'])
             ->when($search !== '', function ($query) use ($search) {
                 $like = "%{$search}%";
 
@@ -55,6 +55,32 @@ class PatientController extends Controller
             ->get();
 
         return view('nurse.admissions.index', compact('admissions', 'search'));
+    }
+
+    public function recordAbsconded(Admission $admission) {
+        $admission->status = 'absconded';
+        $admission->save();
+
+        // log activity
+        $admission->patientVisit->visitActivities()->create([
+            'recorded_by' => auth()->user()->id,
+            'activity' => 'Patient marked as absconded by ' . auth()->user()->name,
+        ]);
+
+        return redirect()->back()->with('success', 'Patient marked as absconded.');
+    }
+
+    public function recordSAMA(Admission $admission) {
+        $admission->status = 'sama';
+        $admission->save();
+
+        // log activity
+        $admission->patientVisit->visitActivities()->create([
+            'recorded_by' => auth()->user()->id,
+            'activity' => 'Patient marked as Sign Against Medical Advice by ' . auth()->user()->name,
+        ]);
+
+        return redirect()->back()->with('success', 'Patient marked as Sign Against Medical Advice.');
     }
 
     public function complete(ServiceRequest $serviceRequest) {

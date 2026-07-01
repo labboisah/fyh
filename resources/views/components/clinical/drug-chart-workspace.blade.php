@@ -14,6 +14,7 @@
                     @endforeach
                 </select></div>
                 <div class="mb-3"><label class="form-label">Dosage Given</label><input class="form-control" wire:model="dosage"></div>
+                <div class="mb-3"><label class="form-label">Date</label><input type="date" class="form-control" wire:model="date" /></div>
                 <div class="mb-3"><label class="form-label">Time</label><input type="time" class="form-control" wire:model="time" /></div>
 
                 <div class="mb-3"><label class="form-label">Comment</label><textarea class="form-control" wire:model="comment"></textarea></div>
@@ -26,10 +27,11 @@
             </form>
         </div></div></div>
         <div class="col-lg-7"><div class="card border-0 shadow-sm"><div class="table-responsive">
-            <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Time</th><th>Medicine</th><th>Dosage</th><th>Comment</th><th></th></tr></thead><tbody>
+            <table class="table table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Time</th><th>Medicine</th><th>Dosage</th><th>Comment</th><th></th></tr></thead><tbody>
                 @forelse($recent as $chart)
                     <tr>
-                        <td>{{ date('h:i:s A',strtotime($chart->time)) }}</td>
+                        <td>{{ date('Y-m-d', strtotime($chart->date)) }}</td>
+                        <td>{{ date('h:i:s A', strtotime($chart->time)) }}</td>
                         <td>{{ $chart->medicine?->name }}</td>
                         <td>{{ $chart->dosage }}</td>
                         <td>{{ $chart->comment }}</td>

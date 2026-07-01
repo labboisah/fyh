@@ -58,6 +58,22 @@ class Patient extends Model
         return $this->hasMany(PatientVisit::class);
     }
 
+    public function abscondedAdmissions()
+    {
+        return $this->patientVisits
+            ->flatMap(fn ($visit) => $visit->admissions)
+            ->where('status', 'absconded')
+            ->values();
+    }
+
+    public function samaAdmissions()
+    {
+        return $this->patientVisits
+            ->flatMap(fn ($visit) => $visit->admissions)
+            ->where('status', 'sama')
+            ->values();
+    }
+
     public function generateFileOpeningBill($visit, $discount = 0, $isAnc = false)
     {
         if ($isAnc) {

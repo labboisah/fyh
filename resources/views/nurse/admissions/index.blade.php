@@ -58,6 +58,12 @@
                                             <a href="{{ route('nurse.patient.show', $patient) }}" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-eye"></i> View Profile
                                             </a>
+                                            <a href="{{ route('nurse.admissions.record-absconded', $admission) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to mark this patient as absconded?');">
+                                                <i class="bi bi-x-circle"></i> Mark as Absconded
+                                            </a>
+                                            <a href="{{ route('nurse.admissions.record-sama', $admission) }}" class="btn btn-sm btn-outline-warning" onclick="return confirm('Are you sure you want to mark this patient as Sign Against Medical Advice?');">
+                                                <i class="bi bi-check-circle"></i> Mark as SAMA
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>
