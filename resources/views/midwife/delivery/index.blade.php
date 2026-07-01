@@ -1,76 +1,67 @@
 @extends('layouts.app')
 
-@section('title', 'Delivery Management')
+@section('title', 'Delivery Records')
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0">
-                <i class="bi bi-basket"></i> Delivery Management
-            </h1>
-            <small class="text-muted">Manage patient delivery records and newborn registrations</small>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-hospital-fill"></i> Delivery Records</h1>
+            <small class="text-muted">Search and manage all delivery records</small>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ route('midwife.delivery-management') }}" class="btn btn-primary">
-                <i class="bi bi-diagram-3"></i> Direct Delivery Entry
-            </a>
-        </div>
+        <a href="{{ route('midwife.delivery-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct Delivery Entry
+        </a>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <form method="GET" action="{{ route('midwife.delivery.index') }}" class="card card-body mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-10">
+                <label class="form-label">Search</label>
+                <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Search by hospital number, patient name, phone, delivery type, or status">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+            </div>
         </div>
-    @endif
+    </form>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    @if(count($labours) == 0)
-         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No completed labour records found. Use direct maternity entry to record a delivery for patients who came only for delivery.
-        </div>
+    @if($deliveries->isEmpty())
+        <div class="alert alert-info">No delivery records found.</div>
     @else
         <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="card-title mb-0">Labours Eligible for Delivery Management</h5>
-            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th>Date</th>
                                 <th>Hospital #</th>
-                                <th>Name</th>
-                                <th>Age</th>
-                                <th>Phone</th>
-                                <th>Previous Delivery Records</th>
-                                <th>Actions</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Babies</th>
+                                <th>Status</th>
+                                <th>Delivered By</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($labours as $labour)
+                            @foreach($deliveries as $record)
+                                @php($patient = $record->patient)
                                 <tr>
-                                    <td>{{ $labour->patient->hospital_number }}</td>
-                                    <td>{{ $labour->patient->name() }}</td>
-                                    <td>{{ $labour->patient->age() }} years</td>
-                                    <td>{{ $labour->patient->demographic->phone_number ?? 'N/A' }}</td>
-                                    <td>{{ $labour->patient->deliveries->count() }}</td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('midwife.delivery.create', $labour) }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-plus-circle"></i> New
-                                            </a>
-                                            @if($labour->patient->deliveries->isNotEmpty())
-                                                <a href="{{ route('midwife.delivery.patient-records', $labour->patient) }}" class="btn btn-outline-info">
-                                                    <i class="bi bi-file-earmark-text"></i> Records
-                                                </a>
+                                    <td>{{ $record->delivery_date_time?->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $patient?->hospital_number ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->name() ?? 'N/A' }}</td>
+                                    <td>{{ str($record->delivery_type)->headline() }}</td>
+                                    <td>{{ $record->number_of_babies ?? 'N/A' }}</td>
+                                    <td><span class="badge bg-secondary">{{ str($record->delivery_status)->headline() }}</span></td>
+                                    <td>{{ $record->deliveredBy?->name ?? 'N/A' }}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('midwife.delivery.show', $record) }}" class="btn btn-outline-primary">View</a>
+                                            <a href="{{ route('midwife.delivery.edit', $record) }}" class="btn btn-outline-secondary">Edit</a>
+                                            @if($patient)
+                                                <a href="{{ route('midwife.patient.show', $patient) }}" class="btn btn-outline-info">Profile</a>
                                             @endif
                                         </div>
                                     </td>
@@ -80,10 +71,8 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer text-muted">Total: <strong>{{ $labours->count() }}</strong> labours</div>
+            <div class="card-footer text-muted">Total: <strong>{{ $deliveries->count() }}</strong> records</div>
         </div>
     @endif
-    <a href="{{ route('midwife.labour.index') }}" class="btn btn-outline-secondary mt-3">Back to Labour</a>
-
 </div>
 @endsection

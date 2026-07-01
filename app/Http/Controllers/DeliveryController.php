@@ -14,12 +14,37 @@ class DeliveryController extends Controller
 
     public function index()
     {
-        $labours = Labour::where('status', 'completed')
-            ->with('patient.demographic', 'deliveries')
-            ->orderByDesc('labour_onset_time')
+        $search = trim((string) request('q'));
+
+        $deliveries = Delivery::query()
+            ->with(['patient.demographic', 'deliveredBy', 'labour'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('delivery_date_time')
             ->get();
 
-        return view('midwife.delivery.index', compact('labours'));
+        return view('midwife.delivery.index', compact('deliveries', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('delivery_status', 'like', $like)
+                ->orWhere('delivery_type', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     public function create(Labour $labour)
@@ -743,11 +768,13 @@ class DeliveryController extends Controller
 }
     public function destroy(Delivery $delivery)
     {
+        $patient = $delivery->patient;
+
         $delivery->delete();
 
         
 
-        return redirect()->route('midwife.delivery.index')
+        return redirect()->route('patient.show', $patient)
             ->with('success', 'Delivery record deleted successfully.');
     }
 

@@ -14,6 +14,9 @@
     @error('patient')
         <div class="alert alert-danger">{{ $message }}</div>
     @enderror
+    @error('save')
+        <div class="alert alert-danger">{{ $message }}</div>
+    @enderror
 
     <div class="row g-3">
         <div class="{{ $compact ? 'col-lg-3' : 'col-lg-4' }}">
@@ -58,7 +61,7 @@
                         @endif
                         @if(! $visit)
                             <div class="alert alert-warning small mb-3">
-                                No active visit found. Record or reopen a visit before saving maternity activity.
+                                No active visit found. A maternity visit will be created automatically when you save.
                             </div>
                         @endif
                         <div class="mb-3">
@@ -679,7 +682,7 @@
 
                     @if($patient)
                         <div class="card-footer bg-white d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" @disabled(! $visit || strtolower((string) $patient->demographic?->gender) !== 'female')>
+                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" @disabled(strtolower((string) $patient->demographic?->gender) !== 'female')>
                                 <span wire:loading.remove wire:target="save"><i class="bi bi-save"></i> Save Activity</span>
                                 <span wire:loading wire:target="save">Saving...</span>
                             </button>

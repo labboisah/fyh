@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Labour;
 use App\Models\Patient;
 use App\Models\Service;
-use App\Models\Ward;
 use App\Models\PatientVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,27 +18,38 @@ class LabourController extends Controller
      */
     public function index()
     {
-        // Only show female patients aged 13-55 (reproductive age)
-        $nl = Service::find(13);
-        $nlRequests = $nl->serviceRequests;
+        $search = trim((string) request('q'));
 
-        $csl = Service::find(14);
-        $cslRequests = $csl->serviceRequests;
-
-        $patients = [];
-
-        foreach($nlRequests as $nlr){
-            $patients[] = $nlr->patientVisit->patient; 
-        }
-
-        foreach($cslRequests as $cslr){
-            $patients[] = $cslr->patientVisit->patient; 
-        }
-
-            $patients = collect($patients)->sortByDesc('created_at')->values();
+        $labours = Labour::query()
+            ->with(['patient.demographic', 'recordedBy', 'visit'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('created_at')
+            ->get();
         
 
-        return view('midwife.labour.index', compact('patients'));
+        return view('midwife.labour.index', compact('labours', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('status', 'like', $like)
+                ->orWhere('stage', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     /**
@@ -275,7 +285,7 @@ class LabourController extends Controller
             ]);
         }
 
-        $validated['admission_id'] = $visit->currentAdmission(Ward::find(2))->id;
+        $validated['admission_id'] = null;
         $validated['patient_id'] = $patient->id;
         $validated['patient_visit_id'] = $visit->id;
         $validated['recorded_by'] = Auth::id();
@@ -506,12 +516,12 @@ class LabourController extends Controller
      */
     public function destroy(Labour $labour)
     {
-        $labourId = $labour->id;
+        $patient = $labour->patient;
         
         $labour->delete();
 
 
-        return redirect()->route('midwife.labour.index')
+        return redirect()->route('patient.show', $patient)
                        ->with('success', 'Labour record deleted successfully.');
     }
 

@@ -33,9 +33,13 @@
                         <td><span class="badge bg-secondary">{{ str($record->delivery_status)->headline() }}</span></td>
                         <td>{{ $record->deliveredBy?->name ?? 'N/A' }}</td>
                         <td class="text-end">
-                            <a href="{{ route('midwife.delivery.show', $record) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
+                            @include('patient.profile.maternity._actions', [
+                                'record' => $record,
+                                'recordLabel' => 'delivery',
+                                'showRoute' => 'midwife.delivery.show',
+                                'editRoute' => 'midwife.delivery.edit',
+                                'destroyRoute' => 'midwife.delivery.destroy',
+                            ])
                         </td>
                     </tr>
                 @endforeach

@@ -33,9 +33,13 @@
                         <td>{{ $record->blood_pressure ?? 'N/A' }}</td>
                         <td>{{ $record->recordedBy?->name ?? 'N/A' }}</td>
                         <td class="text-end">
-                            <a href="{{ route('midwife.labour.show', $record) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
+                            @include('patient.profile.maternity._actions', [
+                                'record' => $record,
+                                'recordLabel' => 'labour',
+                                'showRoute' => 'midwife.labour.show',
+                                'editRoute' => 'midwife.labour.edit',
+                                'destroyRoute' => 'midwife.labour.destroy',
+                            ])
                         </td>
                     </tr>
                 @endforeach

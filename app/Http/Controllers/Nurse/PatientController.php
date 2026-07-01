@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\NextOfKin;
 use App\Models\PatientVisit;
 use App\Models\ServiceRequest;
+use App\Models\Admission;
 use Auth;
 
 class PatientController extends Controller
@@ -22,6 +23,38 @@ class PatientController extends Controller
 
     public function show($patient) {
         return view('nurse.patient.show', compact('patient'));
+    }
+
+    public function admissions(Request $request) {
+        $search = trim((string) $request->input('q'));
+
+        $admissions = Admission::query()
+            ->with(['patientVisit.patient.demographic', 'bed.ward', 'admittedBy'])
+            ->whereDoesntHave('discharge')
+            ->whereNotIn('status', ['discharged', 'Discharged', 'closed', 'Closed'])
+            ->when($search !== '', function ($query) use ($search) {
+                $like = "%{$search}%";
+
+                $query->where(function ($query) use ($like) {
+                    $query
+                        ->where('status', 'like', $like)
+                        ->orWhereHas('patientVisit.patient', function ($patientQuery) use ($like) {
+                            $patientQuery
+                                ->where('hospital_number', 'like', $like)
+                                ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                                    $demographicQuery
+                                        ->where('first_name', 'like', $like)
+                                        ->orWhere('last_name', 'like', $like)
+                                        ->orWhere('middle_name', 'like', $like)
+                                        ->orWhere('phone_number', 'like', $like);
+                                });
+                        });
+                });
+            })
+            ->latest('date')
+            ->get();
+
+        return view('nurse.admissions.index', compact('admissions', 'search'));
     }
 
     public function complete(ServiceRequest $serviceRequest) {

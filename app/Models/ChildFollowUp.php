@@ -126,6 +126,11 @@ class ChildFollowUp extends Model
         return $this->belongsTo(Patient::class, 'patient_id');
     }
 
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
     /**
      * Get the user who recorded this follow-up
      */

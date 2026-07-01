@@ -183,6 +183,14 @@ class Patient extends Model
     }
 
     /**
+     * Get all newborn examinations from this patient's newborns.
+     */
+    public function newbornExaminations()
+    {
+        return $this->hasManyThrough(NewbornExamination::class, Newborn::class, 'patient_id', 'newborn_id', 'id', 'id');
+    }
+
+    /**
      * Get all postnatal examinations for this patient
      */
     public function postnatalExaminations()

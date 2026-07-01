@@ -33,9 +33,13 @@
                         <td><span class="badge bg-secondary">{{ str($record->recovery_status)->headline() }}</span></td>
                         <td>{{ $record->recordedBy?->name ?? 'N/A' }}</td>
                         <td class="text-end">
-                            <a href="{{ route('midwife.postnatal-examination.show', $record) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
+                            @include('patient.profile.maternity._actions', [
+                                'record' => $record,
+                                'recordLabel' => 'postnatal',
+                                'showRoute' => 'midwife.postnatal-examination.show',
+                                'editRoute' => 'midwife.postnatal-examination.edit',
+                                'destroyRoute' => 'midwife.postnatal-examination.destroy',
+                            ])
                         </td>
                     </tr>
                 @endforeach

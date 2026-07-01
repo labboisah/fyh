@@ -11,11 +11,39 @@ class ChildFollowUpController extends Controller
 {
     
 
-    public function index(Newborn $newborn)
+    public function index()
     {
-        $newborns = Newborn::with('patient.demographic', 'followUps.recordedBy')->get();
+        $search = trim((string) request('q'));
 
-        return view('midwife.child-follow-up.index', compact('newborns'));
+        $childFollowUps = ChildFollowUp::query()
+            ->with(['patient.demographic', 'newborn', 'recordedBy'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('follow_up_date_time')
+            ->get();
+
+        return view('midwife.child-follow-up.index', compact('childFollowUps', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('health_status', 'like', $like)
+                ->orWhere('follow_up_period', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     public function create(Newborn $newborn)
@@ -887,11 +915,13 @@ class ChildFollowUpController extends Controller
 
     public function destroy(ChildFollowUp $childFollowUp)
     {
+        $patient = $childFollowUp->patient;
+
         $childFollowUp->delete();
 
        
 
-        return redirect()->route('midwife.child-follow-up.index', $childFollowUp->newborn)
+        return redirect()->route('patient.show', $patient)
             ->with('success', 'Child follow-up record deleted successfully.');
     }
 }

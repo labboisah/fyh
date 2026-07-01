@@ -14,9 +14,37 @@ class NewbornController extends Controller
     
     public function index()
     {
-        $deliveries = Delivery::with('patient.demographic', 'newborns.recordedBy')->get();
+        $search = trim((string) request('q'));
 
-        return view('midwife.newborn.index', compact('deliveries'));
+        $newborns = Newborn::query()
+            ->with(['patient.demographic', 'delivery', 'recordedBy'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('birth_date_time')
+            ->get();
+
+        return view('midwife.newborn.index', compact('newborns', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('status', 'like', $like)
+                ->orWhere('newborn_registration_number', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     public function create(Delivery $delivery)
@@ -954,13 +982,17 @@ class NewbornController extends Controller
 
     public function destroy(Newborn $newborn)
     {
-        $newborn->delete();
+        $patient = $newborn->patient;
+
         // Log activity
-        $newborn->patient->currentVisit()->visitActivities()->create([
+        $patient->currentVisit()->visitActivities()->create([
             'activity' => "Newborn record deleted with status: {$newborn->status}",
             'recorded_by' => auth()->id(),
         ]);
-        return redirect()->route('midwife.delivery.show', $newborn->delivery)
+
+        $newborn->delete();
+
+        return redirect()->route('patient.show', $patient)
             ->with('success', 'Newborn record deleted successfully.');
     }
 

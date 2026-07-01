@@ -1,126 +1,78 @@
 @extends('layouts.app')
 
-@section('title', 'Labour Management')
+@section('title', 'Labour Records')
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0">
-                <i class="bi bi-hospital"></i> Labour Management
-            </h1>
-            <small class="text-muted">Manage patient labour records and monitor progress</small>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-activity"></i> Labour Records</h1>
+            <small class="text-muted">Search and manage all labour records</small>
         </div>
+        <a href="{{ route('midwife.labour-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct Labour Entry
+        </a>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <form method="GET" action="{{ route('midwife.labour.index') }}" class="card card-body mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-10">
+                <label class="form-label">Search</label>
+                <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Search by hospital number, patient name, phone, stage, or status">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+            </div>
         </div>
-    @endif
+    </form>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    @if(count($patients) == 0)
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No female patients of reproductive age (13-55 years) found in the system.
-        </div>
+    @if($labours->isEmpty())
+        <div class="alert alert-info">No labour records found.</div>
     @else
         <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="card-title mb-0">Labour Management</h5>
-            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th><i class="bi bi-hash"></i> Hospital #</th>
-                                <th><i class="bi bi-person"></i> Name</th>
-                                <th><i class="bi bi-calendar"></i> Age</th>
-                                <th><i class="bi bi-telephone"></i> Phone</th>
-                                <th><i class="bi bi-gender"></i> Gender</th>
-                                <th><i class="bi bi-file-text"></i> Labour Records</th>
-                                <th><i class="bi bi-clock-history"></i> Last Record</th>
-                                <th><i class="bi bi-gear"></i> Actions</th>
+                                <th>Onset</th>
+                                <th>Hospital #</th>
+                                <th>Patient</th>
+                                <th>Phone</th>
+                                <th>Stage</th>
+                                <th>Status</th>
+                                <th>Recorded By</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($patients as $patient)
+                            @foreach($labours as $record)
+                                @php($patient = $record->patient)
                                 <tr>
-                                    <td>
-                                        <span class="badge bg-primary">
-                                            {{ $patient->hospital_number }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <strong>{{ $patient->name() }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ $patient->age() }} years
-                                    </td>
-                                    <td>
-                                        {{ $patient->demographic->phone_number ?? 'N/A' }}
-                                    </td>
-                                    <td>
-                                        {{$patient->demographic->gender ?? 'N/A'}}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">
-                                            {{ $patient->labours->count() }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($patient->labours->isNotEmpty())
-                                            {{ $patient->labours->first()->admission->date }}
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            @if($patient->payment()['pending'] == 0)
-                                                <a href="{{ route('midwife.labour.create', $patient) }}"
-                                                    class="btn btn-outline-primary"
-                                                    title="Create new labour record">
-                                                        <i class="bi bi-plus-circle"></i> New
-                                                    </a>
-                                            @else
-                                            Patient has pending payment of <span class="badge bg-danger my-1">{{ number_format($patient->payment()['pending'], 2) }}</span> Naira
-                                            @endif
-                                            @if($patient->labours->isNotEmpty())
-                                                <a href="{{ route('midwife.labour.patient-records', $patient) }}"
-                                                   class="btn btn-outline-info"
-                                                   title="View all labour records">
-                                                    <i class="bi bi-file-earmark-text"></i> Records
-                                                </a>
+                                    <td>{{ $record->labour_onset_time?->format('M d, Y h:i A') ?? $record->created_at?->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $patient?->hospital_number ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->name() ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->demographic?->phone_number ?? 'N/A' }}</td>
+                                    <td>{{ str($record->stage)->headline() }}</td>
+                                    <td><span class="badge bg-secondary">{{ str($record->status)->headline() }}</span></td>
+                                    <td>{{ $record->recordedBy?->name ?? 'N/A' }}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('midwife.labour.show', $record) }}" class="btn btn-outline-primary">View</a>
+                                            <a href="{{ route('midwife.labour.edit', $record) }}" class="btn btn-outline-secondary">Edit</a>
+                                            @if($patient)
+                                                <a href="{{ route('midwife.patient.show', $patient) }}" class="btn btn-outline-info">Profile</a>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        No eligible female patients found
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer text-muted">
-                Total: <strong>{{ count($patients) }}</strong> patients eligible for labour management
-            </div>
+            <div class="card-footer text-muted">Total: <strong>{{ $labours->count() }}</strong> records</div>
         </div>
     @endif
-    <a href="{{ route('midwife.antenatal.index') }}" class="btn btn-outline-secondary mt-3">Back to Antenatal Care</a>
-
 </div>
 @endsection

@@ -119,7 +119,7 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
                 Route::get('/{delivery}/edit', [DeliveryController::class, 'edit'])->name('edit');
                 Route::put('/{delivery}/update', [DeliveryController::class, 'update'])->name('update');
                 Route::delete('/{delivery}/delete', [DeliveryController::class, 'destroy'])->name('destroy');
-                Route::get('/patient/{patient}/records', [DeliveryController::class, 'labourRecords'])->name('labour-records');
+                Route::get('/patient/{patient}/records', [DeliveryController::class, 'patientRecords'])->name('patient-records');
             });
 
         // Newborn routes

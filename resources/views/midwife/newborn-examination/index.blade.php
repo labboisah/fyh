@@ -1,46 +1,66 @@
 @extends('layouts.app')
 
-@section('title', 'Newborn Examinations')
+@section('title', 'Newborn Examination Records')
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4"><i class="bi bi-clipboard-check"></i> Newborn Examinations Registration</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-clipboard2-pulse"></i> Newborn Examination Records</h1>
+            <small class="text-muted">Search and manage all newborn examination records</small>
+        </div>
+    </div>
 
-    @if($newborns->isEmpty())
-        <div class="alert alert-info">No examinations recorded for any newborn yet.</div>
+    <form method="GET" action="{{ route('midwife.newborn-examination.index') }}" class="card card-body mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-10">
+                <label class="form-label">Search</label>
+                <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Search by hospital number, mother name, newborn registration number, phone, or status">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+            </div>
+        </div>
+    </form>
+
+    @if($newbornExaminations->isEmpty())
+        <div class="alert alert-info">No newborn examination records found.</div>
     @else
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <!-- information about newborn  -->
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
-                                <th>Mother Name</th>
-                                <th>Gender</th>
-                                <th>Birth Date</th>
-                                <th>Birth Order</th>
-                                <th>Birth Length</th>
-                                <th>Birth Weight</th>
+                                <th>Date</th>
+                                <th>Newborn #</th>
+                                <th>Mother</th>
+                                <th>Weight</th>
+                                <th>Temperature</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th>Recorded By</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($newborns as $newborn)
+                            @foreach($newbornExaminations as $record)
+                                @php($patient = $record->newborn?->patient)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $newborn->delivery->patient->name() }}</td>
-                                    <td>{{ ucwords($newborn->sex) }}</td>
-                                    <td>{{ $newborn->birth_date_time }}</td>
-                                    <td>{{ $newborn->birth_order }}</td>
-                                    <td>{{ $newborn->birth_length }}</td>
-                                    <td>{{ $newborn->birth_weight }}</td>
-                                    <td>{{ $newborn->status }}</td>
-                                    <td>
-                                        <a href="{{ route('midwife.newborn-examination.create', $newborn) }}" class="btn btn-sm btn-primary">Add Examination Record</a>
-                                        <a href="{{ route('midwife.newborn-examination.record', $newborn) }}" class="btn btn-sm btn-info">View Examination Records</a>
+                                    <td>{{ $record->examination_date_time?->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $record->newborn?->newborn_registration_number ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->name() ?? 'N/A' }}</td>
+                                    <td>{{ $record->weight ?? 'N/A' }}</td>
+                                    <td>{{ $record->temperature ?? 'N/A' }}</td>
+                                    <td><span class="badge bg-secondary">{{ str($record->exam_status)->headline() }}</span></td>
+                                    <td>{{ $record->recordedBy?->name ?? 'N/A' }}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('midwife.newborn-examination.show', $record) }}" class="btn btn-outline-primary">View</a>
+                                            <a href="{{ route('midwife.newborn-examination.edit', $record) }}" class="btn btn-outline-secondary">Edit</a>
+                                            @if($patient)
+                                                <a href="{{ route('midwife.patient.show', $patient) }}" class="btn btn-outline-info">Profile</a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -48,10 +68,8 @@
                     </table>
                 </div>
             </div>
+            <div class="card-footer text-muted">Total: <strong>{{ $newbornExaminations->count() }}</strong> records</div>
         </div>
     @endif
-
-    <a href="{{ route('midwife.newborn.show', $newborn) }}" class="btn btn-outline-secondary mt-3">Back to Newborn</a>
 </div>
 @endsection
-                                         

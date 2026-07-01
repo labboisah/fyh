@@ -13,9 +13,40 @@ class NewbornExaminationController extends Controller
 
     public function index()
     {
-        $newborns = Newborn::with('delivery.patient.demographic', 'examinations.recordedBy')->get();
+        $search = trim((string) request('q'));
 
-        return view('midwife.newborn-examination.index', compact('newborns'));
+        $newbornExaminations = NewbornExamination::query()
+            ->with(['newborn.patient.demographic', 'recordedBy'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('examination_date_time')
+            ->get();
+
+        return view('midwife.newborn-examination.index', compact('newbornExaminations', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('exam_status', 'like', $like)
+                ->orWhereHas('newborn', function ($newbornQuery) use ($like) {
+                    $newbornQuery
+                        ->where('newborn_registration_number', 'like', $like)
+                        ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                            $patientQuery
+                                ->where('hospital_number', 'like', $like)
+                                ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                                    $demographicQuery
+                                        ->where('first_name', 'like', $like)
+                                        ->orWhere('last_name', 'like', $like)
+                                        ->orWhere('middle_name', 'like', $like)
+                                        ->orWhere('phone_number', 'like', $like);
+                                });
+                        });
+                });
+        });
     }
 
     public function create(Newborn $newborn)
@@ -1273,9 +1304,11 @@ class NewbornExaminationController extends Controller
 
     public function destroy(NewbornExamination $newbornExamination)
     {
+        $patient = $newbornExamination->newborn->patient;
+
         $newbornExamination->delete();
 
-        return redirect()->route('midwife.newborn-examination.index', $newbornExamination->newborn)
+        return redirect()->route('patient.show', $patient)
             ->with('success', 'Newborn examination record deleted successfully.');
     }
 }

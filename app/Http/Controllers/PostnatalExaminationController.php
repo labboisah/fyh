@@ -13,9 +13,36 @@ class PostnatalExaminationController extends Controller
 
     public function index()
     {
-        $deliveries = Delivery::with('patient.demographic')->get();
+        $search = trim((string) request('q'));
 
-        return view('midwife.postnatal-examination.index', compact('deliveries'));
+        $postnatalExaminations = PostnatalExamination::query()
+            ->with(['patient.demographic', 'delivery', 'recordedBy'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('examination_date_time')
+            ->get();
+
+        return view('midwife.postnatal-examination.index', compact('postnatalExaminations', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('recovery_status', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     public function create(Delivery $delivery)
@@ -1175,9 +1202,11 @@ class PostnatalExaminationController extends Controller
 
     public function destroy(PostnatalExamination $postnatalExamination)
     {
+        $patient = $postnatalExamination->patient;
+
         $postnatalExamination->delete();
 
-        return redirect()->route('midwife.postnatal-examination.index', $postnatalExamination->delivery)
+        return redirect()->route('patient.show', $patient)
             ->with('success', 'Postnatal examination record deleted successfully.');
     }
 }

@@ -1,154 +1,78 @@
 @extends('layouts.app')
 
+@section('title', 'Antenatal Care Records')
+
 @section('content')
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="mb-0">Antenatal Care Management</h1>
-            <p class="text-muted">Manage antenatal care for female patients</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-heart-pulse-fill"></i> Antenatal Care Records</h1>
+            <small class="text-muted">Search and manage all antenatal records</small>
         </div>
-        <div class="col-md-4 text-end">
-            @if(auth()->user()->hasAnyRole(['midwife', 'administrator']))
-                <a href="{{ route('midwife.antenatal.index') }}" class="btn btn-primary">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh
-                </a>
-            @endif
-        </div>
+        <a href="{{ route('midwife.anc-management') }}" class="btn btn-primary">
+            <i class="bi bi-diagram-3"></i> Direct ANC Entry
+        </a>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> {{ $message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    @if ($message = Session::get('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-circle"></i> {{ $message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <div class="card">
-        <div class="card-header bg-light">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-0">Antenatal Care Patients</h5>
-                </div>
-                <div class="col-md-6 text-end">
-                    <span class="badge bg-info">{{ $requests->count() }} ANC Service Requests</span>
-                </div>
+    <form method="GET" action="{{ route('midwife.antenatal.index') }}" class="card card-body mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-10">
+                <label class="form-label">Search</label>
+                <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Search by hospital number, patient name, phone, or status">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
             </div>
         </div>
-        <div class="card-body">
-            @if($requests->count() > 0)
+    </form>
+
+    @if($antenatalRecords->isEmpty())
+        <div class="alert alert-info">No antenatal care records found.</div>
+    @else
+        <div class="card">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th>Date</th>
                                 <th>Hospital #</th>
-                                <th>Name</th>
-                                <th>Age</th>
+                                <th>Patient</th>
                                 <th>Phone</th>
-                                <th>Antenatal Records</th>
-                                <th>Last Record</th>
+                                <th>Gestation</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th>Recorded By</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($requests as $ANCRequest)
-                            
-                            @php
-                                if($ANCRequest->patientVisit){
-                                    $patient = $ANCRequest->patientVisit->patient;
-                                }else{
-                                    $patient = null;
-                                } 
-                            @endphp
-                                @if($patient)
+                            @foreach($antenatalRecords as $record)
+                                @php($patient = $record->patient)
                                 <tr>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ $patient->hospital_number }}</span>
-                                    </td>
-                                    <td>
-                                        <strong>{{ $patient->name() ?? 'N/A' }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ $patient->age() }} years
-                                    </td>
-                                    <td>{{ $patient->demographic->phone_number ?? 'N/A' }}</td>
-                                    <td>
-                                        {{ $patient->antenatalCares->count() }}
-                                        @if($patient->antenatalCares->count() > 0)
-                                            <i class="bi bi-check-circle-fill text-success ms-1"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($patient->latestAntenatalCare())
-                                            <small class="text-muted">{{ $patient->latestAntenatalCare()->created_at->format('M d, Y') }}</small>
-                                        @else
-                                            <small class="text-muted text-secondary">-</small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($patient->antenatalCares->count() > 0)
-                                            @php
-                                                $latestStatus = $patient->latestAntenatalCare()->status;
-                                            @endphp
-                                            @switch($latestStatus)
-                                                @case('normal')
-                                                    <span class="badge bg-success">Normal</span>
-                                                    @break
-                                                @case('complicated')
-                                                    <span class="badge bg-warning">Complicated</span>
-                                                    @break
-                                                @case('high_risk')
-                                                    <span class="badge bg-danger">High Risk</span>
-                                                    @break
-                                                @default
-                                                    <span class="badge bg-secondary">-</span>
-                                            @endswitch
-                                        @else
-                                            <span class="badge bg-secondary">New</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            @if($patient->payment()['pending'] == 0)
-                                                <a href="{{ route('midwife.antenatal.create', $patient) }}" class="btn btn-outline-primary" title="New Record">
-                                                    <i class="bi bi-plus-circle"></i> New 
-                                                </a>
-                                                <a href="{{ route('midwife.antenatal.patient-records', $patient) }}" class="btn btn-outline-info" title="View Records">
-                                                    <i class="bi bi-file-text"></i> Records
-                                                </a>
-                                                <a href="{{ route('midwife.patient.progress', $patient) }}" class="btn btn-outline-success" title="View Progress">
-                                                   <i class="bi bi-graph-up"></i> Track Progress
-                                                </a>
-                                            @else
-                                                <span class="text-muted">Payment not recorded</span>    
+                                    <td>{{ $record->created_at?->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $patient?->hospital_number ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->name() ?? 'N/A' }}</td>
+                                    <td>{{ $patient?->demographic?->phone_number ?? 'N/A' }}</td>
+                                    <td>{{ $record->gestational_weeks ? $record->gestational_weeks . ' weeks' : 'N/A' }}</td>
+                                    <td><span class="badge bg-secondary">{{ str($record->status)->headline() }}</span></td>
+                                    <td>{{ $record->recordedBy?->name ?? 'N/A' }}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('midwife.antenatal.show', $record) }}" class="btn btn-outline-primary">View</a>
+                                            <a href="{{ route('midwife.antenatal.edit', $record) }}" class="btn btn-outline-secondary">Edit</a>
+                                            @if($patient)
+                                                <a href="{{ route('midwife.patient.show', $patient) }}" class="btn btn-outline-info">Profile</a>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
-                                @else
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">
-                                        <i class="bi bi-exclamation-triangle"></i> No visit information available for this ANC request. reffer patient to record to register visit and ANC details.
-                                    </td>
-                                </tr>
-                                @endif
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-            @else
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> No female patients of reproductive age found in the system.
-                </div>
-            @endif
+            </div>
+            <div class="card-footer text-muted">Total: <strong>{{ $antenatalRecords->count() }}</strong> records</div>
         </div>
-    </div>
+    @endif
 </div>
 @endsection

@@ -33,9 +33,13 @@
                         <td>{{ $record->feeding_type ?? 'N/A' }}</td>
                         <td><span class="badge bg-secondary">{{ str($record->health_status)->headline() }}</span></td>
                         <td class="text-end">
-                            <a href="{{ route('midwife.child-follow-up.show', $record) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
+                            @include('patient.profile.maternity._actions', [
+                                'record' => $record,
+                                'recordLabel' => 'child follow-up',
+                                'showRoute' => 'midwife.child-follow-up.show',
+                                'editRoute' => 'midwife.child-follow-up.edit',
+                                'destroyRoute' => 'midwife.child-follow-up.destroy',
+                            ])
                         </td>
                     </tr>
                 @endforeach

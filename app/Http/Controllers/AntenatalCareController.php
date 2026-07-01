@@ -20,13 +20,36 @@ class AntenatalCareController extends Controller
             return redirect()->back()->with('error', 'Unauthorized access');
         }
 
-        // Get all female patients with reproductive age (13-55 years)
-        $service = Service::find(17);
-        
+        $search = trim((string) request('q'));
 
-        $requests = $service->serviceRequests->where('status','pending')->where('patient_visit_id', '!=', null)->load('patientVisit.patient.demographic');
+        $antenatalRecords = AntenatalCare::query()
+            ->with(['patient.demographic', 'recordedBy', 'visit'])
+            ->when($search !== '', fn ($query) => $this->searchMaternityPatient($query, $search))
+            ->latest('created_at')
+            ->get();
 
-        return view('midwife.antenatal.index', compact('requests'));
+        return view('midwife.antenatal.index', compact('antenatalRecords', 'search'));
+    }
+
+    private function searchMaternityPatient($query, string $search)
+    {
+        $like = "%{$search}%";
+
+        return $query->where(function ($query) use ($like) {
+            $query
+                ->where('status', 'like', $like)
+                ->orWhereHas('patient', function ($patientQuery) use ($like) {
+                    $patientQuery
+                        ->where('hospital_number', 'like', $like)
+                        ->orWhereHas('demographic', function ($demographicQuery) use ($like) {
+                            $demographicQuery
+                                ->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhere('middle_name', 'like', $like)
+                                ->orWhere('phone_number', 'like', $like);
+                        });
+                });
+        });
     }
 
     /**
@@ -217,7 +240,7 @@ class AntenatalCareController extends Controller
         // Soft delete
         $antenatalCare->delete();
 
-        return redirect()->route('antenatal.index')
+        return redirect()->route('patient.show', $patient)
                        ->with('success', 'Antenatal care record deleted successfully');
     }
 

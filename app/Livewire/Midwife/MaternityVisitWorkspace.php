@@ -10,11 +10,12 @@ use App\Models\Newborn;
 use App\Models\Patient;
 use App\Models\PatientVisit;
 use App\Models\PostnatalExamination;
-use App\Models\Ward;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Throwable;
 
 #[Layout('layouts.live')]
 class MaternityVisitWorkspace extends Component
@@ -89,27 +90,32 @@ class MaternityVisitWorkspace extends Component
             return;
         }
 
-        $visit = $this->visit() ?? $this->activeVisit($this->patient());
+        $patient = $this->patient();
 
-        if (! $visit) {
-            $this->addError('patient', 'This patient does not have an active visit. Please record or reopen a visit before recording maternity activity.');
-            $this->dispatch('toast', message: 'No active patient visit found. Record a visit first.', type: 'warning');
+        try {
+            DB::transaction(function () use ($patient) {
+                $visit = $this->visit() ?? $this->activeVisit($patient) ?? $this->createMaternityVisit($patient);
+                $this->visitId = $visit->id;
+
+                match ($this->activity) {
+                    'antenatal' => $this->saveAntenatal($visit),
+                    'labour' => $this->saveLabour($visit),
+                    'delivery' => $this->saveDelivery($visit),
+                    'newborn' => $this->saveNewborn($visit),
+                    'postnatal' => $this->savePostnatal($visit),
+                    'child_follow_up' => $this->saveChildFollowUp($visit),
+                    default => null,
+                };
+            });
+        } catch (ValidationException $exception) {
+            $this->dispatch('toast', message: 'Please check the highlighted fields.', type: 'warning');
+            throw $exception;
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->addError('save', 'The maternity activity could not be saved. Please check the form and try again.');
+            $this->dispatch('toast', message: 'Maternity activity was not saved.', type: 'danger');
             return;
         }
-
-        $this->visitId = $visit->id;
-
-        DB::transaction(function () use ($visit) {
-            match ($this->activity) {
-                'antenatal' => $this->saveAntenatal($visit),
-                'labour' => $this->saveLabour($visit),
-                'delivery' => $this->saveDelivery($visit),
-                'newborn' => $this->saveNewborn($visit),
-                'postnatal' => $this->savePostnatal($visit),
-                'child_follow_up' => $this->saveChildFollowUp($visit),
-                default => null,
-            };
-        });
 
         $this->resetForm();
         $this->dispatch('toast', message: 'Maternity activity saved and linked to this patient visit.', type: 'success');
@@ -191,7 +197,7 @@ class MaternityVisitWorkspace extends Component
         $labour = Labour::create($validated + [
             'patient_id' => $visit->patient_id,
             'patient_visit_id' => $visit->id,
-            'admission_id' => $visit->currentAdmission(Ward::find(2))->id,
+            'admission_id' => null,
             'recorded_by' => auth()->id(),
         ]);
 
@@ -520,6 +526,18 @@ class MaternityVisitWorkspace extends Component
             })
             ->latest('created_at')
             ->first();
+    }
+
+    private function createMaternityVisit(Patient $patient): PatientVisit
+    {
+        return $patient->patientVisits()->create([
+            'visit_date' => now(),
+            'visit_type' => 'Maternity Care',
+            'reason_for_visit' => 'Maternity activity',
+            'clinical_notes' => 'Auto-created while recording maternity activity.',
+            'status' => 'Active',
+            'created_by' => auth()->id(),
+        ]);
     }
 
     private function patientIsFemale(?Patient $patient): bool
