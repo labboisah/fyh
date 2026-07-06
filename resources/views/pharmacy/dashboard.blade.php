@@ -8,7 +8,10 @@
     $todayPrescriptions = \App\Models\Prescription::whereDate('created_at', today())->count();
     $pendingPrescriptionCount = \App\Models\Prescription::where('status', 'submitted')->count();
     $dispensedToday = \App\Models\PharmacyDispense::whereDate('created_at', today())->count();
-    $canManageInventory = auth()->user()?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
+    $pharmacyDashboardUser = auth()->user();
+    $pharmacyDashboardDepartment = strtolower((string) $pharmacyDashboardUser?->department?->name);
+    $canManageInventory = $pharmacyDashboardUser?->hasRole('pharmacist')
+        || ($pharmacyDashboardUser?->hasRole('head_of_department') && str_contains($pharmacyDashboardDepartment, 'pharmacy'));
     $lowStockCount = $canManageInventory ? \App\Models\MedicineBatch::where('quantity_remaining', '<=', 10)->count() : 0;
     $expiringBatches = $canManageInventory ? \App\Models\MedicineBatch::with('medicine')
         ->whereDate('expiry_date', '>=', today())

@@ -6,15 +6,17 @@ use App\Http\Controllers\Pharmacy\TransactionController;
 use App\Http\Controllers\Pharmacy\PrescriptionController;
 use App\Http\Controllers\Pharmacy\FinanceController;
 use App\Livewire\Pharmacy\PrescriptionDispenseWorkspace;
+use App\Livewire\Pharmacy\StockInventoryManager;
 use App\Livewire\Pharmacy\TransactionIndex;
 use App\Livewire\Pharmacy\TransactionWorkspace;
 
 Route::prefix('pharmacy')
-->middleware(['auth', 'verified', 'role:pharmacist'])
+->middleware(['auth', 'verified'])
 ->name('pharmacy.')
 ->group(function () {
 
 Route::prefix('transactions')
+->middleware('role:pharmacist')
 ->name('transactions.')
 ->group(function () {
     Route::get('/', TransactionIndex::class)->name('index');
@@ -24,6 +26,7 @@ Route::prefix('transactions')
 });
 
 Route::prefix('prescriptions')
+->middleware('role:pharmacist')
 ->name('prescriptions.')
 ->group(function () {
     Route::get('/', [PrescriptionController::class,'index'])->name('index');
@@ -31,12 +34,14 @@ Route::prefix('prescriptions')
 });
 
 Route::prefix('finance')
+->middleware('pharmacy.manager')
 ->name('finance.')
 ->group(function () {
     Route::get('/bills', [FinanceController::class,'bills'])->name('bills');
     Route::get('/payments', [FinanceController::class,'payments'])->name('payments');
     Route::get('/payments/{payment}/receipt', [FinanceController::class,'receipt'])->name('payments.receipt');
     Route::get('/report', [FinanceController::class,'report'])->name('report');
+    Route::get('/report/download', [FinanceController::class,'downloadReport'])->name('report.download');
 });
 
 Route::middleware('pharmacy.manager')->group(function () {
@@ -51,7 +56,7 @@ Route::middleware('pharmacy.manager')->group(function () {
     Route::prefix('stocks')
     ->name('stocks.')
     ->group(function () {
-        Route::get('/', [StockController::class,'index'])->name('index');
+        Route::get('/', StockInventoryManager::class)->name('index');
         Route::get('/create', [StockController::class,'create'])->name('create');
         Route::post('/store', [StockController::class,'store'])->name('store');
     });

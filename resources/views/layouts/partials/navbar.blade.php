@@ -11,7 +11,8 @@
     $showAdminSidebar = $navUser !== null;
     $navDepartmentName = strtolower((string) $navUser?->department?->name);
     $canManageDepartmentInvestigations = str_contains($navDepartmentName, 'lab') || str_contains($navDepartmentName, 'radio');
-    $canManagePharmacyInventory = $navUser?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
+    $canManagePharmacyInventory = $navUser?->hasRole('pharmacist')
+        || ($navUser?->hasRole('head_of_department') && str_contains($navDepartmentName, 'pharmacy'));
 
     $navClinicalPatient = null;
     foreach (['patient', 'prescription', 'admission', 'investigationRequest', 'vitalSign'] as $routeKey) {

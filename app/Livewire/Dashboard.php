@@ -35,7 +35,7 @@ class Dashboard extends Component
             'cards' => $this->cards($user),
             'quickActions' => $this->quickActions($user),
             'recentActivities' => $this->recentActivities($user),
-            'pharmacyDashboard' => $user->hasRole('pharmacist') ? $this->pharmacyDashboard() : null,
+            'pharmacyDashboard' => ($user->hasRole('pharmacist') || $this->canManagePharmacy($user)) ? $this->pharmacyDashboard() : null,
             'lastUpdated' => now(),
         ]);
     }
@@ -90,7 +90,7 @@ class Dashboard extends Component
             ]);
         }
 
-        if ($user->hasRole('pharmacist')) {
+        if ($user->hasRole('pharmacist') || $canManagePharmacy) {
             $cards = $cards->merge([
                 $this->card('Submitted Prescriptions', Prescription::where('status', 'submitted')->count(), 'bi-file-medical', 'text-primary', 'Awaiting pharmacy action'),
                 $this->card('Transactions Today', $this->safeCount('stock_transactions', 'created_at'), 'bi-arrow-left-right', 'text-success', 'Stock activity today'),
@@ -150,14 +150,15 @@ class Dashboard extends Component
             $actions = $actions->merge([
                 ['label' => 'Dispense Medicine', 'description' => 'Create pharmacy transaction', 'icon' => 'bi-receipt', 'route' => route('pharmacy.transactions.create'), 'class' => 'btn-outline-primary'],
             ]);
+        }
 
-            if ($this->canManagePharmacy($user)) {
-                $actions = $actions->merge([
+        if ($this->canManagePharmacy($user)) {
+            $actions = $actions->merge([
                 ['label' => 'Medicines', 'description' => 'Manage medicine catalog', 'icon' => 'bi-capsule', 'route' => route('pharmacy.medicines.index'), 'class' => 'btn-outline-success'],
                 ['label' => 'Stock', 'description' => 'Review pharmacy batches', 'icon' => 'bi-box', 'route' => route('pharmacy.stocks.index'), 'class' => 'btn-outline-warning'],
+                ['label' => 'Finance', 'description' => 'Review pharmacy finance', 'icon' => 'bi-cash-stack', 'route' => route('pharmacy.finance.report'), 'class' => 'btn-outline-primary'],
                 ['label' => 'Expiry Alerts', 'description' => 'Check expiring batches', 'icon' => 'bi-exclamation-triangle', 'route' => route('pharmacy.expiries.index'), 'class' => 'btn-outline-danger'],
-                ]);
-            }
+            ]);
         }
 
         return $actions;
@@ -362,6 +363,13 @@ class Dashboard extends Component
 
     private function canManagePharmacy($user): bool
     {
-        return $user?->hasAllRoles(['pharmacist', 'head_of_department']) ?? false;
+        if (! $user) {
+            return false;
+        }
+
+        $departmentName = strtolower((string) $user->department?->name);
+
+        return $user->hasRole('pharmacist')
+            || ($user->hasRole('head_of_department') && str_contains($departmentName, 'pharmacy'));
     }
 }

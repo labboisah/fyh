@@ -527,10 +527,7 @@ class PermissionSeeder extends Seeder
                 'temporary_permission.assign',
                 'temporary_permission.revoke',
 
-                'user.read'
-            ]);
-
-            $roles['head_of_department']->sync([
+                'user.read',
                 'medicine.create',
                 'medicine.read',
                 'medicine.update',
