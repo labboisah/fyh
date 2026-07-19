@@ -58,6 +58,7 @@
     $navigationItems = [
         ['label' => 'Patients', 'icon' => 'bi-people-fill', 'route' => 'record.patients.index', 'patterns' => ['record.patients.*'], 'roles' => ['record'], 'permissions' => ['patient.read'], 'permission_roles' => ['record']],
         ['label' => 'Register Patient', 'icon' => 'bi-person-plus', 'route' => 'record.patients.register.form', 'patterns' => ['record.patients.register.*'], 'roles' => ['record'], 'permissions' => ['patient.create'], 'permission_roles' => ['record']],
+        ['label' => 'Patient Register', 'icon' => 'bi-file-earmark-spreadsheet', 'route' => 'record.patient-register.index', 'patterns' => ['record.patient-register.*'], 'roles' => ['record'], 'permissions' => ['patient.read'], 'permission_roles' => ['record']],
 
         ['label' => 'Patients', 'icon' => 'bi-clipboard-pulse', 'route' => 'nurse.patient.index', 'patterns' => ['nurse.patient.*', 'vital_signs.*'], 'roles' => ['nurse'], 'permissions' => ['vital_sign.read', 'observation.read', 'nursing_note.read'], 'permission_roles' => ['nurse']],
         ['label' => 'Admissions', 'icon' => 'bi-hospital', 'route' => 'nurse.admissions.index', 'patterns' => ['nurse.admissions.*'], 'roles' => ['nurse'], 'permissions' => ['nursing_note.read', 'admission.read'], 'permission_roles' => ['nurse']],
@@ -106,7 +107,8 @@
         ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'pharmacy.finance.payments', 'patterns' => ['pharmacy.finance.payments', 'pharmacy.finance.payments.receipt'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['pharmacy_sale.read', 'department_report.read'], 'department_keywords' => ['pharmacy']],
         ['label' => 'Financial Report', 'icon' => 'bi-file-earmark-text', 'route' => 'pharmacy.finance.report', 'patterns' => ['pharmacy.finance.report'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['pharmacy_sale.read', 'department_report.read'], 'department_keywords' => ['pharmacy']],
         ['label' => 'Medicines', 'icon' => 'bi-capsule', 'route' => 'pharmacy.medicines.index', 'patterns' => ['pharmacy.medicines.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['medicine.read'], 'department_keywords' => ['pharmacy']],
-        ['label' => 'Batches / Medicine Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['medicine_stock.read'], 'department_keywords' => ['pharmacy']],
+        ['label' => 'Stock', 'icon' => 'bi-box-seam', 'route' => 'pharmacy.stocks.index', 'patterns' => ['pharmacy.stocks.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['medicine_stock.read'], 'department_keywords' => ['pharmacy']],
+        ['label' => 'Batches', 'icon' => 'bi-layers', 'route' => 'pharmacy.batches.index', 'patterns' => ['pharmacy.batches.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['medicine_stock.read'], 'department_keywords' => ['pharmacy']],
         ['label' => 'Expiry Alerts', 'icon' => 'bi-exclamation-triangle', 'route' => 'pharmacy.expiries.index', 'patterns' => ['pharmacy.expiries.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['expiry_alert.read'], 'department_keywords' => ['pharmacy']],
 
         ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.*'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
@@ -116,6 +118,7 @@
 
         ['label' => 'Admin Bills', 'icon' => 'bi-receipt', 'route' => 'admin.bills.index', 'patterns' => ['admin.bills.*'], 'roles' => ['administrator'], 'permissions' => ['bill.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Admin Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'admin.payments.index', 'patterns' => ['admin.payments.*'], 'roles' => ['administrator'], 'permissions' => ['payment.read'], 'permission_roles' => ['administrator']],
+        ['label' => 'Patient Register', 'icon' => 'bi-file-earmark-spreadsheet', 'route' => 'admin.patient-register.index', 'patterns' => ['admin.patient-register.*'], 'roles' => ['administrator'], 'permissions' => ['patient.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Expenses', 'icon' => 'bi-cash-stack', 'route' => 'admin.expenses.index', 'patterns' => ['admin.expenses.*'], 'roles' => ['administrator'], 'permissions' => ['expense.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Revenues', 'icon' => 'bi-graph-up-arrow', 'route' => 'admin.revenues.index', 'patterns' => ['admin.revenues.*'], 'roles' => ['administrator'], 'permissions' => ['revenue.read'], 'permission_roles' => ['administrator']],
 

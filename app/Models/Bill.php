@@ -95,6 +95,11 @@ class Bill extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function stockTransactions()
+    {
+        return $this->hasMany(StockTransaction::class);
+    }
+
     /**
      * Get bill services for this bill
      */
@@ -106,6 +111,43 @@ class Bill extends Model
     public function billInvestigations()
     {
         return $this->hasMany(BillInvestigation::class);
+    }
+
+    public function canBeManagedByAccountant(?User $user): bool
+    {
+        return $user
+            && (int) $this->issued_by === (int) $user->id
+            && $this->issued_date
+            && $this->issued_date->isSameDay(now());
+    }
+
+    public function hasBlockingDeleteReferences(): bool
+    {
+        return $this->payments()->exists()
+            || $this->serviceRequests()->exists()
+            || $this->investigationRequests()->exists()
+            || $this->stockTransactions()->exists();
+    }
+
+    public function deleteBlockReason(): ?string
+    {
+        if ($this->payments()->exists()) {
+            return 'This bill has payment records and cannot be deleted.';
+        }
+
+        if ($this->serviceRequests()->exists()) {
+            return 'This bill has service request records and cannot be deleted.';
+        }
+
+        if ($this->investigationRequests()->exists()) {
+            return 'This bill has investigation request records and cannot be deleted.';
+        }
+
+        if ($this->stockTransactions()->exists()) {
+            return 'This bill is linked to pharmacy stock transactions and cannot be deleted.';
+        }
+
+        return null;
     }
 
     public function getDiscountedAmount(float $amount): float

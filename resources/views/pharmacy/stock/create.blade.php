@@ -31,7 +31,7 @@
 
 <div class="col-md-6">
 
-<label>Batch Number</label>
+<label>Batch Number <small class="text-muted">(optional)</small></label>
 <input type="text" name="batch_number" class="form-control">
 
 </div>
@@ -59,14 +59,14 @@
 
 <div class="col-md-6">
 
-<label>Manufacture Date</label>
+<label>Manufacture Date <small class="text-muted">(optional)</small></label>
 <input type="date" name="manufacture_date" class="form-control">
 
 </div>
 
 <div class="col-md-6">
 
-<label>Expiry Date</label>
+<label>Expiry Date <small class="text-muted">(optional)</small></label>
 <input type="date" name="expiry_date" class="form-control">
 
 </div>

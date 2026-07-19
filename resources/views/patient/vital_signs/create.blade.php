@@ -53,7 +53,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Blood Pressure (mmHg)</label>
+                                <label class="form-label">Blood Pressure (mmHg) <span class="text-muted">(optional for children)</span></label>
                                 <div class="row">
                                     <div class="col-6">
                                         <input type="number" id="blood_pressure_systolic" name="blood_pressure_systolic" min="50" max="250"
@@ -68,7 +68,7 @@
                                         <small class="text-muted">Diastolic</small>
                                     </div>
                                 </div>
-                                <small class="text-muted d-block mt-1">Normal: 120/80 mmHg</small>
+                                <small class="text-muted d-block mt-1">Normal: 120/80 mmHg. Optional for children.</small>
                                 @error('blood_pressure_systolic')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -186,7 +186,7 @@
                 <div class="alert alert-info small mb-0">
                     <p class="mb-2"><strong>Temperature:</strong> 36.5-37.5°C</p>
                     <p class="mb-2"><strong>Heart Rate:</strong> 60-100 bpm</p>
-                    <p class="mb-2"><strong>Blood Pressure:</strong> 120/80 mmHg</p>
+                    <p class="mb-2"><strong>Blood Pressure:</strong> 120/80 mmHg. Optional for children.</p>
                     <p class="mb-2"><strong>Respiratory Rate:</strong> 12-20 per minute</p>
                     <p class="mb-2"><strong>Oxygen Saturation:</strong> 95-100%</p>
                     <p class="mb-0"><strong>Blood Glucose:</strong> 70-100 mg/dL (fasting)</p>

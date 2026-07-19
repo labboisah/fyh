@@ -229,13 +229,13 @@ class BillWorkspace extends Component
             return;
         }
 
-        if ($bill->payments()->exists()) {
-            $this->dispatch('toast', message: 'This bill has payments and cannot be deleted.', type: 'warning');
+        if ($reason = $bill->deleteBlockReason()) {
+            $this->dispatch('toast', message: $reason, type: 'warning');
             return;
         }
 
-        $bill->serviceRequests()->delete();
-        $bill->investigationRequests()->delete();
+        $bill->billServices()->delete();
+        $bill->billInvestigations()->delete();
         $bill->delete();
 
         $this->dispatch('toast', message: 'Bill deleted successfully.', type: 'success');
@@ -361,14 +361,18 @@ class BillWorkspace extends Component
                 continue;
             }
 
+            $bed = $ward->getAvailableBed();
+
             $visit->admissions()->create([
                 'date' => now(),
                 'time' => now()->toTimeString(),
                 'note' => $service->name,
-                'bed_id' => $ward->getAvailableBed()->id ?? null,
+                'bed_id' => $bed?->id,
                 'status' => 'Registered',
                 'admitted_by' => auth()->id(),
             ]);
+
+            $bed?->update(['status' => 'occupied']);
 
             Bill::create([
                 'patient_visit_id' => $visit->id,

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\BillServiceController;
 use App\Http\Controllers\Admin\BillInvestigationController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\PatientRegisterController as AdminPatientRegisterController;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\AccessControlManager;
 use App\Livewire\Admin\BillManagement;
@@ -70,6 +71,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         ->name('access-control');
 
     Route::middleware('role:administrator')->group(function () {
+        Route::get('patient-register', [AdminPatientRegisterController::class, 'index'])->name('patient-register.index');
+        Route::get('patient-register/csv', [AdminPatientRegisterController::class, 'csv'])->name('patient-register.csv');
+        Route::get('patient-register/pdf', [AdminPatientRegisterController::class, 'pdf'])->name('patient-register.pdf');
+        Route::get('patient-register/{patient}/summary', [AdminPatientRegisterController::class, 'summary'])->name('patient-register.summary');
+
         // Roles Management
         Route::resource('roles', RoleController::class);
         
@@ -153,6 +159,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 // Record Officer Routes - Patient Registration and Visit Recording
 Route::middleware(['auth', 'verified', 'role:record'])->prefix('record')->name('record.')->group(function () {
     Route::get('/', [RecordOfficerController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('patient-register', [RecordOfficerController::class, 'patientRegister'])->name('patient-register.index');
+    Route::get('patient-register/csv', [RecordOfficerController::class, 'patientRegisterCsv'])->name('patient-register.csv');
+    Route::get('patient-register/pdf', [RecordOfficerController::class, 'patientRegisterPdf'])->name('patient-register.pdf');
     
     // Patient Management
     Route::get('patients', [RecordOfficerController::class, 'listPatients'])->name('patients.index');
@@ -198,7 +208,7 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     Route::get('bills/{bill}/payments/create', [AccountantController::class, 'createPaymentForBill'])->name('bills.payments.create');
     Route::post('bills/{bill}/payments', [AccountantController::class, 'storePaymentForBill'])->name('bills.payments.store');
     Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
-    Route::get('bills/{bill}/edit', BillWorkspace::class)->name('bills.edit');
+    Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
     Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
     Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
 

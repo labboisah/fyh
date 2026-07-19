@@ -7,10 +7,16 @@
                         <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h5>
                         <small class="text-muted">Welcome back, {{ auth()->user()->name }}! Here's a quick overview of today's activity.</small>
                     </div>
-                    <div class="text-muted">
-                        <i class="bi bi-calendar-event me-1"></i> {{ \Carbon\Carbon::now()->format('F j, Y') }}
-                        <span class="mx-2">|</span>
-                        <i class="bi bi-clock me-1"></i> <span id="current-time">{{ \Carbon\Carbon::now()->format('h:i:s A') }}</span>
+                    <div class="d-flex flex-wrap align-items-center justify-content-end gap-3">
+                        <a href="{{ route('admin.patient-register.index') }}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+                            Patient Register
+                        </a>
+                        <div class="text-muted">
+                            <i class="bi bi-calendar-event me-1"></i> {{ \Carbon\Carbon::now()->format('F j, Y') }}
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i> <span id="current-time">{{ \Carbon\Carbon::now()->format('h:i:s A') }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

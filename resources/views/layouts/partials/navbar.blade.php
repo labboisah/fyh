@@ -351,6 +351,13 @@
                                     </li>
 
                                     <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pharmacy.batches.index')}}">
+                                            <i class="bi bi-layers me-1"></i>
+                                            Batches
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
                                         <a class="nav-link" href="{{route('pharmacy.expiries.index')}}">
                                             <i class="bi bi-exclamation-triangle me-1"></i>
                                             Expiry Alerts

@@ -241,15 +241,18 @@ class AccountantController extends Controller
                 }
 
                 $ward = Ward::find(2);
+                $bed = $ward?->getAvailableBed();
 
                 $visit->admissions()->create([
                     'date' => now(),
                     'time' => now()->toTimeString(),
                     'note' => $svc->name,
-                    'bed_id' => $ward->getAvailableBed()->id ?? null,
+                    'bed_id' => $bed?->id,
                     'status' => 'Registered',
                     'admitted_by' => auth()->user()->id,
                 ]);
+
+                $bed?->update(['status' => 'occupied']);
 
                 // generate another bill for bed space bill for the patient apply discount here
                 $bedDiscountAmount = round($ward->price * ($discount / 100), 2);
@@ -592,8 +595,9 @@ class AccountantController extends Controller
     {
         $this->authorizeOwnedTodayBill($bill);
 
-        $patients = Patient::orderBy('hospital_number')->get();
-        return view('accountant.bills.edit', compact('bill', 'patients'));
+        $bill->load(['patientVisit.patient.demographic', 'walkinPatient']);
+
+        return view('accountant.bills.edit', compact('bill'));
     }
 
     /**
@@ -634,19 +638,23 @@ class AccountantController extends Controller
     {
         $this->authorizeOwnedTodayBill($bill);
 
-        $bill->delete();
-        return redirect()->route('accountant.bills.index')
+        if ($reason = $bill->deleteBlockReason()) {
+            return back()->with('error', $reason);
+        }
+
+        DB::transaction(function () use ($bill) {
+            $bill->billServices()->delete();
+            $bill->billInvestigations()->delete();
+            $bill->delete();
+        });
+
+        return back()
             ->with('success', 'Bill deleted successfully.');
     }
 
     private function authorizeOwnedTodayBill(Bill $bill): void
     {
-        abort_unless(
-            (int) $bill->issued_by === (int) Auth::id()
-                && $bill->issued_date
-                && $bill->issued_date->isSameDay(Carbon::today()),
-            403
-        );
+        abort_unless($bill->canBeManagedByAccountant(Auth::user()), 403);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Models\Medicine;
 use App\Models\MedicineBatch;
 use App\Models\MedicineType;
 use App\Models\StockTransaction;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -34,14 +35,15 @@ class StockInventoryManager extends Component
         $stockQuery = $this->stockQuery();
         $financeQuery = $this->financeQuery();
 
-        $batches = $this->stockQuery()
-            ->latest()
+        $stocks = $this->medicineStockQuery()
+            ->orderBy('name')
             ->paginate(15);
 
         return view('components.pharmacy.stock-inventory-manager', [
-            'batches' => $batches,
+            'stocks' => $stocks,
             'summary' => [
                 'batches' => (clone $stockQuery)->count(),
+                'medicines' => (clone $this->medicineStockQuery())->count(),
                 'quantity' => (int) (clone $stockQuery)->sum('quantity_remaining'),
                 'purchase_value' => (float) (clone $stockQuery)->selectRaw('COALESCE(SUM(quantity_remaining * purchase_price), 0) as value')->value('value'),
                 'retail_value' => (float) (clone $stockQuery)->selectRaw('COALESCE(SUM(quantity_remaining * selling_price), 0) as value')->value('value'),
@@ -97,14 +99,15 @@ class StockInventoryManager extends Component
                 $line = $index + 2;
                 $medicineName = trim((string) ($row['medicine_name'] ?? $row['medicine'] ?? $row['name'] ?? ''));
                 $batchNumber = trim((string) ($row['batch_number'] ?? $row['batch_no'] ?? $row['batch'] ?? ''));
-                $quantity = (int) ($row['quantity_remaining'] ?? $row['quantity'] ?? $row['quantity_received'] ?? 0);
+                $quantity = (int) ($row['quantity_received'] ?? $row['quantity'] ?? $row['quantity_remaining'] ?? 0);
                 $purchasePrice = (float) ($row['purchase_price'] ?? $row['cost_price'] ?? $row['unit_cost'] ?? 0);
-                $sellingPrice = (float) ($row['selling_price'] ?? $row['sale_price'] ?? $row['retail_price'] ?? 0);
-                $expiryDate = $this->normalizeDate($row['expiry_date'] ?? $row['expiry'] ?? null);
+                $sellingPrice = (float) ($row['selling_price'] ?? $row['sale_price'] ?? $row['retail_price'] ?? $purchasePrice);
+                $manufactureDate = $this->normalizeDate($row['manufacture_date'] ?? $row['manufacturing_date'] ?? $row['mfg_date'] ?? null);
+                $expiryDate = $this->normalizeDate($row['expiry_date'] ?? $row['expiry'] ?? null) ?? today()->addYears(2)->toDateString();
 
-                if ($medicineName === '' || $batchNumber === '' || $quantity < 1 || $expiryDate === null) {
+                if ($medicineName === '' || $quantity < 1) {
                     $summary['skipped']++;
-                    $summary['errors'][] = "Line {$line}: medicine, batch number, quantity, and expiry date are required.";
+                    $summary['errors'][] = "Line {$line}: medicine and quantity are required.";
                     continue;
                 }
 
@@ -122,6 +125,10 @@ class StockInventoryManager extends Component
                     ]
                 );
 
+                if ($batchNumber === '') {
+                    $batchNumber = $this->generatedBatchNumber($medicine->id, $line);
+                }
+
                 $batch = MedicineBatch::firstOrNew([
                     'medicine_id' => $medicine->id,
                     'batch_number' => $batchNumber,
@@ -132,7 +139,7 @@ class StockInventoryManager extends Component
                 $batch->selling_price = $sellingPrice;
                 $batch->quantity_received = (int) $batch->quantity_received + $quantity;
                 $batch->quantity_remaining = (int) $batch->quantity_remaining + $quantity;
-                $batch->manufacture_date = $this->normalizeDate($row['manufacture_date'] ?? $row['mfg_date'] ?? null);
+                $batch->manufacture_date = $manufactureDate;
                 $batch->expiry_date = $expiryDate;
                 $batch->save();
 
@@ -164,10 +171,47 @@ class StockInventoryManager extends Component
     {
         return response()->streamDownload(function () {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['medicine_name', 'medicine_type', 'generic_name', 'strength', 'form', 'manufacturer', 'batch_number', 'quantity_remaining', 'purchase_price', 'selling_price', 'manufacture_date', 'expiry_date']);
-            fputcsv($handle, ['Paracetamol', 'Tablet', 'Acetaminophen', '500mg', 'Tablet', 'Old Supplier', 'OLD-B001', 250, 80, 150, '2026-01-01', '2027-01-01']);
+            fputcsv($handle, ['medicine_name', 'medicine_type', 'generic_name', 'strength', 'form', 'manufacturer', 'batch_number', 'quantity_received', 'purchase_price', 'selling_price', 'manufacture_date', 'expiry_date']);
+            fputcsv($handle, ['Paracetamol', 'Tablet', 'Acetaminophen', '500mg', 'Tablet', 'Old Supplier', '', 250, 80, 150, '', '']);
             fclose($handle);
         }, 'medicine-stock-import-template.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    public function downloadStockPdf()
+    {
+        $stocks = $this->medicineStockQuery()
+            ->orderBy('name')
+            ->get();
+        $batches = $this->stockQuery()->get();
+
+        $summary = [
+            'batches' => $batches->count(),
+            'medicines' => $stocks->count(),
+            'quantity' => (int) $batches->sum('quantity_remaining'),
+            'purchase_value' => (float) $batches->sum(fn ($batch) => $batch->quantity_remaining * $batch->purchase_price),
+            'retail_value' => (float) $batches->sum(fn ($batch) => $batch->quantity_remaining * $batch->selling_price),
+        ];
+
+        $pdf = Pdf::loadView('pharmacy.stock.stock-report-pdf', [
+            'stocks' => $stocks,
+            'summary' => $summary,
+            'from' => $this->from,
+            'to' => $this->to,
+            'expiryStatus' => $this->expiryStatus,
+            'search' => $this->search,
+            'generatedBy' => auth()->user(),
+            'hospital' => [
+                'name' => strtoupper(config('app.title', config('app.name', 'FAYHOS'))),
+                'address' => strtoupper(config('app.address', '')),
+                'logo' => public_path('images/logo.png'),
+            ],
+        ])->setPaper('a4', 'landscape');
+
+        return response()->streamDownload(
+            fn () => print($pdf->output()),
+            'pharmacy-stock-taking-report-' . now()->format('Y-m-d-His') . '.pdf',
+            ['Content-Type' => 'application/pdf']
+        );
     }
 
     public function exportStock(): StreamedResponse
@@ -230,13 +274,36 @@ class StockInventoryManager extends Component
             ->with('medicine.medicineType')
             ->when($this->search !== '', function ($query) {
                 $search = trim($this->search);
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('batch_number', 'like', "%{$search}%")
-                        ->orWhereHas('medicine', fn ($medicineQuery) => $medicineQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('generic_name', 'like', "%{$search}%")
-                            ->orWhere('manufacturer', 'like', "%{$search}%"));
-                });
+                $query->whereHas('medicine', fn ($medicineQuery) => $medicineQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('generic_name', 'like', "%{$search}%")
+                    ->orWhere('manufacturer', 'like', "%{$search}%"));
             })
+            ->when($this->expiryStatus === 'expired', fn ($query) => $query->whereDate('expiry_date', '<', today()))
+            ->when($this->expiryStatus === 'expiring', fn ($query) => $query->whereDate('expiry_date', '>=', today())->whereDate('expiry_date', '<=', today()->addDays(60)))
+            ->when($this->expiryStatus === 'valid', fn ($query) => $query->whereDate('expiry_date', '>', today()->addDays(60)))
+            ->when($this->from !== '', fn ($query) => $query->whereDate('created_at', '>=', $this->from))
+            ->when($this->to !== '', fn ($query) => $query->whereDate('created_at', '<=', $this->to));
+    }
+
+    private function medicineStockQuery()
+    {
+        return Medicine::query()
+            ->with('medicineType')
+            ->with(['batches' => fn ($query) => $this->applyBatchFilters($query)->orderBy('expiry_date')->orderBy('created_at')])
+            ->whereHas('batches', fn ($query) => $this->applyBatchFilters($query))
+            ->when($this->search !== '', function ($query) {
+                $search = trim($this->search);
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('generic_name', 'like', "%{$search}%")
+                        ->orWhere('manufacturer', 'like', "%{$search}%");
+                });
+            });
+    }
+
+    private function applyBatchFilters($query)
+    {
+        return $query
             ->when($this->expiryStatus === 'expired', fn ($query) => $query->whereDate('expiry_date', '<', today()))
             ->when($this->expiryStatus === 'expiring', fn ($query) => $query->whereDate('expiry_date', '>=', today())->whereDate('expiry_date', '<=', today()->addDays(60)))
             ->when($this->expiryStatus === 'valid', fn ($query) => $query->whereDate('expiry_date', '>', today()->addDays(60)))
@@ -291,5 +358,18 @@ class StockInventoryManager extends Component
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function generatedBatchNumber(int $medicineId, int|string $seed): string
+    {
+        $base = 'AUTO-' . $medicineId . '-' . now()->format('YmdHis') . '-' . $seed;
+        $batchNumber = $base;
+        $suffix = 1;
+
+        while (MedicineBatch::where('medicine_id', $medicineId)->where('batch_number', $batchNumber)->exists()) {
+            $batchNumber = $base . '-' . $suffix++;
+        }
+
+        return $batchNumber;
     }
 }

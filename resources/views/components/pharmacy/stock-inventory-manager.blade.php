@@ -2,7 +2,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
             <h4 class="mb-1"><i class="bi bi-box-seam"></i> Pharmacy Inventory</h4>
-            <div class="text-muted small">Medicine stock migration, batch control, and financial exports</div>
+            <div class="text-muted small">Medicine stock summary, stock import, and printable inventory reports</div>
         </div>
 
         <div class="d-flex flex-wrap gap-2">
@@ -12,9 +12,15 @@
             <button type="button" class="btn btn-outline-success" wire:click="exportStock">
                 <i class="bi bi-file-earmark-spreadsheet"></i> Export Stock
             </button>
+            <button type="button" class="btn btn-outline-danger" wire:click="downloadStockPdf">
+                <i class="bi bi-file-earmark-pdf"></i> Stock PDF
+            </button>
             <button type="button" class="btn btn-outline-primary" wire:click="exportFinance">
                 <i class="bi bi-cash-stack"></i> Export Finance
             </button>
+            <a href="{{ route('pharmacy.batches.index') }}" class="btn btn-outline-warning">
+                <i class="bi bi-layers"></i> Batches
+            </a>
             <a href="{{ route('pharmacy.stocks.create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Add Stock
             </a>
@@ -22,6 +28,14 @@
     </div>
 
     <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="text-muted small">Medicines / Batches</div>
+                    <div class="fs-4 fw-bold">{{ number_format($summary['medicines']) }} / {{ number_format($summary['batches']) }}</div>
+                </div>
+            </div>
+        </div>
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
@@ -62,7 +76,7 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Search</label>
-                    <input type="search" class="form-control" wire:model.live.debounce.400ms="search" placeholder="Medicine or batch">
+                    <input type="search" class="form-control" wire:model.live.debounce.400ms="search" placeholder="Medicine, generic, or company">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Expiry</label>
@@ -140,36 +154,47 @@
                 <thead>
                     <tr>
                         <th>Medicine</th>
-                        <th>Batch No</th>
+                        <th>Batches</th>
                         <th>Received</th>
                         <th>Remaining</th>
-                        <th>Purchase</th>
-                        <th>Selling</th>
+                        <th>Avg Purchase</th>
+                        <th>Next Selling</th>
                         <th>Retail Value</th>
-                        <th>Expiry</th>
+                        <th>Nearest Expiry</th>
                         <th>Status</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($batches as $batch)
+                    @forelse($stocks as $medicine)
                         @php
-                            $expired = \Carbon\Carbon::parse($batch->expiry_date)->isPast();
-                            $expiring = ! $expired && \Carbon\Carbon::parse($batch->expiry_date)->lte(today()->addDays(60));
+                            $medicineBatches = $medicine->batches;
+                            $quantityReceived = (int) $medicineBatches->sum('quantity_received');
+                            $quantityRemaining = (int) $medicineBatches->sum('quantity_remaining');
+                            $purchaseValue = (float) $medicineBatches->sum(fn($batch) => $batch->quantity_remaining * $batch->purchase_price);
+                            $retailValue = (float) $medicineBatches->sum(fn($batch) => $batch->quantity_remaining * $batch->selling_price);
+                            $averagePurchase = $quantityRemaining > 0 ? $purchaseValue / $quantityRemaining : 0;
+                            $nextBatch = $medicineBatches->where('quantity_remaining', '>', 0)->where('expiry_date', '>=', today()->toDateString())->sortBy('expiry_date')->first();
+                            $nearestExpiry = $medicineBatches->where('quantity_remaining', '>', 0)->sortBy('expiry_date')->first()?->expiry_date;
+                            $expired = $nearestExpiry ? \Carbon\Carbon::parse($nearestExpiry)->isPast() : false;
+                            $expiring = $nearestExpiry && ! $expired && \Carbon\Carbon::parse($nearestExpiry)->lte(today()->addDays(60));
                         @endphp
                         <tr>
                             <td>
-                                <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
-                                <div class="small text-muted">{{ $batch->medicine?->medicineType?->name }} {{ $batch->medicine?->strength }}</div>
+                                <div class="fw-semibold">{{ $medicine->name }}</div>
+                                <div class="small text-muted">{{ $medicine->medicineType?->name }} {{ $medicine->strength }}</div>
                             </td>
-                            <td>{{ $batch->batch_number }}</td>
-                            <td>{{ number_format($batch->quantity_received) }}</td>
-                            <td><span class="badge bg-success">{{ number_format($batch->quantity_remaining) }}</span></td>
-                            <td>₦{{ number_format($batch->purchase_price, 2) }}</td>
-                            <td>₦{{ number_format($batch->selling_price, 2) }}</td>
-                            <td>₦{{ number_format($batch->quantity_remaining * $batch->selling_price, 2) }}</td>
-                            <td>{{ $batch->expiry_date }}</td>
+                            <td>{{ number_format($medicineBatches->count()) }}</td>
+                            <td>{{ number_format($quantityReceived) }}</td>
+                            <td><span class="badge bg-success">{{ number_format($quantityRemaining) }}</span></td>
+                            <td>₦{{ number_format($averagePurchase, 2) }}</td>
+                            <td>₦{{ number_format($nextBatch?->selling_price ?? 0, 2) }}</td>
+                            <td>₦{{ number_format($retailValue, 2) }}</td>
+                            <td>{{ $nearestExpiry ?? 'N/A' }}</td>
                             <td>
-                                @if($expired)
+                                @if($quantityRemaining <= 0)
+                                    <span class="badge bg-secondary">Out</span>
+                                @elseif($expired)
                                     <span class="badge bg-danger">Expired</span>
                                 @elseif($expiring)
                                     <span class="badge bg-warning text-dark">Expiring</span>
@@ -177,10 +202,15 @@
                                     <span class="badge bg-primary">Valid</span>
                                 @endif
                             </td>
+                            <td class="text-end">
+                                <a href="{{ route('pharmacy.batches.index', ['medicine' => $medicine->id]) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View Batches
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No medicine stock found</td>
+                            <td colspan="10" class="text-center text-muted py-4">No medicine stock found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -188,7 +218,7 @@
         </div>
 
         <div class="card-footer bg-white">
-            {{ $batches->links() }}
+            {{ $stocks->links() }}
         </div>
     </div>
 </div>

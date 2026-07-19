@@ -107,12 +107,12 @@
                             </a>
                         </div>
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="{{ route('record.patients.index') }}" class="btn btn-outline-secondary w-100 py-3 text-start">
+                            <a href="{{ route('record.patient-register.index') }}" class="btn btn-outline-secondary w-100 py-3 text-start">
                                 <div class="d-flex align-items-center">
-                                    <i class="bi bi-list-check me-2" style="font-size: 1.5rem;"></i>
+                                    <i class="bi bi-file-earmark-spreadsheet me-2" style="font-size: 1.5rem;"></i>
                                     <div>
-                                        <div class="fw-bold">View Walkin Patients</div>
-                                        <small class="text-muted">Browse all records</small>
+                                        <div class="fw-bold">Patient Register</div>
+                                        <small class="text-muted">Filter and export records</small>
                                     </div>
                                 </div>
                             </a>

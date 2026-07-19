@@ -25,8 +25,8 @@ class VitalSignsController extends Controller
     {
         $validated = $request->validate([
             'body_temperature' => 'required|numeric|between:35,42',
-            'blood_pressure_systolic' => 'required|numeric|between:50,250',
-            'blood_pressure_diastolic' => 'required|numeric|between:30,150',
+            'blood_pressure_systolic' => $this->bloodPressureRules($patient, 'blood_pressure_diastolic', '50,250'),
+            'blood_pressure_diastolic' => $this->bloodPressureRules($patient, 'blood_pressure_systolic', '30,150'),
             'heart_rate' => 'required|numeric|between:30,200',
             'respiratory_rate' => 'required|numeric|between:10,50',
             'oxygen_saturation' => 'required|numeric|between:50,100',
@@ -44,6 +44,16 @@ class VitalSignsController extends Controller
 
         return redirect()->route('record_officer.patients.show', $patient)
             ->with('success', 'Vital signs recorded successfully.');
+    }
+
+    private function bloodPressureRules(Patient $patient, string $pairedField, string $range): array
+    {
+        $dateOfBirth = $patient->demographic?->date_of_birth;
+        $rules = $dateOfBirth && $dateOfBirth->age < 18
+            ? ['nullable', 'required_with:' . $pairedField]
+            : ['required'];
+
+        return [...$rules, 'numeric', 'between:' . $range];
     }
 
     /**

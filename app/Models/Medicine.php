@@ -41,9 +41,9 @@ class Medicine extends Model
             ? $this->batches
                 ->where('quantity_remaining', '>', 0)
                 ->where('expiry_date', '>=', now()->toDateString())
-                ->sortByDesc('created_at')
+                ->sortBy('expiry_date')
                 ->first()
-            : $this->availableBatches()->latest()->first();
+            : $this->availableBatches()->orderBy('expiry_date')->orderBy('created_at')->first();
 
         return (float) ($batch?->selling_price ?? 0);
     }

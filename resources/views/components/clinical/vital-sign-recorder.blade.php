@@ -11,8 +11,8 @@
                     <div class="row g-2">
                         @foreach([
                             'body_temperature' => 'Temp',
-                            'blood_pressure_systolic' => 'BP Systolic',
-                            'blood_pressure_diastolic' => 'BP Diastolic',
+                            'blood_pressure_systolic' => 'BP Systolic (optional for children)',
+                            'blood_pressure_diastolic' => 'BP Diastolic (optional for children)',
                             'heart_rate' => 'Heart Rate',
                             'respiratory_rate' => 'Resp. Rate',
                             'oxygen_saturation' => 'Oxygen %',
@@ -45,7 +45,7 @@
                         <tr>
                             <td>{{ $vital->recorded_date }}</td>
                             <td>{{ $vital->body_temperature }}</td>
-                            <td>{{ $vital->blood_pressure_systolic }}/{{ $vital->blood_pressure_diastolic }}</td>
+                            <td>{{ $vital->blood_pressure_systolic && $vital->blood_pressure_diastolic ? $vital->blood_pressure_systolic . '/' . $vital->blood_pressure_diastolic : 'N/A' }}</td>
                             <td>{{ $vital->heart_rate }}</td>
                             <td>{{ $vital->oxygen_saturation }}</td>
                             <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="edit({{ $vital->id }})">Edit</button></td>

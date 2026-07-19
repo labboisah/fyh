@@ -6,6 +6,7 @@ use App\Http\Controllers\Pharmacy\TransactionController;
 use App\Http\Controllers\Pharmacy\PrescriptionController;
 use App\Http\Controllers\Pharmacy\FinanceController;
 use App\Livewire\Pharmacy\PrescriptionDispenseWorkspace;
+use App\Livewire\Pharmacy\BatchManager;
 use App\Livewire\Pharmacy\StockInventoryManager;
 use App\Livewire\Pharmacy\TransactionIndex;
 use App\Livewire\Pharmacy\TransactionWorkspace;
@@ -59,6 +60,12 @@ Route::middleware('pharmacy.manager')->group(function () {
         Route::get('/', StockInventoryManager::class)->name('index');
         Route::get('/create', [StockController::class,'create'])->name('create');
         Route::post('/store', [StockController::class,'store'])->name('store');
+    });
+
+    Route::prefix('batches')
+    ->name('batches.')
+    ->group(function () {
+        Route::get('/', BatchManager::class)->name('index');
     });
 
     Route::prefix('expiries')

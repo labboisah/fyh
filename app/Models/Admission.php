@@ -37,6 +37,38 @@ class Admission extends Model
         return $this->hasOne(Discharge::class);
     }
 
+    public function releaseBedIfNoActiveAdmission(): bool
+    {
+        if (! $this->bed_id || ! $this->bed) {
+            return false;
+        }
+
+        $hasOtherActiveAdmission = static::query()
+            ->where('bed_id', $this->bed_id)
+            ->whereKeyNot($this->id)
+            ->whereNotIn('status', [
+                'discharged',
+                'Discharged',
+                'closed',
+                'Closed',
+                'absconded',
+                'Absconded',
+                'sama',
+                'SAMA',
+            ])
+            ->exists();
+
+        if ($hasOtherActiveAdmission) {
+            return false;
+        }
+
+        if ($this->bed->status !== 'vacant') {
+            $this->bed->update(['status' => 'vacant']);
+        }
+
+        return true;
+    }
+
     public function bills()
     {
         return $this->hasMany(Bill::class);

@@ -29,6 +29,8 @@ class DischargeController extends Controller
 
         $admission->update(['status'=>'discharged']);
         $admission->patientVisit->update(['status'=>'discharged']);
+        $admission->loadMissing('bed');
+        $admission->releaseBedIfNoActiveAdmission();
         // Log activity
         $admission->patientVisit->visitActivities()->create([
             'activity' => "Patient discharged with reason: {$request->reason}",

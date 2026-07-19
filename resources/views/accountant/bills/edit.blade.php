@@ -12,19 +12,14 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="mb-3">
-                            <label for="patient_id" class="form-label">Patient <span class="text-danger">*</span></label>
-                            <select id="patient_id" name="patient_id" class="form-control @error('patient_id') is-invalid @enderror" required>
-                                <option value="">-- Select Patient --</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" @selected($bill->patient_id == $patient->id)>
-                                        {{ $patient->name }} ({{ $patient->hospital_number }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('patient_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="alert alert-info">
+                            Patient:
+                            <strong>
+                                {{ $bill->walkinPatient?->name ?? $bill->patientVisit?->patient?->demographic?->full_name ?? 'N/A' }}
+                            </strong>
+                            <span class="text-muted">
+                                {{ $bill->walkinPatient ? '(Walk-in)' : '(' . ($bill->patientVisit?->patient?->hospital_number ?? 'No hospital number') . ')' }}
+                            </span>
                         </div>
 
                         <div class="mb-3">

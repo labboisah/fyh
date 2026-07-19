@@ -62,6 +62,8 @@ class DischargeWorkspace extends Component
 
         $this->admission->update(['status' => 'discharged']);
         $this->admission->patientVisit->update(['status' => 'discharged']);
+        $this->admission->loadMissing('bed');
+        $this->admission->releaseBedIfNoActiveAdmission();
         $this->admission->patientVisit->visitActivities()->create([
             'activity' => $activity,
             'recorded_by' => auth()->id(),

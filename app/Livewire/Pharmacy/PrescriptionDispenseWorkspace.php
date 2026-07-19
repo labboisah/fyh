@@ -206,7 +206,8 @@ class PrescriptionDispenseWorkspace extends Component
             $suggested = $this->suggestedQuantity($item);
             $available = $item->medicine?->availableQuantity() ?? 0;
             $quantity = max(0, (int) ($this->quantities[$item->id] ?? 0));
-            $unitPrice = $item->medicine?->latestSellingPrice() ?? 0;
+            $pricing = $this->batchPricing((int) $item->medicine_id, $quantity);
+            $unitPrice = $pricing['unit_price'];
 
             return [
                 'item_id' => $item->id,
@@ -222,11 +223,45 @@ class PrescriptionDispenseWorkspace extends Component
                 'available' => $available,
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
-                'amount' => $quantity * $unitPrice,
+                'amount' => $pricing['amount'],
                 'selected' => ! $isPaid && (bool) ($this->selected[$item->id] ?? false),
                 'shortage' => max(0, $suggested - $available),
             ];
         });
+    }
+
+    private function batchPricing(int $medicineId, int $quantity): array
+    {
+        if ($quantity < 1) {
+            return ['unit_price' => 0.0, 'amount' => 0.0];
+        }
+
+        $remaining = $quantity;
+        $amount = 0.0;
+        $firstPrice = 0.0;
+
+        $batches = MedicineBatch::where('medicine_id', $medicineId)
+            ->where('quantity_remaining', '>', 0)
+            ->whereDate('expiry_date', '>=', today())
+            ->orderBy('expiry_date')
+            ->get();
+
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $take = min($remaining, (int) $batch->quantity_remaining);
+            $price = (float) $batch->selling_price;
+            $firstPrice = $firstPrice ?: $price;
+            $amount += $take * $price;
+            $remaining -= $take;
+        }
+
+        return [
+            'unit_price' => $quantity > 0 ? round($amount / $quantity, 2) : $firstPrice,
+            'amount' => round($amount, 2),
+        ];
     }
 
     private function unavailableRows()

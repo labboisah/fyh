@@ -33,8 +33,8 @@ class VitalSignRecorder extends Component
     {
         $validated = $this->validate([
             'form.body_temperature' => ['required', 'numeric'],
-            'form.blood_pressure_systolic' => ['required', 'numeric'],
-            'form.blood_pressure_diastolic' => ['required', 'numeric'],
+            'form.blood_pressure_systolic' => $this->bloodPressureRules('form.blood_pressure_diastolic'),
+            'form.blood_pressure_diastolic' => $this->bloodPressureRules('form.blood_pressure_systolic'),
             'form.heart_rate' => ['required', 'numeric'],
             'form.respiratory_rate' => ['required', 'numeric'],
             'form.oxygen_saturation' => ['required', 'numeric'],
@@ -85,5 +85,21 @@ class VitalSignRecorder extends Component
         $this->editingId = null;
         $this->form = ['recorded_date' => now()->format('Y-m-d\TH:i')];
         $this->resetValidation();
+    }
+
+    private function bloodPressureRules(string $pairedField): array
+    {
+        $rules = $this->isChildPatient()
+            ? ['nullable', 'required_with:' . $pairedField]
+            : ['required'];
+
+        return [...$rules, 'numeric', 'between:30,250'];
+    }
+
+    private function isChildPatient(): bool
+    {
+        $dateOfBirth = $this->patient?->demographic?->date_of_birth;
+
+        return $dateOfBirth && $dateOfBirth->age < 18;
     }
 }

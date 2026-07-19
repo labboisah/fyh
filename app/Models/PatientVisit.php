@@ -95,13 +95,16 @@ class PatientVisit extends Model
         }
 
         if(!$admission){
+            $bed = $ward?->getAvailableBed();
             $admission = $this->admissions()->create([
                 'date' => now(),
-                'bed_id' => $ward->getAvailableBed()->id ?? null,
+                'bed_id' => $bed?->id,
                 'time' => now()->toTimeString(),
                 'status' => 'Registered',
                 'admitted_by' => auth()->user()->id
             ]);
+
+            $bed?->update(['status' => 'occupied']);
         }
         return $admission;
     }

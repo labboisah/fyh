@@ -11,10 +11,12 @@ use App\Models\PatientAdmission;
 use App\Models\PatientReferral;
 use App\Models\Ward;
 use App\Models\Bill;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class RecordOfficerController extends Controller
 {
@@ -150,6 +152,81 @@ class RecordOfficerController extends Controller
     public function listPatients()
     {
         return view('record.patient.list');
+    }
+
+    public function patientRegister(Request $request)
+    {
+        [$startDate, $endDate] = $this->patientRegisterDateRange($request);
+        $query = $this->patientRegisterQuery($startDate, $endDate, $request);
+        $summary = $this->patientRegisterSummary(clone $query);
+
+        $patients = (clone $query)
+            ->latest('registration_date')
+            ->paginate(25)
+            ->withQueryString();
+
+        return view('record.patient.register-report', compact('patients', 'summary', 'startDate', 'endDate'));
+    }
+
+    public function patientRegisterCsv(Request $request)
+    {
+        [$startDate, $endDate] = $this->patientRegisterDateRange($request);
+        $patients = $this->patientRegisterQuery($startDate, $endDate, $request)
+            ->latest('registration_date')
+            ->get();
+
+        $filename = 'patient-register-' . $startDate->format('Y-m-d') . '-to-' . $endDate->format('Y-m-d') . '.csv';
+        $handle = fopen('php://memory', 'w');
+
+        fputcsv($handle, [
+            'Hospital Number',
+            'Patient Name',
+            'Gender',
+            'Age',
+            'Phone Number',
+            'Email',
+            'Address',
+            'File Type',
+            'Patient Type',
+            'Registration Date',
+        ]);
+
+        foreach ($patients as $patient) {
+            fputcsv($handle, [
+                $patient->hospital_number,
+                $patient->demographic?->full_name,
+                $patient->demographic?->gender,
+                $patient->demographic?->age,
+                $patient->demographic?->phone_number,
+                $patient->demographic?->email,
+                $patient->demographic?->address,
+                $patient->fileType?->name,
+                $patient->is_walkIn ? 'Walk-in' : 'Registered',
+                $patient->registration_date?->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        rewind($handle);
+
+        return response(stream_get_contents($handle), 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename={$filename}",
+        ]);
+    }
+
+    public function patientRegisterPdf(Request $request)
+    {
+        [$startDate, $endDate] = $this->patientRegisterDateRange($request);
+        $query = $this->patientRegisterQuery($startDate, $endDate, $request);
+        $summary = $this->patientRegisterSummary(clone $query);
+        $patients = (clone $query)->latest('registration_date')->get();
+        $hospital = $this->hospitalHeaderData();
+        $generatedBy = $request->user();
+
+        $pdf = Pdf::loadView('record.patient.register-pdf', compact('patients', 'summary', 'startDate', 'endDate', 'hospital', 'generatedBy'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('patient-register-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -353,5 +430,72 @@ class RecordOfficerController extends Controller
         return response()->streamDownload(function () use ($content) {
             echo $content;
         }, 'patient_' . $patient->hospital_number . '.txt');
+    }
+
+    private function patientRegisterDateRange(Request $request): array
+    {
+        $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+            'gender' => ['nullable', 'in:Male,Female,Other'],
+            'patient_type' => ['nullable', 'in:registered,walk_in'],
+        ]);
+
+        $startDate = Carbon::parse($request->input('start_date', now()->startOfMonth()->format('Y-m-d')))->startOfDay();
+        $endDate = Carbon::parse($request->input('end_date', now()->format('Y-m-d')))->endOfDay();
+
+        if ($startDate->gt($endDate)) {
+            return [$endDate->copy()->startOfDay(), $startDate->copy()->endOfDay()];
+        }
+
+        return [$startDate, $endDate];
+    }
+
+    private function patientRegisterQuery(Carbon $startDate, Carbon $endDate, Request $request): Builder
+    {
+        $search = trim((string) $request->input('search', ''));
+
+        return Patient::query()
+            ->with(['demographic', 'fileType'])
+            ->whereBetween('registration_date', [$startDate, $endDate])
+            ->when(strlen($search) >= 2, function (Builder $query) use ($search) {
+                $query->where(function (Builder $builder) use ($search) {
+                    $builder->where('hospital_number', 'like', "%{$search}%")
+                        ->orWhereHas('demographic', function (Builder $demographic) use ($search) {
+                            $demographic->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('phone_number', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when($request->filled('gender'), function (Builder $query) use ($request) {
+                $query->whereHas('demographic', fn (Builder $demographic) => $demographic->where('gender', $request->input('gender')));
+            })
+            ->when($request->input('patient_type') === 'registered', fn (Builder $query) => $query->where('is_walkIn', false))
+            ->when($request->input('patient_type') === 'walk_in', fn (Builder $query) => $query->where('is_walkIn', true));
+    }
+
+    private function patientRegisterSummary(Builder $query): array
+    {
+        $patients = $query->get();
+
+        return [
+            'total' => $patients->count(),
+            'registered' => $patients->where('is_walkIn', false)->count(),
+            'walk_in' => $patients->where('is_walkIn', true)->count(),
+            'male' => $patients->filter(fn ($patient) => $patient->demographic?->gender === 'Male')->count(),
+            'female' => $patients->filter(fn ($patient) => $patient->demographic?->gender === 'Female')->count(),
+            'other' => $patients->filter(fn ($patient) => $patient->demographic?->gender === 'Other')->count(),
+        ];
+    }
+
+    private function hospitalHeaderData(): array
+    {
+        return [
+            'name' => strtoupper(config('app.title', config('app.name', 'FAYHOS'))),
+            'address' => strtoupper(config('app.address', '')),
+            'logo' => public_path('images/logo.png'),
+        ];
     }
 }
