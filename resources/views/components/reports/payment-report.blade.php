@@ -332,7 +332,11 @@
                                 <td>{{ $patientName }}</td>
                                 <td>
                                     @if($payment->bill)
-                                        <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $payment->bill) : route('accountant.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
+                                        @if(auth()->user()->hasRole('medical_director'))
+                                            {{ $payment->bill->bill_number }}
+                                        @else
+                                            <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $payment->bill) : route('accountant.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
+                                        @endif
                                     @else
                                         <span class="text-muted">N/A</span>
                                     @endif

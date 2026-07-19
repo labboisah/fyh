@@ -53,7 +53,9 @@
             );
     };
 
-    $dashboardRoute = in_array('administrator', $roleNames, true) ? route('admin.index') : route('dashboard');
+    $dashboardRoute = in_array('medical_director', $roleNames, true)
+        ? route('medical-director.index')
+        : (in_array('administrator', $roleNames, true) ? route('admin.index') : route('dashboard'));
 
     $navigationItems = [
         ['label' => 'Patients', 'icon' => 'bi-people-fill', 'route' => 'record.patients.index', 'patterns' => ['record.patients.*'], 'roles' => ['record'], 'permissions' => ['patient.read'], 'permission_roles' => ['record']],
@@ -113,8 +115,8 @@
 
         ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.*'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
         ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'accountant.payments.index', 'patterns' => ['accountant.payments.*'], 'roles' => ['accountant'], 'permissions' => ['payment.read']],
-        ['label' => 'Billing Report', 'icon' => 'bi-file-earmark-text', 'route' => 'reports.finance.index', 'patterns' => ['reports.finance.*'], 'roles' => ['administrator', 'accountant'], 'permissions' => ['bill.read', 'report.read']],
-        ['label' => 'Payment Report', 'icon' => 'bi-bar-chart-line', 'route' => 'reports.payments.index', 'patterns' => ['reports.payments.*'], 'roles' => ['administrator', 'accountant'], 'permissions' => ['payment.read', 'report.read']],
+        ['label' => 'Billing Report', 'icon' => 'bi-file-earmark-text', 'route' => 'reports.finance.index', 'patterns' => ['reports.finance.*'], 'roles' => ['administrator', 'medical_director', 'accountant'], 'permissions' => ['bill.read', 'report.read']],
+        ['label' => 'Payment Report', 'icon' => 'bi-bar-chart-line', 'route' => 'reports.payments.index', 'patterns' => ['reports.payments.*'], 'roles' => ['administrator', 'medical_director', 'accountant'], 'permissions' => ['payment.read', 'report.read']],
 
         ['label' => 'Admin Bills', 'icon' => 'bi-receipt', 'route' => 'admin.bills.index', 'patterns' => ['admin.bills.*'], 'roles' => ['administrator'], 'permissions' => ['bill.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Admin Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'admin.payments.index', 'patterns' => ['admin.payments.*'], 'roles' => ['administrator'], 'permissions' => ['payment.read'], 'permission_roles' => ['administrator']],
@@ -126,6 +128,13 @@
         ['label' => 'Services', 'icon' => 'bi-gear-fill', 'route' => 'admin.services.index', 'patterns' => ['admin.services.*'], 'roles' => ['administrator'], 'permissions' => ['service.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Investigations', 'icon' => 'bi-clipboard2-data', 'route' => 'admin.investigations.index', 'patterns' => ['admin.investigations.*'], 'roles' => ['administrator'], 'permissions' => ['investigation.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Wards', 'icon' => 'bi-hospital', 'route' => 'admin.wards.index', 'patterns' => ['admin.wards.*'], 'roles' => ['administrator'], 'permissions' => ['ward.read'], 'permission_roles' => ['administrator']],
+        ['label' => 'Patient Register', 'icon' => 'bi-file-earmark-spreadsheet', 'route' => 'medical-director.patient-register.index', 'patterns' => ['medical-director.patient-register.*'], 'roles' => ['medical_director'], 'permissions' => ['patient.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Expenses', 'icon' => 'bi-cash-stack', 'route' => 'medical-director.expenses.index', 'patterns' => ['medical-director.expenses.*'], 'roles' => ['medical_director'], 'permissions' => ['expense.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Revenues', 'icon' => 'bi-graph-up-arrow', 'route' => 'medical-director.revenues.index', 'patterns' => ['medical-director.revenues.*'], 'roles' => ['medical_director'], 'permissions' => ['revenue.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Departments', 'icon' => 'bi-buildings', 'route' => 'medical-director.departments.index', 'patterns' => ['medical-director.departments.*'], 'roles' => ['medical_director'], 'permissions' => ['department.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Services', 'icon' => 'bi-gear-fill', 'route' => 'medical-director.services.index', 'patterns' => ['medical-director.services.*'], 'roles' => ['medical_director'], 'permissions' => ['service.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Investigations', 'icon' => 'bi-clipboard2-data', 'route' => 'medical-director.investigations.index', 'patterns' => ['medical-director.investigations.*'], 'roles' => ['medical_director'], 'permissions' => ['investigation.read'], 'permission_roles' => ['medical_director']],
+        ['label' => 'Wards', 'icon' => 'bi-hospital', 'route' => 'medical-director.wards.index', 'patterns' => ['medical-director.wards.*'], 'roles' => ['medical_director'], 'permissions' => ['ward.read'], 'permission_roles' => ['medical_director']],
         ['label' => 'Access Control', 'icon' => 'bi-shield-check', 'route' => 'admin.access-control', 'patterns' => ['admin.access-control'], 'roles' => ['administrator'], 'permissions' => ['role.read', 'permission.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Users', 'icon' => 'bi-people-fill', 'route' => 'admin.users.index', 'patterns' => ['admin.users.*'], 'roles' => ['administrator'], 'permissions' => ['user.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Data Sync', 'icon' => 'bi-cloud-arrow-up', 'route' => 'admin.sync.index', 'patterns' => ['admin.sync.*'], 'roles' => ['administrator'], 'permissions' => ['sync.read'], 'permission_roles' => ['administrator']],
@@ -134,6 +143,7 @@
 
     $roleIcons = [
         'administrator' => 'bi-shield-check',
+        'medical_director' => 'bi-heart-pulse-fill',
         'record' => 'bi-folder2-open',
         'nurse' => 'bi-heart-pulse',
         'doctor' => 'bi-person-vcard',

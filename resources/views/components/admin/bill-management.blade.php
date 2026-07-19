@@ -91,7 +91,7 @@
         </div>
     </div>
 
-    @if($editingBillId)
+    @if($canManageFinance && $editingBillId)
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Edit Bill: {{ $billNumber }}</h5>
@@ -227,13 +227,15 @@
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $bill->id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                        @if($canManageFinance)
+                                            <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $bill->id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                        <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $bill->id }})" wire:confirm="Delete this bill?">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                            <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $bill->id }})" wire:confirm="Delete this bill?">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

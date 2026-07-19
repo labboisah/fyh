@@ -99,6 +99,8 @@ class RevenueManagement extends Component
 
     public function edit(int $revenueId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $revenue = Revenue::findOrFail($revenueId);
 
         $this->editingRevenueId = $revenue->id;
@@ -113,6 +115,8 @@ class RevenueManagement extends Component
 
     public function save(): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $validated = $this->validate([
             'revenueCategoryId' => ['required', 'exists:revenue_categories,id'],
             'departmentId' => ['nullable', 'exists:departments,id'],
@@ -149,6 +153,8 @@ class RevenueManagement extends Component
 
     public function delete(int $revenueId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         Revenue::findOrFail($revenueId)->delete();
 
         if ($this->editingRevenueId === $revenueId) {
@@ -242,7 +248,13 @@ class RevenueManagement extends Component
             'recordCount' => (clone $summaryQuery)->count(),
             'averageRevenue' => (clone $summaryQuery)->avg('revenues.amount') ?? 0,
             'categoryCount' => (clone $summaryQuery)->distinct('revenues.revenue_category_id')->count('revenues.revenue_category_id'),
+            'canManageFinance' => $this->canManageFinance(),
         ]);
+    }
+
+    private function canManageFinance(): bool
+    {
+        return auth()->user()?->hasRole('administrator') ?? false;
     }
 
     public function sortIcon(string $field): string

@@ -10,9 +10,9 @@
         <div>
             <h1 class="h3 mb-1">
                 <i class="bi bi-speedometer2 me-2 text-success"></i>
-                Admin Dashboard
+                {{ $canViewTechnicalRecords ? 'Admin Dashboard' : 'Medical Director Dashboard' }}
             </h1>
-            <p class="text-muted mb-0">Live hospital, finance, access, and sync overview.</p>
+            <p class="text-muted mb-0">{{ $canViewTechnicalRecords ? 'Live hospital, finance, access, and sync overview.' : 'Live hospital, patient flow, setup, and finance overview.' }}</p>
         </div>
 
         <div class="text-muted small text-end">
@@ -71,18 +71,20 @@
             </div>
         </div>
 
-        <div class="col-md-6 col-xl-3">
-            <div class="border rounded bg-white p-3 h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted small mb-1">Sync Queue</p>
-                        <h3 class="mb-0">{{ number_format($syncMetrics['pending']) }}</h3>
-                        <small class="{{ $syncMetrics['failed'] > 0 ? 'text-danger' : 'text-muted' }}">{{ number_format($syncMetrics['failed']) }} failed</small>
+        @if($canViewTechnicalRecords)
+            <div class="col-md-6 col-xl-3">
+                <div class="border rounded bg-white p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Sync Queue</p>
+                            <h3 class="mb-0">{{ number_format($syncMetrics['pending']) }}</h3>
+                            <small class="{{ $syncMetrics['failed'] > 0 ? 'text-danger' : 'text-muted' }}">{{ number_format($syncMetrics['failed']) }} failed</small>
+                        </div>
+                        <i class="bi bi-cloud-arrow-up fs-2 text-warning"></i>
                     </div>
-                    <i class="bi bi-cloud-arrow-up fs-2 text-warning"></i>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 
     <div class="row g-3 mb-4">
@@ -102,13 +104,15 @@
             </div>
         </div>
 
-        <div class="col-md-6 col-xl-3">
-            <div class="border rounded bg-white p-3 h-100">
-                <p class="text-muted small mb-1">Access Control</p>
-                <h4 class="mb-0">{{ number_format($accessMetrics['users']) }} users</h4>
-                <small class="text-muted">{{ number_format($accessMetrics['roles']) }} roles, {{ number_format($accessMetrics['permissions']) }} permissions</small>
+        @if($canViewTechnicalRecords)
+            <div class="col-md-6 col-xl-3">
+                <div class="border rounded bg-white p-3 h-100">
+                    <p class="text-muted small mb-1">Access Control</p>
+                    <h4 class="mb-0">{{ number_format($accessMetrics['users']) }} users</h4>
+                    <small class="text-muted">{{ number_format($accessMetrics['roles']) }} roles, {{ number_format($accessMetrics['permissions']) }} permissions</small>
+                </div>
             </div>
-        </div>
+        @endif
 
         <div class="col-md-6 col-xl-3">
             <div class="border rounded bg-white p-3 h-100">
@@ -181,54 +185,58 @@
                     <div class="d-flex justify-content-between mb-3"><span>Departments</span><strong>{{ number_format($setupMetrics['departments']) }}</strong></div>
                     <div class="d-flex justify-content-between mb-3"><span>Services</span><strong>{{ number_format($setupMetrics['services']) }}</strong></div>
                     <div class="d-flex justify-content-between mb-3"><span>Investigations</span><strong>{{ number_format($setupMetrics['investigations']) }}</strong></div>
-                    <div class="d-flex justify-content-between mb-3"><span>Administrators</span><strong>{{ number_format($accessMetrics['administrators']) }}</strong></div>
-                    <div class="d-flex justify-content-between"><span>Temporary Permissions</span><strong>{{ number_format($accessMetrics['temporary_permissions']) }}</strong></div>
+                    @if($canViewTechnicalRecords)
+                        <div class="d-flex justify-content-between mb-3"><span>Administrators</span><strong>{{ number_format($accessMetrics['administrators']) }}</strong></div>
+                        <div class="d-flex justify-content-between"><span>Temporary Permissions</span><strong>{{ number_format($accessMetrics['temporary_permissions']) }}</strong></div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent System Activity</h5>
-                    @if($syncMetrics['latest'])
-                        <span class="text-muted small">Latest sync: {{ $syncMetrics['latest']->updated_at?->diffForHumans() }}</span>
-                    @endif
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush" style="max-height: 430px; overflow-y: auto;">
-                        @forelse($recentActivities as $activity)
-                            @php
-                                $actionLabel = ucwords(str_replace(['.', '_'], [' ', ' '], $activity->action));
-                                $modelLabel = $activity->model_type ? class_basename($activity->model_type) : null;
-                            @endphp
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between gap-3">
-                                    <div>
-                                        <div class="fw-semibold">{{ $activity->actor?->name ?? 'System' }}</div>
-                                        <div class="small text-muted">
-                                            {{ $actionLabel }}
-                                            @if($modelLabel)
-                                                on {{ $modelLabel }}
-                                                @if($activity->model_id)
-                                                    #{{ $activity->model_id }}
+        @if($canViewTechnicalRecords)
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent System Activity</h5>
+                        @if($syncMetrics['latest'])
+                            <span class="text-muted small">Latest sync: {{ $syncMetrics['latest']->updated_at?->diffForHumans() }}</span>
+                        @endif
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" style="max-height: 430px; overflow-y: auto;">
+                            @forelse($recentActivities as $activity)
+                                @php
+                                    $actionLabel = ucwords(str_replace(['.', '_'], [' ', ' '], $activity->action));
+                                    $modelLabel = $activity->model_type ? class_basename($activity->model_type) : null;
+                                @endphp
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between gap-3">
+                                        <div>
+                                            <div class="fw-semibold">{{ $activity->actor?->name ?? 'System' }}</div>
+                                            <div class="small text-muted">
+                                                {{ $actionLabel }}
+                                                @if($modelLabel)
+                                                    on {{ $modelLabel }}
+                                                    @if($activity->model_id)
+                                                        #{{ $activity->model_id }}
+                                                    @endif
                                                 @endif
-                                            @endif
+                                            </div>
+                                        </div>
+                                        <div class="text-end text-muted small">
+                                            {{ $activity->created_at?->format('M j, h:i A') }}
+                                            <div>{{ $activity->created_at?->diffForHumans() }}</div>
                                         </div>
                                     </div>
-                                    <div class="text-end text-muted small">
-                                        {{ $activity->created_at?->format('M j, h:i A') }}
-                                        <div>{{ $activity->created_at?->diffForHumans() }}</div>
-                                    </div>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="text-center text-muted py-5">No recent activity yet.</div>
-                        @endforelse
+                            @empty
+                                <div class="text-center text-muted py-5">No recent activity yet.</div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 

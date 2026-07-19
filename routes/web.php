@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::middleware('role:administrator,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department')
+    Route::middleware('role:administrator,medical_director,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department')
         ->prefix('/report')
         ->name('report.')
         ->group(function () {
@@ -64,37 +64,23 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', AdminDashboard::class)->middleware('role:administrator')->name('index');
+    Route::get('/', AdminDashboard::class)->middleware('role:administrator,medical_director')->name('index');
     
     Route::get('access-control', AccessControlManager::class)
         ->middleware('access:role:administrator,permission:role.read,permission:permission.read')
         ->name('access-control');
 
-    Route::middleware('role:administrator')->group(function () {
+    Route::middleware('role:administrator,medical_director')->group(function () {
         Route::get('patient-register', [AdminPatientRegisterController::class, 'index'])->name('patient-register.index');
         Route::get('patient-register/csv', [AdminPatientRegisterController::class, 'csv'])->name('patient-register.csv');
         Route::get('patient-register/pdf', [AdminPatientRegisterController::class, 'pdf'])->name('patient-register.pdf');
         Route::get('patient-register/{patient}/summary', [AdminPatientRegisterController::class, 'summary'])->name('patient-register.summary');
-
-        // Roles Management
-        Route::resource('roles', RoleController::class);
-        
-        // Permissions Management
-        Route::resource('permissions', PermissionController::class);
-        
-        // Users Management (full resource)
-        Route::resource('users', UserController::class);
 
         Route::resource('departments', DepartmentController::class);
 
         Route::resource('wards', WardController::class);
 
         Route::resource('investigations', InvestigationController::class);
-        Route::get('expenses', ExpenseManagement::class)->name('expenses.index');
-        Route::resource('expenses', ExpenseController::class)->except(['index', 'show']);
-        Route::get('revenues', RevenueManagement::class)->name('revenues.index');
-        Route::resource('revenues', RevenueController::class)->except(['index', 'show']);
-
 
         Route::prefix('wards/beds')->name('beds.')->group(function () {
             Route::get('/{ward}', [BedController::class, 'index'])->name('index');
@@ -105,10 +91,34 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             Route::delete('/{bed}/destroy', [BedController::class, 'destroy'])->name('destroy');
         });
 
-        // bills management
+        Route::get('expenses', ExpenseManagement::class)->name('expenses.index');
+        Route::get('revenues', RevenueManagement::class)->name('revenues.index');
+
         Route::prefix('bills')->name('bills.')->group(function () {
             Route::get('/', BillManagement::class)->name('index');
             Route::get('/{bill}', [BillController::class, 'show'])->name('show');
+        });
+
+        Route::resource('services', ServiceController::class);
+        Route::put('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
+    });
+
+    Route::middleware('role:administrator')->group(function () {
+        // Roles Management
+        Route::resource('roles', RoleController::class);
+        
+        // Permissions Management
+        Route::resource('permissions', PermissionController::class);
+        
+        // Users Management (full resource)
+        Route::resource('users', UserController::class);
+
+        Route::resource('expenses', ExpenseController::class)->except(['index', 'show']);
+        Route::resource('revenues', RevenueController::class)->except(['index', 'show']);
+
+
+        // bills management
+        Route::prefix('bills')->name('bills.')->group(function () {
             Route::get('/{bill}/edit', [BillController::class, 'edit'])->name('edit');  
             Route::put('/{bill}', [BillController::class, 'update'])->name('update');
             Route::delete('/{bill}', [BillController::class, 'destroy'])->name('delete');
@@ -139,8 +149,6 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::delete('temporary-permissions/{temporaryPermission}', [TemporaryPermissionController::class, 'destroy'])->name('temporary-permissions.destroy');
 
         // Services Management
-        Route::resource('services', ServiceController::class);
-        Route::put('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
     });
 
     Route::get('/system/update', [SystemUpdateController::class, 'index'])
@@ -246,4 +254,5 @@ require __DIR__.'/doctor.php';
 require __DIR__.'/patient.php';
 require __DIR__.'/pharmacy.php';
 require __DIR__.'/department.php';
+require __DIR__.'/medical-director.php';
 require __DIR__.'/reports.php';

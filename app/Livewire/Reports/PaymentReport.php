@@ -87,7 +87,7 @@ class PaymentReport extends Component
             'payments' => (clone $query)->paginate(15),
             'paymentMethods' => PaymentMethod::where('is_active', true)->orderBy('name')->get(),
             'users' => $this->reportUsers(),
-            'canFilterUsers' => auth()->user()->hasRole('administrator'),
+            'canFilterUsers' => auth()->user()->hasAnyRole(['administrator', 'medical_director']),
             'summary' => $this->summary($query),
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),

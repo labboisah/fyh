@@ -64,6 +64,7 @@ class PermissionSeeder extends Seeder
             ['module'=>'Administration','name'=>'report.read','display_name'=>'View Reports','description'=>'View Reports'],
             ['module'=>'Administration','name'=>'report.print','display_name'=>'Update Report','description'=>'Edit Report'],
             ['module'=>'Administration','name'=>'report.download','display_name'=>'Delete Report','description'=>'Delete Report'],
+            ['module'=>'Administration','name'=>'activity.read','display_name'=>'View Activities','description'=>'View activity records'],
 
             ['module'=>'Administration','name'=>'role.create','display_name'=>'Create Role','description'=>'Create role'],
             ['module'=>'Administration','name'=>'role.read','display_name'=>'View Roles','description'=>'View roles'],
@@ -97,9 +98,11 @@ class PermissionSeeder extends Seeder
 
             ['module'=>'Billing','name'=>'bill.create','display_name'=>'Create Bill','description'=>'Generate bill'],
             ['module'=>'Billing','name'=>'bill.read','display_name'=>'View Bills','description'=>'View bills'],
+            ['module'=>'Billing','name'=>'bill.print','display_name'=>'Print Bills','description'=>'Print bills'],
 
             ['module'=>'Billing','name'=>'payment.create','display_name'=>'Create Payment','description'=>'Record payment'],
             ['module'=>'Billing','name'=>'payment.read','display_name'=>'View Payments','description'=>'View payments'],
+            ['module'=>'Billing','name'=>'payment.print','display_name'=>'Print Payments','description'=>'Print payment receipts'],
 
             /*
             |--------------------------------------------------------------------------            | MIDWIFERY
@@ -243,6 +246,11 @@ class PermissionSeeder extends Seeder
             ['module'=>'Finance','name'=>'expense.read','display_name'=>'View Expenses','description'=>'View expenses'],
             ['module'=>'Finance','name'=>'expense.update','display_name'=>'View Expenses','description'=>'View expenses'],
             ['module'=>'Finance','name'=>'expense.delete','display_name'=>'View Expenses','description'=>'View expenses'],
+
+            ['module'=>'Finance','name'=>'revenue.create','display_name'=>'Create Revenue','description'=>'Record revenue'],
+            ['module'=>'Finance','name'=>'revenue.read','display_name'=>'View Revenues','description'=>'View revenues'],
+            ['module'=>'Finance','name'=>'revenue.update','display_name'=>'Update Revenue','description'=>'Edit revenue'],
+            ['module'=>'Finance','name'=>'revenue.delete','display_name'=>'Delete Revenue','description'=>'Delete revenue'],
             
             ['module'=>'Finance','name'=>'department_report.generate','display_name'=>'View Department Report','description'=>'View financial reports'],
             ['module'=>'Finance','name'=>'department_report.read','display_name'=>'View Department Report','description'=>'View financial reports'],
@@ -356,7 +364,6 @@ class PermissionSeeder extends Seeder
         if (isset($roles['administrator'])) {
             $roles['administrator']->sync($adminPermissions);
         }
-        
 
         /*
         |--------------------------------------------------------------------------

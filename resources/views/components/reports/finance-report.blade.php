@@ -319,9 +319,13 @@
                             @endphp
                             <tr>
                                 <td>
-                                    <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $bill) : route('accountant.bills.show', $bill) }}">
+                                    @if(auth()->user()->hasRole('medical_director'))
                                         {{ $bill->bill_number }}
-                                    </a>
+                                    @else
+                                        <a href="{{ auth()->user()->hasRole('administrator') ? route('admin.bills.show', $bill) : route('accountant.bills.show', $bill) }}">
+                                            {{ $bill->bill_number }}
+                                        </a>
+                                    @endif
                                 </td>
                                 <td>{{ $patientName }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit($bill->service_description, 35) }}</td>

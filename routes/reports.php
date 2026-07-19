@@ -10,13 +10,13 @@ use App\Livewire\Reports\MyActivityReport;
 use App\Livewire\Reports\PaymentReport;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'role:administrator,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department'])->prefix('reports')->name('reports.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:administrator,medical_director,doctor,nurse,midwife,record,accountant,lab_scientist,lab_technician,radiologist,radiographer,pharmacist,head_of_department'])->prefix('reports')->name('reports.')->group(function () {
     Route::get('/my-activities', MyActivityReport::class)->name('my-activities.index');
     Route::get('/my-activities/pdf', [MyActivityReportController::class, 'pdf'])->name('my-activities.pdf');
 });
 
-// Financial Reports Routes (for accountant and administrator roles only)
-Route::middleware(['auth', 'verified', 'role:administrator,accountant'])->prefix('reports')->name('reports.')->group(function () {
+// Financial Reports Routes (for accountant, administrator, and medical director roles only)
+Route::middleware(['auth', 'verified', 'role:administrator,medical_director,accountant'])->prefix('reports')->name('reports.')->group(function () {
     Route::prefix('finance')->name('finance.')->group(function () {
         Route::get('/', FinanceReport::class)->name('index');
         Route::get('/search', [FinancialReportController::class, 'search'])->name('search');

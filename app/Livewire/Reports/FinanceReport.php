@@ -83,7 +83,7 @@ class FinanceReport extends Component
         return view('components.reports.finance-report', [
             'bills' => (clone $billQuery)->paginate(15),
             'users' => $this->reportUsers(),
-            'canFilterUsers' => auth()->user()->hasRole('administrator'),
+            'canFilterUsers' => auth()->user()->hasAnyRole(['administrator', 'medical_director']),
             'summary' => $this->summary($billQuery, $paymentQuery),
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),

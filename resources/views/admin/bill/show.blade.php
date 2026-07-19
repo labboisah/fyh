@@ -3,6 +3,10 @@
 @section('title', 'Bill Details')
 
 @section('content')
+    @php
+        $canManageFinance = auth()->user()?->hasRole('administrator') ?? false;
+    @endphp
+
     <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-10">
@@ -10,9 +14,11 @@
                 <h1 class="h3 mb-0">Bill Details</h1>
                 <div>
                     
-                    <a href="{{ route('admin.bills.edit', $bill) }}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
+                    @if($canManageFinance)
+                        <a href="{{ route('admin.bills.edit', $bill) }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    @endif
                     <a href="{{ route('admin.bills.index') }}" class="btn btn-secondary btn-sm">
                         <i class="bi bi-arrow-left"></i> Back
                     </a>
@@ -107,9 +113,11 @@
                                             <th class="text-end">Qty</th>
                                             <th class="text-end">Subtotal</th>
                                             <th class="text-end">Payment Status</th>
-                                            <th class="text-end">
-                                                <a href="{{ route('admin.bills.services.create', [$bill]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> New</a>
-                                            </th>
+                                            @if($canManageFinance)
+                                                <th class="text-end">
+                                                    <a href="{{ route('admin.bills.services.create', [$bill]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> New</a>
+                                                </th>
+                                            @endif
                                         </tr>
                                         
                                     </thead>
@@ -124,20 +132,22 @@
                                                 <td class="text-end">{{ $billService->quantity }}</td>
                                                 <td class="text-end">{{ number_format($billService->subtotal, 2) }}</td>
                                                 <td class="text-end">{{ ucfirst($billService->bill->status) }}</td>
-                                                <td>
-                                                    <a href="{{ route('admin.bills.services.edit', [$billService]) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> </a>
-                                                    <a href="{{ route('admin.bills.services.destroy', [$billService]) }}" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this service?')) { document.getElementById('delete-form-{{ $billService->id }}').submit(); }"><i class="bi bi-trash"></i> </a>
-                                                    <form id="delete-form-{{ $billService->id }}" action="{{ route('admin.bills.services.destroy', [$billService]) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
-                                                </td>
+                                                @if($canManageFinance)
+                                                    <td>
+                                                        <a href="{{ route('admin.bills.services.edit', [$billService]) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> </a>
+                                                        <a href="{{ route('admin.bills.services.destroy', [$billService]) }}" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this service?')) { document.getElementById('delete-form-{{ $billService->id }}').submit(); }"><i class="bi bi-trash"></i> </a>
+                                                        <form id="delete-form-{{ $billService->id }}" action="{{ route('admin.bills.services.destroy', [$billService]) }}" method="POST" style="display: none;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr class="fw-bold border-top">
-                                            <td colspan="4" class="text-end">Total:</td>
+                                            <td colspan="{{ $canManageFinance ? 4 : 3 }}" class="text-end">Total:</td>
                                             <td class="text-end">{{ number_format($bill->totalBillServices(), 2) }}</td>
                                         </tr>
                                     </tfoot>
@@ -159,9 +169,11 @@
                                             <th class="text-end">Qty</th>
                                             <th class="text-end">Subtotal</th>
                                             <th class="text-end">Payment Status</th>
-                                            <th class="text-end">
-                                                <a href="{{ route('admin.bills.investigations.create', [$bill]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> New</a>
-                                            </th>
+                                            @if($canManageFinance)
+                                                <th class="text-end">
+                                                    <a href="{{ route('admin.bills.investigations.create', [$bill]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> New</a>
+                                                </th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -177,20 +189,22 @@
                                                 <td class="text-end">{{ $billInvestigation->quantity }}</td>
                                                 <td class="text-end">{{ number_format($billInvestigation->subtotal, 2) }}</td>
                                                 <td class="text-end">{{ ucfirst($bill->status) }}</td>
-                                                <td class="text-end">
-                                                    <a href="{{ route('admin.bills.investigations.edit', [$billInvestigation]) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> </a>
-                                                    <a href="{{ route('admin.bills.investigations.destroy', [$bill, $billInvestigation]) }}" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this investigation?')) { document.getElementById('delete-investigation-form-{{ $billInvestigation->id }}').submit(); }"><i class="bi bi-trash"></i> </a>
-                                                    <form id="delete-investigation-form-{{ $billInvestigation->id }}" action="{{ route('admin.bills.investigations.destroy', [$billInvestigation]) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
-                                                </td>
+                                                @if($canManageFinance)
+                                                    <td class="text-end">
+                                                        <a href="{{ route('admin.bills.investigations.edit', [$billInvestigation]) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> </a>
+                                                        <a href="{{ route('admin.bills.investigations.destroy', [$bill, $billInvestigation]) }}" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this investigation?')) { document.getElementById('delete-investigation-form-{{ $billInvestigation->id }}').submit(); }"><i class="bi bi-trash"></i> </a>
+                                                        <form id="delete-investigation-form-{{ $billInvestigation->id }}" action="{{ route('admin.bills.investigations.destroy', [$billInvestigation]) }}" method="POST" style="display: none;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr class="fw-bold border-top">
-                                            <td colspan="4" class="text-end">Total:</td>
+                                            <td colspan="{{ $canManageFinance ? 4 : 3 }}" class="text-end">Total:</td>
                                             <td class="text-end">{{ number_format($bill->totalBillInvestigations(), 2) }}</td>
                                         </tr>
                                     </tfoot>

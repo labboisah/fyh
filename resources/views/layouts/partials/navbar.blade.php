@@ -251,7 +251,7 @@
                             
                             @endif
 
-                            @if($canNav(['accountant'], ['bill.read', 'payment.read']))
+                            @if($navUser?->hasRole('accountant'))
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('accountant.bills.index') }}"><i class="fa-solid fa-naira-sign me-2 text-success"></i>  Billing</a>
                             </li>
@@ -368,7 +368,7 @@
                                 
                             @endif
 
-                            @if(! $showAdminSidebar && $canNav(['administrator', 'accountant'], ['bill.read', 'payment.read', 'expense.read', 'department_report.read']))
+                            @if(! $showAdminSidebar && $canNav(['administrator', 'medical_director', 'accountant'], ['bill.read', 'payment.read', 'expense.read', 'department_report.read']))
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-cash-stack me-2 text-success"></i>
@@ -382,17 +382,17 @@
                                     @if($canNav(['administrator'], ['payment.read']))
                                         <li><a class="dropdown-item" href="{{ route('admin.payments.index') }}"><i class="bi bi-credit-card-2-front me-2"></i> Payments Management</a></li>
                                     @endif
-                                    @if($canNav(['administrator', 'accountant'], ['bill.read', 'report.read', 'department_report.read']))
+                                    @if($canNav(['administrator', 'medical_director', 'accountant'], ['bill.read', 'report.read', 'department_report.read']))
                                         <li><a class="dropdown-item" href="{{ route('reports.finance.index') }}"><i class="bi bi-file-earmark-text me-2"></i> Billing Report</a></li>
                                     @endif
-                                    @if($canNav(['administrator', 'accountant'], ['payment.read', 'report.read', 'department_report.read']))
+                                    @if($canNav(['administrator', 'medical_director', 'accountant'], ['payment.read', 'report.read', 'department_report.read']))
                                         <li><a class="dropdown-item" href="{{ route('reports.payments.index') }}"><i class="bi bi-bar-chart-line me-2"></i> Payment Report</a></li>
                                     @endif
-                                    @if($canNav(['administrator'], ['expense.read']))
-                                        <li><a class="dropdown-item" href="{{ route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
+                                    @if($canNav(['administrator', 'medical_director'], ['expense.read']))
+                                        <li><a class="dropdown-item" href="{{ $navUser?->hasRole('medical_director') ? route('medical-director.expenses.index') : route('admin.expenses.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Expenses</a></li>
                                     @endif
-                                    @if($canNav(['administrator'], ['revenue.read']))
-                                        <li><a class="dropdown-item" href="{{ route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
+                                    @if($canNav(['administrator', 'medical_director'], ['revenue.read']))
+                                        <li><a class="dropdown-item" href="{{ $navUser?->hasRole('medical_director') ? route('medical-director.revenues.index') : route('admin.revenues.index') }}"><i class="bi bi-cash-stack me-2 text-success"></i> Revenues</a></li>
                                     @endif
                                 </ul>
                             </li>

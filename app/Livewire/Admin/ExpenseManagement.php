@@ -97,6 +97,8 @@ class ExpenseManagement extends Component
 
     public function edit(int $expenseId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $expense = Expense::findOrFail($expenseId);
 
         $this->editingExpenseId = $expense->id;
@@ -110,6 +112,8 @@ class ExpenseManagement extends Component
 
     public function save(): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $validated = $this->validate([
             'departmentId' => ['required', 'exists:departments,id'],
             'expenseCategoryId' => ['required', 'exists:expense_categories,id'],
@@ -144,6 +148,8 @@ class ExpenseManagement extends Component
 
     public function delete(int $expenseId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         Expense::findOrFail($expenseId)->delete();
 
         if ($this->editingExpenseId === $expenseId) {
@@ -233,7 +239,13 @@ class ExpenseManagement extends Component
             'recordCount' => (clone $summaryQuery)->count(),
             'averageExpense' => (clone $summaryQuery)->avg('expenses.amount') ?? 0,
             'categoryCount' => (clone $summaryQuery)->distinct('expenses.expense_category_id')->count('expenses.expense_category_id'),
+            'canManageFinance' => $this->canManageFinance(),
         ]);
+    }
+
+    private function canManageFinance(): bool
+    {
+        return auth()->user()?->hasRole('administrator') ?? false;
     }
 
     public function sortIcon(string $field): string

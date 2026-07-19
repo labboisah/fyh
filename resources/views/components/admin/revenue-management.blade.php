@@ -7,10 +7,12 @@
             <p class="text-muted mb-0">Track hospital income from categories, departments, grants, donations, and other sources.</p>
         </div>
 
-        <button type="button" class="btn btn-success" wire:click="resetForm">
-            <i class="bi bi-plus-circle me-1"></i>
-            Record Revenue
-        </button>
+        @if($canManageFinance)
+            <button type="button" class="btn btn-success" wire:click="resetForm">
+                <i class="bi bi-plus-circle me-1"></i>
+                Record Revenue
+            </button>
+        @endif
     </div>
 
     <div class="row g-3 mb-4">
@@ -105,6 +107,7 @@
         </div>
     </div>
 
+    @if($canManageFinance)
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
@@ -198,6 +201,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <div class="card shadow-sm">
         <div class="card-header bg-light">
@@ -244,7 +248,9 @@
                                     Recorded By <i class="bi {{ $this->sortIcon('created_by') }}"></i>
                                 </button>
                             </th>
-                            <th class="text-end">Actions</th>
+                            @if($canManageFinance)
+                                <th class="text-end">Actions</th>
+                            @endif
                         </tr>
                     </thead>
 
@@ -263,21 +269,23 @@
                                 <td>{{ $revenue->reference_number ?? '-' }}</td>
                                 <td>{{ $revenue->department->name ?? 'General' }}</td>
                                 <td>{{ $revenue->createdBy->name ?? 'System' }}</td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $revenue->id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                @if($canManageFinance)
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $revenue->id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                        <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $revenue->id }})" wire:confirm="Delete this revenue record?">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                                            <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $revenue->id }})" wire:confirm="Delete this revenue record?">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
+                                <td colspan="{{ $canManageFinance ? 8 : 7 }}" class="text-center text-muted py-4">
                                     No revenue records found.
                                 </td>
                             </tr>

@@ -7,10 +7,12 @@
             <p class="text-muted mb-0">Record and monitor hospital spending across departments.</p>
         </div>
 
-        <button type="button" class="btn btn-primary" wire:click="resetForm">
-            <i class="bi bi-plus-circle me-1"></i>
-            Add Expense
-        </button>
+        @if($canManageFinance)
+            <button type="button" class="btn btn-primary" wire:click="resetForm">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add Expense
+            </button>
+        @endif
     </div>
 
     <div class="row g-3 mb-4">
@@ -104,6 +106,7 @@
         </div>
     </div>
 
+    @if($canManageFinance)
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
@@ -191,6 +194,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <div class="card shadow-sm">
         <div class="card-header bg-light">
@@ -232,7 +236,9 @@
                                     Recorded By <i class="bi {{ $this->sortIcon('created_by') }}"></i>
                                 </button>
                             </th>
-                            <th class="text-end">Actions</th>
+                            @if($canManageFinance)
+                                <th class="text-end">Actions</th>
+                            @endif
                         </tr>
                     </thead>
 
@@ -250,21 +256,23 @@
                                 <td class="text-end fw-bold text-danger">{{ number_format($expense->amount, 2) }}</td>
                                 <td>{{ $expense->expense_date?->format('M d, Y') ?? 'N/A' }}</td>
                                 <td>{{ $expense->createdBy->name ?? 'System' }}</td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $expense->id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                @if($canManageFinance)
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $expense->id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                        <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $expense->id }})" wire:confirm="Delete this expense?">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                                            <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $expense->id }})" wire:confirm="Delete this expense?">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="{{ $canManageFinance ? 7 : 6 }}" class="text-center text-muted py-4">
                                     No expenses found.
                                 </td>
                             </tr>

@@ -38,6 +38,7 @@ class Dashboard extends Component
             'billStatusRows' => $this->billStatusRows(),
             'recentActivities' => $this->recentActivities(),
             'lastUpdated' => now(),
+            'canViewTechnicalRecords' => auth()->user()?->hasRole('administrator') ?? false,
         ]);
     }
 

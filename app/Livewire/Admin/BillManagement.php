@@ -57,6 +57,8 @@ class BillManagement extends Component
 
     public function edit(int $billId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $bill = Bill::findOrFail($billId);
 
         $this->editingBillId = $bill->id;
@@ -71,6 +73,8 @@ class BillManagement extends Component
 
     public function save(): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $validated = $this->validate([
             'serviceDescription' => ['required', 'string', 'max:500'],
             'amount' => ['required', 'numeric', 'min:0'],
@@ -106,6 +110,8 @@ class BillManagement extends Component
 
     public function delete(int $billId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $bill = Bill::findOrFail($billId);
         $bill->delete();
 
@@ -189,6 +195,12 @@ class BillManagement extends Component
             'totalAmount' => (clone $summaryQuery)->sum('amount'),
             'totalDue' => (clone $summaryQuery)->sum('due_amount'),
             'pendingCount' => (clone $summaryQuery)->whereIn('status', ['pending', 'partial'])->count(),
+            'canManageFinance' => $this->canManageFinance(),
         ]);
+    }
+
+    private function canManageFinance(): bool
+    {
+        return auth()->user()?->hasRole('administrator') ?? false;
     }
 }

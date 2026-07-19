@@ -75,6 +75,8 @@ class PaymentManagement extends Component
 
     public function edit(int $paymentId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $payment = Payment::findOrFail($paymentId);
 
         $this->editingPaymentId = $payment->id;
@@ -91,6 +93,8 @@ class PaymentManagement extends Component
 
     public function save(): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $validated = $this->validate([
             'amount' => ['required', 'numeric', 'min:0.01'],
             'paymentMethodId' => ['required', 'exists:payment_methods,id'],
@@ -148,6 +152,8 @@ class PaymentManagement extends Component
 
     public function reverse(int $paymentId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $payment = Payment::findOrFail($paymentId);
 
         $payment->update([
@@ -162,6 +168,8 @@ class PaymentManagement extends Component
 
     public function delete(int $paymentId): void
     {
+        abort_unless($this->canManageFinance(), 403);
+
         $payment = Payment::findOrFail($paymentId);
         $billId = $payment->bill_id;
 
@@ -256,7 +264,13 @@ class PaymentManagement extends Component
             'totalAmount' => (clone $summaryQuery)->where('status', 'completed')->sum('amount'),
             'paymentCount' => (clone $summaryQuery)->count(),
             'reversedCount' => (clone $summaryQuery)->where('status', 'reversed')->count(),
+            'canManageFinance' => $this->canManageFinance(),
         ]);
+    }
+
+    private function canManageFinance(): bool
+    {
+        return auth()->user()?->hasRole('administrator') ?? false;
     }
 
     private function refreshBillStatus(?int $billId): void

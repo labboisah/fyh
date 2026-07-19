@@ -18,6 +18,8 @@ class Permission extends Model
         'display_name',
         'description',
         'module',
+        'module_id',
+        'action',
     ];
 
     /**

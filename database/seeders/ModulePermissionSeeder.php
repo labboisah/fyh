@@ -302,6 +302,16 @@ class ModulePermissionSeeder extends Seeder
                 'permissions' => ['system.update'],
             ],
 
+            [
+                'name' => 'admin_patient_register',
+                'label' => 'Patient Register',
+                'icon' => 'bi-file-earmark-spreadsheet',
+                'route' => 'admin.patient-register.index',
+                'group' => 'administration',
+                'roles' => ['administrator'],
+                'permissions' => ['patient.read'],
+            ],
+
             // ADMIN FINANCE
             [
                 'name' => 'admin_bills',

@@ -7,10 +7,12 @@
             <p class="text-muted mb-0">Review, correct, reverse, and remove recorded payments.</p>
         </div>
 
-        <button type="button" class="btn btn-success" wire:click="resetForm">
-            <i class="bi bi-plus-circle me-1"></i>
-            Record Payment
-        </button>
+        @if($canManageFinance)
+            <button type="button" class="btn btn-success" wire:click="resetForm">
+                <i class="bi bi-plus-circle me-1"></i>
+                Record Payment
+            </button>
+        @endif
     </div>
 
     <div class="row g-3 mb-4">
@@ -99,6 +101,7 @@
         </div>
     </div>
 
+    @if($canManageFinance)
     <div class="card shadow-sm mb-4">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
@@ -200,6 +203,7 @@
                 </form>
             </div>
         </div>
+    @endif
 
     <div class="card shadow-sm">
         <div class="card-header bg-light">
@@ -262,19 +266,21 @@
                                             <i class="bi bi-printer"></i>
                                         </a>
 
-                                        <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $payment->id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                        @if($canManageFinance)
+                                            <button type="button" class="btn btn-outline-warning" title="Edit" wire:click="edit({{ $payment->id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                        @if($payment->status !== 'reversed')
-                                            <button type="button" class="btn btn-outline-dark" title="Reverse" wire:click="reverse({{ $payment->id }})" wire:confirm="Reverse this payment?">
-                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            @if($payment->status !== 'reversed')
+                                                <button type="button" class="btn btn-outline-dark" title="Reverse" wire:click="reverse({{ $payment->id }})" wire:confirm="Reverse this payment?">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                            @endif
+
+                                            <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $payment->id }})" wire:confirm="Delete this payment permanently?">
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         @endif
-
-                                        <button type="button" class="btn btn-outline-danger" title="Delete" wire:click="delete({{ $payment->id }})" wire:confirm="Delete this payment permanently?">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>

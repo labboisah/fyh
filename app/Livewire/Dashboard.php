@@ -102,7 +102,7 @@ class Dashboard extends Component
             }
         }
 
-        if ($user->hasRole('administrator')) {
+        if ($user->hasAnyRole(['administrator', 'medical_director'])) {
             $cards = $cards->merge([
                 $this->card('Patients', Patient::count(), 'bi-people-fill', 'text-primary', 'All patient records'),
                 $this->card('Active Visits', PatientVisit::where('status', 'Active')->count(), 'bi-clipboard-pulse', 'text-success', 'Currently active visits'),
@@ -143,6 +143,14 @@ class Dashboard extends Component
             $actions = $actions->merge([
                 ['label' => 'Admin Panel', 'description' => 'Live admin dashboard', 'icon' => 'bi-speedometer2', 'route' => route('admin.index'), 'class' => 'btn-outline-success'],
                 ['label' => 'Users', 'description' => 'Manage access', 'icon' => 'bi-people-fill', 'route' => route('admin.users.index'), 'class' => 'btn-outline-primary'],
+            ]);
+        }
+
+        if ($user->hasRole('medical_director')) {
+            $actions = $actions->merge([
+                ['label' => 'Medical Director Dashboard', 'description' => 'Hospital oversight', 'icon' => 'bi-speedometer2', 'route' => route('medical-director.index'), 'class' => 'btn-outline-success'],
+                ['label' => 'Patient Register', 'description' => 'Review patient records', 'icon' => 'bi-file-earmark-spreadsheet', 'route' => route('medical-director.patient-register.index'), 'class' => 'btn-outline-primary'],
+                ['label' => 'Billing Report', 'description' => 'Review finance summary', 'icon' => 'bi-file-earmark-text', 'route' => route('reports.finance.index'), 'class' => 'btn-outline-secondary'],
             ]);
         }
 
