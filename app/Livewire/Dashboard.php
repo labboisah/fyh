@@ -102,12 +102,19 @@ class Dashboard extends Component
             }
         }
 
-        if ($user->hasAnyRole(['administrator', 'medical_director'])) {
+        if ($user->hasRole('administrator')) {
             $cards = $cards->merge([
                 $this->card('Patients', Patient::count(), 'bi-people-fill', 'text-primary', 'All patient records'),
                 $this->card('Active Visits', PatientVisit::where('status', 'Active')->count(), 'bi-clipboard-pulse', 'text-success', 'Currently active visits'),
                 $this->card('Bills Today', Bill::whereBetween('issued_date', [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()])->count(), 'bi-receipt', 'text-warning', 'Bills issued today'),
                 $this->card('Payments Today', Payment::whereBetween('payment_date', [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()])->count(), 'bi-cash-coin', 'text-info', 'Payments recorded today'),
+            ]);
+        }
+
+        if ($user->hasRole('medical_director')) {
+            $cards = $cards->merge([
+                $this->card('Patients', Patient::count(), 'bi-people-fill', 'text-primary', 'All patient records'),
+                $this->card('Active Visits', PatientVisit::where('status', 'Active')->count(), 'bi-clipboard-pulse', 'text-success', 'Currently active visits'),
             ]);
         }
 

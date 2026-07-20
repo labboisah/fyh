@@ -18,6 +18,11 @@
             <button type="button" class="btn btn-outline-primary" wire:click="exportFinance">
                 <i class="bi bi-cash-stack"></i> Export Finance
             </button>
+            @if(auth()->user()?->hasRole('head_of_department'))
+                <a href="{{ route('pharmacy.stocks.reconciliation') }}" class="btn btn-outline-info">
+                    <i class="bi bi-clipboard-check"></i> Reconciliation
+                </a>
+            @endif
             <a href="{{ route('pharmacy.batches.index') }}" class="btn btn-outline-warning">
                 <i class="bi bi-layers"></i> Batches
             </a>

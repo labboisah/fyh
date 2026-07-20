@@ -101,52 +101,52 @@
                 </button>
             </div>
             <div class="card-body">
-                <form wire:submit="updateBatch">
+                <form wire:submit.prevent="updateBatch">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Medicine</label>
-                            <select class="form-select @error('editBatch.medicine_id') is-invalid @enderror" wire:model="editBatch.medicine_id">
+                            <select class="form-select @error('batchForm.medicine_id') is-invalid @enderror" wire:model="batchForm.medicine_id">
                                 <option value="">Select medicine</option>
                                 @foreach($medicines as $medicine)
                                     <option value="{{ $medicine->id }}">{{ $medicine->name }}</option>
                                 @endforeach
                             </select>
-                            @error('editBatch.medicine_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('batchForm.medicine_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Batch No <span class="text-muted small">(optional)</span></label>
-                            <input type="text" class="form-control @error('editBatch.batch_number') is-invalid @enderror" wire:model="editBatch.batch_number">
-                            @error('editBatch.batch_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="text" class="form-control @error('batchForm.batch_number') is-invalid @enderror" wire:model="batchForm.batch_number">
+                            @error('batchForm.batch_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Received</label>
-                            <input type="number" min="0" class="form-control @error('editBatch.quantity_received') is-invalid @enderror" wire:model="editBatch.quantity_received">
-                            @error('editBatch.quantity_received') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="number" min="0" class="form-control @error('batchForm.quantity_received') is-invalid @enderror" wire:model="batchForm.quantity_received">
+                            @error('batchForm.quantity_received') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Remaining</label>
-                            <input type="number" min="0" class="form-control @error('editBatch.quantity_remaining') is-invalid @enderror" wire:model="editBatch.quantity_remaining">
-                            @error('editBatch.quantity_remaining') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="number" min="0" class="form-control @error('batchForm.quantity_remaining') is-invalid @enderror" wire:model="batchForm.quantity_remaining">
+                            @error('batchForm.quantity_remaining') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Purchase Price</label>
-                            <input type="number" step="0.01" min="0" class="form-control @error('editBatch.purchase_price') is-invalid @enderror" wire:model="editBatch.purchase_price">
-                            @error('editBatch.purchase_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="number" step="0.01" min="0" class="form-control @error('batchForm.purchase_price') is-invalid @enderror" wire:model="batchForm.purchase_price">
+                            @error('batchForm.purchase_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Selling Price</label>
-                            <input type="number" step="0.01" min="0" class="form-control @error('editBatch.selling_price') is-invalid @enderror" wire:model="editBatch.selling_price">
-                            @error('editBatch.selling_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="number" step="0.01" min="0" class="form-control @error('batchForm.selling_price') is-invalid @enderror" wire:model="batchForm.selling_price">
+                            @error('batchForm.selling_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Manufacture Date <span class="text-muted small">(optional)</span></label>
-                            <input type="date" class="form-control @error('editBatch.manufacture_date') is-invalid @enderror" wire:model="editBatch.manufacture_date">
-                            @error('editBatch.manufacture_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="date" class="form-control @error('batchForm.manufacture_date') is-invalid @enderror" wire:model="batchForm.manufacture_date">
+                            @error('batchForm.manufacture_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Expiry Date <span class="text-muted small">(optional)</span></label>
-                            <input type="date" class="form-control @error('editBatch.expiry_date') is-invalid @enderror" wire:model="editBatch.expiry_date">
-                            @error('editBatch.expiry_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <input type="date" class="form-control @error('batchForm.expiry_date') is-invalid @enderror" wire:model="batchForm.expiry_date">
+                            @error('batchForm.expiry_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
@@ -184,7 +184,7 @@
                             $expired = \Carbon\Carbon::parse($batch->expiry_date)->isPast();
                             $expiring = ! $expired && \Carbon\Carbon::parse($batch->expiry_date)->lte(today()->addDays(60));
                         @endphp
-                        <tr>
+                        <tr wire:key="medicine-batch-row-{{ $batch->id }}">
                             <td>
                                 <div class="fw-semibold">{{ $batch->medicine?->name ?? 'N/A' }}</div>
                                 <div class="small text-muted">{{ $batch->medicine?->medicineType?->name }} {{ $batch->medicine?->strength }}</div>

@@ -205,8 +205,10 @@
         .thermal-receipt {
             font-family: monospace;
             color: #000;
-            width: 280px;
-            font-size: 12px;
+            width: 72mm;
+            max-width: 72mm;
+            font-size: 13.5px;
+            line-height: 1.25;
         }
 
         .thermal-receipt p {
@@ -225,7 +227,7 @@
 
         .thermal-receipt .divider {
             border-top: 1px dashed #000;
-            margin: 8px 0;
+            margin: 6px 0;
         }
 
         .thermal-receipt .text-right {
@@ -255,7 +257,7 @@
                 }
 
                 printWindow.document.write('<html><head><title>Pharmacy Receipt</title>');
-                printWindow.document.write('<style>body{margin:8px;font-family:monospace;color:#000;} .thermal-receipt{width:280px;font-size:12px;} p{margin:0 0 3px;} table{width:100%;border-collapse:collapse;} td{padding:2px 0;vertical-align:top;} .divider{border-top:1px dashed #000;margin:8px 0;} .text-right{text-align:right;} .text-center{text-align:center;} .fw-bold{font-weight:700;} .small{font-size:11px;}</style>');
+                printWindow.document.write('<style>@page{size:80mm 120mm;margin:3mm;} html,body{width:80mm;margin:0;padding:0;font-family:monospace;color:#000;} body{display:block;} .thermal-receipt{width:72mm;max-width:72mm;font-size:13.5px;line-height:1.25;} h5{font-size:15px;margin:0 0 3px;} p{margin:0 0 3px;} table{width:100%;border-collapse:collapse;} td{padding:2px 0;vertical-align:top;} .divider{border-top:1px dashed #000;margin:6px 0;} .text-right{text-align:right;} .text-center{text-align:center;} .fw-bold{font-weight:700;} .small{font-size:12px;}</style>');
                 printWindow.document.write('</head><body>');
                 printWindow.document.write(template.innerHTML);
                 printWindow.document.write('</body></html>');
@@ -263,6 +265,12 @@
                 printWindow.focus();
 
                 setTimeout(function () {
+                    const receipt = printWindow.document.querySelector('.thermal-receipt');
+                    const receiptHeight = receipt ? receipt.getBoundingClientRect().height : printWindow.document.body.scrollHeight;
+                    const heightMm = Math.ceil((receiptHeight / 96) * 25.4) + 6;
+                    const pageStyle = printWindow.document.createElement('style');
+                    pageStyle.textContent = '@page{size:80mm ' + heightMm + 'mm;margin:3mm;}';
+                    printWindow.document.head.appendChild(pageStyle);
                     printWindow.print();
                     printWindow.close();
                 }, 300);

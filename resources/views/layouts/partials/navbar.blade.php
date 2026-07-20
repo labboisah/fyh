@@ -376,10 +376,10 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                                     
-                                    @if($canNav(['administrator'], ['bill.read']))
+                                    @if($navUser?->hasRole('administrator'))
                                         <li><a class="dropdown-item" href="{{ route('admin.bills.index') }}"><i class="bi bi-receipt me-2"></i> Bills Management</a></li>
                                     @endif
-                                    @if($canNav(['administrator'], ['payment.read']))
+                                    @if($navUser?->hasRole('administrator'))
                                         <li><a class="dropdown-item" href="{{ route('admin.payments.index') }}"><i class="bi bi-credit-card-2-front me-2"></i> Payments Management</a></li>
                                     @endif
                                     @if($canNav(['administrator', 'medical_director', 'accountant'], ['bill.read', 'report.read', 'department_report.read']))

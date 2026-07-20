@@ -10,7 +10,7 @@
                 <a href="{{ route('pharmacy.finance.payments') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i> Payments
                 </a>
-                <button onclick="window.print()" class="btn btn-primary">
+                <button onclick="printPharmacyFinanceReceipt()" class="btn btn-primary">
                     <i class="bi bi-printer me-1"></i> Print
                 </button>
             </div>
@@ -94,7 +94,75 @@
     </div>
 </div>
 
+<div id="pharmacy-finance-receipt-print" class="d-none">
+    <div class="thermal-receipt">
+        <div class="text-center">
+            <h5>{{ strtoupper(config('app.title') ?? config('app.name')) }}</h5>
+            <div>{{ strtoupper(config('app.address') ?? '') }}</div>
+            <strong>PHARMACY RECEIPT</strong>
+        </div>
+        <div class="divider"></div>
+        <p><strong>Receipt:</strong> {{ $payment->payment_id }}</p>
+        <p><strong>Bill:</strong> {{ $transaction->bill?->bill_number ?? 'N/A' }}</p>
+        <p><strong>Date:</strong> {{ $payment->payment_date?->format('M d, Y h:i A') }}</p>
+        <p><strong>Method:</strong> {{ $payment->paymentMethod?->name ?? 'N/A' }}</p>
+        @if($payment->reference_number)
+            <p><strong>Ref:</strong> {{ $payment->reference_number }}</p>
+        @endif
+        <div class="divider"></div>
+        <table>
+            @foreach($transaction->stockTransactionItems as $item)
+                <tr>
+                    <td>{{ \Illuminate\Support\Str::limit($item->medicineBatch?->medicine?->name ?? 'N/A', 22) }}</td>
+                    <td class="text-right">{{ $item->quantity }} x {{ number_format($item->price, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="small">Batch {{ $item->medicineBatch?->batch_number ?? 'N/A' }}</td>
+                    <td class="text-right">{{ number_format($item->subtotal, 2) }}</td>
+                </tr>
+            @endforeach
+        </table>
+        <div class="divider"></div>
+        <p><strong>Total Paid:</strong> {{ number_format($payment->amount, 2) }}</p>
+        <p><strong>Collected By:</strong> {{ $payment->recordedBy?->name ?? 'System' }}</p>
+        <div class="divider"></div>
+        <p class="text-center">Thank you.</p>
+    </div>
+</div>
+
 <style>
+    .thermal-receipt {
+        color: #000;
+        font-family: monospace;
+        font-size: 13.5px;
+        line-height: 1.25;
+        max-width: 72mm;
+        width: 72mm;
+    }
+
+    .thermal-receipt p {
+        margin: 0 0 3px;
+    }
+
+    .thermal-receipt table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .thermal-receipt td {
+        padding: 2px 0;
+        vertical-align: top;
+    }
+
+    .thermal-receipt .divider {
+        border-top: 1px dashed #000;
+        margin: 6px 0;
+    }
+
+    .thermal-receipt .text-right {
+        text-align: right;
+    }
+
     @media print {
         .d-print-none,
         .admin-sidebar,
@@ -104,12 +172,70 @@
 
         #pharmacy-receipt {
             box-shadow: none !important;
+            border: 0 !important;
+            font-size: 14px;
+            line-height: 1.25;
+            width: 100%;
+        }
+
+        #pharmacy-receipt .card-header,
+        #pharmacy-receipt .card-body {
+            padding: 8px 10px;
+        }
+
+        #pharmacy-receipt .row {
+            --bs-gutter-y: .35rem;
+        }
+
+        #pharmacy-receipt .table {
+            margin-bottom: 0;
+        }
+
+        #pharmacy-receipt .table th,
+        #pharmacy-receipt .table td {
+            padding: 4px 6px;
         }
 
         @page {
             size: A4 portrait;
-            margin: 12mm;
+            margin: 8mm;
         }
     }
 </style>
+
+<script>
+    function printPharmacyFinanceReceipt() {
+        const template = document.getElementById('pharmacy-finance-receipt-print');
+
+        if (!template) {
+            return;
+        }
+
+        const printWindow = window.open('', '_blank', 'width=360,height=640');
+
+        if (!printWindow) {
+            alert('Please allow popups to print the pharmacy receipt.');
+            return;
+        }
+
+        printWindow.document.write('<html><head><title>Pharmacy Receipt</title>');
+        printWindow.document.write('<style>@page{size:80mm 120mm;margin:3mm;} html,body{width:80mm;margin:0;padding:0;font-family:monospace;color:#000;} body{display:block;} .thermal-receipt{width:72mm;max-width:72mm;font-size:13.5px;line-height:1.25;} h5{font-size:15px;margin:0 0 3px;} p{margin:0 0 3px;} table{width:100%;border-collapse:collapse;} td{padding:2px 0;vertical-align:top;} .divider{border-top:1px dashed #000;margin:6px 0;} .text-right{text-align:right;} .text-center{text-align:center;} .fw-bold{font-weight:700;} .small{font-size:12px;}</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(template.innerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+
+        setTimeout(function () {
+            const receipt = printWindow.document.querySelector('.thermal-receipt');
+            const receiptHeight = receipt ? receipt.getBoundingClientRect().height : printWindow.document.body.scrollHeight;
+            const heightMm = Math.ceil((receiptHeight / 96) * 25.4) + 6;
+            const pageStyle = printWindow.document.createElement('style');
+            pageStyle.textContent = '@page{size:80mm ' + heightMm + 'mm;margin:3mm;}';
+            printWindow.document.head.appendChild(pageStyle);
+            printWindow.print();
+            printWindow.close();
+        }, 300);
+    }
+</script>
 @endsection

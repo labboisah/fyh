@@ -19,7 +19,7 @@ class BatchManager extends Component
     public string $to = '';
     public string $medicineId = '';
     public ?int $editingBatchId = null;
-    public array $editBatch = [
+    public array $batchForm = [
         'medicine_id' => '',
         'batch_number' => '',
         'quantity_received' => '',
@@ -66,10 +66,13 @@ class BatchManager extends Component
 
     public function editBatch(int $batchId): void
     {
+        $this->resetErrorBag();
+        $this->resetValidation();
+
         $batch = MedicineBatch::findOrFail($batchId);
 
         $this->editingBatchId = $batch->id;
-        $this->editBatch = [
+        $this->batchForm = [
             'medicine_id' => (string) $batch->medicine_id,
             'batch_number' => (string) $batch->batch_number,
             'quantity_received' => (string) $batch->quantity_received,
@@ -83,8 +86,11 @@ class BatchManager extends Component
 
     public function cancelEdit(): void
     {
+        $this->resetErrorBag();
+        $this->resetValidation();
+
         $this->editingBatchId = null;
-        $this->editBatch = [
+        $this->batchForm = [
             'medicine_id' => '',
             'batch_number' => '',
             'quantity_received' => '',
@@ -103,18 +109,18 @@ class BatchManager extends Component
         }
 
         $validated = $this->validate([
-            'editBatch.medicine_id' => ['required', 'integer', 'exists:medicines,id'],
-            'editBatch.batch_number' => ['nullable', 'string', 'max:255'],
-            'editBatch.quantity_received' => ['required', 'integer', 'min:0'],
-            'editBatch.quantity_remaining' => ['required', 'integer', 'min:0', 'lte:editBatch.quantity_received'],
-            'editBatch.purchase_price' => ['required', 'numeric', 'min:0'],
-            'editBatch.selling_price' => ['required', 'numeric', 'min:0'],
-            'editBatch.manufacture_date' => ['nullable', 'date'],
-            'editBatch.expiry_date' => ['nullable', 'date'],
+            'batchForm.medicine_id' => ['required', 'integer', 'exists:medicines,id'],
+            'batchForm.batch_number' => ['nullable', 'string', 'max:255'],
+            'batchForm.quantity_received' => ['required', 'integer', 'min:0'],
+            'batchForm.quantity_remaining' => ['required', 'integer', 'min:0'],
+            'batchForm.purchase_price' => ['required', 'numeric', 'min:0'],
+            'batchForm.selling_price' => ['required', 'numeric', 'min:0'],
+            'batchForm.manufacture_date' => ['nullable', 'date'],
+            'batchForm.expiry_date' => ['nullable', 'date'],
         ]);
 
         $batch = MedicineBatch::findOrFail($this->editingBatchId);
-        $data = $validated['editBatch'];
+        $data = $validated['batchForm'];
 
         $batch->update([
             'medicine_id' => (int) $data['medicine_id'],
