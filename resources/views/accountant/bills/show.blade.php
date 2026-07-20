@@ -27,9 +27,11 @@ $billDate = now()->format('M d, Y h:i A');
                             <i class="bi bi-cash-coin"></i> Record Payment
                         </a>
                     @endif
-                    <a href="{{ route('accountant.bills.edit', $bill) }}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
+                    @if($bill->canBeManagedAsUnpaidByAccountant(auth()->user()))
+                        <a href="{{ route('accountant.bills.edit', $bill) }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    @endif
                     <a href="{{ route('accountant.bills.index') }}" class="btn btn-secondary btn-sm">
                         <i class="bi bi-arrow-left"></i> Back
                     </a>

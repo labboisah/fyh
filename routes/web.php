@@ -206,6 +206,8 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     // Bills Management
     Route::get('bills', BillWorkspace::class)->name('bills.index');
     Route::get('/bills/create/', BillWorkspace::class)->name('bills.create');
+    Route::get('bills/unpaid', BillWorkspace::class)->name('bills.unpaid');
+    Route::get('bills/deleted', BillWorkspace::class)->name('bills.deleted');
     Route::get('/bills/patient-details', [AccountantController::class, 'patientDetailsByHospitalNumber'])->name('bills.patient-details');
     Route::get('/bills/walkin/create', [AccountantController::class, 'createWalkinBill'])->name('bills.create-walkin');
     Route::post('bills', [AccountantController::class, 'storeBill'])->name('bills.store');
@@ -216,9 +218,10 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     Route::get('bills/{bill}/payments/create', [AccountantController::class, 'createPaymentForBill'])->name('bills.payments.create');
     Route::post('bills/{bill}/payments', [AccountantController::class, 'storePaymentForBill'])->name('bills.payments.store');
     Route::get('bills/{bill}', [AccountantController::class, 'showBill'])->name('bills.show');
-    Route::get('bills/{bill}/edit', [AccountantController::class, 'editBill'])->name('bills.edit');
+    Route::get('bills/{bill}/edit', BillWorkspace::class)->name('bills.edit');
     Route::put('bills/{bill}', [AccountantController::class, 'updateBill'])->name('bills.update');
     Route::delete('bills/{bill}', [AccountantController::class, 'deleteBill'])->name('bills.delete');
+    Route::put('bills/{bill}/restore', [AccountantController::class, 'restoreBill'])->withTrashed()->name('bills.restore');
 
     // Payments Management
     Route::get('payments', PaymentWorkspace::class)->name('payments.index');

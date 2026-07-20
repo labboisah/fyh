@@ -582,8 +582,6 @@ class AccountantController extends Controller
      */
     public function showBill(Bill $bill)
     {
-        $this->authorizeOwnedTodayBill($bill);
-
         $bill->load(['patientVisit.patient.demographic', 'walkinPatient', 'issuedBy', 'payments.recordedBy', 'services', 'investigations']);
         return view('accountant.bills.show', compact('bill'));
     }
@@ -593,7 +591,7 @@ class AccountantController extends Controller
      */
     public function editBill(Bill $bill)
     {
-        $this->authorizeOwnedTodayBill($bill);
+        $this->authorizeUnpaidBill($bill);
 
         $bill->load(['patientVisit.patient.demographic', 'walkinPatient']);
 
@@ -605,7 +603,7 @@ class AccountantController extends Controller
      */
     public function updateBill(Request $request, Bill $bill)
     {
-        $this->authorizeOwnedTodayBill($bill);
+        $this->authorizeUnpaidBill($bill);
 
         $validated = $request->validate([
             'service_description' => 'required|string|max:500',
@@ -636,15 +634,15 @@ class AccountantController extends Controller
      */
     public function deleteBill(Bill $bill)
     {
-        $this->authorizeOwnedTodayBill($bill);
+        $this->authorizeUnpaidBill($bill);
 
-        if ($reason = $bill->deleteBlockReason()) {
+        if ($reason = $bill->softDeleteBlockReason()) {
             return back()->with('error', $reason);
         }
 
         DB::transaction(function () use ($bill) {
-            $bill->billServices()->delete();
-            $bill->billInvestigations()->delete();
+            $bill->serviceRequests()->whereIn('status', ['pending', 'Pending'])->delete();
+            $bill->investigationRequests()->whereIn('status', ['pending', 'Pending'])->delete();
             $bill->delete();
         });
 
@@ -652,9 +650,32 @@ class AccountantController extends Controller
             ->with('success', 'Bill deleted successfully.');
     }
 
-    private function authorizeOwnedTodayBill(Bill $bill): void
+    public function restoreBill($bill)
     {
-        abort_unless($bill->canBeManagedByAccountant(Auth::user()), 403);
+        $bill = Bill::withTrashed()->findOrFail($bill);
+
+        DB::transaction(function () use ($bill) {
+            $bill->restore();
+
+            ServiceRequest::withTrashed()
+                ->where('bill_id', $bill->id)
+                ->whereIn('status', ['pending', 'Pending'])
+                ->onlyTrashed()
+                ->restore();
+
+            InvestigationRequest::withTrashed()
+                ->where('bill_id', $bill->id)
+                ->whereIn('status', ['pending', 'Pending'])
+                ->onlyTrashed()
+                ->restore();
+        });
+
+        return back()->with('success', 'Bill restored successfully.');
+    }
+
+    private function authorizeUnpaidBill(Bill $bill): void
+    {
+        abort_unless($bill->canBeManagedAsUnpaidByAccountant(Auth::user()), 403);
     }
 
     /**

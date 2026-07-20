@@ -1,12 +1,26 @@
 <div class="container-fluid py-3">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
-            <h1 class="h4 mb-1">Bills Management</h1>
-            <p class="text-muted mb-0">Only bills you created today are shown here.</p>
+            <h1 class="h4 mb-1">{{ $listMode === 'deleted' ? 'Deleted Bills' : ($listMode === 'unpaid' ? 'Unpaid Bills' : 'Bills Management') }}</h1>
+            <p class="text-muted mb-0">
+                @if($listMode === 'deleted')
+                    Soft-deleted bills are shown here for restore.
+                @elseif($listMode === 'unpaid')
+                    All unpaid bills are shown here for accountant correction.
+                @else
+                    Bills you created today are shown here.
+                @endif
+            </p>
         </div>
 
         <div class="d-flex gap-2">
             @if($mode === 'index')
+                <a href="{{ route('accountant.bills.unpaid') }}" class="btn btn-outline-danger">
+                    <i class="bi bi-receipt-cutoff"></i> Unpaid Bills
+                </a>
+                <a href="{{ route('accountant.bills.deleted') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Deleted Bills
+                </a>
                 <button type="button" class="btn btn-primary" wire:click="createMode">
                     <i class="bi bi-plus-circle"></i> New Bill
                 </button>
@@ -23,7 +37,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <p class="text-muted small mb-1">Today's Bills</p>
+                        <p class="text-muted small mb-1">{{ $listMode === 'deleted' ? 'Deleted Bills' : ($listMode === 'unpaid' ? 'Unpaid Bills' : "Today's Bills") }}</p>
                         <h3 class="h4 mb-0">{{ number_format($summary['count']) }}</h3>
                     </div>
                 </div>
@@ -120,23 +134,31 @@
                                         </span>
                                     </td>
                                     <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('accountant.bills.show', $bill) }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-outline-warning" wire:click="edit({{ $bill->id }})">
-                                                <i class="bi bi-pencil"></i>
+                                        @if($listMode === 'deleted')
+                                            <button type="button" class="btn btn-sm btn-outline-success" wire:click="restore({{ $bill->id }})" wire:confirm="Restore this bill?">
+                                                <i class="bi bi-arrow-counterclockwise"></i> Restore
                                             </button>
-                                            <button type="button" class="btn btn-outline-danger" wire:click="delete({{ $bill->id }})" wire:confirm="Delete this bill?">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
+                                        @else
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ route('accountant.bills.show', $bill) }}" class="btn btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                @if($bill->canBeManagedAsUnpaidByAccountant(auth()->user()))
+                                                    <button type="button" class="btn btn-outline-warning" wire:click="edit({{ $bill->id }})">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger" wire:click="delete({{ $bill->id }})" wire:confirm="Soft delete this unpaid bill? It can be restored later.">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="7" class="text-center text-muted py-4">
-                                        No bill found for your work today.
+                                        No bill found for this view.
                                     </td>
                                 </tr>
                             @endforelse
@@ -291,7 +313,7 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label class="form-label">Issued Date</label>
-                                <input type="date" class="form-control @error('issuedDate') is-invalid @enderror" wire:model.live="issuedDate" min="{{ today()->toDateString() }}" max="{{ today()->toDateString() }}" readonly>
+                                <input type="date" class="form-control @error('issuedDate') is-invalid @enderror" wire:model.live="issuedDate" @if(! $isEditing) min="{{ today()->toDateString() }}" max="{{ today()->toDateString() }}" readonly @endif>
                                 @error('issuedDate') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="mb-3">

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceRequest extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'patient_visit_id',
         'service_id',

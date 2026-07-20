@@ -114,7 +114,9 @@
         ['label' => 'Batches', 'icon' => 'bi-layers', 'route' => 'pharmacy.batches.index', 'patterns' => ['pharmacy.batches.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['medicine_stock.read'], 'department_keywords' => ['pharmacy']],
         ['label' => 'Expiry Alerts', 'icon' => 'bi-exclamation-triangle', 'route' => 'pharmacy.expiries.index', 'patterns' => ['pharmacy.expiries.*'], 'roles' => ['pharmacist', 'head_of_department'], 'permissions' => ['expiry_alert.read'], 'department_keywords' => ['pharmacy']],
 
-        ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.*'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
+        ['label' => 'Bills', 'icon' => 'bi-receipt', 'route' => 'accountant.bills.index', 'patterns' => ['accountant.bills.index', 'accountant.bills.create', 'accountant.bills.show', 'accountant.bills.edit'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
+        ['label' => 'Unpaid Bills', 'icon' => 'bi-receipt-cutoff', 'route' => 'accountant.bills.unpaid', 'patterns' => ['accountant.bills.unpaid'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
+        ['label' => 'Deleted Bills', 'icon' => 'bi-arrow-counterclockwise', 'route' => 'accountant.bills.deleted', 'patterns' => ['accountant.bills.deleted'], 'roles' => ['accountant'], 'permissions' => ['bill.read']],
         ['label' => 'Payments', 'icon' => 'bi-credit-card-2-front', 'route' => 'accountant.payments.index', 'patterns' => ['accountant.payments.*'], 'roles' => ['accountant'], 'permissions' => ['payment.read']],
         ['label' => 'Billing Report', 'icon' => 'bi-file-earmark-text', 'route' => 'reports.finance.index', 'patterns' => ['reports.finance.*'], 'roles' => ['administrator', 'medical_director', 'accountant'], 'permissions' => ['bill.read', 'report.read']],
         ['label' => 'Payment Report', 'icon' => 'bi-bar-chart-line', 'route' => 'reports.payments.index', 'patterns' => ['reports.payments.*'], 'roles' => ['administrator', 'medical_director', 'accountant'], 'permissions' => ['payment.read', 'report.read']],

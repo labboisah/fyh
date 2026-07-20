@@ -24,6 +24,7 @@ class BillWorkspace extends Component
     use WithPagination;
 
     public string $mode = 'index';
+    public string $listMode = 'today';
     public ?int $editingBillId = null;
     public string $search = '';
     public string $status = '';
@@ -49,6 +50,7 @@ class BillWorkspace extends Component
     public function mount(?Bill $bill = null): void
     {
         $this->mode = request()->routeIs('accountant.bills.create') ? 'create' : 'index';
+        $this->listMode = request()->routeIs('accountant.bills.unpaid') ? 'unpaid' : (request()->routeIs('accountant.bills.deleted') ? 'deleted' : 'today');
         $this->issuedDate = today()->toDateString();
         $this->dueDate = today()->addDays(5)->toDateString();
         $this->services = [$this->blankItem()];
@@ -66,22 +68,23 @@ class BillWorkspace extends Component
 
     public function render()
     {
-        $todayBills = $this->todayBillsQuery();
+        $summaryBills = $this->summaryBillsQuery();
         $filteredBills = $this->filteredBillsQuery();
 
         return view('components.accountant.bill-workspace', [
             'bills' => $filteredBills->paginate($this->perPage),
             'summary' => [
-                'count' => (clone $todayBills)->count(),
-                'amount' => (float) (clone $todayBills)->sum('amount'),
-                'discount' => (float) round((clone $todayBills)->sum(DB::raw('(amount * discount / 100)')), 2),
-                'due' => (float) (clone $todayBills)->sum('due_amount'),
+                'count' => (clone $summaryBills)->count(),
+                'amount' => (float) (clone $summaryBills)->sum('amount'),
+                'discount' => (float) round((clone $summaryBills)->sum(DB::raw('(amount * discount / 100)')), 2),
+                'due' => (float) (clone $summaryBills)->sum('due_amount'),
             ],
             'serviceGroups' => Service::active()->orderBy('category')->orderBy('name')->get()->groupBy('category'),
             'investigationGroups' => Investigation::with('investigationType')->orderBy('name')->get()->groupBy(fn ($investigation) => $investigation->investigationType?->name ?? 'Other'),
             'selectedPatient' => $this->selectedPatient(),
             'totals' => $this->totals(),
             'isEditing' => $this->editingBillId !== null,
+            'listMode' => $this->listMode,
         ]);
     }
 
@@ -135,10 +138,10 @@ class BillWorkspace extends Component
 
     public function edit(int $billId): void
     {
-        $bill = $this->ownedTodayBill($billId);
+        $bill = $this->manageableUnpaidBill($billId);
 
         if (! $bill) {
-            $this->dispatch('toast', message: 'You can only edit your own bills created today.', type: 'danger');
+            $this->dispatch('toast', message: 'Only unpaid bills can be edited.', type: 'danger');
             return;
         }
 
@@ -166,13 +169,19 @@ class BillWorkspace extends Component
 
     public function save()
     {
+        $issuedDateRules = ['required', 'date'];
+
+        if ($this->editingBillId === null) {
+            $issuedDateRules[] = 'date_equals:' . today()->toDateString();
+        }
+
         $validated = $this->validate([
             'hospitalNumber' => ['nullable', 'string', 'max:100'],
             'walkinName' => ['nullable', 'string', 'max:255'],
             'walkinPhone' => ['nullable', 'string', 'max:20'],
             'walkinEmail' => ['nullable', 'email', 'max:255'],
             'discount' => ['required', 'integer', 'min:0', 'max:100'],
-            'issuedDate' => ['required', 'date', 'date_equals:' . today()->toDateString()],
+            'issuedDate' => $issuedDateRules,
             'dueDate' => ['required', 'date', 'after_or_equal:issuedDate'],
             'billStatus' => ['required', 'in:pending,paid,partial,cancelled'],
             'services' => ['array'],
@@ -182,7 +191,7 @@ class BillWorkspace extends Component
             'investigations.*.id' => ['nullable', 'exists:investigations,id'],
             'investigations.*.quantity' => ['nullable', 'integer', 'min:1'],
         ], [
-            'issuedDate.date_equals' => 'Bills can only be created or updated for today.',
+            'issuedDate.date_equals' => 'New bills can only be created for today.',
         ]);
 
         $serviceRows = $this->normalizedItems($this->services);
@@ -222,23 +231,40 @@ class BillWorkspace extends Component
 
     public function delete(int $billId): void
     {
-        $bill = $this->ownedTodayBill($billId);
+        $bill = $this->manageableUnpaidBill($billId);
 
         if (! $bill) {
-            $this->dispatch('toast', message: 'You can only delete your own bills created today.', type: 'danger');
+            $this->dispatch('toast', message: 'Only unpaid bills can be deleted.', type: 'danger');
             return;
         }
 
-        if ($reason = $bill->deleteBlockReason()) {
+        if ($reason = $bill->softDeleteBlockReason()) {
             $this->dispatch('toast', message: $reason, type: 'warning');
             return;
         }
 
-        $bill->billServices()->delete();
-        $bill->billInvestigations()->delete();
-        $bill->delete();
+        DB::transaction(function () use ($bill) {
+            $this->softDeletePendingLinkedRequests($bill);
+            $bill->delete();
+        });
 
         $this->dispatch('toast', message: 'Bill deleted successfully.', type: 'success');
+    }
+
+    public function restore(int $billId): void
+    {
+        $bill = Bill::withTrashed()->find($billId);
+
+        if (! $bill || ! $bill->trashed()) {
+            $this->dispatch('toast', message: 'Deleted bill not found.', type: 'danger');
+            return;
+        }
+
+        DB::transaction(function () use ($bill) {
+            $bill->restore();
+            $this->restorePendingLinkedRequests($bill);
+        });
+        $this->dispatch('toast', message: 'Bill restored successfully.', type: 'success');
     }
 
     private function createBill(array $serviceRows, array $investigationRows): Bill
@@ -270,7 +296,7 @@ class BillWorkspace extends Component
 
     private function updateBill(array $serviceRows, array $investigationRows): Bill
     {
-        $bill = $this->ownedTodayBill($this->editingBillId);
+        $bill = $this->manageableUnpaidBill($this->editingBillId);
 
         if (! $bill) {
             throw new \RuntimeException('This bill is not available for editing.');
@@ -295,9 +321,7 @@ class BillWorkspace extends Component
         ]);
 
         $this->syncBillItems($bill, $servicePayload, $investigationPayload);
-        $bill->serviceRequests()->delete();
-        $bill->investigationRequests()->delete();
-        $this->syncRequests($bill, $serviceRows, $investigationRows);
+        $this->syncEditableRequests($bill, $serviceRows, $investigationRows);
 
         return $bill;
     }
@@ -502,8 +526,9 @@ class BillWorkspace extends Component
 
     private function filteredBillsQuery(): Builder
     {
-        return $this->todayBillsQuery()
-            ->with(['patientVisit.patient.demographic', 'walkinPatient'])
+        $query = $this->summaryBillsQuery();
+
+        return $query->with(['patientVisit.patient.demographic', 'walkinPatient', 'payments'])
             ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
             ->when(trim($this->search) !== '', function (Builder $query) {
                 $search = trim($this->search);
@@ -519,13 +544,101 @@ class BillWorkspace extends Component
             ->latest('id');
     }
 
-    private function ownedTodayBill(?int $billId): ?Bill
+    private function summaryBillsQuery(): Builder
+    {
+        return match ($this->listMode) {
+            'unpaid' => Bill::query()
+                ->whereIn('status', ['pending', 'partial'])
+                ->whereRaw('(due_amount - COALESCE((select sum(amount) from payments where payments.bill_id = bills.id and payments.status = "completed" and payments.deleted_at is null), 0)) > 0'),
+            'deleted' => Bill::onlyTrashed(),
+            default => $this->todayBillsQuery(),
+        };
+    }
+
+    private function manageableUnpaidBill(?int $billId): ?Bill
     {
         if (! $billId) {
             return null;
         }
 
-        return $this->todayBillsQuery()->find($billId);
+        $bill = Bill::with('payments')->find($billId);
+
+        return $bill?->canBeManagedAsUnpaidByAccountant(auth()->user()) ? $bill : null;
+    }
+
+    private function syncEditableRequests(Bill $bill, array $serviceRows, array $investigationRows): void
+    {
+        $serviceIds = collect($serviceRows)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $investigationIds = collect($investigationRows)->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        $bill->serviceRequests()
+            ->whereIn('status', ['pending', 'Pending'])
+            ->whereNotIn('service_id', $serviceIds ?: [0])
+            ->delete();
+
+        foreach ($serviceRows as $row) {
+            $bill->serviceRequests()->firstOrCreate(
+                [
+                    'service_id' => $row['id'],
+                    'status' => 'pending',
+                ],
+                [
+                    'patient_visit_id' => $bill->patient_visit_id,
+                    'walkin_id' => $bill->walkin_id,
+                    'requested_by' => $bill->issued_by,
+                    'requested_at' => now(),
+                    'payment_status' => 'pending',
+                    'clinical_diagnoses' => 'Requested via billing system',
+                ]
+            );
+        }
+
+        $bill->investigationRequests()
+            ->whereIn('status', ['pending', 'Pending'])
+            ->whereNotIn('investigation_id', $investigationIds ?: [0])
+            ->delete();
+
+        foreach ($investigationRows as $row) {
+            $request = $bill->investigationRequests()->firstOrCreate(
+                [
+                    'investigation_id' => $row['id'],
+                    'status' => 'pending',
+                ],
+                [
+                    'patient_visit_id' => $bill->patient_visit_id,
+                    'walkin_id' => $bill->walkin_id,
+                    'requested_by' => $bill->issued_by,
+                    'requested_at' => now(),
+                    'payment_status' => 'pending',
+                    'clinical_diagnoses' => 'Requested via billing system',
+                ]
+            );
+
+            if (! $bill->investigation_request_id) {
+                $bill->update(['investigation_request_id' => $request->id]);
+            }
+        }
+    }
+
+    private function softDeletePendingLinkedRequests(Bill $bill): void
+    {
+        $bill->serviceRequests()->whereIn('status', ['pending', 'Pending'])->delete();
+        $bill->investigationRequests()->whereIn('status', ['pending', 'Pending'])->delete();
+    }
+
+    private function restorePendingLinkedRequests(Bill $bill): void
+    {
+        ServiceRequest::withTrashed()
+            ->where('bill_id', $bill->id)
+            ->whereIn('status', ['pending', 'Pending'])
+            ->onlyTrashed()
+            ->restore();
+
+        InvestigationRequest::withTrashed()
+            ->where('bill_id', $bill->id)
+            ->whereIn('status', ['pending', 'Pending'])
+            ->onlyTrashed()
+            ->restore();
     }
 
     private function blankItem(): array

@@ -17,8 +17,8 @@
         @foreach($patient->patientVisits as $visit)
             @foreach($visit->bills as $bill)
             @php
-                $canManageBill = auth()->user()->hasRole('accountant') && $bill->canBeManagedByAccountant(auth()->user());
-                $deleteBlockReason = $bill->deleteBlockReason();
+                $canManageBill = $bill->canBeManagedAsUnpaidByAccountant(auth()->user());
+                $deleteBlockReason = $bill->softDeleteBlockReason();
             @endphp
             <tr>
                 <td>{{$bill->bill_number}}</td>
@@ -35,7 +35,7 @@
                         <a href="{{ route('accountant.bills.show', $bill) }}" class="btn btn-sm btn-outline-primary">View</a>
                         <a href="{{ route('accountant.bills.edit', $bill) }}" class="btn btn-sm btn-outline-warning">Edit</a>
                         @if(! $deleteBlockReason)
-                            <form action="{{ route('accountant.bills.delete', $bill) }}" method="POST" onsubmit="return confirm('Delete this bill? This cannot be undone from the patient profile.');">
+                            <form action="{{ route('accountant.bills.delete', $bill) }}" method="POST" onsubmit="return confirm('Soft delete this unpaid bill? It can be restored from Deleted Bills.');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
@@ -44,7 +44,7 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="{{ $deleteBlockReason }}">Delete</button>
                         @endif
                     @endif
-                    @if($bill->status == 'pending')
+                    @if(in_array($bill->status, ['pending', 'partial'], true))
                     <a href="{{route('accountant.bills.payments.create', $bill)}}" class="btn btn-sm btn-danger">Record Payment</a>
                     @endif
                     </div>

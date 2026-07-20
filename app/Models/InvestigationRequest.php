@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InvestigationRequest extends Model
 {
-    use Syncable;
+    use SoftDeletes, Syncable;
     protected $guarded = [];
 
     protected $casts = [

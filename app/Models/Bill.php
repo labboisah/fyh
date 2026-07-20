@@ -121,11 +121,27 @@ class Bill extends Model
             && $this->issued_date->isSameDay(now());
     }
 
+    public function canBeManagedAsUnpaidByAccountant(?User $user): bool
+    {
+        return $user
+            && $user->hasRole('accountant')
+            && ! $this->trashed()
+            && in_array((string) $this->status, ['pending', 'partial'], true)
+            && (float) $this->balance > 0
+            && ! $this->stockTransactions()->exists();
+    }
+
     public function hasBlockingDeleteReferences(): bool
     {
         return $this->payments()->exists()
             || $this->serviceRequests()->exists()
             || $this->investigationRequests()->exists()
+            || $this->stockTransactions()->exists();
+    }
+
+    public function hasBlockingSoftDeleteReferences(): bool
+    {
+        return $this->payments()->where('status', 'completed')->exists()
             || $this->stockTransactions()->exists();
     }
 
@@ -141,6 +157,19 @@ class Bill extends Model
 
         if ($this->investigationRequests()->exists()) {
             return 'This bill has investigation request records and cannot be deleted.';
+        }
+
+        if ($this->stockTransactions()->exists()) {
+            return 'This bill is linked to pharmacy stock transactions and cannot be deleted.';
+        }
+
+        return null;
+    }
+
+    public function softDeleteBlockReason(): ?string
+    {
+        if ($this->payments()->where('status', 'completed')->exists()) {
+            return 'This bill has completed payment records and cannot be deleted.';
         }
 
         if ($this->stockTransactions()->exists()) {
