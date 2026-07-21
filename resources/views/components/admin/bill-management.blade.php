@@ -1,11 +1,13 @@
-@section('title', 'Bills Management')
-
 <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1">Bills Management</h1>
             <p class="text-muted mb-0">Review, filter, correct, and manage patient bills.</p>
         </div>
+        <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf me-1"></i>
+            Download PDF
+        </a>
     </div>
 
     <div class="row g-3 mb-4">
@@ -223,7 +225,7 @@
                                 <td>{{ $bill->issued_date?->format('M d, Y') ?? 'N/A' }}</td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('admin.bills.show', $bill) }}" class="btn btn-outline-info" title="View">
+                                        <a href="{{ route($routePrefix . '.bills.show', $bill) }}" class="btn btn-outline-info" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 

@@ -23,8 +23,8 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Discount</label>
-                                <input type="number" min="1" max="100" class="form-control @error('discount') is-invalid @enderror" wire:model="discount" />
+                                <label class="form-label">Discount (%)</label>
+                                <input type="number" min="0" max="100" class="form-control @error('discount') is-invalid @enderror" wire:model="discount" />
                                     @error('discount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -84,7 +84,10 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center gap-2">
                                 <div class="small text-muted">{{ $request->lab_no ?? 'Pending lab number' }} | Bill: {{ $request->bill?->bill_number ?? 'N/A' }} | {{ $request->bill?->status ?? 'pending' }}</div>
-                                <button type="button" class="btn btn-sm btn-outline-primary" wire:click="editRequest({{ $request->id }})">Edit</button>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary" wire:click="editRequest({{ $request->id }})">Edit</button>
+                                    <button type="button" class="btn btn-outline-danger" wire:click="deleteRequest({{ $request->id }})" wire:confirm="Remove this investigation request and update the bill?">Remove</button>
+                                </div>
                             </div>
                         </div>
                     @empty

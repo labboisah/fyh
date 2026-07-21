@@ -51,6 +51,12 @@ class RoleSeeder extends Seeder
             ],
 
             [
+                'name' => 'finance_officer',
+                'display_name' => 'Finance Officer',
+                'description' => 'Mini admin access for finance reporting, expenses, and revenue records',
+            ],
+
+            [
                 'name' => 'lab_scientist',
                 'display_name' => 'Lab Scientist',
                 'description' => 'Conducts laboratory investigations, validates and submits results',

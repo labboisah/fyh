@@ -127,6 +127,7 @@ class ClinicalRecordIndex extends Component
 
             'investigations' => InvestigationRequest::query()
                 ->with(['investigation', 'requestedBy', 'patientVisit.patient.demographic'])
+                ->when($this->shouldScopeDoctorOwnedRecords(), fn ($query) => $query->where('requested_by', auth()->id()))
                 ->when($this->search !== '', fn ($query) => $this->searchPatientVisit($query))
                 ->latest()
                 ->paginate($this->perPage),
@@ -167,5 +168,14 @@ class ClinicalRecordIndex extends Component
                 ->orWhere('last_name', 'like', $search)
                 ->orWhere('middle_name', 'like', $search)
             );
+    }
+
+    private function shouldScopeDoctorOwnedRecords(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->hasRole('doctor')
+            && ! $user->hasRole('administrator')
+            && ! $user->hasRole('nurse');
     }
 }

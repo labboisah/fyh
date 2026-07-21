@@ -83,7 +83,7 @@ class FinanceReport extends Component
         return view('components.reports.finance-report', [
             'bills' => (clone $billQuery)->paginate(15),
             'users' => $this->reportUsers(),
-            'canFilterUsers' => auth()->user()->hasAnyRole(['administrator', 'medical_director']),
+            'canFilterUsers' => auth()->user()->hasAnyRole(['administrator', 'medical_director', 'finance_officer']),
             'summary' => $this->summary($billQuery, $paymentQuery),
             'breakdownRows' => $this->breakdownRows(),
             'chartPayload' => $this->chartPayload(),
@@ -333,6 +333,7 @@ class FinanceReport extends Component
             'start_date' => $this->todayOnly ? null : $this->dateFrom,
             'end_date' => $this->todayOnly ? null : $this->dateTo,
             'today' => $this->todayOnly ? 1 : null,
+            'search' => $this->search ?: null,
             'status' => $this->status ?: null,
             'issued_by' => $this->effectiveIssuedBy() ?: null,
         ]);

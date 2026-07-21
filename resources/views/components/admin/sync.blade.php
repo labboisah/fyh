@@ -1,5 +1,3 @@
-@section('title','Synchronization Dashboard')
-
 <div class="card">
 
     <div class="card-header">

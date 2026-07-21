@@ -249,12 +249,20 @@ class RevenueManagement extends Component
             'averageRevenue' => (clone $summaryQuery)->avg('revenues.amount') ?? 0,
             'categoryCount' => (clone $summaryQuery)->distinct('revenues.revenue_category_id')->count('revenues.revenue_category_id'),
             'canManageFinance' => $this->canManageFinance(),
+            'pdfUrl' => route((request()->routeIs('finance.*') ? 'finance' : 'admin') . '.revenues.pdf', array_filter([
+                'search' => $this->search ?: null,
+                'category' => $this->category ?: null,
+                'department' => $this->department ?: null,
+                'created_by' => $this->createdBy ?: null,
+                'date_from' => $this->dateFrom ?: null,
+                'date_to' => $this->dateTo ?: null,
+            ])),
         ]);
     }
 
     private function canManageFinance(): bool
     {
-        return auth()->user()?->hasRole('administrator') ?? false;
+        return auth()->user()?->hasAnyRole(['administrator', 'finance_officer']) ?? false;
     }
 
     public function sortIcon(string $field): string

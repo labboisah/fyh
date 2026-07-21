@@ -24,6 +24,8 @@ use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\AccessControlManager;
 use App\Livewire\Admin\BillManagement;
 use App\Livewire\Admin\ExpenseManagement;
+use App\Livewire\Admin\FileTypeManagement;
+use App\Livewire\Admin\PaymentManagement;
 use App\Livewire\Admin\RevenueManagement;
 use App\Livewire\Accountant\BillWorkspace;
 use App\Livewire\Accountant\PaymentWorkspace;
@@ -33,6 +35,8 @@ use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\SyncronizationController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\FinanceReportDownloadController;
 
 
 // ajax routes
@@ -91,7 +95,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             Route::delete('/{bed}/destroy', [BedController::class, 'destroy'])->name('destroy');
         });
 
+        Route::get('expenses/pdf', [FinanceReportDownloadController::class, 'expenses'])->name('expenses.pdf');
         Route::get('expenses', ExpenseManagement::class)->name('expenses.index');
+        Route::get('revenues/pdf', [FinanceReportDownloadController::class, 'revenues'])->name('revenues.pdf');
         Route::get('revenues', RevenueManagement::class)->name('revenues.index');
 
         Route::prefix('bills')->name('bills.')->group(function () {
@@ -101,6 +107,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
         Route::resource('services', ServiceController::class);
         Route::put('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
+        Route::get('file-types', FileTypeManagement::class)->name('file-types.index');
     });
 
     Route::middleware('role:administrator')->group(function () {
@@ -232,6 +239,17 @@ Route::middleware(['auth', 'verified', 'role:accountant'])->prefix('accountant')
     
     // Insurance Billing
     Route::get('insurance-billing', [AccountantController::class, 'insuranceBilling'])->name('insurance-billing');
+});
+
+Route::middleware(['auth', 'verified', 'role:finance_officer'])->prefix('finance')->name('finance.')->group(function () {
+    Route::get('bills', BillManagement::class)->name('bills.index');
+    Route::get('bills/{bill}', [BillController::class, 'show'])->name('bills.show');
+    Route::get('payments', PaymentManagement::class)->name('payments.index');
+    Route::get('payments/{payment}/receipt', [AdminPaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::get('expenses', ExpenseManagement::class)->name('expenses.index');
+    Route::get('revenues', RevenueManagement::class)->name('revenues.index');
+    Route::get('expenses/pdf', [FinanceReportDownloadController::class, 'expenses'])->name('expenses.pdf');
+    Route::get('revenues/pdf', [FinanceReportDownloadController::class, 'revenues'])->name('revenues.pdf');
 });
 
 // nurse routes - Vital Signs Recording and Patient Monitoring

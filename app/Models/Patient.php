@@ -166,6 +166,11 @@ class Patient extends Model
         return $this->hasMany(PatientVisit::class);
     }
 
+    public function continuations()
+    {
+        return $this->hasManyThrough(Continuation::class, PatientVisit::class);
+    }
+
     /**
      * Get all antenatal care records for this patient
      */

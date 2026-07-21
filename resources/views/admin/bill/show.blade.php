@@ -5,6 +5,7 @@
 @section('content')
     @php
         $canManageFinance = auth()->user()?->hasRole('administrator') ?? false;
+        $routePrefix = request()->routeIs('finance.*') ? 'finance' : 'admin';
     @endphp
 
     <div class="container-fluid">
@@ -19,7 +20,7 @@
                             <i class="bi bi-pencil"></i> Edit
                         </a>
                     @endif
-                    <a href="{{ route('admin.bills.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route($routePrefix . '.bills.index') }}" class="btn btn-secondary btn-sm">
                         <i class="bi bi-arrow-left"></i> Back
                     </a>
                 </div>
@@ -272,7 +273,7 @@
                                             <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                                             <td>{{ $payment->recordedBy->name }}</td>
                                             <td>
-                                                <a href="{{ route('accountant.payments.receipt', $payment) }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ route($routePrefix . '.payments.receipt', $payment) }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="bi bi-printer"></i> Print Receipt
                                                 </a>
                                             </td>

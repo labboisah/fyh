@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\WardController;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\ExpenseManagement;
+use App\Livewire\Admin\FileTypeManagement;
 use App\Livewire\Admin\RevenueManagement;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified', 'role:medical_director'])
         Route::resource('investigations', InvestigationController::class);
         Route::resource('services', ServiceController::class);
         Route::put('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
+        Route::get('file-types', FileTypeManagement::class)->name('file-types.index');
 
         Route::prefix('wards/beds')->name('beds.')->group(function () {
             Route::get('/{ward}', [BedController::class, 'index'])->name('index');

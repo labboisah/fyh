@@ -265,6 +265,15 @@ class PaymentManagement extends Component
             'paymentCount' => (clone $summaryQuery)->count(),
             'reversedCount' => (clone $summaryQuery)->where('status', 'reversed')->count(),
             'canManageFinance' => $this->canManageFinance(),
+            'routePrefix' => request()->routeIs('finance.*') ? 'finance' : 'admin',
+            'pdfUrl' => route('reports.payments.pdf', array_filter([
+                'start_date' => $this->dateFrom ?: null,
+                'end_date' => $this->dateTo ?: null,
+                'search' => $this->search ?: null,
+                'status' => $this->status ?: null,
+                'method' => $this->method ?: null,
+                'recorded_by' => $this->recordedBy ?: null,
+            ])),
         ]);
     }
 

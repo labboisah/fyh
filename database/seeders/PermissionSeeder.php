@@ -286,6 +286,7 @@ class PermissionSeeder extends Seeder
             'administrator',
             'record',
             'accountant',
+            'finance_officer',
             'nurse',
             'midwife',
             'doctor',
@@ -382,6 +383,23 @@ class PermissionSeeder extends Seeder
                 'bill.create','bill.read',
                 'payment.create','payment.read',
 
+            ]);
+        }
+
+        if (isset($roles['finance_officer'])) {
+            $roles['finance_officer']->sync([
+                'bill.read',
+                'payment.read',
+                'expense.create',
+                'expense.read',
+                'expense.update',
+                'expense.delete',
+                'revenue.create',
+                'revenue.read',
+                'revenue.update',
+                'revenue.delete',
+                'report.read',
+                'report.download',
             ]);
         }
 

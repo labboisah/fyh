@@ -1,5 +1,3 @@
-@section('title', 'Admin Dashboard')
-
 @php
     $maxVisitCount = max($visitStatusRows->max('count') ?: 1, 1);
     $maxBillCount = max($billStatusRows->max('count') ?: 1, 1);

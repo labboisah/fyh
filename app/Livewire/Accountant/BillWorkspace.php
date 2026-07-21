@@ -253,7 +253,7 @@ class BillWorkspace extends Component
 
     public function restore(int $billId): void
     {
-        $bill = Bill::withTrashed()->find($billId);
+        $bill = $this->accountantBillsQuery()->withTrashed()->find($billId);
 
         if (! $bill || ! $bill->trashed()) {
             $this->dispatch('toast', message: 'Deleted bill not found.', type: 'danger');
@@ -519,9 +519,13 @@ class BillWorkspace extends Component
 
     private function todayBillsQuery(): Builder
     {
-        return Bill::query()
-            ->where('issued_by', auth()->id())
+        return $this->accountantBillsQuery()
             ->whereDate('issued_date', today());
+    }
+
+    private function accountantBillsQuery(): Builder
+    {
+        return Bill::query()->where('issued_by', auth()->id());
     }
 
     private function filteredBillsQuery(): Builder
@@ -547,10 +551,10 @@ class BillWorkspace extends Component
     private function summaryBillsQuery(): Builder
     {
         return match ($this->listMode) {
-            'unpaid' => Bill::query()
+            'unpaid' => $this->accountantBillsQuery()
                 ->whereIn('status', ['pending', 'partial'])
                 ->whereRaw('(due_amount - COALESCE((select sum(amount) from payments where payments.bill_id = bills.id and payments.status = "completed" and payments.deleted_at is null), 0)) > 0'),
-            'deleted' => Bill::onlyTrashed(),
+            'deleted' => $this->accountantBillsQuery()->onlyTrashed(),
             default => $this->todayBillsQuery(),
         };
     }

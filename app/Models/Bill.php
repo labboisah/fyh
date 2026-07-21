@@ -125,6 +125,7 @@ class Bill extends Model
     {
         return $user
             && $user->hasRole('accountant')
+            && (int) $this->issued_by === (int) $user->id
             && ! $this->trashed()
             && in_array((string) $this->status, ['pending', 'partial'], true)
             && (float) $this->balance > 0

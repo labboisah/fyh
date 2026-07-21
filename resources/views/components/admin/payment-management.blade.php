@@ -1,5 +1,3 @@
-@section('title', 'Payments Management')
-
 <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -7,12 +5,19 @@
             <p class="text-muted mb-0">Review, correct, reverse, and remove recorded payments.</p>
         </div>
 
-        @if($canManageFinance)
-            <button type="button" class="btn btn-success" wire:click="resetForm">
-                <i class="bi bi-plus-circle me-1"></i>
-                Record Payment
-            </button>
-        @endif
+        <div class="d-flex gap-2">
+            <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-outline-danger">
+                <i class="bi bi-file-earmark-pdf me-1"></i>
+                Download PDF
+            </a>
+
+            @if($canManageFinance)
+                <button type="button" class="btn btn-success" wire:click="resetForm">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Record Payment
+                </button>
+            @endif
+        </div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -240,7 +245,7 @@
                                 <td>{{ $patientName }}</td>
                                 <td>
                                     @if($payment->bill)
-                                        <a href="{{ route('admin.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
+                                        <a href="{{ route($routePrefix . '.bills.show', $payment->bill) }}">{{ $payment->bill->bill_number }}</a>
                                     @else
                                         <span class="text-muted">N/A</span>
                                     @endif
@@ -262,7 +267,7 @@
                                 <td>{{ $payment->recordedBy->name ?? 'N/A' }}</td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('admin.payments.receipt', $payment) }}" class="btn btn-outline-secondary" title="Receipt">
+                                        <a href="{{ route($routePrefix . '.payments.receipt', $payment) }}" class="btn btn-outline-secondary" title="Receipt">
                                             <i class="bi bi-printer"></i>
                                         </a>
 

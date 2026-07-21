@@ -63,6 +63,15 @@ class Dashboard extends Component
             ]);
         }
 
+        if ($user->hasRole('finance_officer')) {
+            $cards = $cards->merge([
+                $this->card('Bills', Bill::count(), 'bi-receipt', 'text-primary', 'All bill records'),
+                $this->card('Open Bills', Bill::whereIn('status', ['pending', 'partial'])->count(), 'bi-exclamation-circle', 'text-warning', 'Pending or partial bills'),
+                $this->card('Payments Today', number_format(Payment::where('status', 'completed')->whereBetween('payment_date', [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()])->sum('amount'), 2), 'bi-cash-coin', 'text-success', 'Completed payments today'),
+                $this->card('Total Payments', Payment::count(), 'bi-credit-card-2-front', 'text-info', 'All payment records'),
+            ]);
+        }
+
         if ($user->hasAnyRole(['doctor', 'nurse'])) {
             $cards = $cards->merge([
                 $this->card('Department Requests', $this->departmentServiceRequests($user)->count(), 'bi-clipboard-pulse', 'text-primary', 'Requests in your department'),
@@ -143,6 +152,15 @@ class Dashboard extends Component
                 ['label' => 'Bills', 'description' => 'Manage billing', 'icon' => 'bi-receipt', 'route' => route('accountant.bills.index'), 'class' => 'btn-outline-primary'],
                 ['label' => 'Payments', 'description' => 'Review payments', 'icon' => 'bi-credit-card', 'route' => route('accountant.payments.index'), 'class' => 'btn-outline-success'],
                 ['label' => 'My Billing Report', 'description' => 'Your bill report', 'icon' => 'bi-file-earmark-text', 'route' => route('reports.finance.index'), 'class' => 'btn-outline-secondary'],
+            ]);
+        }
+
+        if ($user->hasRole('finance_officer')) {
+            $actions = $actions->merge([
+                ['label' => 'Bills', 'description' => 'View and report bills', 'icon' => 'bi-receipt', 'route' => route('finance.bills.index'), 'class' => 'btn-outline-primary'],
+                ['label' => 'Payments', 'description' => 'View and report payments', 'icon' => 'bi-credit-card', 'route' => route('finance.payments.index'), 'class' => 'btn-outline-success'],
+                ['label' => 'Expenses', 'description' => 'Manage expenses', 'icon' => 'bi-cash-stack', 'route' => route('finance.expenses.index'), 'class' => 'btn-outline-danger'],
+                ['label' => 'Revenues', 'description' => 'Manage revenues', 'icon' => 'bi-graph-up-arrow', 'route' => route('finance.revenues.index'), 'class' => 'btn-outline-info'],
             ]);
         }
 

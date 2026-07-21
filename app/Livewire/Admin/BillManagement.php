@@ -196,6 +196,14 @@ class BillManagement extends Component
             'totalDue' => (clone $summaryQuery)->sum('due_amount'),
             'pendingCount' => (clone $summaryQuery)->whereIn('status', ['pending', 'partial'])->count(),
             'canManageFinance' => $this->canManageFinance(),
+            'routePrefix' => request()->routeIs('finance.*') ? 'finance' : 'admin',
+            'pdfUrl' => route('reports.finance.pdf', array_filter([
+                'start_date' => $this->dateFrom ?: null,
+                'end_date' => $this->dateTo ?: null,
+                'search' => $this->search ?: null,
+                'status' => $this->status ?: null,
+                'issued_by' => $this->issuedBy ?: null,
+            ])),
         ]);
     }
 

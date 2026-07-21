@@ -240,12 +240,20 @@ class ExpenseManagement extends Component
             'averageExpense' => (clone $summaryQuery)->avg('expenses.amount') ?? 0,
             'categoryCount' => (clone $summaryQuery)->distinct('expenses.expense_category_id')->count('expenses.expense_category_id'),
             'canManageFinance' => $this->canManageFinance(),
+            'pdfUrl' => route((request()->routeIs('finance.*') ? 'finance' : 'admin') . '.expenses.pdf', array_filter([
+                'search' => $this->search ?: null,
+                'category' => $this->category ?: null,
+                'department' => $this->department ?: null,
+                'created_by' => $this->createdBy ?: null,
+                'date_from' => $this->dateFrom ?: null,
+                'date_to' => $this->dateTo ?: null,
+            ])),
         ]);
     }
 
     private function canManageFinance(): bool
     {
-        return auth()->user()?->hasRole('administrator') ?? false;
+        return auth()->user()?->hasAnyRole(['administrator', 'finance_officer']) ?? false;
     }
 
     public function sortIcon(string $field): string

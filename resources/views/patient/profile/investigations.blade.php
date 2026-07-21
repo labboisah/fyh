@@ -8,8 +8,15 @@
         @endif
     </div>
     <div class="card-body">
-        @if($patient->currentVisit()->investigationRequests()->count() > 0)
-            @foreach($patient->currentVisit()->investigationRequests as $investigationRequest)
+        @php
+            $investigationRequests = $patient->currentVisit()->investigationRequests()
+                ->with(['investigation.investigationType', 'investigationResults.parameter', 'requestedBy', 'performedBy', 'bill'])
+                ->latest()
+                ->get();
+        @endphp
+
+        @if($investigationRequests->count() > 0)
+            @foreach($investigationRequests as $investigationRequest)
                 <h5 class="mb-4 d-flex align-items-center gap-2">
                     <i class="bi bi-eyedropper me-2 text-primary"></i>
                     <b><em>{{ $investigationRequest->investigation->investigationType->name }}</em></b> Investigation Details
@@ -73,7 +80,7 @@
                     </tr>
                 </table>
                 @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse'))
-                    <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-sm btn-outline-primary mt-2">Edit in Investigation Request</a>
+                    <a href="{{ route('patient.investigation.create', ['patient' => $patient, 'request' => $investigationRequest->id]) }}" class="btn btn-sm btn-outline-primary mt-2">Edit in Investigation Request</a>
                 @endif
             @endforeach
         @else

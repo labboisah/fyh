@@ -1,5 +1,3 @@
-@section('title', 'Access Control')
-
 <div>
     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
         <div>

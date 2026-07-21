@@ -1,5 +1,3 @@
-@section('title', 'Revenue Management')
-
 <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -7,12 +5,19 @@
             <p class="text-muted mb-0">Track hospital income from categories, departments, grants, donations, and other sources.</p>
         </div>
 
-        @if($canManageFinance)
-            <button type="button" class="btn btn-success" wire:click="resetForm">
-                <i class="bi bi-plus-circle me-1"></i>
-                Record Revenue
-            </button>
-        @endif
+        <div class="d-flex gap-2">
+            <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-outline-danger">
+                <i class="bi bi-file-earmark-pdf me-1"></i>
+                Download PDF
+            </a>
+
+            @if($canManageFinance)
+                <button type="button" class="btn btn-success" wire:click="resetForm">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Record Revenue
+                </button>
+            @endif
+        </div>
     </div>
 
     <div class="row g-3 mb-4">

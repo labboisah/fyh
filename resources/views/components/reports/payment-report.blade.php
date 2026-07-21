@@ -1,5 +1,3 @@
-@section('title', 'Payment Report')
-
 @php
     $chartLabels = collect($chartPayload['labels'])->take(8)->values();
     $chartValues = collect($chartPayload['values'])->take(8)->map(fn ($value) => (float) $value)->values();

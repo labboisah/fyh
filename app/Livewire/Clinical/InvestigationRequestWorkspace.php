@@ -4,10 +4,13 @@ namespace App\Livewire\Clinical;
 
 use App\Livewire\Clinical\Concerns\ManagesClinicalVisit;
 use App\Models\Bill;
+use App\Models\BillInvestigation;
 use App\Models\Investigation;
 use App\Models\InvestigationRequest;
 use App\Models\InvestigationType;
 use App\Models\Patient;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -27,6 +30,10 @@ class InvestigationRequestWorkspace extends Component
     public function mount(Patient $patient): void
     {
         $this->patient = $patient;
+
+        if (request()->filled('request')) {
+            $this->editRequest((int) request('request'));
+        }
     }
 
     public function render()
@@ -38,6 +45,7 @@ class InvestigationRequestWorkspace extends Component
             'investigations' => $investigations,
             'recentRequests' => $this->currentVisit()->investigationRequests()
                 ->with(['investigation.investigationType', 'bill'])
+                ->when($this->shouldScopeDoctorOwnedRequests(), fn (Builder $query) => $query->where('requested_by', auth()->id()))
                 ->latest()
                 ->limit(10)
                 ->get(),
@@ -63,7 +71,7 @@ class InvestigationRequestWorkspace extends Component
         'rows.*.type_id' => ['required', 'integer', 'exists:investigation_types,id'],
         'rows.*.investigation_id' => ['required', 'integer', 'exists:investigations,id'],
         'rows.*.specimen' => ['nullable', 'string', 'max:255'],
-        'discount' => ['nullable', 'max:100']
+        'discount' => ['nullable', 'integer', 'min:0', 'max:100']
     ]);
 
     $visit = $this->currentVisit();
@@ -109,12 +117,13 @@ class InvestigationRequestWorkspace extends Component
     | Create only one bill for all investigations
     |--------------------------------------------------------------------------
     */
-    $discount = $this->discount * ($totalAmount/100);
+    $discount = (int) ($this->discount ?? 0);
+    $dueAmount = round($totalAmount * (1 - ($discount / 100)), 2);
 
     $bill = $visit->bills()->create([
         'amount' => $totalAmount,
         'discount' => $discount,
-        'due_amount' => $totalAmount - $discount,
+        'due_amount' => $dueAmount,
         'service_description' => 'Investigation Bill',
         'status' => 'pending',
         'issued_by' => auth()->id(),
@@ -164,16 +173,64 @@ class InvestigationRequestWorkspace extends Component
 
     public function editRequest(int $id): void
     {
-        $request = $this->currentVisit()->investigationRequests()->with('investigation')->findOrFail($id);
+        $request = $this->editableInvestigationRequests()
+            ->with(['investigation', 'bill'])
+            ->findOrFail($id);
+
+        if (! $this->billCanBeChanged($request->bill)) {
+            $this->feedback('This investigation cannot be edited because its bill already has a completed payment.', 'warning');
+            return;
+        }
+
         $this->editingRequestId = $request->id;
         $this->clinicalDiagnoses = (string) $request->clinical_diagnoses;
+        $this->discount = (int) ($request->bill?->discount ?? 0);
         $this->rows = [[
             'type_id' => (string) $request->investigation?->investigation_type_id,
             'investigation_id' => (string) $request->investigation_id,
             'specimen' => (string) $request->specimen,
-            'discount' => (string) $request->discount,
 
         ]];
+    }
+
+    public function deleteRequest(int $id): void
+    {
+        $request = $this->editableInvestigationRequests()
+            ->with(['investigation', 'bill'])
+            ->findOrFail($id);
+
+        if (! $this->billCanBeChanged($request->bill)) {
+            $this->feedback('This investigation cannot be removed because its bill already has a completed payment.', 'warning');
+            return;
+        }
+
+        DB::transaction(function () use ($request): void {
+            $bill = $request->bill;
+            $investigationName = $request->investigation?->name ?? 'investigation';
+
+            if ($bill) {
+                $billInvestigation = $bill->billInvestigations()
+                    ->where('investigation_id', $request->investigation_id)
+                    ->oldest()
+                    ->first();
+
+                $billInvestigation?->delete();
+            }
+
+            $request->delete();
+
+            if ($bill) {
+                $this->syncInvestigationBill($bill);
+            }
+
+            $this->logActivity("Investigation request removed for {$investigationName}");
+        });
+
+        if ($this->editingRequestId === $id) {
+            $this->resetRequestForm();
+        }
+
+        $this->feedback('Investigation request removed and bill updated successfully.');
     }
 
     public function cancelEdit(): void
@@ -183,7 +240,7 @@ class InvestigationRequestWorkspace extends Component
 
     private function updateRequest(array $row, string $clinicalDiagnoses): bool
     {
-        $request = $this->currentVisit()->investigationRequests()->with('bill.billInvestigations')->findOrFail($this->editingRequestId);
+        $request = $this->editableInvestigationRequests()->with('bill.billInvestigations')->findOrFail($this->editingRequestId);
         $investigation = Investigation::with('investigationType.department')->findOrFail($row['investigation_id']);
 
         if ((int) $investigation->investigation_type_id !== (int) $row['type_id']) {
@@ -191,44 +248,106 @@ class InvestigationRequestWorkspace extends Component
             return false;
         }
 
-        $request->update([
-            'investigation_id' => $investigation->id,
-            'clinical_diagnoses' => $clinicalDiagnoses,
-            'specimen' => $row['specimen'] ?: null,
-        ]);
+        if (! $this->billCanBeChanged($request->bill)) {
+            $this->feedback('This investigation cannot be edited because its bill already has a completed payment.', 'warning');
+            return false;
+        }
 
-        $amount = (float) ($investigation->price ?? 0);
-        $bill = $request->bill;
-        $discount = $this->discount * ($amount/100);
-        if ($bill) {
-            $bill->update([
-                'amount' => $amount,
-                'due_amount' => $amount - $discount,
-                'discount'=> $discount,
-                'service_description' => 'Investigation: ' . $investigation->name,
-                'department_id' => $investigation->investigationType?->department_id,
+        DB::transaction(function () use ($request, $investigation, $clinicalDiagnoses, $row): void {
+            $oldInvestigationId = $request->investigation_id;
+            $bill = $request->bill;
+
+            $request->update([
+                'investigation_id' => $investigation->id,
+                'clinical_diagnoses' => $clinicalDiagnoses,
+                'specimen' => $row['specimen'] ?: null,
             ]);
 
-            $billInvestigation = $bill->billInvestigations()->first();
-            if ($billInvestigation) {
-                $billInvestigation->update([
+            if ($bill) {
+                $amount = (float) ($investigation->price ?? 0);
+                $billInvestigation = $bill->billInvestigations()
+                    ->where('investigation_id', $oldInvestigationId)
+                    ->oldest()
+                    ->first();
+
+                if (! $billInvestigation) {
+                    $billInvestigation = new BillInvestigation(['bill_id' => $bill->id]);
+                }
+
+                $billInvestigation->fill([
                     'investigation_id' => $investigation->id,
-                    'unit_price' => $amount - $discount,
+                    'unit_price' => $amount,
                     'quantity' => 1,
-                    'subtotal' => $amount - $discount,
-                ]);
+                    'subtotal' => $amount,
+                ])->save();
+
+                $bill->update(['discount' => (int) ($this->discount ?? 0)]);
+                $this->syncInvestigationBill($bill);
             }
-        }
-        $this->resetRequestForm();
+        });
+
         $this->logActivity("Investigation request updated for {$investigation->name}");
         return true;
+    }
+
+    private function syncInvestigationBill(Bill $bill): void
+    {
+        $items = $bill->billInvestigations()->with('investigation.investigationType')->get();
+
+        if ($items->isEmpty()) {
+            $bill->delete();
+            return;
+        }
+
+        $amount = round((float) $items->sum('subtotal'), 2);
+        $discount = max(0, min(100, (int) ($bill->discount ?? 0)));
+        $dueAmount = round($amount * (1 - ($discount / 100)), 2);
+        $names = $items->pluck('investigation.name')->filter()->take(3)->implode(', ');
+        $description = $items->count() > 3 ? "{$names}..." : $names;
+
+        $bill->update([
+            'amount' => $amount,
+            'discount' => $discount,
+            'due_amount' => $dueAmount,
+            'service_description' => $description ? "Investigation Bill: {$description}" : 'Investigation Bill',
+            'department_id' => $items->first()?->investigation?->investigationType?->department_id,
+        ]);
+
+        $bill->refreshRequestPaymentStatuses();
+    }
+
+    private function billCanBeChanged(?Bill $bill): bool
+    {
+        if (! $bill) {
+            return true;
+        }
+
+        return ! $bill->payments()->where('status', 'completed')->exists()
+            && ! in_array((string) $bill->status, ['paid'], true);
+    }
+
+    private function editableInvestigationRequests()
+    {
+        return InvestigationRequest::query()
+            ->whereHas('patientVisit', fn (Builder $query) => $query->where('patient_id', $this->patient->id))
+            ->when($this->shouldScopeDoctorOwnedRequests(), fn (Builder $query) => $query->where('requested_by', auth()->id()));
+    }
+
+    private function shouldScopeDoctorOwnedRequests(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->hasRole('doctor')
+            && ! $user->hasRole('administrator')
+            && ! $user->hasRole('nurse');
     }
 
     private function resetRequestForm(): void
     {
         $this->editingRequestId = null;
-        $this->rows = [['type_id' => '', 'investigation_id' => '', 'specimen' => '', 'discount'=>0]];
+        $this->rows = [['type_id' => '', 'investigation_id' => '', 'specimen' => '']];
         $this->clinicalDiagnoses = '';
+        $this->discount = 0;
         $this->resetValidation();
     }
 }

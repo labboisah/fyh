@@ -1,5 +1,3 @@
-@section('title', 'My Activities')
-
 @php
     $chartLabels = collect($chartPayload['labels'])->take(10)->values();
     $chartValues = collect($chartPayload['values'])->take(10)->map(fn ($value) => (int) $value)->values();

@@ -19,6 +19,7 @@ class PaymentReportController extends Controller
         $payments = Payment::query()
             ->with(['bill.patientVisit.patient.demographic', 'bill.walkinPatient', 'paymentMethod', 'recordedBy'])
             ->whereBetween('payment_date', [$startDate, $endDate])
+            ->when($request->filled('search'), fn ($query) => $this->searchPayments($query, $request->input('search')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('method'), fn ($query) => $query->where('payment_method_id', $request->input('method')))
             ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy($request)))
@@ -77,6 +78,7 @@ class PaymentReportController extends Controller
         $payments = Payment::query()
             ->with(['bill.patientVisit.patient.demographic', 'bill.walkinPatient', 'paymentMethod', 'recordedBy'])
             ->whereBetween('payment_date', [$startDate, $endDate])
+            ->when($request->filled('search'), fn ($query) => $this->searchPayments($query, $request->input('search')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('method'), fn ($query) => $query->where('payment_method_id', $request->input('method')))
             ->when($this->effectiveRecordedBy($request) !== '', fn ($query) => $query->where('paid_by', $this->effectiveRecordedBy($request)))
@@ -150,5 +152,22 @@ class PaymentReportController extends Controller
         }
 
         return $request->input('recorded_by', '');
+    }
+
+    private function searchPayments($query, string $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $query->where('payment_id', 'like', "%{$search}%")
+                ->orWhere('receipt_number', 'like', "%{$search}%")
+                ->orWhere('reference_number', 'like', "%{$search}%")
+                ->orWhere('insurance_provider', 'like', "%{$search}%")
+                ->orWhereHas('bill', fn ($bill) => $bill->where('bill_number', 'like', "%{$search}%"))
+                ->orWhereHas('bill.walkinPatient', fn ($patient) => $patient->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('bill.patientVisit.patient', fn ($patient) => $patient->where('hospital_number', 'like', "%{$search}%"))
+                ->orWhereHas('bill.patientVisit.patient.demographic', function ($patient) use ($search) {
+                    $patient->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"])
+                        ->orWhere('phone_number', 'like', "%{$search}%");
+                });
+        });
     }
 }

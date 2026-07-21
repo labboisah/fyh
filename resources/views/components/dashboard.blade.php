@@ -1,5 +1,3 @@
-@section('title', 'Dashboard')
-
 <div wire:poll.10s>
     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
         <div>

@@ -23,7 +23,7 @@
                     <td>{{ $record->requestedBy?->name ?? 'N/A' }}</td>
                     <td class="text-end">
                         @if($patient)
-                            <a href="{{ route($config['route'], $patient) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="{{ route($config['route'], ['patient' => $patient, 'request' => $record->id]) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                             <a href="{{ route('patient.show', $patient) }}" class="btn btn-sm btn-outline-secondary">View Profile</a>
                         @endif
                     </td>
