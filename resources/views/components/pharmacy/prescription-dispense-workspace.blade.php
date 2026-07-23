@@ -308,7 +308,7 @@
 
                 printWindow.document.write('<html><head><title>' + title + '</title>');
                 if (thermal) {
-                    printWindow.document.write('<style>@page{size:80mm 120mm;margin:3mm;} html,body{width:80mm;margin:0;padding:0;font-family:monospace;color:#000;} body{display:block;} .thermal-receipt{width:72mm;max-width:72mm;font-size:13.5px;line-height:1.25;} h5{font-size:15px;margin:0 0 3px;} p{margin:0 0 3px;} table{width:100%;border-collapse:collapse;} td{padding:2px 0;border-bottom:0;vertical-align:top;} .divider{border-top:1px dashed #000;margin:6px 0;} .text-center{text-align:center;} .text-right{text-align:right;} .small{font-size:12px;}</style>');
+                    printWindow.document.write('<style>body{margin:8px;font-family:monospace;color:#000;} .divider{border-top:1px dashed #000;margin:8px 0;} table{width:100%;border-collapse:collapse;} td{padding:2px 0;border-bottom:0;vertical-align:top;} .text-center{text-align:center;} .text-right{text-align:right;} .small{font-size:12px;} h5{margin:0 0 3px;} p{margin:0 0 3px;}</style>');
                 } else {
                     printWindow.document.write('<style>@page{size:A4 portrait;margin:12mm;} body{margin:0;font-family:monospace;color:#000;font-size:13px;} table{width:100%;border-collapse:collapse;} th,td{padding:4px;border-bottom:1px solid #ddd;vertical-align:top;} .text-center{text-align:center;} .text-right{text-align:right;} .small{font-size:12px;}</style>');
                 }
@@ -317,14 +317,6 @@
                 printWindow.focus();
 
                 setTimeout(function () {
-                    if (thermal) {
-                        const receipt = printWindow.document.querySelector('.thermal-receipt');
-                        const receiptHeight = receipt ? receipt.getBoundingClientRect().height : printWindow.document.body.scrollHeight;
-                        const heightMm = Math.ceil((receiptHeight / 96) * 25.4) + 6;
-                        const pageStyle = printWindow.document.createElement('style');
-                        pageStyle.textContent = '@page{size:80mm ' + heightMm + 'mm;margin:3mm;}';
-                        printWindow.document.head.appendChild(pageStyle);
-                    }
                     printWindow.print();
                     printWindow.close();
                 }, 300);
