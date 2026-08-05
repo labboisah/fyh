@@ -11,6 +11,13 @@
                 Download PDF
             </a>
 
+            @if(auth()->user()?->hasRole('administrator'))
+                <a href="{{ route('admin.expense-categories.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-tags me-1"></i>
+                    Manage Categories
+                </a>
+            @endif
+
             @if($canManageFinance)
                 <button type="button" class="btn btn-primary" wire:click="resetForm">
                     <i class="bi bi-plus-circle me-1"></i>

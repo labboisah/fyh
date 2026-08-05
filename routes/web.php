@@ -23,9 +23,11 @@ use App\Http\Controllers\Admin\PatientRegisterController as AdminPatientRegister
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\AccessControlManager;
 use App\Livewire\Admin\BillManagement;
+use App\Livewire\Admin\ExpenseCategoryManagement;
 use App\Livewire\Admin\ExpenseManagement;
 use App\Livewire\Admin\FileTypeManagement;
 use App\Livewire\Admin\PaymentManagement;
+use App\Livewire\Admin\RevenueCategoryManagement;
 use App\Livewire\Admin\RevenueManagement;
 use App\Livewire\Accountant\BillWorkspace;
 use App\Livewire\Accountant\PaymentWorkspace;
@@ -122,6 +124,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
         Route::resource('expenses', ExpenseController::class)->except(['index', 'show']);
         Route::resource('revenues', RevenueController::class)->except(['index', 'show']);
+
+        Route::get('expense-categories', ExpenseCategoryManagement::class)->name('expense-categories.index');
+        Route::get('revenue-categories', RevenueCategoryManagement::class)->name('revenue-categories.index');
 
 
         // bills management
