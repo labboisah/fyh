@@ -209,7 +209,7 @@
 
                             @if($canNav(['lab_technician', 'lab_scientist'], ['laboratory_request.read', 'laboratory_investigation.read', 'laboratory_result.create']))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('lab.requests.index') }}"><i class="bi bi-clipboard2-pulse me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link d-flex align-items-center" href="{{ route('lab.investigations.index') }}"><i class="bi bi-people-fill me-2 text-success"></i>Investigations</a>
@@ -242,7 +242,7 @@
 
                             @if($canNav(['radiologist', 'radiographer'], ['radiology_request.read', 'radiology_investigation.read']))
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.requests.index') }}"><i class="bi bi-vial me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
+                                <a class="nav-link d-flex align-items-center" href="{{ route('radiology.requests.index') }}"><i class="bi bi-radioactive me-2 text-success"></i>{{ auth()->user()->department ? auth()->user()->department->requestStats()['pending'] : 0 }} Requests</a>
                             </li>
 
                             <li class="nav-item">

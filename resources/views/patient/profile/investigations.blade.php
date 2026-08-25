@@ -1,6 +1,6 @@
 
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-vial me-2"></i>Investigation Requests</h5>
+        <h5 class="mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Investigation Requests</h5>
         @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('nurse'))
             <a href="{{ route('patient.investigation.create', $patient) }}" class="btn btn-sm btn-light">
                 <i class="bi bi-pencil-square me-1"></i> Manage

@@ -39,6 +39,7 @@ use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\SyncronizationController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\FinanceReportDownloadController;
+use App\Http\Controllers\MedicalDirector\AdmissionManagementController;
 
 
 // ajax routes
@@ -81,6 +82,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('patient-register/csv', [AdminPatientRegisterController::class, 'csv'])->name('patient-register.csv');
         Route::get('patient-register/pdf', [AdminPatientRegisterController::class, 'pdf'])->name('patient-register.pdf');
         Route::get('patient-register/{patient}/summary', [AdminPatientRegisterController::class, 'summary'])->name('patient-register.summary');
+
+        Route::get('admissions', [AdmissionManagementController::class, 'index'])->name('admissions.index');
+        Route::post('admissions/{admission}/discharge', [AdmissionManagementController::class, 'discharge'])->name('admissions.discharge');
+        Route::post('admissions/{admission}/sama', [AdmissionManagementController::class, 'recordSama'])->name('admissions.sama');
 
         Route::resource('departments', DepartmentController::class);
 

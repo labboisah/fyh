@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\InvestigationController;
 use App\Http\Controllers\Admin\PatientRegisterController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\WardController;
+use App\Http\Controllers\MedicalDirector\AdmissionManagementController;
+use App\Http\Controllers\MedicalDirector\StatisticsReportController;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\ExpenseManagement;
 use App\Livewire\Admin\FileTypeManagement;
@@ -22,6 +24,12 @@ Route::middleware(['auth', 'verified', 'role:medical_director'])
         Route::get('patient-register/csv', [PatientRegisterController::class, 'csv'])->name('patient-register.csv');
         Route::get('patient-register/pdf', [PatientRegisterController::class, 'pdf'])->name('patient-register.pdf');
         Route::get('patient-register/{patient}/summary', [PatientRegisterController::class, 'summary'])->name('patient-register.summary');
+
+        Route::get('statistics', [StatisticsReportController::class, 'index'])->name('statistics.index');
+        Route::get('statistics/pdf', [StatisticsReportController::class, 'pdf'])->name('statistics.pdf');
+        Route::get('admissions', [AdmissionManagementController::class, 'index'])->name('admissions.index');
+        Route::post('admissions/{admission}/discharge', [AdmissionManagementController::class, 'discharge'])->name('admissions.discharge');
+        Route::post('admissions/{admission}/sama', [AdmissionManagementController::class, 'recordSama'])->name('admissions.sama');
 
         Route::resource('departments', DepartmentController::class);
         Route::resource('wards', WardController::class);

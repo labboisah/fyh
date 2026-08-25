@@ -82,7 +82,7 @@ class Dashboard extends Component
 
         if ($user->hasAnyRole(['lab_technician', 'lab_scientist', 'radiologist'])) {
             $cards = $cards->merge([
-                $this->card('Investigation Requests', $this->departmentInvestigationRequests($user)->count(), 'bi-vial', 'text-primary', 'Department investigation work'),
+                $this->card('Investigation Requests', $this->departmentInvestigationRequests($user)->count(), 'bi-clipboard2-pulse', 'text-primary', 'Department investigation work'),
                 $this->card('Pending Investigations', $this->departmentInvestigationRequests($user)->where('status', 'Pending')->count(), 'bi-hourglass-split', 'text-warning', 'Awaiting result'),
                 $this->card('Completed Today', $this->departmentInvestigationRequests($user)->where('status', 'Completed')->whereDate('completed_at', today())->count(), 'bi-check-circle', 'text-success', 'Completed today'),
             ]);
@@ -313,7 +313,7 @@ class Dashboard extends Component
                     'title' => 'Investigation: ' . ($request->investigation?->name ?? 'Investigation'),
                     'subtitle' => ($request->patientVisit?->patient?->demographic?->full_name ?? $request->walkinPatient?->name ?? 'Patient') . ' - ' . ucfirst($request->status ?? 'pending'),
                     'created_at' => $request->created_at,
-                    'icon' => 'bi-vial',
+                    'icon' => 'bi-clipboard2-pulse',
                 ])
         );
 
