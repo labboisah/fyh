@@ -58,6 +58,13 @@
                 {{-- Body --}}
                 <div class="card-body p-4 p-lg-5">
 
+                    @if(! empty($connectionError))
+                        <div class="alert alert-warning border-0 shadow-sm" style="border-radius:18px;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {{ $connectionError }}
+                        </div>
+                    @endif
+
                     {{-- Version Cards --}}
                     <div class="row g-4 mb-4">
 
@@ -108,7 +115,7 @@
                                         word-break: break-all;
                                     "
                                 >
-                                    {{ $local }}
+                                    {{ $local ?? 'Unavailable' }}
                                 </code>
 
                             </div>
@@ -162,7 +169,7 @@
                                         word-break: break-all;
                                     "
                                 >
-                                    {{ $remote }}
+                                    {{ $remote ?? 'Unavailable' }}
                                 </code>
 
                             </div>

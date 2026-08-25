@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\WardController;
 use App\Http\Controllers\Admin\BillController;
 use App\Http\Controllers\Admin\BillServiceController;
 use App\Http\Controllers\Admin\BillInvestigationController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\PatientRegisterController as AdminPatientRegisterController;
@@ -40,6 +41,8 @@ use App\Http\Controllers\SyncronizationController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\FinanceReportDownloadController;
 use App\Http\Controllers\MedicalDirector\AdmissionManagementController;
+use App\Http\Controllers\WifiSharingController;
+use App\Services\WifiSharingService;
 
 
 // ajax routes
@@ -48,9 +51,15 @@ Route::get('/ajax/beds/{wardId}', [App\Http\Controllers\AjaxController::class, '
 Route::get('/ajax/medicines/{medicineTypeId}', [App\Http\Controllers\AjaxController::class, 'getMedicines'])->name('ajax.get-type-medicines');
 Route::get('/ajax/state/{stateId}/get-lgas', [App\Http\Controllers\AjaxController::class, 'getLgas'])->name('ajax.get-lgas');
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (Illuminate\Http\Request $request, WifiSharingService $wifiSharing) {
+    return view('welcome', [
+        'wifiSharing' => $wifiSharing->status(),
+        'canManageWifiSharing' => $wifiSharing->canManage($request),
+    ]);
 });
+
+Route::get('/wifi-sharing/status', [WifiSharingController::class, 'status'])->name('wifi-sharing.status');
+Route::post('/wifi-sharing/connect', [WifiSharingController::class, 'connect'])->name('wifi-sharing.connect');
 
 Route::get('/dashboard', UserDashboard::class)->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -132,6 +141,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
         Route::get('expense-categories', ExpenseCategoryManagement::class)->name('expense-categories.index');
         Route::get('revenue-categories', RevenueCategoryManagement::class)->name('revenue-categories.index');
+        Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('backup', [BackupController::class, 'store'])->name('backup.store');
 
 
         // bills management

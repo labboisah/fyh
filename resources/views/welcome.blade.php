@@ -9,6 +9,7 @@
         @vite(['resources/css/welcome.css', 'resources/js/app.js'])
         
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
     </head>
     <body>
         <!-- Navigation -->
@@ -313,7 +314,25 @@
                             @endif
                         @endauth
                     @endif
+
+                    @if($canManageWifiSharing ?? false)
+                        <button type="button"
+                                id="wifiConnectButton"
+                                class="btn btn-warning cta-button {{ ($wifiSharing['connected'] ?? false) ? 'd-none' : '' }}"
+                                data-connect-url="{{ route('wifi-sharing.connect') }}"
+                                data-status-url="{{ route('wifi-sharing.status') }}">
+                            <span><i class="bi bi-wifi"></i> Connect Others</span>
+                        </button>
+                    @endif
                 </div>
+
+                @if($canManageWifiSharing ?? false)
+                    <div id="wifiConnectStatus" class="mt-3 {{ ($wifiSharing['connected'] ?? false) ? '' : 'd-none' }}" style="color: var(--primary-green); font-weight: 600;">
+                        <i class="bi bi-wifi"></i>
+                        Connected for Wi-Fi access
+                        <span class="d-block" style="font-size: 0.95rem; color: #666;">{{ $wifiSharing['url'] ?? '' }}</span>
+                    </div>
+                @endif
             </section>
 
         </div>
@@ -325,6 +344,56 @@
                 <p style="font-size: 0.9rem; margin-top: 0.5rem;">Patient Safety | Data Security | Healthcare Excellence</p>
             </div>
         </footer>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const button = document.getElementById('wifiConnectButton');
+                const status = document.getElementById('wifiConnectStatus');
+
+                if (!button || !status) {
+                    return;
+                }
+
+                const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                const setConnected = function (data) {
+                    button.classList.add('d-none');
+                    status.classList.remove('d-none');
+                    status.style.color = 'var(--primary-green)';
+
+                    const url = data && data.url ? data.url : '';
+                    status.innerHTML = '<i class="bi bi-wifi"></i> Connected for Wi-Fi access' + (url ? '<span class="d-block" style="font-size: 0.95rem; color: #666;">' + url + '</span>' : '');
+                };
+
+                button.addEventListener('click', async function () {
+                    const original = button.innerHTML;
+                    button.disabled = true;
+                    button.innerHTML = '<span><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Connecting...</span>';
+
+                    try {
+                        const response = await fetch(button.dataset.connectUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                            },
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok || !data.connected) {
+                            throw new Error('Connection failed');
+                        }
+
+                        setConnected(data);
+                    } catch (error) {
+                        button.disabled = false;
+                        button.innerHTML = original;
+                        status.classList.remove('d-none');
+                        status.style.color = '#b42318';
+                        status.textContent = 'Unable to start Wi-Fi connection. Please make sure port 8080 is free, then try again.';
+                    }
+                });
+            });
+        </script>
 
     </body>
 </html>

@@ -154,8 +154,6 @@
         ['label' => 'Wards', 'icon' => 'bi-hospital', 'route' => 'medical-director.wards.index', 'patterns' => ['medical-director.wards.*'], 'roles' => ['medical_director'], 'permissions' => ['ward.read'], 'permission_roles' => ['medical_director']],
         ['label' => 'Access Control', 'icon' => 'bi-shield-check', 'route' => 'admin.access-control', 'patterns' => ['admin.access-control'], 'roles' => ['administrator'], 'permissions' => ['role.read', 'permission.read'], 'permission_roles' => ['administrator']],
         ['label' => 'Users', 'icon' => 'bi-people-fill', 'route' => 'admin.users.index', 'patterns' => ['admin.users.*'], 'roles' => ['administrator'], 'permissions' => ['user.read'], 'permission_roles' => ['administrator']],
-        ['label' => 'Data Sync', 'icon' => 'bi-cloud-arrow-up', 'route' => 'admin.sync.index', 'patterns' => ['admin.sync.*'], 'roles' => ['administrator'], 'permissions' => ['sync.read'], 'permission_roles' => ['administrator']],
-        ['label' => 'System Update', 'icon' => 'bi-arrow-repeat', 'route' => 'admin.system.update', 'patterns' => ['admin.system.update'], 'roles' => ['administrator'], 'permissions' => ['system.update'], 'permission_roles' => ['administrator']],
     ];
 
     $roleIcons = [
@@ -235,6 +233,7 @@
 
     $temporaryOpen = $temporaryItems->contains(fn ($item) => $isRouteActive($item['patterns']));
     $activitiesOpen = request()->routeIs('reports.activities.*');
+    $systemManagementOpen = request()->routeIs('admin.sync.*') || request()->routeIs('admin.system.*') || request()->routeIs('admin.backup.*');
 @endphp
 
 <aside class="admin-sidebar">
@@ -292,6 +291,29 @@
                 </div>
             </div>
         @endforeach
+
+        @if(in_array('administrator', $roleNames, true))
+            <button class="admin-sidebar-toggle {{ $systemManagementOpen ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#systemManagementSidebarMenu" aria-expanded="{{ $systemManagementOpen ? 'true' : 'false' }}" aria-controls="systemManagementSidebarMenu">
+                <span><i class="bi bi-gear-wide-connected"></i> System Management</span>
+                <i class="bi bi-chevron-down admin-sidebar-chevron"></i>
+            </button>
+            <div class="collapse {{ $systemManagementOpen ? 'show' : '' }}" id="systemManagementSidebarMenu">
+                <div class="admin-sidebar-submenu">
+                    <a class="admin-sidebar-link {{ request()->routeIs('admin.sync.*') ? 'active' : '' }}" href="{{ route('admin.sync.index') }}">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        Data Sync
+                    </a>
+                    <a class="admin-sidebar-link {{ request()->routeIs('admin.system.*') ? 'active' : '' }}" href="{{ route('admin.system.update') }}">
+                        <i class="bi bi-arrow-repeat"></i>
+                        System Update
+                    </a>
+                    <a class="admin-sidebar-link {{ request()->routeIs('admin.backup.*') ? 'active' : '' }}" href="{{ route('admin.backup.index') }}">
+                        <i class="bi bi-database-down"></i>
+                        Data Backup
+                    </a>
+                </div>
+            </div>
+        @endif
 
         @if($temporaryItems->isNotEmpty())
             <button class="admin-sidebar-toggle {{ $temporaryOpen ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#temporaryAccessSidebarMenu" aria-expanded="{{ $temporaryOpen ? 'true' : 'false' }}" aria-controls="temporaryAccessSidebarMenu">
