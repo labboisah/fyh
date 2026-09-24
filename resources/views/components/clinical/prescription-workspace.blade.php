@@ -12,9 +12,8 @@
     <div class="row g-3">
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white"><h2 class="h6 mb-0">Add Medicine</h2></div>
+                <div class="card-header bg-white"><h2 class="h6 mb-0">Select Medicines</h2></div>
                 <div class="card-body">
-                    <form wire:submit.prevent="addItem">
                         <div class="mb-3">
                             <label class="form-label">Treatment / Infection / Disease</label>
                             <textarea class="form-control @error('treatmentDiagnosis') is-invalid @enderror" rows="2" wire:model.live="treatmentDiagnosis" placeholder="Indicate diagnosis, infection, or disease being treated"></textarea>
@@ -54,72 +53,53 @@
                             @error('newMedicineTypeId') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Medicine</label>
-                            <input class="form-control @error('medicineName') is-invalid @enderror" list="medicine-options" wire:model.live="medicineName" placeholder="Type or select medicine">
-                            <datalist id="medicine-options">
-                                @foreach($medicines as $medicine)
-                                    <option value="{{ $medicine->name }}" label="{{ $medicine->displayName() }}"></option>
-                                @endforeach
-                            </datalist>
-                            @error('medicineName') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            <div class="form-text">Existing medicines show stock status; type a new name to add one.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Medicine Type</label>
-                            <select class="form-select" wire:model="medicineTypeId">
-                                <option value="">Select type</option>
-                                @foreach($medicineTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Route</label>
-                            <select class="form-select @error('routeId') is-invalid @enderror" wire:model="routeId">
-                                <option value="">Select route</option>
-                                @foreach($routes as $route)
-                                    <option value="{{ $route->id }}">{{ $route->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('routeId') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <label class="form-label">Dosage</label>
-                                <input class="form-control @error('dosage') is-invalid @enderror" wire:model="dosage">
-                                @error('dosage') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Period</label>
-                                <input class="form-control @error('period') is-invalid @enderror" wire:model="period">
-                                @error('period') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Duration</label>
-                                <input class="form-control @error('duration') is-invalid @enderror" wire:model="duration">
-                                @error('duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-success" type="submit">{{ $editingItemId ? 'Update Medicine' : 'Add Medicine' }}</button>
-                            @if($editingItemId)
-                                <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
-                            @endif
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
+            @if($selectedMedicines)
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Prescription Review</h2>
+                        <span class="badge bg-primary">{{ count($selectedMedicines) }} selected</span>
+                    </div>
+                    <div class="card-body">
+                        @foreach($selectedMedicines as $key => $selectedMedicine)
+                            <div class="border rounded p-3 mb-2" wire:key="selected-medicine-{{ $key }}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ $selectedMedicine['name'] }}</strong>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeSelectedMedicine('{{ $key }}')">Remove</button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <select class="form-select form-select-sm" wire:model="selectedMedicines.{{ $key }}.routeId">
+                                            <option value="">Select route</option>
+                                            @foreach($routes as $route)
+                                                <option value="{{ $route->id }}">{{ $route->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Dosage" wire:model="selectedMedicines.{{ $key }}.dosage"></div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Period" wire:model="selectedMedicines.{{ $key }}.period"></div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Duration" wire:model="selectedMedicines.{{ $key }}.duration"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <button type="button" class="btn btn-success w-100" wire:click="addSelectedMedicines">Add reviewed medicines to prescription</button>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h2 class="h6 mb-0">Prescription Items</h2>
                     <button class="btn btn-primary btn-sm" wire:click="submitPrescription">Submit to Pharmacy</button>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" style="min-width: 1100px;">
                         <thead class="table-light">
                             <tr><th>Medicine</th><th>Company</th><th>Stock</th><th class="text-end">Amount</th><th>Route</th><th>Dosage</th><th>Period</th><th>Duration</th><th>Status</th><th></th></tr>
                         </thead>
@@ -191,38 +171,6 @@
                 </div>
             </div>
 
-            @if($selectedMedicines)
-                <div class="card border-0 shadow-sm mt-3">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h2 class="h6 mb-0">Prescription Review</h2>
-                        <span class="badge bg-primary">{{ count($selectedMedicines) }} selected</span>
-                    </div>
-                    <div class="card-body">
-                        @foreach($selectedMedicines as $key => $selectedMedicine)
-                            <div class="border rounded p-3 mb-2" wire:key="selected-medicine-{{ $key }}">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <strong>{{ $selectedMedicine['name'] }}</strong>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeSelectedMedicine('{{ $key }}')">Remove</button>
-                                </div>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <select class="form-select form-select-sm" wire:model="selectedMedicines.{{ $key }}.routeId">
-                                            <option value="">Select route</option>
-                                            @foreach($routes as $route)
-                                                <option value="{{ $route->id }}">{{ $route->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Dosage" wire:model="selectedMedicines.{{ $key }}.dosage"></div>
-                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Period" wire:model="selectedMedicines.{{ $key }}.period"></div>
-                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Duration" wire:model="selectedMedicines.{{ $key }}.duration"></div>
-                                </div>
-                            </div>
-                        @endforeach
-                        <button type="button" class="btn btn-success w-100" wire:click="addSelectedMedicines">Add reviewed medicines to prescription</button>
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 </div>

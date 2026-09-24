@@ -9,11 +9,10 @@
 
     @include('components.clinical._feedback')
 
-    <div class="row g-3">
-        <div class="col-lg-7">
+    <form wire:submit.prevent="save" class="row g-3">
+        <div class="col-lg-5">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <form wire:submit.prevent="save">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
@@ -28,6 +27,32 @@
                                     @error('discount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
+                        <div class="border rounded p-3 mb-3">
+                            <label class="form-label">Search investigations</label>
+                            <input class="form-control" wire:model.live.debounce.300ms="investigationSearch" placeholder="Search by investigation name or code" @disabled($editingRequestId)>
+                            <div class="list-group mt-2" style="max-height: 240px; overflow-y: auto;">
+                                @forelse($investigations as $investigation)
+                                    @php($investigationSelected = collect($rows)->contains(fn ($row) => (int) ($row['investigation_id'] ?? 0) === $investigation->id))
+                                    <label class="list-group-item d-flex align-items-start gap-2">
+                                        <input class="form-check-input mt-1" type="checkbox" wire:click="toggleInvestigation({{ $investigation->id }})" @checked($investigationSelected) @disabled($editingRequestId)>
+                                        <span class="flex-grow-1">
+                                            <span class="d-block fw-semibold">{{ $investigation->name }}</span>
+                                            <small class="text-muted">{{ $investigation->code ?: 'No code' }} | {{ $investigation->investigationType?->name }} | &#8358;{{ number_format((float) $investigation->price, 2) }}</small>
+                                        </span>
+                                    </label>
+                                @empty
+                                    <div class="text-muted small py-2">No matching investigation found.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white"><h2 class="h6 mb-0">Investigation Review</h2></div>
+                    <div class="card-body">
                         @foreach($rows as $index => $row)
                             <div class="border rounded p-3 mb-3" wire:key="investigation-row-{{ $index }}">
                                 <div class="row g-2">
@@ -67,12 +92,13 @@
                                 <button type="button" class="btn btn-outline-secondary" wire:click="cancelEdit">Cancel</button>
                             @endif
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+    </form>
 
-        <div class="col-lg-5">
+    <div class="row g-3 mt-1">
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white"><h2 class="h6 mb-0">Recent Requests</h2></div>
                 <div class="list-group list-group-flush">
