@@ -1,4 +1,17 @@
-@if($patient->currentVisit()->prescriptions()->count() > 0)
+@php
+    $prescriptions = $patient->patientVisits()
+        ->with([
+            'prescriptions.prescribedBy',
+            'prescriptions.prescriptionItems.medicine',
+            'prescriptions.prescriptionItems.drugCharts.dispensedBy',
+        ])
+        ->latest('created_at')
+        ->get()
+        ->flatMap(fn ($visit) => $visit->prescriptions)
+        ->sortByDesc('created_at');
+@endphp
+
+@if($prescriptions->isNotEmpty())
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="bi bi-capsule-pill me-2"></i>Drug Chart</h5>
     @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('midwife'))
@@ -7,7 +20,7 @@
         </a>
     @endif
 </div>
-@foreach($patient->currentVisit()->prescriptions as $prescription)
+@foreach($prescriptions as $prescription)
 @foreach($prescription->prescriptionItems as $pItem)
 <div class="row">
     <div class="col-md-5">

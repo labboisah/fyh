@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified', 'role:nurse'])
     Route::get('/clinicals/observations', ClinicalRecordIndex::class)->defaults('type', 'observations')->name('clinicals.observations');
     Route::get('/clinicals/drug-charts', ClinicalRecordIndex::class)->defaults('type', 'drug-charts')->name('clinicals.drug-charts');
     Route::get('/clinicals/fluid-balances', ClinicalRecordIndex::class)->defaults('type', 'fluid-balances')->name('clinicals.fluid-balances');
+    Route::get('/clinicals/continuations', ClinicalRecordIndex::class)->defaults('type', 'continuations')->name('clinicals.continuations');
     Route::get('/clinicals/investigations', ClinicalRecordIndex::class)->defaults('type', 'investigations')->name('clinicals.investigations');
     Route::get('/admissions', [PatientController::class, 'admissions'])->name('admissions.index');
     Route::get('/admissions/{admission}/absconded', [PatientController::class, 'recordAbsconded'])->name('admissions.record-absconded');

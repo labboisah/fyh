@@ -6,8 +6,15 @@
         </a>
     @endif
 </div>
-@foreach($patient->currentVisit()->admissions->where('status', 'confirmed') as $admission)
-    @foreach($admission->fluidBalances as $fluid)
+@php
+    $fluidBalances = $patient->patientVisits()
+        ->with('admissions.fluidBalances.recordedBy')
+        ->get()
+        ->flatMap(fn ($visit) => $visit->admissions->where('status', 'confirmed'))
+        ->flatMap(fn ($admission) => $admission->fluidBalances)
+        ->sortByDesc(fn ($fluid) => ($fluid->date ?? '') . ' ' . ($fluid->time ?? ''));
+@endphp
+@forelse($fluidBalances as $fluid)
     <div class="card-body p-4">
         <div class="row">
             <div class="col-md-12">
@@ -43,5 +50,6 @@
         </div>
     </div>
         
-    @endforeach
-@endforeach
+@empty
+    <div class="alert alert-warning">No Fluid Balance Recorded</div>
+@endforelse

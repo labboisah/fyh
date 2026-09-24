@@ -24,10 +24,12 @@
                 </div>
             </div>
 
-            @include("components.clinical.record-indexes.{$type}", [
-                'records' => $records,
-                'config' => $config,
-            ])
+            <div style="max-height: 65vh; overflow-y: auto;">
+                @include("components.clinical.record-indexes.{$type}", [
+                    'records' => $records,
+                    'config' => $config,
+                ])
+            </div>
 
             {{ $records->links() }}
         </div>

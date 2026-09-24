@@ -18,6 +18,7 @@ use App\Livewire\Midwife\DeliveryManagement;
 use App\Livewire\Midwife\LabourManagement;
 use App\Livewire\Midwife\NewbornManagement;
 use App\Livewire\Midwife\PostnatalManagement;
+use App\Livewire\Clinical\ClinicalRecordIndex;
 
 Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
     ->prefix('midwife')
@@ -32,6 +33,10 @@ Route::middleware(['auth', 'verified', 'role:midwife,administrator'])
         Route::get('/newborn-management/{patient?}', NewbornManagement::class)->name('newborn-management');
         Route::get('/postnatal-management/{patient?}', PostnatalManagement::class)->name('postnatal-management');
         Route::get('/child-follow-up-management/{patient?}', ChildFollowUpManagement::class)->name('child-follow-up-management');
+        Route::get('/clinicals/vital-signs', ClinicalRecordIndex::class)->defaults('type', 'vital-signs')->name('clinicals.vital-signs');
+        Route::get('/clinicals/drug-charts', ClinicalRecordIndex::class)->defaults('type', 'drug-charts')->name('clinicals.drug-charts');
+        Route::get('/clinicals/fluid-balances', ClinicalRecordIndex::class)->defaults('type', 'fluid-balances')->name('clinicals.fluid-balances');
+        Route::get('/clinicals/continuations', ClinicalRecordIndex::class)->defaults('type', 'continuations')->name('clinicals.continuations');
         
         Route::name('patient.')
             ->prefix('patient')

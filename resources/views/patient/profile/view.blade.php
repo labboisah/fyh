@@ -12,7 +12,7 @@
             @endif
 
             <!-- Tabs -->
-            <div class="card-header bg-white border-bottom">
+            <div class="card-header bg-white border-bottom" style="position: relative; z-index: 20; overflow: visible;">
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">
 
                     <li class="nav-item">
@@ -80,16 +80,18 @@
                     <li class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle"
                                 data-bs-toggle="dropdown"
+                                data-bs-boundary="viewport"
                                 type="button">
                             <i class="bi bi-clipboard2-pulse me-1"></i> Clinical
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu clinical-dropdown-menu" style="max-height: 60vh; overflow-y: auto; z-index: 1080;">
                             @if(auth()->user()->hasRole('nurse') || auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
                                 <li><h6 class="dropdown-header">Nursing Clinicals</h6></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#vitalsigns" type="button"><i class="bi bi-heart-pulse me-2"></i> Vital Signs</button></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#observations" type="button"><i class="bi bi-eye me-2"></i> Observations</button></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#drugchart" type="button"><i class="bi bi-capsule-pill me-2"></i> Drug Chart</button></li>
                                 <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#fluidbalance" type="button"><i class="bi bi-droplet me-2"></i> Fluid Balance</button></li>
+                                <li><button class="dropdown-item" data-bs-toggle="tab" data-bs-target="#continuations" type="button"><i class="bi bi-pencil me-2"></i> Continuation Sheet</button></li>
                             @endif
 
                             @if(auth()->user()->hasRole('doctor') || auth()->user()->hasRole('midwife'))
@@ -138,7 +140,7 @@
             </div>
 
             <!-- Tab Content -->
-            <div class="card-body tab-content">
+            <div class="card-body tab-content" style="position: relative; z-index: 1; min-height: 24rem;">
 
                 <!-- BIO DATA -->
                 <div class="tab-pane fade" id="bio">

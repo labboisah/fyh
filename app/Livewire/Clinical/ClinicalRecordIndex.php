@@ -26,7 +26,7 @@ class ClinicalRecordIndex extends Component
     private array $config = [
         'vital-signs' => [
             'title' => 'Vital Signs',
-            'roles' => ['nurse', 'doctor'],
+            'roles' => ['nurse', 'doctor', 'midwife'],
             'route' => 'patient.vitalsign.create',
             'icon' => 'bi-heart-pulse',
         ],
@@ -38,13 +38,13 @@ class ClinicalRecordIndex extends Component
         ],
         'drug-charts' => [
             'title' => 'Drug Chart',
-            'roles' => ['nurse', 'doctor'],
+            'roles' => ['nurse', 'doctor', 'midwife'],
             'route' => 'patient.drugchart.record',
             'icon' => 'bi-capsule-pill',
         ],
         'fluid-balances' => [
             'title' => 'Fluid Balance',
-            'roles' => ['nurse', 'doctor'],
+            'roles' => ['nurse', 'doctor', 'midwife'],
             'route' => 'patient.fluidbalance.record',
             'icon' => 'bi-droplet',
         ],
@@ -68,7 +68,7 @@ class ClinicalRecordIndex extends Component
         ],
         'continuations' => [
             'title' => 'Continuation Sheet',
-            'roles' => ['doctor'],
+            'roles' => ['nurse', 'doctor', 'midwife'],
             'route' => 'patient.continuation.create',
             'icon' => 'bi-pencil',
         ],

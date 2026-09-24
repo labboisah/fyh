@@ -9,13 +9,18 @@
         @endif
     </div>
     <div class="card-body">
-        @if($patient->visits()->exists())
-            @foreach($patient->visits as $visit)
-            @foreach($visit->vitalSigns as $vitalSign)
+        @php
+            $vitalSigns = $patient->patientVisits()
+                ->with('vitalSigns.recordedBy', 'vitalSigns.patientVisit')
+                ->get()
+                ->flatMap(fn ($visit) => $visit->vitalSigns)
+                ->sortByDesc('recorded_date');
+        @endphp
+        @forelse($vitalSigns as $vitalSign)
                 <div class="row mb-3">
                      <p class="mb-0 text-muted">
                         Visit on:
-                    <strong class="text-success">{{ date('M d, Y',strtotime($patient->currentVisit()->visit_date))  ?? 'No Visit Recorded' }} @ {{ date('h:s A',strtotime($patient->currentVisit()->created_at))}}</strong>
+                    <strong class="text-success">{{ optional($vitalSign->patientVisit?->visit_date)->format('M d, Y') ?? $vitalSign->patientVisit?->visit_date ?? 'No Visit Recorded' }}</strong>
                     </p>
                     <hr>
                     <div class="col-md-3">
@@ -69,9 +74,7 @@
                     @endif
                 </div>
                 <hr>
-            @endforeach
-            @endforeach
-        @else
+        @empty
             <p>No vital signs recorded yet.</p>
-        @endif
+        @endforelse
     </div>

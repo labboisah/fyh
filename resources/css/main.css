@@ -50,6 +50,24 @@ body {
     text-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
 }
 
+.clinical-dropdown-menu {
+    max-height: min(70vh, 28rem);
+    overflow-y: auto;
+    z-index: 1080;
+}
+
+.patient-profile-card > .card-header {
+    position: relative;
+    z-index: 20;
+    overflow: visible;
+}
+
+.patient-profile-card > .tab-content {
+    position: relative;
+    z-index: 1;
+    min-height: 24rem;
+}
+
 .navbar-toggler {
     border-color: var(--primary-green);
 }

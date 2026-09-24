@@ -69,6 +69,7 @@
         ['label' => 'Investigations', 'icon' => 'bi-clipboard2-pulse', 'route' => 'nurse.clinicals.investigations', 'patterns' => ['nurse.clinicals.investigations'], 'roles' => ['nurse'], 'permissions' => ['investigation_request.read'], 'permission_roles' => ['nurse']],
         ['label' => 'Drug Chart', 'icon' => 'bi-capsule-pill', 'route' => 'nurse.clinicals.drug-charts', 'patterns' => ['nurse.clinicals.drug-charts'], 'roles' => ['nurse'], 'permissions' => ['nursing_note.read'], 'permission_roles' => ['nurse']],
         ['label' => 'Fluid Balance', 'icon' => 'bi-droplet', 'route' => 'nurse.clinicals.fluid-balances', 'patterns' => ['nurse.clinicals.fluid-balances'], 'roles' => ['nurse'], 'permissions' => ['nursing_note.read'], 'permission_roles' => ['nurse']],
+        ['label' => 'Continuation Sheet', 'icon' => 'bi-pencil', 'route' => 'nurse.clinicals.continuations', 'patterns' => ['nurse.clinicals.continuations'], 'roles' => ['nurse'], 'permissions' => ['nursing_note.read'], 'permission_roles' => ['nurse']],
         ['label' => 'Patients', 'icon' => 'bi-person-vcard', 'route' => 'doctor.patient.index', 'patterns' => ['doctor.patient.*'], 'roles' => ['doctor'], 'permissions' => ['prescription.read', 'admission.read', 'discharge.read'], 'permission_roles' => ['doctor']],
         ['label' => 'Vital Signs', 'icon' => 'bi-heart-pulse', 'route' => 'doctor.clinicals.vital-signs', 'patterns' => ['doctor.clinicals.vital-signs'], 'roles' => ['doctor'], 'permissions' => ['vital_sign.read'], 'permission_roles' => ['doctor']],
         ['label' => 'Observations', 'icon' => 'bi-eye', 'route' => 'doctor.clinicals.observations', 'patterns' => ['doctor.clinicals.observations'], 'roles' => ['doctor'], 'permissions' => ['observation.read'], 'permission_roles' => ['doctor']],
@@ -87,6 +88,10 @@
         ['label' => 'Newborn Exams', 'icon' => 'bi-clipboard2-pulse', 'route' => 'midwife.newborn-examination.index', 'patterns' => ['midwife.newborn-examination.*'], 'roles' => ['midwife'], 'permissions' => ['newborn_examination.read']],
         ['label' => 'Postnatal', 'icon' => 'bi-journal-medical', 'route' => 'midwife.postnatal-examination.index', 'patterns' => ['midwife.postnatal-examination.*'], 'roles' => ['midwife'], 'permissions' => ['postnatal_examination.read', 'postnatal_examination.create']],
         ['label' => 'Child Follow-up', 'icon' => 'bi-arrow-repeat', 'route' => 'midwife.child-follow-up.index', 'patterns' => ['midwife.child-follow-up.*'], 'roles' => ['midwife'], 'permissions' => ['child_follow_up.read', 'child_follow_up.create']],
+        ['label' => 'Vital Signs', 'icon' => 'bi-heart-pulse', 'route' => 'midwife.clinicals.vital-signs', 'patterns' => ['midwife.clinicals.vital-signs'], 'roles' => ['midwife'], 'permissions' => ['vital_sign.read']],
+        ['label' => 'Continuation Sheet', 'icon' => 'bi-pencil', 'route' => 'midwife.clinicals.continuations', 'patterns' => ['midwife.clinicals.continuations'], 'roles' => ['midwife'], 'permissions' => ['prescription.read']],
+        ['label' => 'Drug Chart', 'icon' => 'bi-capsule-pill', 'route' => 'midwife.clinicals.drug-charts', 'patterns' => ['midwife.clinicals.drug-charts'], 'roles' => ['midwife'], 'permissions' => ['prescription.read']],
+        ['label' => 'Fluid Balance', 'icon' => 'bi-droplet', 'route' => 'midwife.clinicals.fluid-balances', 'patterns' => ['midwife.clinicals.fluid-balances'], 'roles' => ['midwife'], 'permissions' => ['admission.read']],
 
         ['label' => 'Lab Requests', 'icon' => 'bi-clipboard2-pulse', 'route' => 'lab.requests.index', 'patterns' => ['lab.requests.*'], 'roles' => ['lab_technician', 'lab_scientist'], 'permissions' => ['investigation_request.read', 'laboratory_request.read'], 'permission_roles' => ['lab_technician', 'lab_scientist']],
         ['label' => 'Lab Investigations', 'icon' => 'bi-list-check', 'route' => 'lab.investigations.index', 'patterns' => ['lab.investigations.*'], 'roles' => ['lab_technician', 'lab_scientist'], 'permissions' => ['investigation_result.read', 'laboratory_investigation.read'], 'permission_roles' => ['lab_technician', 'lab_scientist']],
@@ -294,7 +299,7 @@
 
         @if(in_array('administrator', $roleNames, true))
             <button class="admin-sidebar-toggle {{ $systemManagementOpen ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#systemManagementSidebarMenu" aria-expanded="{{ $systemManagementOpen ? 'true' : 'false' }}" aria-controls="systemManagementSidebarMenu">
-                <span><i class="bi bi-gear-wide-connected"></i> System Management</span>
+                <span><i class="bi bi-gear-wide-connected"></i> System</span>
                 <i class="bi bi-chevron-down admin-sidebar-chevron"></i>
             </button>
             <div class="collapse {{ $systemManagementOpen ? 'show' : '' }}" id="systemManagementSidebarMenu">
