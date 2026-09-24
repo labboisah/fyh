@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'access' => \App\Http\Middleware\CheckRoleOrPermission::class,
             'auth.sync.token' => \App\Http\Middleware\AuthenticateSyncToken::class,
             'pharmacy.manager' => \App\Http\Middleware\EnsurePharmacyManager::class,
+            'active.patient.visit' => \App\Http\Middleware\EnsureActivePatientVisit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
