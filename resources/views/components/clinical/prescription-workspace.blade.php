@@ -20,6 +20,40 @@
                             <textarea class="form-control @error('treatmentDiagnosis') is-invalid @enderror" rows="2" wire:model.live="treatmentDiagnosis" placeholder="Indicate diagnosis, infection, or disease being treated"></textarea>
                             @error('treatmentDiagnosis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        <div class="border rounded p-3 mb-3">
+                            <label class="form-label">Search medicines</label>
+                            <input class="form-control" wire:model.live.debounce.300ms="medicineSearch" placeholder="Search by medicine, generic name, or manufacturer">
+                            <div class="list-group mt-2" style="max-height: 220px; overflow-y: auto;">
+                                @forelse($medicines as $medicine)
+                                    @php($medicineKey = (string) $medicine->id)
+                                    <label class="list-group-item d-flex align-items-start gap-2">
+                                        <input class="form-check-input mt-1" type="checkbox" wire:click="toggleMedicine({{ $medicine->id }})" @checked(isset($selectedMedicines[$medicineKey]))>
+                                        <span class="flex-grow-1">
+                                            <span class="d-block fw-semibold">{{ $medicine->name }}</span>
+                                            <small class="text-muted">{{ $medicine->generic_name ?: 'No generic name' }} | {{ $medicine->manufacturer ?: 'No manufacturer' }}</small>
+                                        </span>
+                                    </label>
+                                @empty
+                                    <div class="text-muted small py-2">No matching medicine found. Add it below if it is not available.</div>
+                                @endforelse
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-7">
+                                    <select class="form-select" wire:model="newMedicineTypeId">
+                                        <option value="">Medicine type for a new name</option>
+                                        @foreach($medicineTypes as $type)
+                                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <button type="button" class="btn btn-outline-primary w-100" wire:click="addCustomMedicine">Add typed medicine</button>
+                                </div>
+                            </div>
+                            @error('medicineSearch') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            @error('newMedicineTypeId') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">Medicine</label>
                             <input class="form-control @error('medicineName') is-invalid @enderror" list="medicine-options" wire:model.live="medicineName" placeholder="Type or select medicine">
@@ -156,6 +190,39 @@
                     </table>
                 </div>
             </div>
+
+            @if($selectedMedicines)
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Prescription Review</h2>
+                        <span class="badge bg-primary">{{ count($selectedMedicines) }} selected</span>
+                    </div>
+                    <div class="card-body">
+                        @foreach($selectedMedicines as $key => $selectedMedicine)
+                            <div class="border rounded p-3 mb-2" wire:key="selected-medicine-{{ $key }}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ $selectedMedicine['name'] }}</strong>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeSelectedMedicine('{{ $key }}')">Remove</button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <select class="form-select form-select-sm" wire:model="selectedMedicines.{{ $key }}.routeId">
+                                            <option value="">Select route</option>
+                                            @foreach($routes as $route)
+                                                <option value="{{ $route->id }}">{{ $route->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Dosage" wire:model="selectedMedicines.{{ $key }}.dosage"></div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Period" wire:model="selectedMedicines.{{ $key }}.period"></div>
+                                    <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Duration" wire:model="selectedMedicines.{{ $key }}.duration"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <button type="button" class="btn btn-success w-100" wire:click="addSelectedMedicines">Add reviewed medicines to prescription</button>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>
